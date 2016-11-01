@@ -1,0 +1,30 @@
+# eclipse and maven stuff
+.classpath
+.metadata/
+.settings/
+.project
+/target/
+/*/target/
+/*/*/target/
+*.orig
+
+# idea
+.idea/
+*.iml
+
+
+# binary files
+*.class
+*.cli
+*.exe
+*.jar
+*.war
+*.zip
+
+# temp files
+*.log
+*.temp
+*.tmp
+/tmp*
+*.bak
+

@@ -1,3 +1,16 @@
-The OpenShift `jbosseap` cartridge documentation can be found at:
+# To test
 
-http://openshift.github.io/documentation/oo_cartridge_guide.html#jbosseap
+Run:
+
+- Database: `mvn docker:start`
+- Wildfly:  `mvn clean verify cargo:run`
+
+- Go to [test page](/) and follow instructions
+
+
+# Available API
+
+- {POST} /translate?sourceLang={sourceLocale}&targetLang={targetLocale} 
+   - Body {
+   title: String,
+   divContent: String }

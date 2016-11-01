@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  version="2.0">
+
+  <persistence-unit name="mtDatasourcePU" transaction-type="JTA">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>${datasource.name}</jta-data-source>
+    <class>org.zanata.mt.model.Document</class>
+    <class>org.zanata.mt.model.Locale</class>
+    <class>org.zanata.mt.model.TextFlow</class>
+    <class>org.zanata.mt.model.TextFlowTarget</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <!-- Automatic schema export and drop -->
+      <!--<property name="hibernate.hbm2ddl.auto" value="create-drop" />-->
+
+      <!--<property name="hibernate.dialect"-->
+      <!--value="org.hibernate.dialect.MySQL5InnoDBDialect"/>-->
+
+      <!-- Logging -->
+      <property name="hibernate.show_sql" value="false" />
+      <property name="hibernate.use_sql_comments" value="true" />
+      <property name="hibernate.format_sql" value="true" />
+
+      <property name="hibernate.connection.useUnicode" value="true" />
+      <property name="hibernate.connection.characterEncoding" value="UTF-8" />
+
+      <!-- for Hibernate 4.3 (but not 4.2):
+      <property name="hibernate.transaction.jta.platform" value="JBossAS" />
+      -->
+
+      <!-- Run the Hibernate bytecode instrumentation at deployment time, for lazy loading of @ToOne and byte[] properties -->
+      <!-- TODO: That doesn't work for me, using the enhancer in build.xml manually -->
+      <property name="hibernate.ejb.use_class_enhancer" value="true" />
+      <property name="hibernate.max_fetch_depth" value="1" />
+      <property name="hibernate.jdbc.batch_size" value="100" />
+      <property name="hibernate.order_inserts" value="true" />
+
+      <!-- https://docs.jboss.org/author/display/AS71/JPA+Reference+Guide#JPAReferenceGuide-Persistenceunitproperties -->
+      <property name="jboss.as.jpa.managed" value="true" />
+    </properties>
+  </persistence-unit>
+
+</persistence>

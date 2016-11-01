@@ -1,0 +1,20 @@
+package org.zanata.mt.dao;
+
+import javax.ejb.TransactionAttribute;
+import javax.persistence.EntityManager;
+
+/**
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
+ */
+public abstract class AbstractDAO<T> {
+    abstract EntityManager getEntityManager();
+
+    @TransactionAttribute
+    public T persist(T entity) {
+        return getEntityManager().merge(entity);
+    }
+
+    public void flush() {
+        getEntityManager().flush();
+    }
+}

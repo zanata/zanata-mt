@@ -1,0 +1,107 @@
+package org.zanata.mt.api.dto.Microsoft;
+
+/**
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
+ */
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "TranslateArrayResponse")
+public class MSTranslateArrayResponse implements Serializable {
+    private String srcLanguage;
+    private String state;
+    private TextSentenceLength originalTextSentenceLengths;
+    private TextSentenceLength translatedTextSentenceLengths;
+    private List<MSString> translatedText = new ArrayList<>();
+
+    @XmlElement(name = "From")
+    public String getSrcLanguage() {
+        return srcLanguage;
+    }
+
+    public void setSrcLanguage(String srcLanguage) {
+        this.srcLanguage = srcLanguage;
+    }
+
+    @XmlElement(name = "State")
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    @XmlElement(name = "OriginalTextSentenceLengths")
+    public TextSentenceLength getOriginalTextSentenceLengths() {
+        return originalTextSentenceLengths;
+    }
+
+    public void setOriginalTextSentenceLengths(
+        TextSentenceLength originalTextSentenceLengths) {
+        this.originalTextSentenceLengths = originalTextSentenceLengths;
+    }
+
+    @XmlElement(name = "TranslatedTextSentenceLengths")
+    public TextSentenceLength getTranslatedTextSentenceLengths() {
+        return translatedTextSentenceLengths;
+    }
+
+    public void setTranslatedTextSentenceLengths(
+            TextSentenceLength translatedTextSentenceLengths) {
+        this.translatedTextSentenceLengths = translatedTextSentenceLengths;
+    }
+
+    @XmlElement(name = "TranslatedText")
+    public List<MSString> getTranslatedText() {
+        return translatedText;
+    }
+
+    public void setTranslatedText(
+        List<MSString> translatedText) {
+        this.translatedText = translatedText;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MSTranslateArrayResponse)) return false;
+
+        MSTranslateArrayResponse that = (MSTranslateArrayResponse) o;
+
+        if (srcLanguage != null ? !srcLanguage.equals(that.srcLanguage) :
+            that.srcLanguage != null) return false;
+        if (state != null ? !state.equals(that.state) : that.state != null)
+            return false;
+        if (originalTextSentenceLengths != null ?
+            !originalTextSentenceLengths
+                .equals(that.originalTextSentenceLengths) :
+            that.originalTextSentenceLengths != null) return false;
+        if (translatedTextSentenceLengths != null ?
+            !translatedTextSentenceLengths
+                .equals(that.translatedTextSentenceLengths) :
+            that.translatedTextSentenceLengths != null) return false;
+        return translatedText != null ?
+            translatedText.equals(that.translatedText) :
+            that.translatedText == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = srcLanguage != null ? srcLanguage.hashCode() : 0;
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (originalTextSentenceLengths != null ?
+            originalTextSentenceLengths.hashCode() : 0);
+        result = 31 * result + (translatedTextSentenceLengths != null ?
+            translatedTextSentenceLengths.hashCode() : 0);
+        result =
+            31 * result +
+                (translatedText != null ? translatedText.hashCode() : 0);
+        return result;
+    }
+}

@@ -1,0 +1,1896 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="iem7"  lang="fr" dir="ltr"><![endif]-->
+<!--[if lte IE 6]><html class="lt-ie9 lt-ie8 lt-ie7"  lang="fr" dir="ltr"><![endif]-->
+<!--[if (IE 7)&(!IEMobile)]><html class="lt-ie9 lt-ie8"  lang="fr" dir="ltr"><![endif]-->
+<!--[if IE 8]><html class="lt-ie9"  lang="fr" dir="ltr"><![endif]-->
+<!--[if (gte IE 9)|(gt IEMobile 7)]><!--><html  lang="fr" dir="ltr" prefix="content: http://purl.org/rss/1.0/modules/content/ dc: http://purl.org/dc/terms/ foaf: http://xmlns.com/foaf/0.1/ og: http://ogp.me/ns# rdfs: http://www.w3.org/2000/01/rdf-schema# sioc: http://rdfs.org/sioc/ns# sioct: http://rdfs.org/sioc/types# skos: http://www.w3.org/2004/02/skos/core# xsd: http://www.w3.org/2001/XMLSchema#"><!--<![endif]-->
+
+<head>
+  <link rel="stylesheet" type="text/css" media="all" href="https://access.redhat.com/webassets/avalon/s/bootstrap3.min.css" />
+  <meta charset="utf-8" />
+  <link rel="shortcut icon" href="https://access.redhat.com/sites/default/files/shadowman.ico" type="image/vnd.microsoft.icon" />
+  <meta name="generator" content="Drupal 7 (http://drupal.org)" />
+  <link rel="canonical" href="https://access.redhat.com/node/1140033" />
+  <link rel="shortlink" href="https://access.redhat.com/node/1140033" />
+  <meta name="id" content="1140033" />
+  <meta name="product" content="Red Hat Enterprise Linux" />
+  <meta name="category" content="Troubleshoot" />
+  <meta name="tags" content="rhel_6" />
+  <meta name="language" content="en" />
+  <meta name="publication_date" content="11 Aug 2014, 4:11 PM GMT" />
+  <meta name="publication_state" content="published" />
+  <meta name="access_state" content="Actif" />
+  <meta name="update_date" content="11 Aug 2014, 4:11 PM GMT" />
+  <meta name="rating" content="0" />
+  <meta name="kcs_state" content="In Progress" />
+  <meta name="gss_sbr" content="Kernel" />
+  <meta name="requires_subscription" content="1" />
+  <meta name="collection_name" content="Solution KCS" />
+  <title>Kernel panic at trace_find_cmdline() function - Red Hat Customer Portal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- metaInclude -->
+  <meta name="avalon-host-info" content="kcs03.web.prod.ext.phx2.redhat.com" />
+  <meta name="avalon-version" content="055ebe6" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="cleartype" content="on" />
+
+  <!-- Chrome, Firefox OS and Opera -->
+  <meta name="theme-color" content="#000000">
+  <!-- Windows Phone -->
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
+  <link rel="manifest" href="https://access.redhat.com/webassets/avalon/j/manifest.json">
+
+
+
+  <script type="text/javascript">
+    window.portal = {
+      analytics : {},
+      host      : "https://access.redhat.com",
+      idp_url   : "https://sso.redhat.com",
+      lang      : "fr",
+      version   : "055ebe6",
+      nrid      : "14615289",
+      nrlk      : "2a497fa56f"
+    };
+  </script>
+  <!-- cssInclude -->
+
+  <link rel="shortcut icon" href="https://access.redhat.com/webassets/avalon/g/favicon.ico" />
+
+  <link media="all" rel="stylesheet" type="text/css" href="https://access.redhat.com/chrome_themes/nimbus/css/bootstrap.css?v=055ebe6" />
+  <link media="all" rel="stylesheet" type="text/css" href="https://access.redhat.com/chrome_themes/nimbus/css/main.css?v=055ebe6" />
+  <link media="all" rel="stylesheet" type="text/css" href="https://access.redhat.com/chrome_themes/nimbus/css/components.css?v=055ebe6" />
+  <link media="all" rel="stylesheet" type="text/css" href="https://access.redhat.com/chrome_themes/nimbus/css/pages.css?v=055ebe6" />
+
+  <link href="https://access.redhat.com/webassets/avalon/s/chosen.css?v=055ebe6" rel="stylesheet" type="text/css" />
+
+  <!--[if lte IE 9]>
+  <link media="all" rel="stylesheet" type="text/css" href="https://access.redhat.com/chrome_themes/nimbus/css/ie.css" />
+  <![endif]-->
+
+  <noscript>
+    <style type="text/css" media="screen"> .primary-nav { display: block; } </style>
+  </noscript>
+
+  <!-- /cssInclude -->
+  <script type="text/javascript" src="https://access.redhat.com/webassets/avalon/j/lib/require.js?v=055ebe6" data-main="/webassets/avalon/j/"></script>
+
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    type="text/javascript"></script>
+
+  <script src="/script/bookmarklet.js"
+    type="text/javascript"></script>
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <script src="https://access.redhat.com/chrome_themes/nimbus/js/ie8.js"></script>
+  <![endif]-->
+
+  <meta http-equiv="cleartype" content="on">
+
+  <link type="text/css" rel="stylesheet" href="https://access.redhat.com/sites/default/files/css/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css" media="all" />
+  <link type="text/css" rel="stylesheet" href="https://access.redhat.com/sites/default/files/css/css_ukbcBtK-BnNqhykbn5WtdiKVUBWoMqM6sABOosh-2ow.css" media="all" />
+  <link type="text/css" rel="stylesheet" href="https://access.redhat.com/sites/default/files/css/css_BNUviVwCuwjSvBWVqhzS4MfVD7JBzMU6mBaiU6LkMsQ.css" media="all" />
+  <link type="text/css" rel="stylesheet" href="https://access.redhat.com/sites/default/files/css/css_WQItp8zVCTrbBUmtbYDuGo0EC93pFwWeFL898ylAW4g.css" media="all" />
+  <script src="https://access.redhat.com/sites/default/files/js/js_3TykeRWpejhD4-J3vdlaNXdULg9xhOZhbsppK0o2bUs.js"></script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_DJZ0YIfqX0pLv9TXL1-JgjELqXlUErwZRD8tT_Rcsv0.js"></script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_DIlw2NfpPiWHLuItGKWf0-6_wKRbVFVh8oIO1VsWhZs.js"></script>
+  <script>
+    jQuery(function() {
+      jQuery("#edit-subscriptions-node-save-button--3").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button--2").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button--1").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+    });
+  </script>
+  <script>jQuery(document).ready(function() {
+    var dest = "https://access.redhat.com/login?redirectTo=" + encodeURIComponent(window.location.href);
+    jQuery("#teaserLoginLink").attr("href", dest);
+  });</script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_O8N1o_TMzFuFxJh1KQhOdMbK3rxw9QUawQuWhlpo9pM.js"></script>
+  <script>breadcrumbs = [ ["Products &amp; Services", "/products"], ["Solutions", "https://access.redhat.com/solutions"], ["Kernel panic at trace_find_cmdline() function", "/solutions/1140033"] ];</script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_3xveXv_DmjWCM5Apdw0t0jMAUlUP8xHlgC4PlKgfWA8.js"></script>
+  <script>jQuery(document).ready( function() {
+    chrometwo_require(["analytics/main"], function(analytics) {
+      jQuery("#edit-subscriptions-node-save-button:not(.active)").on("click", function ( ev ) {
+        ev.preventDefault();
+        analytics.trigger("ContentFollow", ev);
+      });
+    });
+  });</script>
+  <script>
+    jQuery(function() {
+      jQuery("#edit-subscriptions-node-save-button--3").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button--2").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button--1").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+      jQuery("#edit-subscriptions-node-save-button").hover(
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Following") {
+            jQuery(this).val("Unfollow");
+            jQuery(this).addClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        },
+        function(){
+          if(jQuery(this).val() == "Follow") {
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).addClass("btn-primary");
+          }
+          else if(jQuery(this).val() == "Unfollow") {
+            jQuery(this).val("Following");
+            jQuery(this).removeClass("btn-danger");
+            jQuery(this).removeClass("btn-primary");
+          }
+        }
+      );
+    });
+  </script>
+  <script>chrometwo_require(["analytics/attributes"], function(attributes) {attributes.set('ResourceID', 'kp-1140033');
+    attributes.set('ResourceTitle', 'Kernel panic at trace_find_cmdline() function');
+    attributes.set('Category', 'Troubleshoot');
+    attributes.set('Component', ["kernel"]);
+    attributes.set('Products', ["Red Hat Enterprise Linux"]);
+    attributes.set('Language', 'en');
+    attributes.set('KCSState', 'wip');
+    attributes.set('Tags', ["rhel_6"]);
+    attributes.set('SBR', ["Kernel"]);
+    attributes.set('PublicationState', ["active","published"]);
+  });</script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_ZCxCbCiA9clea5oCMjlgO9OlWkOKD4YAiC64WEt7yZU.js"></script>
+  <script src="https://access.redhat.com/sites/default/files/js/js_4BI8oeVjfCw73uXM4smoGybTGBwYDITsrn3SHCP3Kks.js"></script>
+  <script></script>
+  <script>jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"cirrus","theme_token":"lMpaCjulaShO4rfj0tPQ8NcaPQUUBrRUZ9LOIZs_LcY","js":{"0":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"modules\/jquery_update\/replace\/ui\/external\/jquery.cookie.js":1,"modules\/jquery_update\/replace\/misc\/jquery.form.js":1,"misc\/form.js":1,"misc\/ajax.js":1,"public:\/\/languages\/fr_1p3gOrqwzTDqgyxk3D06mPDQVV4aw6ZTFeSoJ-fdx1g.js":1,"sites\/all\/libraries\/chosen\/chosen\/chosen.jquery.min.js":1,"modules\/chosen\/chosen.js":1,"modules\/memcache\/memcache_admin\/memcache.js":1,"1":1,"2":1,"misc\/textarea.js":1,"modules\/filter\/filter.js":1,"misc\/progress.js":1,"modules\/ajax_comments\/ajax_comments.js":1,"3":1,"misc\/tableheader.js":1,"sites\/all\/modules\/custom\/rate\/rate.js":1,"modules\/subscriptions\/subscriptions_tableselect.js":1,"misc\/collapse.js":1,"4":1,"5":1,"6":1,"sites\/all\/themes\/cirrus\/js\/case_links.js":1,"sites\/all\/themes\/cirrus\/js\/angular.js":1,"sites\/all\/themes\/cirrus\/js\/code_raw_btn.js":1,"sites\/all\/themes\/cirrus\/js\/admin_drawers.js":1,"sites\/all\/themes\/cirrus\/js\/moment.js":1,"7":1},"css":{"modules\/system\/system.base.css":1,"modules\/system\/system.menus.css":1,"modules\/system\/system.messages.css":1,"modules\/system\/system.theme.css":1,"modules\/book\/book.css":1,"modules\/comment\/comment.css":1,"modules\/date\/date_api\/date.css":1,"modules\/date\/date_popup\/themes\/datepicker.1.7.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"modules\/user\/user.css":1,"modules\/views\/css\/views.css":1,"sites\/all\/libraries\/chosen\/chosen\/chosen.css":1,"modules\/ctools\/css\/ctools.css":1,"sites\/all\/modules\/custom\/rate\/rate.css":1,"modules\/filter\/filter.css":1,"modules\/locale\/locale.css":1,"sites\/all\/themes\/cirrus\/system.menus.css":1,"sites\/all\/themes\/cirrus\/system.messages.css":1,"sites\/all\/themes\/cirrus\/system.theme.css":1,"sites\/all\/themes\/cirrus\/css\/cirrus.css":1}},"chosen":{"selector":"#edit-field-kcs-component-select-und, #edit-field-kcs-sbr-select-und, #edit-field-kcs-product-select-und, #edit-field-kcs-type-select-und, #edit-language, #edit-field-kcs-a-category-select-und, #edit-field-kcs-state-select-und, #edit-field-kcs-tags-select-und, #edit-field-kcs-state-select-value, #edit-field-vid-reference-product-und, #edit-state, #edit-product, #edit-category, #edit-field-kcs-product-select-tid, #edit-field-kcs-type-select-tid, #edit-field-kcs-a-category-select-tid, #edit-sort-bef-combine, #edit-kcs-state, #edit-field-category-tid, #edit-field-product-tid, #edit-field-tags-tid, #edit-field-category-und, #edit-field-product-und, #edit-field-tags-und, #views-exposed-form-questions-list-questions-filter-block #edit-field-category, #edit-field-tags-und, #views-exposed-form-questions-list-questions-filter-block #edit-field-product, #views-exposed-form-questions-list-questions-filter-block #edit-field-tags, #edit-field-mega-menu-tab-und, #edit-field-internal-tags-tid, #edit-tags, #edit-field-kcs-tags-select-tid, #edit-subscriptions-and-choose-field-select, #edit-subscriptions-and-type, #edit-vid-13, #edit-vid-4, #edit-vid-5, #edit-vid-53, #edit-vid-1, #edit-vid-3, #edit-group-blog, #edit-group-group, #edit-subscriptions-and-choose-field-select-two, #edit-subscriptions-and-type-two, #edit-vid-13-two, #edit-vid-4-two, #edit-vid-5-two, #edit-vid-53-two, #edit-vid-1-two, #edit-vid-3-two, #edit-group-blog-two, #edit-group-group-two, #edit-subscriptions-and-edit-choose-field-select, #edit-subscriptions-and-type-edit, #edit-subscriptions-and-edit-type-two, #edit-vid-13-edit-two, #edit-vid-4-edit-two, #edit-vid-5-edit-two, #edit-vid-53-edit-two, #edit-vid-1-edit-two, #edit-vid-3-edit-two, #edit-group-group-edit-two, #edit-subscriptions-and-edit-choose-field-select-two, #edit-vid-13-edit, #edit-vid-4-edit, #edit-vid-5-edit, #edit-vid-53-edit, #edit-vid-1-edit, #edit-vid-3-edit, #edit-group-group-edit, #edit-group-blog-edit, #edit-field-supported-languages-tid, #edit-field-geography-und, #edit-field-supported-products-und, #edit-field-supported-languages-und, #edit-field-vendor-und, #edit-field-errata-type-text-und, #edit-field-errata-severity-text-und, #edit-field-software-partner-level-und, #edit-field-scert-product-category-und, #edit-field-certifications-und-0-field-product-und, #edit-kcs-article-type, #edit-field-eco-industry-tag-select-tid, #edit-field-eco-software-catego-select-tid, #edit-field-ecosystem-tag-select-und, #edit-field-eco-industry-tag-select-und, #edit-field-eco-software-catego-select-und, #edit-field-vendor-tsanet-member-ref-und, #edit-field-og-vendor-ref-und-0-default, #edit-field-eco-products-enabled-col-und-0-field-eco-subscription-model-ref-und, #edit-field-eco-products-enabled-col-und-0-field-eco-support-level-ref-und, #edit-field-eco-products-enabled-col-und-0-field-eco-product-select-und, #edit-field-eco-certifications-select-und-0-field-eco-product-select-und, #edit-field-eco-certifications-select-und-0-field-eco-product-archite-select-und, #edit-field-eco-certifications-select-und-0-field-eco-certificati-lvl-select-und, #edit-field-eco-certifications-select-und-0-field-eco-hypervisor-str-und, #edit-field-eco-supported-language-ref-und, #edit-field-eco-region-ref-und, #edit-field-cs-product-category-str-und, #edit-field-eco-certifications-select-und-0-field-eco-format-ref-und, #edit-field-eco-group-access-ref-und, #edit-field-hw-category-tag-ref-und, #edit-field-profile-industry-und, #edit-field-profile-tech-interests-und, #edit-field-product-page-features-ref-und, #edit-field-eco-product-select-und, #edit-field-base-product-ref-und, #edit-field-eco-product-archite-select-und, #edit-field-eco-format-ref-und, #edit-field-certification-status-ref-und, #edit-field-certification-result-ref-und, #edit-field-og-certified-product-ref-und-0-default, #edit-field-eco-subscription-model-ref-und, #edit-field-eco-support-level-ref-und, #edit-field-eco-certificati-lvl-select-und, #edit-field-eco-hypervisor-str-und, #edit-field-ccp-thirdparty-cert-select-und, .use_, #edit-field-eco-cert-product-tag-und, #edit-field-documentation-location-ref-und","minimum":"0"},"rate":{"basePath":"\/rate\/vote\/js","destination":"node\/1140033"},"urlIsAjaxTrusted":{"\/solutions\/1140033":true,"\/system\/ajax":true,"\/comment\/reply\/1140033":true},"ajax":{"edit-submit":{"callback":"ajax_comments_submit_js","wrapper":"ajax-comment-090846500-1476412926","method":"replaceWith","effect":"fade","event":"mousedown","keypress":true,"prevent":"click","url":"\/system\/ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"soumettre un commentaire"}},"edit-subscriptions-node-save-button":{"callback":"redhat_subscriptions_block_form_ajax_submit","wrapper":"subscriptions_and_add_notification","method":"replaceWith","effect":"fade","event":"mousedown","keypress":true,"prevent":"click","url":"\/system\/ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"Follow"}},"edit-subscriptions-node-save-button--2":{"callback":"redhat_subscriptions_block_form_ajax_submit","wrapper":"subscriptions_and_add_notification","method":"replaceWith","effect":"fade","event":"mousedown","keypress":true,"prevent":"click","url":"\/system\/ajax","submit":{"_triggering_element_name":"op","_triggering_element_value":"Follow"}}},"cirrus":{"nodeType":"kcs_solution","nodeId":"1140033"}});</script>
+  <script type="text/javascript" src="https://access.redhat.com/webassets/avalon/j/lib/bootstrap3.min.js"></script>
+  <link rel="stylesheet" type="text/css" media="all" href="https://access.redhat.com/webassets/avalon/s/bootstrap3.overrides.css" />
+  <!--kcs02-->
+
+  <script type="text/javascript">
+    Drupal.portal = {"version":{"redhat_portal":"5.28.1500"}};
+    Drupal.portal.currentUser = {};
+    Drupal.portal.currentUser.isInternal = true;
+  </script>
+
+</head>
+<body class="html not-front logged-in no-sidebars page-node page-node- page-node-1140033 node-type-kcs-solution i18n-fr section-solutions" >
+<div id="page-wrap" class="page-wrap">
+  <div class="top-page-wrap">
+
+    <!--googleoff: all-->
+    <header class="masthead" id="masthead">
+
+      <!-- Accessibility Nav & Header -->
+      <div class="accessibility-nav sr-only">
+        <a href="https://access.redhat.com/">
+          <h1>Red Hat <span>Portail </span><span>Client</span></h1>
+        </a>
+        <p><a href="#cp-main">Skip to main content</a></p>
+        <nav role="navigation" aria-labelledby="accessibility-nav-heading">
+          <h2 id="accessibility-nav-heading">Main Navigation</h2>
+          <ul>
+            <li>
+              <a href="#" class="has-subnav"><span>Produits et services</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/products">Afficher tous les produits</a></li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Infrastructure et gestion</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-enterprise-linux/">Red Hat Enterprise Linux</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-virtualization/">Red Hat Virtualization</a></li>
+                    <li><a href="https://access.redhat.com/products/identity-management/">Red Hat Identity Management</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-directory-server/">Red Hat Directory Server</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-certificate-system/">Red Hat Certificate System</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-satellite/">Red Hat Satellite</a></li>
+                    <li><a href="https://access.redhat.com/products/subscription-asset-manager/">Subscription Asset Manager</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-update-infrastructure/">Red Hat Update Infrastructure</a></li>
+                    <li><a href="https://access.redhat.com/insights/info/?intcmp=mm|p|im|rhaijan2016&">Red Hat Insights</a></li>
+                    <li><a href="https://access.redhat.com/products/ansible-tower-red-hat/">Ansible Tower by Red Hat</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Informatique Cloud</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloudforms/">Red Hat CloudForms</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-openstack-platform/">Red Hat OpenStack Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloud-infrastructure/">Red Hat Cloud Infrastructure</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloud-suite/">Red Hat Cloud Suite</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-openshift-container-platform/">Red Hat OpenShift Container Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/openshift-online-red-hat/">Red Hat OpenShift Online</a></li>
+                    <li><a href="https://access.redhat.com/products/openshift-dedicated-red-hat/">Red Hat OpenShift Dedicated</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Storage</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-storage/">Red Hat Gluster Storage</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-ceph-storage/">Red Hat Ceph Storage</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>JBoss Development and Management</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/">Red Hat JBoss Enterprise Application Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-data-grid/">Red Hat JBoss Data Grid</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-web-server/">Red Hat JBoss Web Server</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-portal/">Red Hat JBoss Portal</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-operations-network/">Red Hat JBoss Operations Network</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-developer-studio/">Red Hat JBoss Developer Studio</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>JBoss Integration and Automation</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-data-virtualization/">Red Hat JBoss Data Virtualization</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-fuse/">Red Hat JBoss Fuse</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-a-mq/">Red Hat JBoss A-MQ</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-bpm-suite/">Red Hat JBoss BPM Suite</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-brms/">Red Hat JBoss BRMS</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Mobile</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-mobile-application-platform/">Red Hat Mobile Application Platform</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Services</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/Consulting/">Espace conseil</a></li>
+                    <li><a href="https://access.redhat.com/support/offerings/tam/">Gestion de compte technique</a></li>
+                    <li><a href="https://access.redhat.com/products/training-certifications/">Formation et certifications</a></li>
+                    <li><a href="https://access.redhat.com/products/Red_Hat_Enterprise_Linux/Developer/">Red Hat Enterprise Linux Developer Program</a></li>
+                  </ul>
+                </li>
+                <li class="heading">Support</li>
+                <li><a class="cta-link" href="https://access.redhat.com/support/">Obtenir de l&#039;aide</a></li>
+                <li><a href="https://access.redhat.com/support/offerings/production/">Prise en charge de la production</a></li>
+                <li><a href="https://access.redhat.com/support/offerings/developer/">Prise en charge du développement</a></li>
+                <li><a href="https://access.redhat.com/support/policy/update_policies/">Politiques de cycles de vie et de mises à jour de produits</a></li>
+                <li class="heading">Connaissances</li>
+                <li><a class="cta-link" href="https://access.redhat.com/search/">Recherche</a></li>
+                <li><a href="https://access.redhat.com/documentation/">Documentation</a></li>
+                <li><a href="https://access.redhat.com/search/#/knowledgebase">Base de connaissances</a></li>
+                <li><a href="https://access.redhat.com/search/#/videos">Vidéos</a></li>
+                <li><a href="https://access.redhat.com/search/#/discussions">Discussions</a></li>
+                <li class="heading">Écosystème</li>
+                <li><a class="cta-link" href="https://access.redhat.com/ecosystem/search/#/ecosystem">Parcourir les solutions certifiées</a></li>
+                <li><a href="https://access.redhat.com/ecosystem/">Aperçu</a></li>
+                <li><a href="https://access.redhat.com/ecosystem/partner-resources">Ressources des partenaires</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Outils</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="heading">Red Hat Insights</li>
+                <li><a href="https://access.redhat.com/insights/info/?intcmp=mm|t|c1|rhaidec2015&">En savoir plus</a></li>
+                <li class="heading">Red Hat Access Labs</li>
+                <li><a href="https://access.redhat.com/labs/">Découvrir les Labs</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=config">Configuration</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=deploy">Déploiement</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=troubleshoot">Résolution de problèmes</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=security">Sécurité</a></li>
+                <li class="heading">Outils supplémentaires</li>
+                <li><a href="https://access.redhat.com/products/red-hat-access/">Red Hat Access plug-ins</a></li>
+                <li><a href="https://access.redhat.com/tools/satcert/">Outil de certificat Red Hat Satellite</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Sécurité</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/security/">Product Security Center</a></li>
+                <li class="heading">Mises à jour de sécurité</li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/security-advisories">Security Advisories</a></li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/cve">Base de données CVE Red Hat</a></li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/security-labs">Security Labs</a></li>
+                <li class="heading">Ressources</li>
+                <li><a href="https://access.redhat.com/security/overview/">Overview</a></li>
+                <li><a href="https://access.redhat.com/blogs/product-security">Blog sur la sécurité</a></li>
+                <li><a href="https://www.redhat.com/security/data/metrics/">Mesuration Sécurité</a></li>
+                <li><a href="https://access.redhat.com/security/updates/classification/">Niveaux de sévérité</a></li>
+                <li><a href="https://access.redhat.com/security/updates/backporting/">Rétroportage des politiques</a></li>
+                <li><a href="https://access.redhat.com/security/team/key/">Clés GPG Red Hat</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Communauté</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="heading">Discussions</li>
+                <li><a href="https://access.redhat.com/discussions?product=25&category=All&tags=All">Red Hat Enterprise Linux</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=8163&category=All&tags=All">Red Hat Virtualization</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=36&category=All&tags=All">Red Hat Satellite</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=22&category=All&tags=All">Portail Client</a></li>
+                <li><a href="https://access.redhat.com/groups/">Groupes privés</a></li>
+                <li><a href="https://access.redhat.com/discussions?keyword=&name=&product=All&category=All&tags=All">Toutes les discussions</a></li>
+                <li><a href="https://access.redhat.com/node/add/discussion">Lancer une discussion</a></li>
+                <li class="heading">Blogs</li>
+                <li><a href="https://access.redhat.com/blogs/767163">Portail Client</a></li>
+                <li><a href="https://access.redhat.com/blogs/766093">Sécurité Produit Red Hat</a></li>
+                <li><a href="https://access.redhat.com/blogs/759303">Red Hat Access Labs</a></li>
+                <li><a href="https://access.redhat.com/blogs/insights/">Red Hat Insights</a></li>
+                <li><a href="https://access.redhat.com/blogs/">Tous les blogs</a></li>
+                <li class="heading">Événements</li>
+                <li><a href="https://access.redhat.com/customer-convergence/">Événements clients</a></li>
+                <li><a href="http://www.redhat.com/summit/">Sommet Red Hat</a></li>
+                <li class="heading">Témoignages</li>
+                <li><a href="https://access.redhat.com/subscription-value/">Bénéfices d&#039;un abonnement Red Hat</a></li>
+                <li><a href="https://access.redhat.com/you-asked-we-acted/">Vous l&#039;avez demandé. Nous l&#039;avons fait.</a></li>
+                <li><a href="http://www.redhat.com/en/open-source">Communautés Open source</a></li>
+              </ul>
+            </li>
+            <li><a href="https://access.redhat.com/management/">Abonnements</a></li>
+            <li><a href="https://access.redhat.com/downloads/">Téléchargements</a></li>
+            <li><a href="https://access.redhat.com/support/cases/">Dossiers d&#039;assistance</a></li>
+            <li>
+              <a href="#" class="has-subnav"><span>Compte</span></a>
+              <ul class="utility mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="mobile-accountLinksLoggedOut unauthenticated"><a href="https://access.redhat.com/login" id="accessibility-accountLogin">Connexion</a></li>
+                <li class="mobile-accountLinksLoggedOut unauthenticated"><a href="https://www.redhat.com/wapps/ugc/register.html">Enregistrer</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated">
+                  <div class="account-info" id="accessibility-accountUser">
+                    <div class="account-name"><strong id="accessibility-userFullName"></strong></div>
+                    <div class="account-org"><span id="accessibility-userOrg"></span></div>
+                    <div class="account-number mobile-accountNumber"><span class="property">Numéro de compte Red Hat:</span> <span class="value"></span></div>
+                  </div>
+                </li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/personalInfo.html">Détails du compte</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/prefs.html">Préférences de contact et du bulletin d&#039;informations</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/usermgt/userList.html">Gestion de l&#039;utilisateur</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/account.html">Maintenance du compte</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/user">Mon profil</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/user" id="accessibility-userNotificationsLink">Notifications</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/help/">Aide</a></li>
+                <li class="logout mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/sso/logout.html?redirect=https://access.redhat.com/logout">Déconnexion</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Langue</span></a>
+              <ul class="utility mm-hide" id="accessibility-localesMenu">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=en" id="accessibility-en">English</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=es" id="accessibility-es">español</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=de" id="accessibility-de">Deutsch</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=it" id="accessibility-it">italiano</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ko" id="accessibility-ko">한국어</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=fr" id="accessibility-fr">français</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ja" id="accessibility-ja">日本語</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=pt" id="accessibility-pt">português</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=zh_CN" id="accessibility-zh_CN">中文 (中国)</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ru" id="accessibility-ru">русский</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Mobile Header -->
+      <nav class="mobile-nav-bar hidden-sm hidden-md hidden-lg" aria-hidden="true">
+        <button id="menu-btn" class="menu menu-white" type="button" role="button" aria-label="Toggle Navigation">
+          <span class="lines"></span>
+        </button>
+        <a class="logo" href="https://access.redhat.com/">
+          <span class="logo-crop"><img src="https://access.redhat.com/chrome_themes/nimbus/img/l_redhat-lg.png" alt="Red Hat Logo" title="Red Hat"></span>
+          <span class="site-title"><span>Portail </span><span>Client</span></span>
+        </a>
+        <button class="btn btn-search btn-utility" data-target="#site-search">
+          <span class="web-icon-search"></span>
+          <span class="link-text">Rechercher</span>
+        </button>
+      </nav>
+
+      <!-- Mobile Menu Drawer -->
+      <div class="nav-drawer mobile-nav-drawer hidden-sm hidden-md hidden-lg" aria-hidden="true">
+        <nav class="nav-container" role="navigation">
+          <ul>
+            <li>
+              <a href="#" class="has-subnav"><span>Produits et services</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/products">Afficher tous les produits</a></li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Infrastructure et gestion</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-enterprise-linux/">Red Hat Enterprise Linux</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-virtualization/">Red Hat Virtualization</a></li>
+                    <li><a href="https://access.redhat.com/products/identity-management/">Red Hat Identity Management</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-directory-server/">Red Hat Directory Server</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-certificate-system/">Red Hat Certificate System</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-satellite/">Red Hat Satellite</a></li>
+                    <li><a href="https://access.redhat.com/products/subscription-asset-manager/">Subscription Asset Manager</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-update-infrastructure/">Red Hat Update Infrastructure</a></li>
+                    <li><a href="https://access.redhat.com/insights/info/?intcmp=mm|p|im|rhaijan2016&">Red Hat Insights</a></li>
+                    <li><a href="https://access.redhat.com/products/ansible-tower-red-hat/">Ansible Tower by Red Hat</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Informatique Cloud</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloudforms/">Red Hat CloudForms</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-openstack-platform/">Red Hat OpenStack Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloud-infrastructure/">Red Hat Cloud Infrastructure</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-cloud-suite/">Red Hat Cloud Suite</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-openshift-container-platform/">Red Hat OpenShift Container Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/openshift-online-red-hat/">Red Hat OpenShift Online</a></li>
+                    <li><a href="https://access.redhat.com/products/openshift-dedicated-red-hat/">Red Hat OpenShift Dedicated</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Storage</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-storage/">Red Hat Gluster Storage</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-ceph-storage/">Red Hat Ceph Storage</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>JBoss Development and Management</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/">Red Hat JBoss Enterprise Application Platform</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-data-grid/">Red Hat JBoss Data Grid</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-web-server/">Red Hat JBoss Web Server</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-portal/">Red Hat JBoss Portal</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-operations-network/">Red Hat JBoss Operations Network</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-developer-studio/">Red Hat JBoss Developer Studio</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>JBoss Integration and Automation</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-data-virtualization/">Red Hat JBoss Data Virtualization</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-fuse/">Red Hat JBoss Fuse</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-a-mq/">Red Hat JBoss A-MQ</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-bpm-suite/">Red Hat JBoss BPM Suite</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-jboss-brms/">Red Hat JBoss BRMS</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Mobile</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/red-hat-mobile-application-platform/">Red Hat Mobile Application Platform</a></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="#" class="has-subnav"><span>Services</span></a>
+                  <ul class="mm-hide">
+                    <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                    <li><a href="https://access.redhat.com/products/Consulting/">Espace conseil</a></li>
+                    <li><a href="https://access.redhat.com/support/offerings/tam/">Gestion de compte technique</a></li>
+                    <li><a href="https://access.redhat.com/products/training-certifications/">Formation et certifications</a></li>
+                    <li><a href="https://access.redhat.com/products/Red_Hat_Enterprise_Linux/Developer/">Red Hat Enterprise Linux Developer Program</a></li>
+                  </ul>
+                </li>
+                <li class="heading">Support</li>
+                <li><a class="cta-link" href="https://access.redhat.com/support/">Obtenir de l&#039;aide</a></li>
+                <li><a href="https://access.redhat.com/support/offerings/production/">Prise en charge de la production</a></li>
+                <li><a href="https://access.redhat.com/support/offerings/developer/">Prise en charge du développement</a></li>
+                <li><a href="https://access.redhat.com/support/policy/update_policies/">Politiques de cycles de vie et de mises à jour de produits</a></li>
+                <li class="heading">Connaissances</li>
+                <li><a class="cta-link" href="https://access.redhat.com/search/">Recherche</a></li>
+                <li><a href="https://access.redhat.com/documentation/">Documentation</a></li>
+                <li><a href="https://access.redhat.com/search/#/knowledgebase">Base de connaissances</a></li>
+                <li><a href="https://access.redhat.com/search/#/videos">Vidéos</a></li>
+                <li><a href="https://access.redhat.com/search/#/discussions">Discussions</a></li>
+                <li class="heading">Écosystème</li>
+                <li><a class="cta-link" href="https://access.redhat.com/ecosystem/search/#/ecosystem">Parcourir les solutions certifiées</a></li>
+                <li><a href="https://access.redhat.com/ecosystem/">Aperçu</a></li>
+                <li><a href="https://access.redhat.com/ecosystem/partner-resources">Ressources des partenaires</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Outils</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="heading">Red Hat Insights</li>
+                <li><a href="https://access.redhat.com/insights/info/?intcmp=mm|t|c1|rhaidec2015&">En savoir plus</a></li>
+                <li class="heading">Red Hat Access Labs</li>
+                <li><a href="https://access.redhat.com/labs/">Découvrir les Labs</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=config">Configuration</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=deploy">Déploiement</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=troubleshoot">Résolution de problèmes</a></li>
+                <li><a href="https://access.redhat.com/labs/#?type=security">Sécurité</a></li>
+                <li class="heading">Outils supplémentaires</li>
+                <li><a href="https://access.redhat.com/products/red-hat-access/">Red Hat Access plug-ins</a></li>
+                <li><a href="https://access.redhat.com/tools/satcert/">Outil de certificat Red Hat Satellite</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Sécurité</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/security/">Product Security Center</a></li>
+                <li class="heading">Mises à jour de sécurité</li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/security-advisories">Security Advisories</a></li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/cve">Base de données CVE Red Hat</a></li>
+                <li><a href="https://access.redhat.com/security/security-updates/#/security-labs">Security Labs</a></li>
+                <li class="heading">Ressources</li>
+                <li><a href="https://access.redhat.com/security/overview/">Overview</a></li>
+                <li><a href="https://access.redhat.com/blogs/product-security">Blog sur la sécurité</a></li>
+                <li><a href="https://www.redhat.com/security/data/metrics/">Mesuration Sécurité</a></li>
+                <li><a href="https://access.redhat.com/security/updates/classification/">Niveaux de sévérité</a></li>
+                <li><a href="https://access.redhat.com/security/updates/backporting/">Rétroportage des politiques</a></li>
+                <li><a href="https://access.redhat.com/security/team/key/">Clés GPG Red Hat</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Communauté</span></a>
+              <ul class="mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="heading">Discussions</li>
+                <li><a href="https://access.redhat.com/discussions?product=25&category=All&tags=All">Red Hat Enterprise Linux</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=8163&category=All&tags=All">Red Hat Virtualization</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=36&category=All&tags=All">Red Hat Satellite</a></li>
+                <li><a href="https://access.redhat.com/discussions?product=22&category=All&tags=All">Portail Client</a></li>
+                <li><a href="https://access.redhat.com/groups/">Groupes privés</a></li>
+                <li><a href="https://access.redhat.com/discussions?keyword=&name=&product=All&category=All&tags=All">Toutes les discussions</a></li>
+                <li><a href="https://access.redhat.com/node/add/discussion">Lancer une discussion</a></li>
+                <li class="heading">Blogs</li>
+                <li><a href="https://access.redhat.com/blogs/767163">Portail Client</a></li>
+                <li><a href="https://access.redhat.com/blogs/766093">Sécurité Produit Red Hat</a></li>
+                <li><a href="https://access.redhat.com/blogs/759303">Red Hat Access Labs</a></li>
+                <li><a href="https://access.redhat.com/blogs/insights/">Red Hat Insights</a></li>
+                <li><a href="https://access.redhat.com/blogs/">Tous les blogs</a></li>
+                <li class="heading">Événements</li>
+                <li><a href="https://access.redhat.com/customer-convergence/">Événements clients</a></li>
+                <li><a href="http://www.redhat.com/summit/">Sommet Red Hat</a></li>
+                <li class="heading">Témoignages</li>
+                <li><a href="https://access.redhat.com/subscription-value/">Bénéfices d&#039;un abonnement Red Hat</a></li>
+                <li><a href="https://access.redhat.com/you-asked-we-acted/">Vous l&#039;avez demandé. Nous l&#039;avons fait.</a></li>
+                <li><a href="http://www.redhat.com/en/open-source">Communautés Open source</a></li>
+              </ul>
+            </li>
+            <li><a href="https://access.redhat.com/management/">Abonnements</a></li>
+            <li><a href="https://access.redhat.com/downloads/">Téléchargements</a></li>
+            <li><a href="https://access.redhat.com/support/cases/">Dossiers d&#039;assistance</a></li>
+            <li>
+              <a href="#" class="has-subnav"><span>Compte</span></a>
+              <ul class="utility mm-hide">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li class="mobile-accountLinksLoggedOut unauthenticated"><a href="https://access.redhat.com/login" id="mobile-accountLogin">Connexion</a></li>
+                <li class="mobile-accountLinksLoggedOut unauthenticated"><a href="https://www.redhat.com/wapps/ugc/register.html">Enregistrer</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated">
+                  <div class="account-info" id="mobile-accountUser">
+                    <div class="account-name"><strong id="mobile-userFullName"></strong></div>
+                    <div class="account-org"><span id="mobile-userOrg"></span></div>
+                    <div class="account-number mobile-accountNumber"><span class="property">Numéro de compte Red Hat:</span> <span class="value"></span></div>
+                  </div>
+                </li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/personalInfo.html">Détails du compte</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/prefs.html">Préférences de contact et du bulletin d&#039;informations</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/usermgt/userList.html">Gestion de l&#039;utilisateur</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/ugc/protected/account.html">Maintenance du compte</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/user">Mon profil</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/user" id="mobile-userNotificationsLink">Notifications</a></li>
+                <li class="mobile-accountLinksLoggedIn authenticated"><a href="https://access.redhat.com/help/">Aide</a></li>
+                <li class="logout mobile-accountLinksLoggedIn authenticated"><a href="https://www.redhat.com/wapps/sso/logout.html?redirect=https://access.redhat.com/logout">Déconnexion</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#" class="has-subnav"><span>Langue</span></a>
+              <ul class="utility mm-hide" id="mobile-localesMenu">
+                <li aria-hidden="true"><a href="#" class="back">Back</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=en" id="mobile-en">English</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=es" id="mobile-es">español</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=de" id="mobile-de">Deutsch</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=it" id="mobile-it">italiano</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ko" id="mobile-ko">한국어</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=fr" id="mobile-fr">français</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ja" id="mobile-ja">日本語</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=pt" id="mobile-pt">português</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=zh_CN" id="mobile-zh_CN">中文 (中国)</a></li>
+                <li><a href="https://access.redhat.com/changeLanguage?language=ru" id="mobile-ru">русский</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- White Utility Menu for large screens -->
+      <div class="utility-wrap" aria-hidden="true">
+        <div class="utility-container">
+          <div class="utility-bar visible-sm visible-md visible-lg">
+            <menu class="top-nav">
+              <ul>
+                <li id="nav-subscription" data-portal-tour-1="1"><a class="top-nav-subscriptions" href="https://access.redhat.com/management/">Abonnements</a></li>
+                <li id="nav-downloads" data-portal-tour-1="2"><a class="top-nav-downloads" href="https://access.redhat.com/downloads/">Téléchargements</a></li>
+                <li id="nav-support" data-portal-tour-1="3"><a class="top-nav-support-cases" href="https://access.redhat.com/support/cases/">Dossiers d&#039;assistance</a></li>
+              </ul>
+            </menu>
+
+            <menu class="utility-nav">
+              <ul>
+                <li>
+                  <a class="btn-search" data-target="#site-search" title="Rechercher">
+                    <span class="web-icon-search"></span>
+                    <span class="link-text">Rechercher</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="btn-profile" data-target="#account-info" data-portal-tour-1="4a" title="Compte">
+                    <span class="web-icon-user"></span>
+                    <span class="link-text">Compte</span>
+                    <span class="account-user" id="accountUserName"></span>
+                  </a>
+                </li>
+                <li>
+                  <a class="btn-language" data-target="#language" data-portal-tour-1="6" title="Langue">
+                    <span class="web-icon-globe"></span>
+                    <span class="link-text">Langue</span>
+                  </a>
+                </li>
+              </ul>
+            </menu>
+          </div>
+          <!-- Utility Tray -->
+          <div class="utility-tray-container">
+            <div class="utility-tray">
+              <div id="site-search" class="utility-link site-search">
+                <div class="content">
+                  <form class="ng-pristine ng-valid topSearchForm" id="topSearchForm" name="topSearchForm" action="/search/browse/search/" method="get" enctype="application/x-www-form-urlencoded">
+                    <div class="input-group">
+
+                      <input class="form-control searchField" id="topSearchInput" name="keyword" value="" placeholder="Saisissez le terme de votre recherche" type="text">
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                                </span>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div id="account-info" class="utility-link account-info">
+                <div class="content">
+
+                  <!-- Account Unauthenticated -->
+                  <div id="accountLinksLoggedOut" class="unauthenticated">
+                    <h2 class="utility-header">Connectez-vous à votre compte Red Hat</h2>
+                    <div class="row col-border-row">
+                      <div class="col-sm-6 col-border">
+                        <p><a href="https://access.redhat.com/login" id="accountLogin" class="btn btn-primary">Connexion</a></p>
+                        <p>Votre compte Red Hat vous permet d&#039;accéder à votre profil, à vos préférences et à vos services, en fonction de votre statut.</p>
+                      </div>
+                      <div class="col-sm-6 col-border col-border-left">
+                        <p><a href="https://www.redhat.com/wapps/ugc/register.html" class="btn btn-primary">Enregistrer</a></p>
+                        <p>Si vous être nouveau sur Red Hat, enregistrez-vous maintenant pour accéder aux évaluations de produits et capacités d&#039;achats.</p>
+
+                        <strong>Besoin d'accéder à un compte ?</strong><p>Si votre entreprise possède un compte Red Hat, votre administrateur d'organisation peut vous autoriser à y accéder.</p>
+
+                        <p><a href="https://access.redhat.com/support/contact/customerService/">Veuillez contacter le service client en cas de question.</a></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Account Authenticated -->
+                  <div id="accountLinksLoggedIn" class="authenticated">
+                    <h2 class="utility-header"><span id="userFirstName"></span></h2>
+                    <div class="row col-border-row">
+                      <div class="col-sm-6 col-border col-border-right">
+                        <div class="account-info" id="accountUser">
+                          <div class="avatar"><!-- placeholder--></div>
+                          <div class="account-name"><strong id="userFullName"></strong></div>
+                          <div class="account-org"><span id="userOrg"></span></div>
+                          <div class="account-number accountNumber"><span class="property">Numéro de compte Red Hat:</span> <span class="value"></span></div>
+                        </div>
+
+                        <div class="row account-settings">
+                          <div class="col-md-6" data-portal-tour-1="4">
+                            <h3>Compte Red Hat</h3>
+                            <ul class="reset">
+                              <li><a href="https://www.redhat.com/wapps/ugc/protected/personalInfo.html">Détails du compte</a></li>
+                              <li><a href="https://www.redhat.com/wapps/ugc/protected/prefs.html">Préférences de contact et du bulletin d&#039;informations</a></li>
+                              <li><a href="https://www.redhat.com/wapps/ugc/protected/usermgt/userList.html">Gestion de l&#039;utilisateur</a></li>
+                              <li><a href="https://www.redhat.com/wapps/ugc/protected/account.html">Maintenance du compte</a></li>
+                            </ul>
+                          </div>
+                          <div class="col-md-6" data-portal-tour-1="5">
+                            <h3>Portail Client</h3>
+                            <ul class="reset">
+                              <li><a href="https://access.redhat.com/user">Mon profil</a></li>
+                              <li><a href="https://access.redhat.com/user" id="userNotificationsLink">Notifications</a></li>
+                              <li><a href="https://access.redhat.com/help/">Aide</a></li>
+                            </ul>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="col-sm-6 col-border">
+                        <p>Pour votre sécurité, si vous vous trouvez sur un ordinateur public et que vous avez terminé d&#039;utiliser les services Red Hat, veuillez vous assurer de bien vous déconnecter.</p>
+                        <p><a href="https://www.redhat.com/wapps/sso/logout.html?redirect=https://access.redhat.com/logout" id="accountLogout" class="btn btn-primary">Déconnexion</a></p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div id="language" class="utility-link language">
+                <div class="content">
+                  <h2 class="utility-header">Sélectionnez la langue</h2>
+                  <div class="row" id="localesMenu">
+                    <div class="col-sm-4">
+                      <ul class="reset">
+                        <li><a href="https://access.redhat.com/changeLanguage?language=en" data-lang="en" id="en">English</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=es" data-lang="es" id="es">español</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=de" data-lang="de" id="de">Deutsch</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=it" data-lang="it" id="it">italiano</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=ko" data-lang="ko" id="ko">한국어</a></li>
+                      </ul>
+                    </div>
+                    <div class="col-sm-4">
+                      <ul class="reset">
+                        <li><a href="https://access.redhat.com/changeLanguage?language=fr"    data-lang="fr"    id="fr">français</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=ja"    data-lang="ja"    id="ja">日本語</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=pt"    data-lang="pt"    id="pt">português</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=zh_CN" data-lang="zh_CN" id="zh_CN">中文 (中国)</a></li>
+                        <li><a href="https://access.redhat.com/changeLanguage?language=ru"    data-lang="ru"    id="ru">русский</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="scroll-anchor"></div>
+
+      <!-- Main Menu for large screens -->
+      <div class="header-nav visible-sm visible-md visible-lg" aria-hidden="true">
+        <div id="header-nav">
+          <div class="container">
+            <div class="row">
+              <div class="col-xs-12">
+
+                <a href="https://access.redhat.com/" class="logo">
+                  <span class="logo-crop"><img src="https://access.redhat.com/chrome_themes/nimbus/img/l_redhat-lg.png" alt="Red Hat"></span>
+                  <span class="site-title"><span>Portail </span><span>Client</span></span>
+                </a>
+
+                <nav class="primary-nav hidden-sm" role="navigation">
+                  <ul>
+                    <li id="nav-products"><a class="products" data-link="mega" data-target="products-menu" href="https://access.redhat.com/products/" id="products-menu">Produits et services</a></li>
+                    <li id="nav-tools"><a class="tools" data-link="mega" data-target="tools-menu" href="https://access.redhat.com/labs/" id="tools-menu">Outils</a></li>
+                    <li id="nav-security"><a class="security" data-link="mega" data-target="security-menu" href="https://access.redhat.com/security/" id="security-menu">Sécurité</a></li>
+                    <li id="nav-community"><a class="community" data-link="mega" data-target="community-menu" href="https://access.redhat.com/community/" id="community-menu">Communauté</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Mega Menu for large screens -->
+      <div class="mega-wrap visible-sm visible-md visible-lg" aria-hidden="true">
+        <nav class="mega">
+          <div class="container">
+            <div class="mega-menu-wrap">
+              <!-- Products Menu -->
+              <div aria-labelledby="products-menu" class="products-menu mega-menu" data-eh="mega-menu" role="navigation">
+                <div class="row">
+                  <div class="col-md-6 col-sm-8">
+                    <div class="root clearfix" data-portal-tour-1="7">
+                      <ul class="subnav subnav-root">
+                        <li data-target="infrastructure-menu" class="active">
+                          <a href="https://access.redhat.com/products/">Infrastructure et gestion</a>
+                        </li>
+                        <li data-target="cloud-menu">
+                          <a href="https://access.redhat.com/products/">Informatique Cloud</a>
+                        </li>
+                        <li data-target="storage-menu">
+                          <a href="https://access.redhat.com/products/">Storage</a>
+                        </li>
+                        <li data-target="jboss-dev-menu">
+                          <a href="https://access.redhat.com/products/">JBoss Development and Management</a>
+                        </li>
+                        <li data-target="jboss-int-menu">
+                          <a href="https://access.redhat.com/products/">JBoss Integration and Automation</a>
+                        </li>
+                        <li data-target="mobile-products-menu">
+                          <a href="https://access.redhat.com/products/">Mobile</a>
+                        </li>
+                      </ul>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="infrastructure-menu" style="display: block;">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-enterprise-linux/">Red Hat Enterprise Linux</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-virtualization/">Red Hat Virtualization</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/identity-management/">Red Hat Identity Management</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-directory-server/">Red Hat Directory Server</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-certificate-system/">Red Hat Certificate System</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-satellite/">Red Hat Satellite</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/subscription-asset-manager/">Subscription Asset Manager</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-update-infrastructure/">Red Hat Update Infrastructure</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-insights/">Red Hat Insights</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/ansible-tower-red-hat/">Ansible Tower by Red Hat</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="cloud-menu">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-cloudforms/">Red Hat CloudForms</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-openstack-platform/">Red Hat OpenStack Platform</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-cloud-infrastructure/">Red Hat Cloud Infrastructure</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-cloud-suite/">Red Hat Cloud Suite</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-openshift-container-platform/">Red Hat OpenShift Container Platform</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/openshift-online-red-hat/">Red Hat OpenShift Online</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/openshift-dedicated-red-hat/">Red Hat OpenShift Dedicated</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="storage-menu">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-storage/">Red Hat Gluster Storage</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-ceph-storage/">Red Hat Ceph Storage</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="jboss-dev-menu">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/">Red Hat JBoss Enterprise Application Platform</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-data-grid/">Red Hat JBoss Data Grid</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-web-server/">Red Hat JBoss Web Server</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-portal/">Red Hat JBoss Portal</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-operations-network/">Red Hat JBoss Operations Network</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-developer-studio/">Red Hat JBoss Developer Studio</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="jboss-int-menu">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-data-virtualization/">Red Hat JBoss Data Virtualization</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-fuse/">Red Hat JBoss Fuse</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-a-mq/">Red Hat JBoss A-MQ</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-bpm-suite/">Red Hat JBoss BPM Suite</a>
+                          </li>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-jboss-brms/">Red Hat JBoss BRMS</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="subnav subnav-child" data-eh="subnav-child" data-menu-local="mobile-products-menu">
+                        <ul>
+                          <li>
+                            <a href="https://access.redhat.com/products/red-hat-mobile-application-platform/">Red Hat Mobile Application Platform</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <a href="https://access.redhat.com/products" class="btn btn-primary">Afficher tous les produits</a>
+                  </div>
+
+                  <div class="col-md-6 col-sm-4 pull-right" data-portal-tour-1="8">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h3 class="nav-title">Support</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/support/" class="cta-link">Obtenir de l&#039;aide</a></li>
+                          <li><a href="https://access.redhat.com/support/offerings/production/">Prise en charge de la production</a></li>
+                          <li><a href="https://access.redhat.com/support/offerings/developer/">Prise en charge du développement</a></li>
+                          <li><a href="https://access.redhat.com/support/policy/update_policies/">Politiques de cycles de vie et de mises à jour de produits</a></li>
+                        </ul>
+                        <h3 class="nav-title">Services</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/products/Consulting/">Espace conseil</a></li>
+                          <li><a href="https://access.redhat.com/support/offerings/tam/">Gestion de compte technique</a></li>
+                          <li><a href="https://access.redhat.com/products/training-certifications/">Formation et certifications</a></li>
+                          <li><a href="https://access.redhat.com/products/Red_Hat_Enterprise_Linux/Developer/">Red Hat Enterprise Linux Developer Program</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <h3 class="nav-title">Connaissances</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/search/" class="cta-link">Recherche</a></li>
+                          <li><a href="https://access.redhat.com/documentation/">Documentation</a></li>
+                          <li><a href="https://access.redhat.com/search/#/knowledgebase">Base de connaissances</a></li>
+                          <li><a href="https://access.redhat.com/search/#/videos">Vidéos</a></li>
+                          <li><a href="https://access.redhat.com/search/#/discussions">Discussions</a></li>
+                        </ul>
+                        <h3 class="nav-title">Écosystème</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/ecosystem/search/#/ecosystem" class="cta-link">Parcourir les solutions certifiées</a></li>
+                          <li><a href="https://access.redhat.com/ecosystem">Aperçu</a></li>
+                          <li><a href="https://access.redhat.com/ecosystem/partner-resources">Ressources des partenaires</a></li>
+                        </ul>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tools Menu -->
+              <div aria-labelledby="tools-menu" class="tools-menu mega-menu" data-eh="mega-menu" role="navigation">
+                <div class="row" data-portal-tour-1="9">
+                  <div class="col-sm-12">
+                    <div class="row">
+                      <div class="col-sm-4">
+                        <h2 class="nav-title">Red Hat Access Labs</h2>
+                        <p class="text-white">To help you use Red Hat products to their full potential, our engineers have developed a powerful set of tools to support your ongoing success.</p>
+                        <p class="push-top"><a href="https://access.redhat.com/labs/" class="btn btn-primary">Découvrir les Labs</a></p>
+
+                        <ul class="list-flat">
+                          <li class="more-link"><a href="https://access.redhat.com/labs/#?type=config">Configuration</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/labs/#?type=deploy">Déploiement</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/labs/#?type=troubleshoot">Résolution de problèmes</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/labs/#?type=security">Sécurité</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-sm-4">
+                        <h3 class="nav-title">Outils supplémentaires</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/products/red-hat-access/">Red Hat Access plug-ins</a></li>
+                          <li><a href="https://access.redhat.com/tools/satcert/">Outil de certificat Red Hat Satellite</a></li>
+                        </ul>
+                      </div>
+
+                      <div class="col-sm-4">
+                        <div class="card card-dark-grey">
+                          <h2 class="nav-title text-white">Red Hat Insights</h2>
+                          <p class="text-white">Augmente la visibilité des opérations de bases de données pour détecter et résoudre les problèmes techniques avant qu&#039;ils n&#039;affectent votre entreprise.</p>
+                          <ul class="list-flat">
+                            <li class="more-link"><a href="https://access.redhat.com/insights/info/?intcmp=mm|t|c1|rhaidec2015&">En savoir plus</a></li>
+                          </ul>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Security Menu -->
+              <div aria-labelledby="security-menu" class="security-menu mega-menu" data-eh="mega-menu" role="navigation">
+                <div class="row">
+                  <div class="col-sm-12 basic" data-portal-tour-1="10">
+
+                    <div class="row">
+                      <div class="col-sm-4">
+                        <h3 class="nav-title">Red Hat Product Security Center</h3>
+                        <p class="text-white">Engage with our Red Hat Product Security team, access security updates, and ensure your environments are not exposed to any known security vulnerabilities.</p>
+                        <p><a href="https://access.redhat.com/security/" class="btn btn-primary">Product Security Center</a></p>
+                      </div>
+
+                      <div class="col-sm-4">
+                        <h3 class="nav-title">Mises à jour de sécurité</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/security/security-updates/#/security-advisories">Security Advisories</a></li>
+                          <li><a href="https://access.redhat.com/security/security-updates/#/cve">Base de données CVE Red Hat</a></li>
+                          <li><a href="https://access.redhat.com/security/security-updates/#/security-labs">Security Labs</a></li>
+                        </ul>
+                        <p class="text-white">Keep your systems secure with Red Hat&#039;s specialized responses for high-priority security vulnerabilities.</p>
+                        <ul>
+                          <li class="more-link"><a href="https://access.redhat.com/security/vulnerability">View Responses</a></li>
+                        </ul>
+                      </div>
+
+                      <div class="col-sm-4">
+                        <h3 class="nav-title">Ressources</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/security/overview/">Overview</a></li>
+                          <li><a href="https://access.redhat.com/blogs/product-security">Blog sur la sécurité</a></li>
+                          <li><a href="https://www.redhat.com/security/data/metrics/">Mesuration Sécurité</a></li>
+                          <li><a href="https://access.redhat.com/security/updates/classification/">Niveaux de sévérité</a></li>
+                          <li><a href="https://access.redhat.com/security/updates/backporting/">Rétroportage des politiques</a></li>
+                          <li><a href="https://access.redhat.com/security/team/key/">Clés GPG Red Hat</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Community Menu -->
+              <div aria-labelledby="community-menu" class="community-menu mega-menu" data-eh="mega-menu" role="navigation">
+                <div class="row">
+                  <div class="col-sm-12 basic" data-portal-tour-1="11">
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <h3 class="nav-title">Discussions</h3>
+                        <ul>
+
+                          <li><a href="https://access.redhat.com/discussions?product=25&category=All&tags=All">Red Hat Enterprise Linux</a></li>
+                          <li><a href="https://access.redhat.com/discussions?product=8163&category=All&tags=All">Red Hat Virtualization</a></li>
+                          <li><a href="https://access.redhat.com/discussions?product=36&category=All&tags=All">Red Hat Satellite</a></li>
+                          <li><a href="https://access.redhat.com/discussions?product=22&category=All&tags=All">Portail Client</a></li>
+                          <li><a href="https://access.redhat.com/groups/">Groupes privés</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/discussions?keyword=&name=&product=All&category=All&tags=All">Toutes les discussions</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/node/add/discussion">Lancer une discussion</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-sm-3">
+                        <h3 class="nav-title">Blogs</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/blogs/767163">Portail Client</a></li>
+                          <li><a href="https://access.redhat.com/blogs/766093">Sécurité Produit Red Hat</a></li>
+                          <li><a href="https://access.redhat.com/blogs/759303">Red Hat Access Labs</a></li>
+                          <li><a href="https://access.redhat.com/blogs/insights/">Red Hat Insights</a></li>
+                          <li class="more-link"><a href="https://access.redhat.com/blogs/">Tous les blogs</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-sm-3">
+                        <h3 class="nav-title">Événements</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/customer-convergence/">Événements clients</a></li>
+                          <li><a href="http://www.redhat.com/summit/">Sommet Red Hat</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-sm-3">
+                        <h3 class="nav-title">Témoignages</h3>
+                        <ul>
+                          <li><a href="https://access.redhat.com/subscription-value/">Bénéfices d&#039;un abonnement Red Hat</a></li>
+                          <li><a href="https://access.redhat.com/you-asked-we-acted/">Vous l&#039;avez demandé. Nous l&#039;avons fait.</a></li>
+                          <li><a href="http://www.redhat.com/en/open-source">Communautés Open source</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <!--<a href="https://access.redhat.com/community/" class="btn btn-primary">Découvrir les communautés</a>-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <!--[if IE 8]>
+      <div class="portal-messages">
+        <div class="alert alert-warning alert-portal alert-w-icon">
+          <span class="icon-warning alert-icon" aria-hidden="true"></span>
+          You are using an unsupported web browser. Update to a supported browser for the best experience. <a href="/announcements/2120951">Read the announcement</a>.
+        </div>
+      </div>
+      <![endif]-->
+      <!--[if IE 9]>
+      <div class="portal-messages">
+        <div class="alert alert-warning alert-portal alert-w-icon">
+          <span class="icon-warning alert-icon" aria-hidden="true"></span>
+          As of March 1, 2016, the Red Hat Customer Portal will no longer support Internet Explorer 9. See our new <a href="/help/browsers">browser support policy</a> for more information.
+        </div>
+      </div>
+      <![endif]-->
+      <div id="site-section"></div>
+    </header>
+    <!--googleon: all-->
+
+    <main id="cp-main" class="portal-content-area" role="main">
+      <div id="cp-content" class="main-content">
+        <script type="text/javascript">
+          chrometwo_require(['jquery-ui']);
+        </script>
+
+
+        <article class="kcs_solution cirrus-content"  id="main-content">
+
+
+
+
+
+
+
+
+
+          <div class='band band-first'>
+            <div class='container'>
+              <div class="row">
+
+                <div class="col-sm-1 hidden-xs">
+                  <ul id="action-nav" class="action-nav affix-top">
+
+                    <!-- Action-nav: Comments-->
+                    <li>
+                      <a href="#" title="" data-toggle="tooltip" data-placement="right"
+                        data-original-title="Machine translation to français" onclick="requestTranslations()">
+                        <span class="web-icon-globe action-nav-icon" aria-hidden="true" ></span>
+                        <span class="sr-only">Machine translation</span>
+          <span class="action-nav-text">
+          </span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a href="
+             #comments          " title="" data-toggle="tooltip" data-placement="right"
+                        data-original-title="
+            Be the first to add a comment.     ">
+                        <span class="web-icon-contact action-nav-icon" aria-hidden="true" ></span>
+                        <span class="sr-only">Comments</span>
+    <span class="action-nav-text">
+          </span>
+                      </a>
+                    </li>
+
+
+                    <li>
+                      <a href="#" rh-action-sheet-toggler="helpfulActionSheet" title="" data-toggle="tooltip" data-placement="right"
+                        data-original-title="
+                    1                         user found this helpful.
+                    ">
+                        <span class="nimbus-icon-helpful action-nav-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Helpful</span>
+        <span class="action-nav-text">
+                      1                  </span>
+                      </a>
+                    </li>
+
+
+
+                    <!-- Action-nav: follow-->
+                    <li>
+                      <a href="#" rh-action-sheet-toggler="followActionSheet" title="" data-toggle="tooltip"
+                        data-placement="right" data-original-title="
+
+         Follow this content         ">
+                        <span class="nimbus-icon-activity action-nav-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Follow</span>
+                      </a>
+                    </li>
+
+
+
+                  </ul>
+                </div>
+
+                <div class='col-sm-11 solution-content content-wrapper'>
+                  <header class='header'>
+                    <h1 class="title">
+                      Kernel panic at trace_find_cmdline() function            </h1>
+                    <div class="header-meta">
+              <span class="status inprogress" data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="This solution is in progress and will be completed soon for Red Hat customers." data-original-title="" title="">
+                  <span aria-hidden="true" class="rh-icon-process"></span> Solution In Progress              </span>
+                      - Mis à jour<time class='moment_date' datetime='2014-08-12T02:11:46+10:00'>2014-08-12T02:11:46+10:00</time>              -
+
+                      <div class="dropdown inline">
+                        <a id="dLabel" data-target="#" href="" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                          English    <span class="caret"></span>
+                        </a>
+
+                        <ul class="dropdown-menu" aria-labelledby="dLabel">
+                          <li><a href='#'>No translations currently exist.</a></li>  </ul>
+                      </div>            </div>
+                  </header>
+                  <!--Display Content -->
+
+
+                  <section class="field_kcs_environment_txt">
+                    <h2>Environnement</h2>
+                    <ul>
+                      <li>Red Hat Enterprise Linux 6</li>
+                    </ul>
+                  </section>
+
+
+                  <section class="field_kcs_issue_txt">
+                    <h2>Question</h2>
+                    <ul>
+                      <li>Kernel panic at trace_find_cmdline() function</li>
+                    </ul>
+                  </section>
+
+
+                  <section class="field_kcs_resolution_txt">
+                    <h2>Résolution</h2>
+                    <ul>
+                      <li>A private bug <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1123102">1123102</a> has been opened and Engineering team is working on this issue.</li>
+                    </ul>
+                  </section>
+
+
+                  <section class="field_kcs_rootcause_txt">
+                    <h2>Cause</h2>
+                    <p>There is insufficient checking in the trace code to be certain that the status of the ring buffer has not changed. If a read of the trace file is in progress and a trace_pipe interrupts it, there is a rare set of circumstances that can cause an illegal address reference.</p>
+                    <p>Upstream commit 492a74f4210e15f4701422e2e1c4cd3c1e45ddae may be part of the fix. Additional corrections have been proposed in the <a href="http://marc.info/?l=linux-kernel&amp;m=140742157118707">LKML</a></p>
+                  </section>
+
+
+                  <section class="field_kcs_diagnostic_txt">
+                    <h2>étapes de diagnostic</h2>
+                    <ul>
+                      <li><strong>Kernel ring buffers:</strong></li>
+                    </ul>
+<pre><code>crash&gt; log
+[..]
+BUG: unable to handle kernel paging request at ffffffff2bfeb0bc
+IP: [&lt;ffffffff810ece37&gt;] trace_find_cmdline+0x47/0xc0
+PGD 1a87067 PUD 0
+Oops: 0000 [#1] SMP
+last sysfs file: /sys/devices/system/cpu/cpu3/online
+CPU 2
+Modules linked in: fuse bluetooth rfkill 8021q garp stp llc autofs4 sunrpc ipv6 dm_mirror dm_region_hash dm_log vhost_net macvtap macvlan tun microcode virtio_balloon snd_hda_intel snd_hda_codec snd_hwdep snd_seq snd_seq_device snd_pcm snd_timer snd soundcore snd_page_alloc virtio_net i2c_piix4 i2c_core ext4 mbcache jbd2 virtio_blk virtio_pci virtio_ring virtio pata_acpi ata_generic ata_piix dm_mod [last unloaded: speedstep_lib]
+
+Pid: 2207, comm: trace-cmd Not tainted 2.6.32-220.el6.x86_64 #1 Red Hat KVM
+RIP: 0010:[&lt;ffffffff810ece37&gt;]  [&lt;ffffffff810ece37&gt;] trace_find_cmdline+0x47/0xc0
+RSP: 0018:ffff8800c1039d98  EFLAGS: 00010246
+RAX: ffff8800c1039db8 RBX: ffff8800c1039db8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff8800c1039db8 RDI: ffffffffea83905f
+RBP: ffff8800c1039d98 R08: 0000000000000000 R09: 0000000000000000
+R10: 746e655f71726974 R11: 3d636576203a7972 R12: ffff8800c1340000
+R13: 000003843d2db5da R14: ffff88011b28b438 R15: 0000000000000000
+FS:  00007f6a11e70700(0000) GS:ffff880028300000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: ffffffff2bfeb0bc CR3: 00000000c1234000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
+Process trace-cmd (pid: 2207, threadinfo ffff8800c1038000, task ffff8800cfb120c0)
+Stack:
+ ffff8800c1039df8 ffffffff810f21c0 ffff8800c1039dd8 ffffffff810e8561
+&lt;0&gt; ffff8800dfb5df20 ffff8800dfb5df20 0000000000000000 0000000089da2f01
+&lt;0&gt; ffff8800c1340000 ffff88011b28b438 ffff8800c1348048 00000000003a2401
+Call Trace:
+ [&lt;ffffffff810f21c0&gt;] trace_print_context+0x50/0xc0
+ [&lt;ffffffff810e8561&gt;] ? rb_advance_iter+0x101/0x150
+ [&lt;ffffffff810ebdc8&gt;] print_trace_line+0x3a8/0x3c0
+ [&lt;ffffffff810eed29&gt;] s_show+0x29/0xc0
+ [&lt;ffffffff81198fe7&gt;] seq_read+0x267/0x3f0
+ [&lt;ffffffff81176e15&gt;] vfs_read+0xb5/0x1a0
+ [&lt;ffffffff81176f51&gt;] sys_read+0x51/0x90
+ [&lt;ffffffff8100b308&gt;] tracesys+0xd9/0xde
+Code: f0 0f c1 15 50 a0 e0 00 0f b7 ca c1 ea 10 39 d1 74 16 f3 90 0f 1f 84 00 00 00 00 00 90 83 3d 34 a0 e0 00 00 75 ec eb d3 48 63 ff &lt;8b&gt; 34 bd 40 6f f0 81 83 fe ff 74 45 89 f6 48 89 c7 48 c1 e6 04
+RIP  [&lt;ffffffff810ece37&gt;] trace_find_cmdline+0x47/0xc0
+ RSP &lt;ffff8800c1039d98&gt;
+CR2: ffffffff2bfeb0bc
+</code></pre><ul>
+                    <li><strong>Backtraces:</strong></li>
+                  </ul>
+<pre><code>crash&gt; bt
+PID: 2207   TASK: ffff8800cfb120c0  CPU: 2   COMMAND: "trace-cmd"
+ #0 [ffff8800c1039980] machine_kexec at ffffffff81031fcb
+ #1 [ffff8800c10399e0] crash_kexec at ffffffff810b8f72
+ #2 [ffff8800c1039ab0] oops_end at ffffffff814f04b0
+ #3 [ffff8800c1039ae0] no_context at ffffffff8104230b
+ #4 [ffff8800c1039b30] __bad_area_nosemaphore at ffffffff81042595
+ #5 [ffff8800c1039b80] bad_area_nosemaphore at ffffffff81042663
+ #6 [ffff8800c1039b90] __do_page_fault at ffffffff81042d1d
+ #7 [ffff8800c1039cb0] do_page_fault at ffffffff814f248e
+ #8 [ffff8800c1039ce0] page_fault at ffffffff814ef845
+    [exception RIP: trace_find_cmdline+71]
+    RIP: ffffffff810ece37  RSP: ffff8800c1039d98  RFLAGS: 00010246
+    RAX: ffff8800c1039db8  RBX: ffff8800c1039db8  RCX: 0000000000000000
+    RDX: 0000000000000000  RSI: ffff8800c1039db8  RDI: ffffffffea83905f
+    RBP: ffff8800c1039d98   R8: 0000000000000000   R9: 0000000000000000
+    R10: 746e655f71726974  R11: 3d636576203a7972  R12: ffff8800c1340000
+    R13: 000003843d2db5da  R14: ffff88011b28b438  R15: 0000000000000000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #9 [ffff8800c1039da0] trace_print_context at ffffffff810f21c0
+#10 [ffff8800c1039e00] print_trace_line at ffffffff810ebdc8
+#11 [ffff8800c1039e50] s_show at ffffffff810eed29
+#12 [ffff8800c1039e70] seq_read at ffffffff81198fe7
+#13 [ffff8800c1039ef0] vfs_read at ffffffff81176e15
+#14 [ffff8800c1039f30] sys_read at ffffffff81176f51
+#15 [ffff8800c1039f80] tracesys at ffffffff8100b308 (via system_call)
+    RIP: 0000003b1acd9580  RSP: 00007fffe3e5a058  RFLAGS: 00000246
+    RAX: ffffffffffffffda  RBX: ffffffff8100b308  RCX: ffffffffffffffff
+    RDX: 0000000000001000  RSI: 00007f6a11e90000  RDI: 000000000000003f
+    RBP: ffffffffffffffff   R8: 00000000ffffffff   R9: 0000000000000000
+    R10: 0000000000000022  R11: 0000000000000246  R12: 0000000000000000
+    R13: 00007fffe3e5a0e8  R14: 0000000000d19090  R15: 0000000000000000
+    ORIG_RAX: 0000000000000000  CS: 0033  SS: 002b
+</code></pre><ul>
+                    <li><strong>Dis-assembly reference:</strong></li>
+                  </ul>
+<pre><code>crash&gt; dis -lr trace_find_cmdline+71
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 966
+0xffffffff810ecdf0 &lt;trace_find_cmdline&gt;:    push   %rbp
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 969
+0xffffffff810ecdf1 &lt;trace_find_cmdline+1&gt;:  test   %edi,%edi
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 966
+0xffffffff810ecdf3 &lt;trace_find_cmdline+3&gt;:  mov    %rsi,%rax
+0xffffffff810ecdf6 &lt;trace_find_cmdline+6&gt;:  mov    %rsp,%rbp
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 969
+0xffffffff810ecdf9 &lt;trace_find_cmdline+9&gt;:  je     0xffffffff810ece70 &lt;trace_find_cmdline+128&gt;
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 974
+0xffffffff810ecdfb &lt;trace_find_cmdline+11&gt;: cmp    $0x8000,%edi
+0xffffffff810ece01 &lt;trace_find_cmdline+17&gt;: jg     0xffffffff810ecea0 &lt;trace_find_cmdline+176&gt;
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/arch/x86/include/asm/spinlock.h: 127
+0xffffffff810ece07 &lt;trace_find_cmdline+23&gt;: mov    $0x10000,%edx
+0xffffffff810ece0c &lt;trace_find_cmdline+28&gt;: lock xadd %edx,0xe0a050(%rip)        # 0xffffffff81ef6e64 &lt;trace_cmdline_lock&gt;
+0xffffffff810ece14 &lt;trace_find_cmdline+36&gt;: movzwl %dx,%ecx
+0xffffffff810ece17 &lt;trace_find_cmdline+39&gt;: shr    $0x10,%edx
+0xffffffff810ece1a &lt;trace_find_cmdline+42&gt;: cmp    %edx,%ecx
+0xffffffff810ece1c &lt;trace_find_cmdline+44&gt;: je     0xffffffff810ece34 &lt;trace_find_cmdline+68&gt;
+0xffffffff810ece1e &lt;trace_find_cmdline+46&gt;: pause
+0xffffffff810ece20 &lt;trace_find_cmdline+48&gt;: nopl   0x0(%rax,%rax,1)
+0xffffffff810ece28 &lt;trace_find_cmdline+56&gt;: nop
+0xffffffff810ece29 &lt;trace_find_cmdline+57&gt;: cmpl   $0x0,0xe0a034(%rip)        # 0xffffffff81ef6e64 &lt;trace_cmdline_lock&gt;
+0xffffffff810ece30 &lt;trace_find_cmdline+64&gt;: jne    0xffffffff810ece1e &lt;trace_find_cmdline+46&gt;
+0xffffffff810ece32 &lt;trace_find_cmdline+66&gt;: jmp    0xffffffff810ece07 &lt;trace_find_cmdline+23&gt;
+/usr/src/debug/kernel-2.6.32-220.el6/linux-2.6.32-220.el6.x86_64/kernel/trace/trace.c: 981
+0xffffffff810ece34 &lt;trace_find_cmdline+68&gt;: movslq %edi,%rdi
+0xffffffff810ece37 &lt;trace_find_cmdline+71&gt;: mov    -0x7e0f90c0(,%rdi,4),%esi
+</code></pre><ul>
+                    <li><strong>Kernel source code:</strong></li>
+                  </ul>
+<pre><code>         0974   if (pid &gt; PID_MAX_DEFAULT) {
+         0975       strcpy(comm, "&lt;...&gt;");
+         0976       return;
+         0977   }
+         0978
+         0979   preempt_disable();
+         0980   __raw_spin_lock(&amp;trace_cmdline_lock);
+         0981   map = map_pid_to_cmdline[pid];
+</code></pre><ul>
+                    <li><code>trace_find_cmdline</code> tried to index <code>map_pid_to_cmdline[pid]</code> with <code>pid</code> = 0xea83905f</li>
+                  </ul>
+<pre><code>crash&gt; trace_iterator.ent ffff8800c1340000
+  ent = 0xffff88011b28b438
+crash&gt; trace_entry 0xffff88011b28b438
+struct trace_entry {
+  type = 0x0,
+  flags = 0x0,
+  preempt_count = 0x0,
+  pid = 0xea83905f,
+  lock_depth = 0x7fff
+}
+</code></pre><ul>
+                    <li>There is at least one problem:</li>
+                  </ul>
+<pre><code>    if (pid &gt; PID_MAX_DEFAULT) {
+        strcpy(comm, "&lt;...&gt;");
+        return;
+    }
+</code></pre><ul>
+                    <li>It should have caught the too-large <code>pid</code> value, since <code>pid</code> is an <code>int</code>, 0xea83905f looks like a negative value. It seems likely there is another problem, the pid value is wrong or the <code>ent</code> pointer is wrong.</li>
+                  </ul>
+                  </section>
+                  <div class='clearfix'>
+
+                    <ul class="tag-list list-inline pull-left">
+                      <li>
+                        <small>
+                          <strong>
+                            SBR        </strong>
+                        </small>
+                      </li>
+                      <li class="badge"><a href="/sbr/kernel" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">Kernel</a></li>
+                    </ul>
+
+                    <ul class="tag-list list-inline pull-left">
+                      <li>
+                        <small>
+                          <strong>
+                            Produit(s)        </strong>
+                        </small>
+                      </li>
+                      <li class="badge"><a href="/taxonomy/products/red-hat-enterprise-linux" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">Red Hat Enterprise Linux</a></li>
+                    </ul>
+
+                    <ul class="tag-list list-inline pull-left">
+                      <li>
+                        <small>
+                          <strong>
+                            Composant        </strong>
+                        </small>
+                      </li>
+                      <li class="badge"><a href="/components/kernel" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">kernel</a></li>
+                    </ul>
+
+                    <ul class="tag-list list-inline pull-left">
+                      <li>
+                        <small>
+                          <strong>
+                            Catégorie        </strong>
+                        </small>
+                      </li>
+                      <li class="badge"><a href="/category/troubleshoot" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">Troubleshoot</a></li>
+                    </ul>
+
+                    <ul class="tag-list list-inline pull-left">
+                      <li>
+                        <small>
+                          <strong>
+                            Balises        </strong>
+                        </small>
+                      </li>
+                      <li class="badge"><a href="/tags/rhel_6" typeof="skos:Concept" property="rdfs:label skos:prefLabel" datatype="">rhel_6</a></li>
+                    </ul>
+                  </div>
+                  <!--Display fast track msg-->
+                  <p>
+                    This solution is part of Red Hat’s fast-track publication program, providing a huge library of solutions that Red Hat engineers have created while supporting our customers. To give you the knowledge you need the instant it becomes available, these articles may be presented in a raw and unedited form.          </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div id="helpful" class="band band-narrow band-border-top ng-isolate-scope rh-actionsheet override" helpful-band="" rh-component-id="helpfulActionSheet" rh-action-sheet="" rh-action-sheet-band="" previous-element=".band-first" >
+            <div class="container text-center">
+              <button class="btn btn-round pull-right btn-actionsheet-close" rh-action-sheet-toggler="helpfulActionSheet">
+                <span class="icon-remove btn-icon btn-icon-only"></span>
+              </button>
+              <h2 class="subheading heading-inline">Was this helpful?</h2>
+              <div class="rh-actionsheet-btns">
+                <div class="rate-widget-4 rate-widget clear-block rate-average rate-widget-custom inline  rate-VQkfl92iB2wRscxdcQBDQpjODZdbibTg2wD8i0cvh4Q rate-node-1140033-4-1--2" id="rate-node-1140033-4-1--2">
+                  <a href="/solutions/1140033?rate=f1rzP_oIOwCHDFPiGluUeErTmfN6In2nf0DMZWZ9jS0" title="" class="btn btn-open-white btn-inline rate-btn rate-button" rel="nofollow">oui</a>  <a href="/solutions/1140033?rate=uJSjhdoGGj5N5KvoIIrW4fyyzJu8RAhf9gBgcWSok2A" title="" class="btn btn-open-white btn-inline rate-btn rate-button" rel="nofollow">aucun</a>
+                </div>    </div>
+
+              <div ng-switch="helpfulBandController.response">
+                <div class="push-top ng-scope" ng-switch-when="yes">
+                  We appreciate your feedback. <a href="#comments">Leave a comment</a> if you would like to provide more detail.      </div>
+                <div class="push-top ng-scope" ng-switch-when="no">
+                  It looks like we have some work to do. <a href="#comments">Leave a comment</a> to let us know how we could improve.      </div>
+              </div>
+            </div>
+          </div>
+          <div id="follow" class="band band-narrow band-border-top override ng-isolate-scope rh-actionsheet" follow-band="" ng-init="followBandController.following = false" rh-component-id="followActionSheet" rh-action-sheet="" rh-action-sheet-band="" previous-element=".band-first">
+            <div class="container text-center">
+              <form action="/solutions/1140033" method="post" id="redhat-subscriptions-block-form" accept-charset="UTF-8" >
+                <button class="btn btn-round pull-right btn-actionsheet-close" rh-action-sheet-toggler="followActionSheet">
+                  <span class="icon-remove btn-icon btn-icon-only"></span>
+                </button>
+                <h2 class="subheading heading-inline">Get notified when this content is updated</h2>
+                <input class="btn btn-open-white form-submit" type="submit" id="edit-subscriptions-node-save-button--2" name="op" value="Follow" />                <input type="hidden" name="subscriptions_block_field" value="follow" />
+                <div class="push-top hide" id='subscription-email-msg'>
+                  You'll get an email whenever this content is updated or others comment. You can manage all of your notifications in <a href='/user/14442551'>your profile</a>.        </div>
+                <input type="hidden" name="form_build_id" value="form-ts-0RQFIpqbvaphsONIH4nxRRs6ohDOKnNNVpBGu8AU" />
+                <input type="hidden" name="form_token" value="ghscSFyuZ3KjqyuYPHtDQth1ROBat0tndAvygCL4hZc" />
+                <input type="hidden" name="form_id" value="redhat_subscriptions_block_form" />
+              </form>
+            </div>
+          </div>
+
+          <div class="band band-border-top" id="case-links-target"></div><div id="block-redhat-knowledge-blocks-getting-started" class="block block-redhat-knowledge-blocks even">
+
+
+
+          <div id='optinToast' class='toast '>
+            <a href="#" class="close">
+              <span class="icon-close" aria-hidden="true"> </span>
+              <span class="sr-only">Close</span>
+            </a>
+            <div class='cirrus-opt-in-question'>
+              <p>
+                Nous vous souhaitons la bienvenue ! Consultez la page du Guide de démarrage de Red Hat pour des solutions rapides et pour obtenir des guides pour les tâches courantes.
+              </p>
+            </div>
+            <div class='cirrus-opt-in-responses'>
+              <form action="/solutions/1140033" method="post" id="getting-started-form" accept-charset="UTF-8"><div><input class="btn btn-app btn-primary form-submit" type="submit" id="edit-submit-btn-in" name="op" value="Consulter" /><input class="btn btn-app btn-secondary btn-inline form-submit" type="submit" id="edit-submit-btn-out" name="op" value="Non, merci" /><input type="hidden" name="form_build_id" value="form-G7sN9FkT71SkGyE4zW6dfBBiIbyOGOXECXTlFkOfnec" />
+                <input type="hidden" name="form_token" value="OyCV-eivzcdt1Nout8lcCzbjEA3MZQdfukYFkC3KXwY" />
+                <input type="hidden" name="form_id" value="getting_started_form" />
+                <div class="spinner spinner-inline spinner-light hide"></div></div></form>
+            </div>
+          </div>
+
+        </div>
+
+          <div class="band band-border-top">
+            <div class="container">
+              <div id='comments' class='comments-list'>
+
+                <div class="comments-list-header">
+                  <h2 class="headline headline-md heading-thin">
+                    Commentaires          </h2>
+                  <!--Hide filter options -->
+                  <div class="comments-sort-tools" style="display:none;">
+                    <div class="comments-sort">
+                      <div class="dropdown-select dropdown-select-horizontal">
+                        <select>
+                          <option value="lastModifiedDate asc">
+                            Sort By Oldest
+                          </option>
+                          <option value="lastModifiedDate desc">
+                            Sort By Newest
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <form id="ajax-comment-090846500-1476412926" class="comment-form add-comment-form comment-wrapper" action="/comment/reply/1140033" method="post" accept-charset="UTF-8"><div class="comment-inner"><div class="comment">
+                  <div class="comment-submitted">
+                    <div class="user-picture">
+                      <span class='thumbnail'><a href="/user/14442551" title="View user profile."><img typeof="foaf:Image" src="/sites/all/themes/kcs/images/default-user.png" alt="Alex Eng&#039;s picture" title="Alex Eng&#039;s picture" /></a></span>
+                      <span class="badge badge-23 red-hat">Red Hat</span>
+                    </div>
+                  </div>
+
+                  <div class='comment-content'><div id='comment-now' class='add-comment-field'> <div class="form-textarea-wrapper resizable"><textarea class="text-full form-textarea required" id="edit-comment-body-und-0-value" name="comment_body[und][0][value]" cols="60" rows="5"></textarea></div>
+                  </div></div>
+                  <div class="comments-add-comment-actions">
+                    <a href="#formatHelp" class="format-link" data-toggle="modal">Formatting Help</a>
+                    <input type="hidden" name="form_id" value="comment_node_kcs_solution_form" />
+                    <input type="hidden" name="form_build_id" value="form-1T4gGVnY233dnDHWk4TRQ2MI0QVbMtx2vLhSNhguQqE" />
+                    <input type="hidden" name="form_token" value="_ihPHol61QjOkgOH7ckdoRCgOUB-ZUItndtQLNIN03o" />
+                    <div class="form-item form-type-checkbox form-item-field-kcs-private-comment-und">
+                      <input type="checkbox" id="edit-field-kcs-private-comment-und" name="field_kcs_private_comment[und]" value="1" class="form-checkbox" />  <label class="option" for="edit-field-kcs-private-comment-und">Mark comment as private </label>
+
+                    </div>
+                    <div class="add-comment-buttons">
+                      <input class="btn form-submit" type="submit" id="edit-submit" name="op" value="soumettre un commentaire" />    </div>
+                  </div>
+                </div>
+
+
+
+
+                </div></form>
+
+
+
+              </div>
+            </div>
+          </div>
+          <meta  itemscope="" itemref="md1 md2 md3 md4 md5 md6 md8 md9 md11 md13 md15 md17" /><meta  itemscope="" id="md8" itemref="md7" /><meta  itemscope="" id="md11" itemref="md10" /><meta  itemscope="" id="md13" itemref="md12" /><meta  itemscope="" id="md15" itemref="md14" /><meta  itemscope="" id="md17" itemref="md16" />
+        </article>
+
+
+
+      </div>
+    </main>
+  </div>
+  <!--googleoff: all-->
+  <div id="to-top"><a class="btn_slideto" href="#masthead" aria-label="Back to Top"><span class="web-icon-upload"></span></a></div>
+  <footer class="footer-main">
+    <div class="container footer-top">
+      <div class="row">
+
+        <div class="col-sm-2 brand">
+          <img src="https://access.redhat.com/chrome_themes/nimbus/img/l_redhat-reverse.png" alt="Red Hat" />
+        </div>
+
+        <menu class="col-sm-2">
+          <h3>Liens rapides</h3>
+          <ul>
+            <li><a class="download-software" href="https://access.redhat.com/downloads/">Téléchargements</a></li>
+            <li><a class="manage-subscriptions" href="https://access.redhat.com/management/subscriptions/#active">Abonnements</a></li>
+            <li><a class="support-cases" href="https://access.redhat.com/support">Dossiers d&#039;assistance</a></li>
+            <li><a class="customer-service" href="https://access.redhat.com/support/customer-service">Service client</a></li>
+            <li><a class="quick-docs" href="https://access.redhat.com/documentation">Documentation produit</a></li>
+          </ul>
+        </menu>
+
+        <menu class="col-sm-2">
+          <h3>Aide</h3>
+          <ul>
+            <li><a class="contact-us" href="https://access.redhat.com/support/contact/">Nous contacter</a></li>
+            <li><a class="login-problems" href="https://access.redhat.com/help/login_assistance">Aide relative à la connexion</a></li>
+            <li><a class="accessibility" href="https://access.redhat.com/help/accessibility/">Accessibilité</a></li>
+            <li><a class="browser-support-policy" href="https://access.redhat.com/help/browsers/">Politique de prise en charge des navigateurs</a></li>
+          </ul>
+        </menu>
+
+        <menu class="col-sm-2">
+          <h3>Informations sur le site</h3>
+          <ul>
+            <li><a class="recognition" href="https://access.redhat.com/recognition/">Prix &amp; récompenses</a></li>
+            <li><a class="colophon" href="https://access.redhat.com/help/colophon/">Colophon</a></li>
+            <li><a class="cp-faqs" href="https://access.redhat.com/articles/33844">FAQ du Portail Client</a></li>
+          </ul>
+        </menu>
+
+        <menu class="col-sm-2">
+          <h3>À propos</h3>
+          <ul>
+            <li><a href="https://access.redhat.com/subscription-value" class="subscription-value">Valeur de l&#039;abonnement Red Hat</a></li>
+            <li><a href="https://www.redhat.com/about/" class="about-red-hat">À propos de Red Hat</a></li>
+            <li><a href="http://jobs.redhat.com" class="about-jobs">Red Hat Jobs</a></li>
+          </ul>
+        </menu>
+
+        <menu class="col-sm-2">
+          <h3>Sites sur le même sujet</h3>
+          <ul>
+            <li><a href="https://www.redhat.com/" class="red-hat-com">RedHat.com</a></li>
+            <li><a href="https://www.jboss.org/" class="jboss-org">JBoss.org</a></li>
+            <li><a href="https://www.openshift.com" class="openshift-com">OpenShift.com</a></li>
+            <li><a href="http://developers.redhat.com/" class="red-hat-developers">Developers.RedHat.com</a></li>
+            <li><a href="https://partnercenter.force.com" class="partner-connect">Red Hat Partner Connect</a></li>
+          </ul>
+        </menu>
+
+      </div>
+    </div>
+
+    <div class="anchor">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-4 social">
+            <a href="http://www.redhat.com/summit/" class="summit"><img src="https://access.redhat.com/chrome_themes/nimbus/img/l_summit.png" alt="Red Hat Summit" /></a>
+            <a href="http://www.devnation.org/" class="devnation"><img src="https://access.redhat.com/chrome_themes/nimbus/img/devnation-logo.png" alt="DevNation"></a>
+            <a href="https://twitter.com/RedHatSupport" class="sm-icon twitter"><span class="nicon-twitter"></span><span class="offscreen">Twitter</span></a>
+            <a href="https://www.facebook.com/RedHatSupport" class="sm-icon facebook"><span class="nicon-facebook"></span><span class="offscreen">Facebook</span></a>
+            <a href="https://plus.google.com/100456039940694908045/posts" class="sm-icon googleplus"><span class="nicon-googleplus"></span><span class="offscreen">Google+</span></a>
+          </div>
+          <div class="col-sm-8 legal">
+            <menu class="legal-nav">
+              <ul>
+                <li><a href="http://www.redhat.com/en/about/privacy-policy" class="privacy-policy">Politique de confidentialité</a></li>
+                <li><a href="https://access.redhat.com/help/terms/" class="terms-of-use">Conditions d’utilisation du Portail Client</a></li>
+                <li><a href="http://www.redhat.com/en/about/all-policies-guidelines" class="all-policies">Toutes les politiques et directives</a></li>
+              </ul>
+            </menu>
+            <small class="copyright">Copyright © 2016 Red Hat, Inc.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!--googleon: all-->
+</div>
+<script></script>
+<div id="formatHelp" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="formatTitle" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="formatTitle">Formatting Tips</h3>
+      </div>
+      <div class="modal-body">
+        <p>Here are the common uses of Markdown.</p><dl class="formatting-help">
+        <dt class="codeblock">Code blocks</dt><dd class="codeblock"><pre><code>~~~
+Code surrounded in tildes is easier to read
+~~~</code></pre></dd>
+        <dt class="urls">Links/URLs</dt><dd class="urls"><code>[Red Hat Customer Portal](https://access.redhat.com)</code></dd>
+      </dl>
+      </div>
+      <div class="modal-footer">
+        <a target="_blank" href="/help/markdown" class="btn btn-primary">Learn more</a>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      </div>
+    </div>
+  </div>
+</div></body>
+</html>

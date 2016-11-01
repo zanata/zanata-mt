@@ -1,89 +1,528 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>mt</groupId>
-	<artifactId>mt</artifactId>
-	<packaging>war</packaging>
-	<version>1.0</version>
-	<name>mt</name>
-	<repositories>
-		<repository>
-			<id>eap</id>
-			<url>http://maven.repository.redhat.com/techpreview/all</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>eap</id>
-			<url>http://maven.repository.redhat.com/techpreview/all</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
-	</properties>
-	<dependencies>
-<!--
-As updates are released for EAP the version of the provided jboss-javaee-6.0
-jar can change.  To ensure your application is compiling against the same jars
-that the runtime provides the <version> element below should match the
-installed version of EAP on the node hosting your application.  To determine
-the version of EAP running on the node, log into an example EAP application and
-look in the jbosseap/logs/server.log file for the line:
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.zanata.mt</groupId>
+  <artifactId>ZanataMT</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>Zanata MT</name>
+  <packaging>war</packaging>
+  <url>http://maven.apache.org</url>
+  <scm>
+    <connection>scm:git:git@gitlab.cee.redhat.com:zanata/machine-translation.git</connection>
+  </scm>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <!-- bundled 2.3.x in EAP6 -->
+    <resteasy.version>3.0.12.Final</resteasy.version>
+    <javamelody.version>1.60.0</javamelody.version>
+    <guava.version>19.0</guava.version>
+    <slf4j.version>1.7.21</slf4j.version>
+    <validation-api.version>1.1.0.Final</validation-api.version>
+    <hibernate.validator.version>4.3.2.Final</hibernate.validator.version>
+    <hibernate.version>4.2.19.Final</hibernate.version>
 
-... JBAS015874: JBoss EAP 6.1.1.GA (AS 7.2.1.Final-redhat-10) started ...
+    <!-- database -->
+    <postgresql.version>9.2-1004-jdbc3</postgresql.version>
+    <postgresql.port>5432</postgresql.port>
+    <postgressql.user>root</postgressql.user>
+    <postgressql.password>root</postgressql.password>
+    <db.name>mt</db.name>
+    <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
+    <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
+    <icu4j.version>56.1</icu4j.version>
 
-To determine the correct value for <version>, download the maven repository zip
-file corresponding to the installed version of EAP from the customer service
-portal [1].  Unzip the file and examine the single directory under
-jboss-eap-*-maven-repository/org/jboss/spec/jboss-javaee-6.0
+    <!-- cargo settings -->
+    <cargo.host>localhost</cargo.host>
+    <cargo.port.offset>0</cargo.port.offset>
+    <cargo.installation>http://download.jboss.org/wildfly/8.2.1.Final/wildfly-8.2.1.Final.tar.gz</cargo.installation>
+    <cargo.containerId>wildfly8x</cargo.containerId>
+    <cargo.extract.dir>${project.build.directory}/cargo/installs</cargo.extract.dir>
+    <cargo.container.home>${project.build.directory}/jboss/container</cargo.container.home>
+    <cargo.servlet.port>8080</cargo.servlet.port>
+    <cargo.jboss.management-http.port>10190</cargo.jboss.management-http.port>
+    <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
+    <context.path>/</context.path>
 
-[1] https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?downloadType=distributions&product=appplatform&productChanged=yes"
--->
-		<dependency>
-			<groupId>org.jboss.spec</groupId>
-			<artifactId>jboss-javaee-6.0</artifactId>
-			<version>3.0.2.Final-redhat-4</version>
-			<type>pom</type>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
-	<profiles>
-		<profile>
-			<!-- When built in OpenShift the 'openshift' profile will be used when 
-				invoking mvn. -->
-			<!-- Use this profile for any OpenShift specific customization your app 
-				will need. -->
-			<!-- By default that is to put the resulting archive into the 'deployments' 
-				folder. -->
-			<!-- http://maven.apache.org/guides/mini/guide-building-for-different-environments.html -->
-			<id>openshift</id>
-			<build>
-				<finalName>mt</finalName>
-				<plugins>
-					<plugin>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>2.1.1</version>
-						<configuration>
-							<outputDirectory>deployments</outputDirectory>
-							<warName>ROOT</warName>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+  </properties>
+
+  <build>
+    <finalName>ZanataMT</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <!-- The Docker Maven plugin is used to create docker image with the fat jar -->
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-maven-plugin.version}</version>
+        <configuration>
+          <logDate>default</logDate>
+          <autoPull>true</autoPull>
+          <images>
+            <!-- Postgres Image is used 'as-is' and is linked into the service image -->
+            <image>
+              <alias>db</alias>
+              <name>postgres:9.2</name>
+              <run>
+                <env>
+                  <POSTGRES_DB>${db.name}</POSTGRES_DB>
+                  <POSTGRES_USER>${postgressql.user}</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>${postgressql.password}</POSTGRES_PASSWORD>
+                </env>
+                <ports>
+                  <port>${postgresql.port}:${postgresql.port}</port>
+                </ports>
+                <wait>
+                  <log>database system is ready to accept connections</log>
+                  <time>20000</time>
+                </wait>
+                <log>
+                  <prefix>DB</prefix>
+                  <color>yellow</color>
+                </log>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>start</id>-->
+            <!--<phase>pre-integration-test</phase>-->
+            <!--<goals>-->
+              <!--<goal>build</goal>-->
+              <!--<goal>start</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+          <!--<execution>-->
+            <!--<id>stop</id>-->
+            <!--<phase>post-integration-test</phase>-->
+            <!--<goals>-->
+              <!--<goal>stop</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <version>1.6.0</version>
+        <configuration>
+          <container>
+            <containerId>${cargo.containerId}</containerId>
+            <type>installed</type>
+            <!--if install from url-->
+            <zipUrlInstaller>
+              <url>${cargo.installation}</url>
+              <downloadDir>${user.home}/Downloads</downloadDir>
+              <extractDir>${cargo.extract.dir}</extractDir>
+            </zipUrlInstaller>
+
+            <output>${project.build.directory}/container.log</output>
+            <append>false</append>
+            <log>${project.build.directory}/cargo.log</log>
+
+            <dependencies>
+              <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+              </dependency>
+            </dependencies>
+
+            <systemProperties>
+              <!-- System properties for Azure service. Set this in your maven settings.xml for DEV -->
+              <AZURE_ID>${AZURE_ID}</AZURE_ID>
+              <AZURE_SECRET>${AZURE_SECRET}</AZURE_SECRET>
+            </systemProperties>
+          </container>
+
+          <configuration>
+            <type>standalone</type>
+            <home>${cargo.container.home}</home>
+            <properties>
+              <cargo.start.jvmargs>
+                -Xdebug
+                -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+                -Xnoagent
+                -Djava.compiler=NONE
+              </cargo.start.jvmargs>
+              <cargo.jboss.configuration>standalone</cargo.jboss.configuration>
+              <cargo.port.offset>${cargo.port.offset}</cargo.port.offset>
+              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
+              <cargo.jboss.management-http.port>${cargo.jboss.management-http.port}</cargo.jboss.management-http.port>
+              <cargo.jboss.management-native.port>${cargo.jboss.management-native.port}</cargo.jboss.management-native.port>
+
+              <!-- maven variables does not work here -->
+              <cargo.datasource.datasource.postgres>
+                cargo.datasource.jndi=jboss/datasources/mt|
+                cargo.datasource.driver=org.postgresql.Driver|
+                cargo.datasource.url=jdbc:postgresql://localhost:${postgresql.port}/${db.name}|
+                cargo.datasource.username=${postgressql.user}|
+                cargo.datasource.password=${postgressql.password}
+              </cargo.datasource.datasource.postgres>
+            </properties>
+          </configuration>
+
+          <deployables>
+            <deployable>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <type>war</type>
+              <pingURL>http://${cargo.host}:${cargo.servlet.port}/</pingURL>
+              <pingTimeout>30000</pingTimeout>
+              <properties>
+                <context>${context.path}</context>
+              </properties>
+            </deployable>
+          </deployables>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>cargo-start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>cargo-stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+          <outputDirectory>target/deployments</outputDirectory>
+          <warName>ROOT</warName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+          <shortRevisionLength>5</shortRevisionLength>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+
+    <!-- CDI -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <version>1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+      <version>1.0.2.Final</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <version>1.0.2.Final</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.bull.javamelody</groupId>
+      <artifactId>javamelody-core</artifactId>
+      <version>${javamelody.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+
+    <!-- resteasy -->
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>jaxrs-api</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-servlet-initializer</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.ws.rs</groupId>
+          <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxrs</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javassist</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>jsr250-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jcip-annotations</artifactId>
+          <groupId>net.jcip</groupId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.annotation</groupId>
+          <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.ws.rs</groupId>
+          <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-cdi</artifactId>
+      <version>${resteasy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.spec.javax.ws.rs</groupId>
+          <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxb-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson2-provider</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>${resteasy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>${validation-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>3.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.16</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mattbertolini</groupId>
+      <artifactId>liquibase-slf4j</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+
+    <!-- hibernate -->
+    <dependency>
+      <groupId>org.hibernate.common</groupId>
+      <artifactId>hibernate-commons-annotations</artifactId>
+      <version>4.0.4.Final</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javassist</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>${hibernate.validator.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.9.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <!-- jsp -->
+    <dependency>
+      <groupId>jstl</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>1.9.13</version>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.2.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>${icu4j.version}</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>openshift</id>
+      <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
+      <build>
+        <finalName>ZanataMT</finalName>
+        <plugins>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>2.1.1</version>
+            <configuration>
+              <outputDirectory>deployments</outputDirectory>
+              <warName>ROOT</warName>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
