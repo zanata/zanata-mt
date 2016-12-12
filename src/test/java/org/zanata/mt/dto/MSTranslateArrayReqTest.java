@@ -1,4 +1,4 @@
-package org.zanata.mt.api;
+package org.zanata.mt.dto;
 
 import javax.xml.bind.JAXBException;
 
@@ -26,7 +26,6 @@ public class MSTranslateArrayReqTest {
         options.setContentType("xml");
         req.setOptions(options);
         String xml = DTOUtil.toXML(req);
-        System.out.println(xml);
         MSTranslateArrayReq req1 = DTOUtil.toObject(xml, MSTranslateArrayReq.class);
         assertThat(req).isEqualTo(req1);
     }

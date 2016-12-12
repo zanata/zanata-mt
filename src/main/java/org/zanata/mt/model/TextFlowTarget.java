@@ -36,6 +36,9 @@ public class TextFlowTarget extends ModelEntity {
     @NotEmpty
     private String content;
 
+    @NotEmpty
+    private String rawContent;
+
     private int usedCount;
 
     @Type(type = "providerType")
@@ -45,9 +48,10 @@ public class TextFlowTarget extends ModelEntity {
     public TextFlowTarget() {
     }
 
-    public TextFlowTarget(String content, TextFlow textFlow, Locale locale,
-            Provider provider) {
+    public TextFlowTarget(String content, String rawContent, TextFlow textFlow,
+            Locale locale, Provider provider) {
         this.content = content;
+        this.rawContent = rawContent;
         this.textFlow = textFlow;
         this.locale = locale;
         this.provider = provider;
@@ -67,6 +71,10 @@ public class TextFlowTarget extends ModelEntity {
 
     public String getContent() {
         return content;
+    }
+
+    public String getRawContent() {
+        return rawContent;
     }
 
     public int getUsedCount() {

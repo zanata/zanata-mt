@@ -13,18 +13,32 @@ import org.zanata.mt.model.Locale;
 public interface TranslationEngine {
 
     /**
-     * Returns single translated string
+     * Return raw response from MT provider
      * @throws TranslationEngineException
      */
     String translate(String message, Locale srcLocale,
             Locale targetLocale) throws TranslationEngineException;
 
     /**
-     * Return list of translations that has same size as messages
+     * Return raw response from MT provider
      * @throws TranslationEngineException
      */
-    List<String> translate(List<String> messages, Locale srcLocale,
+    String translate(List<String> messages, Locale srcLocale,
         Locale targetLocale) throws TranslationEngineException;
+
+    /**
+     * Extract translations from raw response from MT provider
+     * @throws TranslationEngineException
+     */
+    List<String> extractTranslations(String response) throws
+        TranslationEngineException;
+
+    /**
+     * Extract translations from raw response from MT provider
+     * @throws TranslationEngineException
+     */
+    List<String> extractRawXML(String response) throws
+        TranslationEngineException;
 
     /**
      * Init method when initialised

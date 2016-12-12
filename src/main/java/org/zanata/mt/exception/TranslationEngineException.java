@@ -11,14 +11,6 @@ public class TranslationEngineException extends Exception {
         super(cause);
     }
 
-    public TranslationEngineException(String message, Throwable cause) {
-        super("Message:" + message, cause);
-    }
-
-    public TranslationEngineException(List<String> messages, Throwable cause) {
-        super("Message:" + String.join("::", messages), cause);
-    }
-
     public TranslationEngineException(String message, String cause) {
         super("Message:" + message + " Cause:" + cause);
     }

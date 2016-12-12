@@ -16,7 +16,7 @@ public class MSTranslateArrayResponse implements Serializable {
     private String state;
     private TextSentenceLength originalTextSentenceLengths;
     private TextSentenceLength translatedTextSentenceLengths;
-    private List<MSString> translatedText = new ArrayList<>();
+    private MSString translatedText;
 
     @XmlElement(name = "From")
     public String getSrcLanguage() {
@@ -57,12 +57,11 @@ public class MSTranslateArrayResponse implements Serializable {
     }
 
     @XmlElement(name = "TranslatedText")
-    public List<MSString> getTranslatedText() {
+    public MSString getTranslatedText() {
         return translatedText;
     }
 
-    public void setTranslatedText(
-        List<MSString> translatedText) {
+    public void setTranslatedText(MSString translatedText) {
         this.translatedText = translatedText;
     }
 

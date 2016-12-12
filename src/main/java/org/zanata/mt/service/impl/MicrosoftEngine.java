@@ -3,8 +3,8 @@ package org.zanata.mt.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.xml.bind.JAXBException;
+
 import org.zanata.mt.api.dto.Microsoft.MSString;
 import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
 import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayResp;
@@ -13,6 +13,7 @@ import org.zanata.mt.exception.TranslationEngineException;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.service.MicrosoftTranslatorAPI;
 import org.zanata.mt.service.TranslationEngine;
+import org.zanata.mt.util.DTOUtil;
 
 import com.google.common.collect.Lists;
 
@@ -21,8 +22,6 @@ import com.google.common.collect.Lists;
  */
 public class MicrosoftEngine extends MicrosoftTranslatorAPI
     implements TranslationEngine {
-    private static final Logger log =
-        LoggerFactory.getLogger(MicrosoftEngine.class);
 
     @Override
     public void init() throws TranslationEngineException {
@@ -32,14 +31,11 @@ public class MicrosoftEngine extends MicrosoftTranslatorAPI
     @Override
     public String translate(String message, Locale srcLocale,
             Locale targetLocale) throws TranslationEngineException {
-        List<String> translations =
-                translate(Lists.newArrayList(message), srcLocale, targetLocale);
-        return translations == null || translations.isEmpty() ? null
-                : translations.get(0);
+        return translate(Lists.newArrayList(message), srcLocale, targetLocale);
     }
 
     @Override
-    public List<String> translate(List<String> messages, Locale srcLocale,
+    public String translate(List<String> messages, Locale srcLocale,
         Locale targetLocale) throws TranslationEngineException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
@@ -51,12 +47,35 @@ public class MicrosoftEngine extends MicrosoftTranslatorAPI
             Options options = new Options();
             options.setContentType(MEDIA_TYPE);
             req.setOptions(options);
-
-            MSTranslateArrayResp resp = requestTranslations(req);
-            List<String> results = resp.getResponse().getTranslatedText().stream()
-                .map(MSString::getValue).collect(Collectors.toList());
-            return results;
+            return requestTranslations(req);
         } catch (Exception e) {
+            throw new TranslationEngineException(e);
+        }
+    }
+
+    @Override
+    public List<String> extractTranslations(String xml)
+            throws TranslationEngineException {
+        try {
+            MSTranslateArrayResp resp =
+                    DTOUtil.toObject(xml, MSTranslateArrayResp.class);
+            return resp.getResponse().stream()
+                .map(res -> res.getTranslatedText().getValue())
+                .collect(Collectors.toList());
+        } catch (JAXBException e) {
+            throw new TranslationEngineException(e);
+        }
+    }
+
+    @Override
+    public List<String> extractRawXML(String xml)
+        throws TranslationEngineException {
+        try {
+            MSTranslateArrayResp resp =
+                DTOUtil.toObject(xml, MSTranslateArrayResp.class);
+            return resp.getResponse().stream().map(res -> DTOUtil.toXML(res))
+                    .collect(Collectors.toList());
+        } catch (JAXBException e) {
             throw new TranslationEngineException(e);
         }
     }

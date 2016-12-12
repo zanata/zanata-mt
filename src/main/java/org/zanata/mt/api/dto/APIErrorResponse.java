@@ -9,7 +9,7 @@ import java.util.Date;
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class APIErrorResponse implements Serializable {
-    private final static SimpleDateFormat DATE_FORMAT =
+    private final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("dd-MM-yyyy HH:mm:ssZ");
 
     /**

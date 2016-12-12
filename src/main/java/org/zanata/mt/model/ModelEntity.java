@@ -31,11 +31,11 @@ public class ModelEntity implements Serializable {
     private Date lastChanged;
 
     public Date getCreationDate() {
-        return creationDate;
+        return new Date(creationDate.getTime());
     }
 
     public Date getLastChanged() {
-        return lastChanged;
+        return new Date(lastChanged.getTime());
     }
 
     public Long getId() {

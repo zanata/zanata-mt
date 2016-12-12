@@ -1,6 +1,8 @@
 package org.zanata.mt.api.dto.Microsoft;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -15,6 +17,16 @@ import javax.xml.bind.annotation.XmlRootElement;
  *    </OriginalTextSentenceLengths>
  *    <State/>
  *    <TranslatedText>string-value</TranslatedText>
+ *    <TranslatedTextSentenceLengths xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+ *      <a:int>int-value</a:int>
+ *    </TranslatedTextSentenceLengths>
+ *  </TranslateArrayResponse>
+ *  <TranslateArrayResponse>
+ *    <From>language-code</From>
+ *    <OriginalTextSentenceLengths xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+ *      <a:int>int-value</a:int>
+ *    </OriginalTextSentenceLengths>
+ *    <State/>
  *    <TranslatedText>string-value</TranslatedText>
  *    <TranslatedTextSentenceLengths xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
  *      <a:int>int-value</a:int>
@@ -27,14 +39,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ArrayOfTranslateArrayResponse")
 public class MSTranslateArrayResp implements Serializable {
 
-    private MSTranslateArrayResponse response;
+    private List<MSTranslateArrayResponse> response = new ArrayList<>();
 
     @XmlElement(name = "TranslateArrayResponse")
-    public MSTranslateArrayResponse getResponse() {
+    public List<MSTranslateArrayResponse> getResponse() {
         return response;
     }
 
-    public void setResponse( MSTranslateArrayResponse response) {
+    public void setResponse( List<MSTranslateArrayResponse> response) {
         this.response = response;
     }
 

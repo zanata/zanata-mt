@@ -3,7 +3,10 @@ package org.zanata.mt.util;
 import java.security.MessageDigest;
 
 import org.apache.commons.codec.binary.Hex;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.Elements;
 import org.zanata.mt.api.dto.LocaleId;
 
 /**
@@ -23,13 +26,18 @@ public final class TranslationUtil {
         }
     }
 
+    public static Element getNonTranslatableNode(String id) {
+        Attributes attributes = new Attributes();
+        attributes.put("id", id);
+        attributes.put("translate", "no");
+        return new Element(Tag.valueOf("meta"), "", attributes);
+    }
+
     /**
-     * Check if element is div with class "code-raw"
-     * Used for KCS article translation
+     * Get child elements of <pre> with parent <div> with class="code-raw"
      */
-    public static boolean isRawCodeParagraph(Element element) {
-        return element.tagName().equals("div")
-            && element.classNames().contains("code-raw");
+    public static Elements getRawCodePreElements(Element element) {
+        return element.select("div.code-raw > pre");
     }
 
     /**
@@ -37,12 +45,5 @@ public final class TranslationUtil {
      */
     public static boolean isPrivateNotes(Element element) {
         return element.id().startsWith("private-notes");
-    }
-
-    /**
-     * Check if element is pre tag
-     */
-    public static boolean isPreElement(Element element) {
-        return element.tagName().equals("pre");
     }
 }

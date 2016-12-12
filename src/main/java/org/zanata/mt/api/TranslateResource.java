@@ -1,8 +1,11 @@
 package org.zanata.mt.api;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -40,6 +43,7 @@ import org.zanata.mt.util.UrlUtil;
 @Path("/translate")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class TranslateResource {
     private static final Logger log =
         LoggerFactory.getLogger(TranslateResource.class);
@@ -125,14 +129,10 @@ public class TranslateResource {
             String translatedTitle =
                     translationService.translate(article.getTitle(), srcLocale,
                             transLocale, provider);
-            // use english strings if no translations
-            translatedTitle =
-                    StringUtils.isBlank(translatedTitle) ? article.getTitle()
-                            : translatedTitle;
 
             String translatedBody =
                     translateBody(article.getDivContent(), srcLocale,
-                            transLocale, provider, doc);
+                            transLocale, provider);
 
             Article newArticle =
                 new Article(translatedTitle, translatedBody, article.getUrl());
@@ -157,13 +157,13 @@ public class TranslateResource {
     }
 
     private String translateBody(String body, Locale srcLocale,
-            Locale transLocale, Provider provider, org.zanata.mt.model.Document doc)
+            Locale transLocale, Provider provider)
             throws TranslationEngineException, BadTranslationRequestException {
         Document document = Jsoup.parse(body);
-        document = translateArticleHeader(document, srcLocale,
-                transLocale, provider);
-        document = translateArticleBody(document, srcLocale,
-            transLocale, provider);
+        document = translateArticleHeader(document, srcLocale, transLocale,
+                provider);
+        document = translateArticleBody(document, srcLocale, transLocale,
+                provider);
         return document.html();
     }
 
@@ -173,20 +173,15 @@ public class TranslateResource {
         Elements header = document.getElementsByTag("header");
         Elements content = header.select("h1.title");
         Elements secondaryContent = header.select("span.status");
+        
+        List<String> headers =
+                Lists.newArrayList(content.html(), secondaryContent.html());
+        List<String> translations = translationService.translate(headers,
+                srcLocale, transLocale, provider);
 
-        String translatedContent =
-                translationService.translate(content.html(), srcLocale,
-                        transLocale, provider);
-
-        if (StringUtils.isNotBlank(translatedContent)) {
-            content.html(translatedContent);
-        }
-
-        String translatedSecondaryContent =
-                translationService.translate(secondaryContent.html(),
-                        srcLocale, transLocale, provider);
-        if (StringUtils.isNotBlank(translatedSecondaryContent)) {
-            secondaryContent.html(translatedSecondaryContent);
+        if (!translations.isEmpty()) {
+            content.html(translations.get(0));
+            secondaryContent.html(translations.get(1));
         }
         return document;
     }
@@ -208,38 +203,40 @@ public class TranslateResource {
     private Element translateSection(Element section, Locale srcLocale,
             Locale transLocale, Provider provider)
             throws TranslationEngineException, BadTranslationRequestException {
-        for (Element sectionChild : section.children()) {
-            if (TranslationUtil.isRawCodeParagraph(sectionChild)) {
-                Map<Integer, Element> preMap = Maps.newHashMap();
-                for (int i = 0; i < sectionChild.children().size(); i++) {
-                    Element child = sectionChild.child(i);
-                    // remove pre element from dom before translate
-                    if (TranslationUtil.isPreElement(child)) {
-                        preMap.put(i, child.clone());
-                        child.remove();
-                    }
-                }
-                // send sectionChild to translate
-                String childHtmls =
-                        translationService.translate(sectionChild.html(),
-                                srcLocale, transLocale, provider);
-                if (StringUtils.isNotBlank(childHtmls)) {
-                    sectionChild.html(childHtmls);
-                }
+        Map<String, Element> ignoreTranslationMap = Maps.newHashMap();
 
-                // insert pre back into sectionChild
-                for (Map.Entry<Integer, Element> entry : preMap.entrySet()) {
-                    sectionChild.insertChildren(entry.getKey(),
-                            Lists.newArrayList(entry.getValue()));
-                }
-            } else {
-                String childHtmls =
-                    translationService.translate(sectionChild.html(),
-                        srcLocale, transLocale, provider);
-                if (StringUtils.isNotBlank(childHtmls)) {
-                    sectionChild.html(childHtmls);
-                }
+        /**
+         * replace pre element with non-translatable node as
+         * placeholder
+         */
+        Elements codeElements = TranslationUtil.getRawCodePreElements(section);
+        if (!codeElements.isEmpty()) {
+            for (Element element: codeElements) {
+                String id = String.valueOf(codeElements.indexOf(element));
+                ignoreTranslationMap.put(id, element.clone());
+                element.replaceWith(TranslationUtil.getNonTranslatableNode(id));
             }
+        }
+        List<String> strings = section.children().stream().map(Element::html)
+            .collect(Collectors.toList());
+
+        // send section to translate
+        List<String> translations = translationService.translate(strings,
+                srcLocale, transLocale, provider);
+        if (!translations.isEmpty()) {
+            int index = 0;
+            for (Element sectionChild: section.children()) {
+                sectionChild.html(translations.get(index));
+                index ++;
+            }
+        }
+        // replace placeholder with initial element
+        for (Map.Entry<String, Element> entry : ignoreTranslationMap
+            .entrySet()) {
+            Element placeholderElement =
+                section.getElementsByAttributeValue("id",
+                    entry.getKey()).get(0);
+            placeholderElement.replaceWith(entry.getValue());
         }
         return section;
     }

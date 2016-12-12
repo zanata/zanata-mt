@@ -1,30 +1,55 @@
-package org.zanata.mt.api;
+package org.zanata.mt.service;
 
-import java.util.Map;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.jglue.cdiunit.CdiRunner;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.zanata.mt.api.dto.Microsoft.MSString;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayResp;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayResponse;
-import org.zanata.mt.api.dto.Microsoft.Options;
-import org.zanata.mt.api.dto.Microsoft.TextSentenceLength;
-import org.zanata.mt.util.DTOUtil;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.dao.TextFlowDAO;
+import org.zanata.mt.exception.BadTranslationRequestException;
+import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.model.Locale;
+import org.zanata.mt.model.Provider;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(CdiRunner.class)
 public class TranslateServiceTest {
 
+    @Inject
+    private TranslationService translationService;
+
+    @Produces
+    @Mock
+    private TextFlowDAO textFlowDAO;
+
     @Test
-    public void testTranslateBody() {
+    @Ignore
+    public void testTranslate()
+        throws TranslationEngineException, BadTranslationRequestException {
+        when(textFlowDAO.getByHash("3e77e984ede3bbe820911dc52b9f5630"))
+                .thenReturn(null);
+        
+        String html = getSampleArticleHTML();
+
+        String source = "Testing";
+        Locale sourceLocale = new Locale(LocaleId.EN, "English");
+        Locale targetLocale = new Locale(LocaleId.DE, "German");
+
+        String translation =
+                translationService.translate(source, sourceLocale, targetLocale,
+                        Provider.MS);
+    }
+
+
+    private String getSampleArticleHTML() {
         String html = "<header class=\"header\">\n" +
             "  <h1 class=\"title\">Kernel panic title</h1>\n" +
             "  <div class=\"header-meta\">\n" +
@@ -103,5 +128,6 @@ public class TranslateServiceTest {
             "    or the <code>ent</code> pointer is wrong.</li>\n" +
             "  </ul>\n" +
             "</section>";
+        return html;
     }
 }

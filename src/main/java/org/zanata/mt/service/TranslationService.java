@@ -1,7 +1,6 @@
 package org.zanata.mt.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,7 +13,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.dao.TextFlowDAO;
@@ -47,10 +45,14 @@ public class TranslationService {
     private final TranslationEngine microsoftEngine = new MicrosoftEngine();
 
     // Max length for single string in Microsoft Engine
-    private static final int MAX_LENGTH = 10000;
+    private static final int MAX_LENGTH = 6000;
+
+    // Max length before logging warning
+    private static final int MAX_LENGTH_WARN = 3000;
 
     public void onStartUp(
-            @Observes @Initialized(ApplicationScoped.class) Object init) {
+            @Observes @Initialized(ApplicationScoped.class) Object init)
+        throws TranslationEngineException {
         log.info("============================================");
         log.info("============================================");
         log.info("=====Zanata Machine Translation Service=====");
@@ -61,6 +63,7 @@ public class TranslationService {
             microsoftEngine.init();
         } catch (TranslationEngineException e) {
             log.error("Error initialising translations engine:", e);
+            throw e;
         }
     }
 
@@ -73,45 +76,10 @@ public class TranslationService {
     public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull Provider provider)
-        throws TranslationEngineException, BadTranslationRequestException {
-        if (StringUtils.isBlank(string) ||
-            StringUtils.length(string) > MAX_LENGTH ||
-            srcLocale == null || targetLocale == null || provider == null) {
-            throw new BadTranslationRequestException();
-        }
-        String hash = TranslationUtil.generateHash(string, srcLocale.getLocaleId());
-        TextFlow matchedHashTf = textFlowDAO.getByHash(hash);
-
-        if (matchedHashTf != null) {
-            Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
-                    matchedHashTf
-                            .getTargetsByLocaleId(targetLocale.getLocaleId()),
-                    provider);
-
-            if (matchedTarget.isPresent()) {
-                TextFlowTarget matchedTargetEntity = matchedTarget.get();
-                matchedTargetEntity.incrementCount();
-                textFlowTargetDAO.persist(matchedTargetEntity);
-                log.info(
-                    "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
-                        string + "\nTranslation-" + targetLocale.getLocaleId() +
-                        ":" + matchedTargetEntity.getContent());
-                return matchedTargetEntity.getContent();
-            }
-        }
-
-        // fire MT engine search
-        if (matchedHashTf == null) {
-            matchedHashTf =
-                textFlowDAO.persist(new TextFlow(string, srcLocale));
-        }
-        String translation =
-            microsoftEngine.translate(string, srcLocale, targetLocale);
-        TextFlowTarget target = new TextFlowTarget(translation,
-            matchedHashTf, targetLocale, provider);
-        textFlowTargetDAO.persist(target);
-        matchedHashTf.getTargets().add(target);
-        return translation;
+            throws TranslationEngineException, BadTranslationRequestException {
+        List<String> translations = translate(Lists.newArrayList(string),
+                srcLocale, targetLocale, provider);
+        return translations.get(0);
     }
 
     /**
@@ -123,13 +91,25 @@ public class TranslationService {
     public List<String> translate(@NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull Provider provider)
-        throws TranslationEngineException {
+        throws TranslationEngineException, BadTranslationRequestException {
         if (strings == null || strings.isEmpty() || srcLocale == null
                 || targetLocale == null) {
-            return Collections.emptyList();
+            throw new BadTranslationRequestException();
+        }
+        int totalChar = strings.stream().mapToInt(String::length).sum();
+
+        /**
+         * return original string if it is more than MAX_LENGTH
+         */
+        if (totalChar > MAX_LENGTH) {
+            log.warn("Requested string length is more than " + MAX_LENGTH);
+            return strings;
+        }
+        if (totalChar > MAX_LENGTH_WARN) {
+            log.warn("Requested string length is more than " + MAX_LENGTH_WARN);
         }
 
-        List<String> results = new ArrayList<>(strings.size());
+        List<String> results = new ArrayList<>(strings);
         Map<String, Integer> untranslatedIndexMap = Maps.newHashMap();
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
@@ -155,11 +135,14 @@ public class TranslationService {
                         "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
                             string + "\nTranslation-" + targetLocale.getLocaleId() +
                             ":" + matchedEntity.getContent());
-                    results.set(strings.indexOf(string), matchedEntity.getContent());
+                    results.set(index, matchedEntity.getContent());
+                } else {
+                    untranslatedIndexMap.put(string, index);
+                    indexTextFlowMap.put(index, matchedHashTf);
                 }
             } else {
                 untranslatedIndexMap.put(string, index);
-                indexTextFlowMap.put(index, matchedHashTf);
+                indexTextFlowMap.put(index, null);
             }
         }
 
@@ -168,30 +151,35 @@ public class TranslationService {
             return results;
         }
 
-        // fire MT engine search
+        // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
-        List<String> translations =
+        String response =
             microsoftEngine.translate(sources, srcLocale, targetLocale);
+        List<String> translations =
+            microsoftEngine.extractTranslations(response);
+        List<String> rawXML =
+            microsoftEngine.extractRawXML(response);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
             String translation = translations.get(sources.indexOf(source));
+            String xml = rawXML.get(sources.indexOf(source));
             results.set(index, translation);
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
                 tf = textFlowDAO.persist(new TextFlow(source, srcLocale));
             }
-            TextFlowTarget target = new TextFlowTarget(translation,
-                    tf, targetLocale, provider);
+            TextFlowTarget target = new TextFlowTarget(translation, xml, tf,
+                    targetLocale, provider);
             target = textFlowTargetDAO.persist(target);
             tf.getTargets().add(target);
         }
         return results;
     }
 
-    private Optional<TextFlowTarget> getTargetByProvider(List<TextFlowTarget> targets,
-            Provider provider) {
+    private Optional<TextFlowTarget> getTargetByProvider(
+            List<TextFlowTarget> targets, Provider provider) {
         for (TextFlowTarget target : targets) {
             if (target.getProvider().equals(provider)) {
                 return Optional.of(target);
