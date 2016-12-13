@@ -7,16 +7,23 @@ import javax.persistence.PersistenceContext;
 
 import org.zanata.mt.model.TextFlow;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Stateless
-public class TextFlowDAO  extends AbstractDAO<TextFlow>{
+public class TextFlowDAO extends AbstractDAO<TextFlow>{
     @PersistenceContext
     private EntityManager entityManager;
 
     @SuppressWarnings("unused")
     public TextFlowDAO() {
+    }
+
+    @VisibleForTesting
+    public TextFlowDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public TextFlow getByHash(String hash) {
@@ -29,7 +36,7 @@ public class TextFlowDAO  extends AbstractDAO<TextFlow>{
     }
 
     @Override
-    public EntityManager getEntityManager() {
+    EntityManager getEntityManager() {
         return entityManager;
     }
 }

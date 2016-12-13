@@ -4,9 +4,12 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -16,9 +19,13 @@ public class DocumentDAO extends AbstractDAO<Document> {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Override
-    EntityManager getEntityManager() {
-        return entityManager;
+    @SuppressWarnings("unused")
+    public DocumentDAO() {
+    }
+
+    @VisibleForTesting
+    DocumentDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public Document getByUrl(String url, Locale srcLocale, Locale targetLocale) {
@@ -31,6 +38,7 @@ public class DocumentDAO extends AbstractDAO<Document> {
         return documents.isEmpty() ? null : documents.get(0);
     }
 
+    @TransactionAttribute
     public Document getOrCreateByUrl(String url, Locale srcLocale, Locale targetLocale) {
         Document doc = getByUrl(url, srcLocale, targetLocale);
 
@@ -40,5 +48,10 @@ public class DocumentDAO extends AbstractDAO<Document> {
             flush();
         }
         return doc;
+    }
+
+    @Override
+    EntityManager getEntityManager() {
+        return entityManager;
     }
 }

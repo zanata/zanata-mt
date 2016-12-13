@@ -1,6 +1,7 @@
 package org.zanata.mt.api.dto;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 /**
  * DTO for KCS article
@@ -12,6 +13,7 @@ public class Article implements Serializable {
 
     private String divContent;
 
+    @NotNull
     private String url;
 
     @SuppressWarnings("unused")
@@ -55,5 +57,29 @@ public class Article implements Serializable {
             ", divContent='" + divContent + '\'' +
             ", url='" + url + '\'' +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Article)) return false;
+
+        Article article = (Article) o;
+
+        if (title != null ? !title.equals(article.title) :
+            article.title != null)
+            return false;
+        if (divContent != null ? !divContent.equals(article.divContent) :
+            article.divContent != null) return false;
+        return url != null ? url.equals(article.url) : article.url == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (divContent != null ? divContent.hashCode() : 0);
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        return result;
     }
 }

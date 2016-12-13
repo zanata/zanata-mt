@@ -73,4 +73,8 @@ public class DTOUtil {
         ObjectMapper mapper = new ObjectMapper();
         return (T) mapper.readValue(json, clazz);
     }
+
+    public static String removeWhiteSpaceBetweenTag(String xml) {
+        return xml.replaceAll(">\\s*<", "><");
+    }
 }

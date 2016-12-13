@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Locale;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.ibm.icu.util.ULocale;
 
 /**
@@ -21,6 +22,11 @@ public class LocaleDAO extends AbstractDAO<Locale> {
 
     @SuppressWarnings("unused")
     public LocaleDAO() {
+    }
+
+    @VisibleForTesting
+    public LocaleDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public Locale getByLocaleId(LocaleId localeId) {
@@ -45,7 +51,7 @@ public class LocaleDAO extends AbstractDAO<Locale> {
     }
 
     @Override
-    public EntityManager getEntityManager() {
+    EntityManager getEntityManager() {
         return entityManager;
     }
 }

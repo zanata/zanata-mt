@@ -54,12 +54,12 @@ public class MicrosoftTranslatorAPI {
     private static String token;
 
     /**
-     * Get access token from MS API if token has expired.
+     * Get access token from MS API if token is expired.
      * 10 minutes by default
      *
      * @throws Exception
      */
-    protected static void getTokenIfNeeded() throws Exception {
+    protected void getTokenIfNeeded() throws Exception {
         if (System.currentTimeMillis() > tokenExpiration) {
             String tokenJson = getToken();
             Integer expiresIn = Integer.parseInt(
@@ -76,7 +76,7 @@ public class MicrosoftTranslatorAPI {
     /**
      * Return raw response from Microsoft API
      */
-    protected static String requestTranslations(MSTranslateArrayReq req)
+    protected String requestTranslations(MSTranslateArrayReq req)
             throws Exception {
         getTokenIfNeeded();
 
@@ -103,17 +103,12 @@ public class MicrosoftTranslatorAPI {
     /**
      * Get access token from MS API
      */
-    protected static String getToken() throws Exception {
+    protected String getToken() throws Exception {
         Response response = null;
         try {
             log.info("Getting token for Microsoft Engine");
-            Invocation.Builder builder = new ResteasyClientBuilder()
-                .build()
-                .target(DATA_MARKET_ACCESS_URI)
-                .request()
-                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
-                .header("Accept-Charset", ENCODING);
 
+            Invocation.Builder builder = getBuilder();
             final String params = getTokenParam();
 
             response = builder.post(Entity
@@ -131,7 +126,16 @@ public class MicrosoftTranslatorAPI {
         }
     }
 
-    protected static String getTokenParam()
+    protected Invocation.Builder getBuilder() {
+        return new ResteasyClientBuilder()
+            .build()
+            .target(DATA_MARKET_ACCESS_URI)
+            .request()
+            .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
+            .header("Accept-Charset", ENCODING);
+    }
+
+    protected String getTokenParam()
         throws UnsupportedEncodingException {
         Map<String, String> valuesMap = Maps.newHashMap();
         valuesMap.put("clientId",
@@ -146,21 +150,21 @@ public class MicrosoftTranslatorAPI {
     /**
      * @return Client id from system property: AZURE_ID
      */
-    public static String getClientId() {
+    protected String getClientId() {
         return System.getProperty(AZURE_ID);
     }
 
     /**
      * @return Client secret from system property: AZURE_SECRET
      */
-    public static String getSecret() {
+    protected String getSecret() {
         return System.getProperty(AZURE_SECRET);
     }
 
     /**
      * @throws TranslationEngineException if AZURE_ID or AZURE_SECRET is blank
      */
-    public static void verifyCredentials() throws TranslationEngineException {
+    protected void verifyCredentials() throws TranslationEngineException {
         if (StringUtils.isBlank(getClientId())
             || StringUtils.isBlank(getSecret())) {
             throw new TranslationEngineException(

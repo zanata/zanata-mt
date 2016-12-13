@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -36,6 +35,7 @@ import org.zanata.mt.model.Provider;
 import org.zanata.mt.util.TranslationUtil;
 import org.zanata.mt.service.TranslationService;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.zanata.mt.util.UrlUtil;
@@ -64,6 +64,8 @@ public class TranslateResource {
 
     /**
      * Locale mapping
+     *
+     * TODO: make this configurable, at the moment it is done manually.
      */
     private static final HashMap<LocaleId, LocaleId> LocaleMap = Maps.newHashMap();
     static
@@ -74,21 +76,30 @@ public class TranslateResource {
         return LocaleMap.containsKey(locale) ? LocaleMap.get(locale) : locale;
     }
 
+    @SuppressWarnings("unused")
+    public TranslateResource() {
+    }
+
+    @VisibleForTesting
+    TranslateResource(TranslationService translationService,
+            LocaleDAO localeDAO, DocumentDAO documentDAO) {
+        this.translationService = translationService;
+        this.localeDAO = localeDAO;
+        this.documentDAO = documentDAO;
+    }
+
     @POST
-    @TransactionAttribute
-    public Response translate(Article article,
+    public Response translate(@NotNull Article article,
             @NotNull @QueryParam("sourceLang") LocaleId sourceLang,
             @NotNull @QueryParam("targetLang") LocaleId targetLang,
             @QueryParam("provider") @DefaultValue(DEFAULT_PROVIDER) String providerString) {
-        log.debug("Request translations:" + article.toString() + " source_lang:"
-                + sourceLang + " target_lang" + targetLang + " provider:"
-                + providerString);
-        if (sourceLang == null || targetLang == null) {
+        if (sourceLang == null || targetLang == null
+                || StringUtils.isBlank(providerString)) {
             APIErrorResponse response =
-                new APIErrorResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: sourceLang, targetLang");
+                    new APIErrorResponse(Response.Status.BAD_REQUEST,
+                            "Invalid query param: sourceLang, targetLang or provider");
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
-                .build();
+                    .build();
         }
 
         Provider provider = null;
@@ -97,11 +108,22 @@ public class TranslateResource {
         } catch (IllegalArgumentException e) {
             APIErrorResponse response =
                 new APIErrorResponse(Response.Status.BAD_REQUEST, e,
-                    "Invalid provider:" + providerString);
+                    "Provider not supported:" + providerString);
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(response).build();
         }
-
+        if (article == null) {
+            APIErrorResponse response =
+                new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Invalid entity:" + article);
+            return Response.status(Response.Status.BAD_REQUEST).entity(response)
+                .build();
+        }
+        //return ok if there's no content in article
+        if (StringUtils.isBlank(article.getTitle())
+            && StringUtils.isBlank(article.getDivContent())) {
+            return Response.ok().entity(article).build();
+        }
         if (StringUtils.isBlank(article.getUrl()) ||
             !UrlUtil.isValidURL(article.getUrl())) {
             APIErrorResponse response =
@@ -111,10 +133,9 @@ public class TranslateResource {
                 .entity(response).build();
         }
 
-        if (StringUtils.isBlank(article.getTitle())
-                && StringUtils.isBlank(article.getDivContent())) {
-            return Response.ok().entity(article).build();
-        }
+        log.debug("Request translations:" + article + " source_lang:"
+            + sourceLang + " target_lang" + targetLang + " provider:"
+            + providerString);
 
         LocaleId searchLocale = getLocaleFromMap(sourceLang);
         Locale srcLocale = localeDAO.getOrCreateByLocaleId(searchLocale);
@@ -164,24 +185,31 @@ public class TranslateResource {
                 provider);
         document = translateArticleBody(document, srcLocale, transLocale,
                 provider);
-        return document.html();
+        return TranslationUtil.getBodyHTMLContent(document);
     }
 
     private Document translateArticleHeader(Document document, Locale srcLocale,
             Locale transLocale, Provider provider)
             throws TranslationEngineException, BadTranslationRequestException {
         Elements header = document.getElementsByTag("header");
-        Elements content = header.select("h1.title");
-        Elements secondaryContent = header.select("span.status");
+        Element content = header.select("h1.title").first();
+        Element secondaryContent = header.select("span.status").first();
         
         List<String> headers =
-                Lists.newArrayList(content.html(), secondaryContent.html());
+                Lists.newArrayList(content.outerHtml(),
+                        secondaryContent.outerHtml());
         List<String> translations = translationService.translate(headers,
                 srcLocale, transLocale, provider);
 
         if (!translations.isEmpty()) {
-            content.html(translations.get(0));
-            secondaryContent.html(translations.get(1));
+            content.replaceWith(
+                    TranslationUtil.parseAsElement(translations.get(0))
+                            .first());
+            if (translations.size() > 1) {
+                secondaryContent.replaceWith(
+                        TranslationUtil.parseAsElement(translations.get(1))
+                                .first());
+            }
         }
         return document;
     }
@@ -217,17 +245,20 @@ public class TranslateResource {
                 element.replaceWith(TranslationUtil.getNonTranslatableNode(id));
             }
         }
-        List<String> strings = section.children().stream().map(Element::html)
-            .collect(Collectors.toList());
+        List<String> strings =
+                section.children().stream().map(Element::outerHtml)
+                        .collect(Collectors.toList());
 
         // send section to translate
         List<String> translations = translationService.translate(strings,
                 srcLocale, transLocale, provider);
         if (!translations.isEmpty()) {
             int index = 0;
-            for (Element sectionChild: section.children()) {
-                sectionChild.html(translations.get(index));
-                index ++;
+            for (Element sectionChild : section.children()) {
+                sectionChild.replaceWith(
+                        TranslationUtil.parseAsElement(translations.get(index))
+                                .first());
+                index++;
             }
         }
         // replace placeholder with initial element

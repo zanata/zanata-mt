@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -12,7 +13,9 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.dao.TextFlowDAO;
@@ -31,7 +34,7 @@ import com.google.common.collect.Lists;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@ApplicationScoped
+@Singleton
 public class TranslationService {
     private static final Logger log =
         LoggerFactory.getLogger(TranslationService.class);
@@ -42,13 +45,26 @@ public class TranslationService {
     @Inject
     private TextFlowTargetDAO textFlowTargetDAO;
 
-    private final TranslationEngine microsoftEngine = new MicrosoftEngine();
+    private TranslationEngine microsoftEngine = new MicrosoftEngine();
 
     // Max length for single string in Microsoft Engine
-    private static final int MAX_LENGTH = 6000;
+    public static final int MAX_LENGTH = 6000;
 
     // Max length before logging warning
-    private static final int MAX_LENGTH_WARN = 3000;
+    public static final int MAX_LENGTH_WARN = 3000;
+
+    @SuppressWarnings("unused")
+    public TranslationService() {
+    }
+
+    @VisibleForTesting
+    TranslationService(TextFlowDAO textFlowDAO,
+        TextFlowTargetDAO textFlowTargetDAO,
+        TranslationEngine microsoftEngine) {
+        this.textFlowDAO = textFlowDAO;
+        this.textFlowTargetDAO = textFlowTargetDAO;
+        this.microsoftEngine = microsoftEngine;
+    }
 
     public void onStartUp(
             @Observes @Initialized(ApplicationScoped.class) Object init)
@@ -93,7 +109,7 @@ public class TranslationService {
             @NotNull Provider provider)
         throws TranslationEngineException, BadTranslationRequestException {
         if (strings == null || strings.isEmpty() || srcLocale == null
-                || targetLocale == null) {
+                || targetLocale == null || provider == null) {
             throw new BadTranslationRequestException();
         }
         int totalChar = strings.stream().mapToInt(String::length).sum();
@@ -124,8 +140,7 @@ public class TranslationService {
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
                         matchedHashTf.getTargetsByLocaleId(
-                                targetLocale.getLocaleId()),
-                        provider);
+                                targetLocale.getLocaleId()), provider);
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();

@@ -20,7 +20,7 @@ public interface TranslationEngine {
             Locale targetLocale) throws TranslationEngineException;
 
     /**
-     * Return raw response from MT provider
+     * Return raw response (same index as request) from MT provider
      * @throws TranslationEngineException
      */
     String translate(List<String> messages, Locale srcLocale,
