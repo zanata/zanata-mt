@@ -5,13 +5,13 @@ import java.util.List;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class TranslationEngineException extends Exception {
+public class TranslationProviderException extends Exception {
 
-    public TranslationEngineException(Throwable cause) {
+    public TranslationProviderException(Throwable cause) {
         super(cause);
     }
 
-    public TranslationEngineException(String message, String cause) {
+    public TranslationProviderException(String message, String cause) {
         super("Message:" + message + " Cause:" + cause);
     }
 }

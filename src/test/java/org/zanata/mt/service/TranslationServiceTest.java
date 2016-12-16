@@ -9,13 +9,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_ID;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_SECRET;
+import static org.zanata.mt.service.impl.MicrosoftTranslatorAPI.AZURE_ID;
+import static org.zanata.mt.service.impl.MicrosoftTranslatorAPI.AZURE_SECRET;
 import static org.zanata.mt.service.TranslationService.MAX_LENGTH;
 
 /**
@@ -37,7 +37,7 @@ public class TranslationServiceTest {
 
     @Test
     public void testValidateLength()
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
@@ -48,7 +48,7 @@ public class TranslationServiceTest {
 
     @Test(expected = BadTranslationRequestException.class)
     public void testValidateEmptySrcLocale()
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         String source = "testing source";
         Locale sourceLocale = null;
         Locale targetLocale = new Locale(LocaleId.DE, "German");
@@ -58,7 +58,7 @@ public class TranslationServiceTest {
 
     @Test(expected = BadTranslationRequestException.class)
     public void testValidateEmptyTargetLocale()
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         String source = "testing source";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = null;
@@ -68,7 +68,7 @@ public class TranslationServiceTest {
 
     @Test(expected = BadTranslationRequestException.class)
     public void testValidateEmptyProvider()
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         String source = "testing source";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");

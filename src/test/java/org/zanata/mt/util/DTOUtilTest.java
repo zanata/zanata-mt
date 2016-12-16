@@ -5,7 +5,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.Microsoft.MSString;
+import org.zanata.mt.api.dto.microsoft.MSString;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import java.util.ArrayList;

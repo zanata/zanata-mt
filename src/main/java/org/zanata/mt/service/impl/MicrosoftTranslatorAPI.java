@@ -1,4 +1,4 @@
-package org.zanata.mt.service;
+package org.zanata.mt.service.impl;
 
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +9,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReq;
+import org.zanata.mt.exception.TranslationProviderException;
 import org.zanata.mt.util.DTOUtil;
 
 import javax.ws.rs.client.Entity;
@@ -90,7 +90,7 @@ public class MicrosoftTranslatorAPI {
                 .post(Entity.xml(DTOUtil.toXML(req)));
 
         if (response.getStatusInfo() != Response.Status.OK) {
-            throw new TranslationEngineException(
+            throw new TranslationProviderException(
                 response.getStatusInfo().toString(),
                 "Error from Microsoft Translator API");
         }
@@ -115,7 +115,7 @@ public class MicrosoftTranslatorAPI {
                 .entity(params, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
             if (response.getStatusInfo() != Response.Status.OK) {
-                throw new TranslationEngineException(
+                throw new TranslationProviderException(
                     response.getStatusInfo().toString(), "Error getting token");
             }
             return response.readEntity(String.class);
@@ -162,12 +162,12 @@ public class MicrosoftTranslatorAPI {
     }
 
     /**
-     * @throws TranslationEngineException if AZURE_ID or AZURE_SECRET is blank
+     * @throws TranslationProviderException if AZURE_ID or AZURE_SECRET is blank
      */
-    protected void verifyCredentials() throws TranslationEngineException {
+    protected void verifyCredentials() throws TranslationProviderException {
         if (StringUtils.isBlank(getClientId())
             || StringUtils.isBlank(getSecret())) {
-            throw new TranslationEngineException(
+            throw new TranslationProviderException(
                 "Missing environment variables of AZURE_ID and AZURE_SECRET",
                 "Missing required AZURE credentials");
         }

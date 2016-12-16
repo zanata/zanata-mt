@@ -13,7 +13,7 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
@@ -127,7 +127,7 @@ public class TranslateResourceTest {
 
     @Test
     public void testTranslate()
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         String divContent = getSampleArticleBody();
         Article article = new Article("Article title", divContent,
                 "http://localhost:8080");
@@ -176,15 +176,15 @@ public class TranslateResourceTest {
         Article returnedArticle = (Article)response.getEntity();
 
         assertThat(returnedArticle.getTitle()).isEqualTo(translatedTitle);
-        assertThat(returnedArticle.getDivContent())
+        assertThat(returnedArticle.getContent())
                 .contains(translatedSection1);
-        assertThat(returnedArticle.getDivContent())
+        assertThat(returnedArticle.getContent())
                 .contains(translatedSection2.get(0));
-        assertThat(returnedArticle.getDivContent())
+        assertThat(returnedArticle.getContent())
                 .doesNotContain(translatedSection2.get(1));
 
         assertThat(DTOUtil
-                .removeWhiteSpaceBetweenTag(returnedArticle.getDivContent()))
+                .removeWhiteSpaceBetweenTag(returnedArticle.getContent()))
                         .contains(section3);
 
         // title

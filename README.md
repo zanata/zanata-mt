@@ -14,4 +14,4 @@ Run:
    - Body {
    url: String,
    title: String,
-   divContent: String }
+   content: String }

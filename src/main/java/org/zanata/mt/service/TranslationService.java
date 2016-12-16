@@ -18,15 +18,18 @@ import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
+import org.zanata.mt.model.ContentType;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
-import org.zanata.mt.service.impl.MicrosoftEngine;
+import org.zanata.mt.model.ValueUnit;
+import org.zanata.mt.service.impl.MicrosoftProvider;
 import org.zanata.mt.util.TranslationUtil;
 
 import com.google.common.collect.Lists;
@@ -45,7 +48,7 @@ public class TranslationService {
     @Inject
     private TextFlowTargetDAO textFlowTargetDAO;
 
-    private TranslationEngine microsoftEngine = new MicrosoftEngine();
+    private TranslationProvider msProvider = new MicrosoftProvider();
 
     // Max length for single string in Microsoft Engine
     public static final int MAX_LENGTH = 6000;
@@ -60,15 +63,15 @@ public class TranslationService {
     @VisibleForTesting
     TranslationService(TextFlowDAO textFlowDAO,
         TextFlowTargetDAO textFlowTargetDAO,
-        TranslationEngine microsoftEngine) {
+        TranslationProvider msProvider) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
-        this.microsoftEngine = microsoftEngine;
+        this.msProvider = msProvider;
     }
 
     public void onStartUp(
             @Observes @Initialized(ApplicationScoped.class) Object init)
-        throws TranslationEngineException {
+        throws TranslationProviderException {
         log.info("============================================");
         log.info("============================================");
         log.info("=====Zanata Machine Translation Service=====");
@@ -76,11 +79,24 @@ public class TranslationService {
         log.info("============================================");
 
         try {
-            microsoftEngine.init();
-        } catch (TranslationEngineException e) {
+            msProvider.init();
+        } catch (TranslationProviderException e) {
             log.error("Error initialising translations engine:", e);
             throw e;
         }
+    }
+
+    public Article translateArticle(Article article, Locale srcLocale,
+            Locale transLocale, Provider provider, ContentType contentType) {
+        String translatedTitle =
+            translate(article.getTitle(), srcLocale,
+                transLocale, provider);
+
+        String translatedContent =
+            translateContent(article.getContent(), srcLocale,
+                transLocale, provider);
+
+        return new Article(translatedTitle, translatedContent, article.getUrl());
     }
 
     /**
@@ -92,7 +108,7 @@ public class TranslationService {
     public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull Provider provider)
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         List<String> translations = translate(Lists.newArrayList(string),
                 srcLocale, targetLocale, provider);
         return translations.get(0);
@@ -107,7 +123,7 @@ public class TranslationService {
     public List<String> translate(@NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull Provider provider)
-        throws TranslationEngineException, BadTranslationRequestException {
+        throws TranslationProviderException, BadTranslationRequestException {
         if (strings == null || strings.isEmpty() || srcLocale == null
                 || targetLocale == null || provider == null) {
             throw new BadTranslationRequestException();
@@ -168,25 +184,22 @@ public class TranslationService {
 
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
-        String response =
-            microsoftEngine.translate(sources, srcLocale, targetLocale);
-        List<String> translations =
-            microsoftEngine.extractTranslations(response);
-        List<String> rawXML =
-            microsoftEngine.extractRawXML(response);
+        List<ValueUnit> translations =
+            msProvider.translate(sources, srcLocale, targetLocale);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
-            String translation = translations.get(sources.indexOf(source));
-            String xml = rawXML.get(sources.indexOf(source));
-            results.set(index, translation);
+            ValueUnit translation = translations.get(sources.indexOf(source));
+            results.set(index, translation.getValue());
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
                 tf = textFlowDAO.persist(new TextFlow(source, srcLocale));
             }
-            TextFlowTarget target = new TextFlowTarget(translation, xml, tf,
-                    targetLocale, provider);
+            TextFlowTarget target =
+                    new TextFlowTarget(translation.getValue(),
+                            translation.getRawValue(), tf,
+                            targetLocale, provider);
             target = textFlowTargetDAO.persist(target);
             tf.getTargets().add(target);
         }

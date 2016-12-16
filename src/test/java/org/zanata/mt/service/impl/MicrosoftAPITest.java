@@ -1,4 +1,4 @@
-package org.zanata.mt.service;
+package org.zanata.mt.service.impl;
 
 import java.io.UnsupportedEncodingException;
 
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
@@ -20,8 +20,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_ID;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_SECRET;
+import static org.zanata.mt.service.impl.MicrosoftTranslatorAPI.AZURE_ID;
+import static org.zanata.mt.service.impl.MicrosoftTranslatorAPI.AZURE_SECRET;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -37,13 +37,14 @@ public class MicrosoftAPITest {
         api = new MicrosoftTranslatorAPI();
     }
 
-    @Test(expected = TranslationEngineException.class)
-    public void testVerifyCredentialsInvalid() throws TranslationEngineException {
+    @Test(expected = TranslationProviderException.class)
+    public void testVerifyCredentialsInvalid() throws
+        TranslationProviderException {
         api.verifyCredentials();
     }
 
     @Test
-    public void testVerifyCredentials() throws TranslationEngineException {
+    public void testVerifyCredentials() throws TranslationProviderException {
         System.setProperty(AZURE_ID, "id");
         System.setProperty(AZURE_SECRET, "secret");
         api.verifyCredentials();

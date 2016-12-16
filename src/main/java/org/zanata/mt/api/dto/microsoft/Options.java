@@ -1,9 +1,9 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.zanata.mt.service.MicrosoftTranslatorAPI;
+import org.zanata.mt.service.impl.MicrosoftTranslatorAPI;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

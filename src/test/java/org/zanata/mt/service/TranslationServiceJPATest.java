@@ -1,6 +1,7 @@
 package org.zanata.mt.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,12 +12,13 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
-import org.zanata.mt.service.impl.MicrosoftEngine;
+import org.zanata.mt.model.ValueUnit;
+import org.zanata.mt.service.impl.MicrosoftProvider;
 import org.zanata.mt.util.TranslationUtil;
 
 import com.google.common.collect.Lists;
@@ -39,7 +41,7 @@ public class TranslationServiceJPATest {
     private TextFlowTargetDAO textFlowTargetDAO;
 
     @Mock
-    private MicrosoftEngine msEngine;
+    private MicrosoftProvider msEngine;
 
     private TranslationService translationService;
 
@@ -52,55 +54,47 @@ public class TranslationServiceJPATest {
 
     @Test
     public void testNewTranslation()
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         List<String> sources = Lists.newArrayList("string to translate");
-        List<String> expectedTranslations =
-                Lists.newArrayList("translation of:" + sources.get(0));
-        List<String> expectedRawContents = Lists.newArrayList(
-                "<MSString>" + expectedTranslations.get(0) + "</MSString>");
-
+        List<ValueUnit> expectedTranslations =
+                Lists.newArrayList(new ValueUnit(
+                        "translation of:" + sources.get(0), "<MSString>"
+                                + "translation of:" + sources.get(0) + "</MSString>"));
+       
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
         TextFlowTarget expectedTft =
-                new TextFlowTarget(expectedTranslations.get(0),
-                        expectedRawContents.get(0), expectedTf, targetLocale,
-                        Provider.MS);
+                new TextFlowTarget(expectedTranslations.get(0).getValue(),
+                        expectedTranslations.get(0).getRawValue(), expectedTf,
+                        targetLocale, Provider.MS);
         expectedTf.getTargets().add(expectedTft);
         String hash = TranslationUtil.generateHash(sources.get(0),
                 sourceLocale.getLocaleId());
-
-        String rawResponse = "rawResponse";
 
         when(textFlowDAO.getByHash(hash)).thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
         when(msEngine.translate(sources, sourceLocale, targetLocale))
-                .thenReturn(rawResponse);
-        when(msEngine.extractTranslations(rawResponse))
                 .thenReturn(expectedTranslations);
-        when(msEngine.extractRawXML(rawResponse))
-                .thenReturn(expectedRawContents);
 
         List<String> translations =
                 translationService.translate(sources, sourceLocale,
-                        targetLocale,
-                        Provider.MS);
+                        targetLocale, Provider.MS);
 
         verify(msEngine).translate(sources, sourceLocale, targetLocale);
-        verify(msEngine).extractTranslations(rawResponse);
-        verify(msEngine).extractRawXML(rawResponse);
-
         verify(textFlowDAO).getByHash(hash);
         verify(textFlowDAO).persist(expectedTf);
         verify(textFlowTargetDAO).persist(expectedTft);
-        assertThat(translations).isEqualTo(expectedTranslations);
+        assertThat(translations).isEqualTo(
+                expectedTranslations.stream().map(ValueUnit::getValue).collect(
+                        Collectors.toList()));
     }
 
     @Test
     public void testTranslationExists()
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         String source = "string to translate";
         String expectedTranslation = "translation of:" + source;
         String expectedRawContent =

@@ -1,12 +1,10 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 

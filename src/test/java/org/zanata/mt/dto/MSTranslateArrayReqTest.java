@@ -4,9 +4,9 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.api.dto.Microsoft.MSString;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
-import org.zanata.mt.api.dto.Microsoft.Options;
+import org.zanata.mt.api.dto.microsoft.MSString;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReq;
+import org.zanata.mt.api.dto.microsoft.Options;
 import org.zanata.mt.util.DTOUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;

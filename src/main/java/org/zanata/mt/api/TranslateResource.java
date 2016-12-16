@@ -29,13 +29,14 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.TranslationProviderException;
+import org.zanata.mt.model.ContentType;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
+import org.zanata.mt.service.impl.KCSResourceService;
 import org.zanata.mt.util.TranslationUtil;
 import org.zanata.mt.service.TranslationService;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.zanata.mt.util.UrlUtil;
@@ -48,19 +49,21 @@ public class TranslateResource {
     private static final Logger log =
         LoggerFactory.getLogger(TranslateResource.class);
 
-    @Inject
-    private TranslationService translationService;
+    private KCSResourceService kcsResourceService;
 
-    @Inject
     private LocaleDAO localeDAO;
 
-    @Inject
     private DocumentDAO documentDAO;
 
     /**
      * Default Machine translation provider: {@link Provider#MS}
      */
     private static final String DEFAULT_PROVIDER = "MS";
+
+    /**
+     * Default content type: {@link org.zanata.mt.model.ContentType#KCS_ARTICLE}
+     */
+    private static final String DEFAULT_CONTENT_TYPE = "KCS_ARTICLE";
 
     /**
      * Locale mapping
@@ -80,8 +83,8 @@ public class TranslateResource {
     public TranslateResource() {
     }
 
-    @VisibleForTesting
-    TranslateResource(TranslationService translationService,
+    @Inject
+    public TranslateResource(TranslationService translationService,
             LocaleDAO localeDAO, DocumentDAO documentDAO) {
         this.translationService = translationService;
         this.localeDAO = localeDAO;
@@ -92,9 +95,10 @@ public class TranslateResource {
     public Response translate(@NotNull Article article,
             @NotNull @QueryParam("sourceLang") LocaleId sourceLang,
             @NotNull @QueryParam("targetLang") LocaleId targetLang,
-            @QueryParam("provider") @DefaultValue(DEFAULT_PROVIDER) String providerString) {
+            @QueryParam("provider") @DefaultValue(DEFAULT_PROVIDER) String providerStr,
+            @QueryParam("contentType") @DefaultValue(DEFAULT_CONTENT_TYPE) String contentTypeStr) {
         if (sourceLang == null || targetLang == null
-                || StringUtils.isBlank(providerString)) {
+                || StringUtils.isBlank(providerStr)) {
             APIErrorResponse response =
                     new APIErrorResponse(Response.Status.BAD_REQUEST,
                             "Invalid query param: sourceLang, targetLang or provider");
@@ -104,14 +108,25 @@ public class TranslateResource {
 
         Provider provider = null;
         try {
-            provider = Provider.valueOf(providerString);
+            provider = Provider.valueOf(providerStr);
         } catch (IllegalArgumentException e) {
             APIErrorResponse response =
                 new APIErrorResponse(Response.Status.BAD_REQUEST, e,
-                    "Provider not supported:" + providerString);
+                    "Provider not supported:" + providerStr);
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(response).build();
         }
+        ContentType contentType = null;
+        try {
+            contentType = ContentType.valueOf(contentTypeStr);
+        } catch (IllegalArgumentException e) {
+            APIErrorResponse response =
+                new APIErrorResponse(Response.Status.BAD_REQUEST, e,
+                    "ContentType not supported:" + contentType);
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(response).build();
+        }
+
         if (article == null) {
             APIErrorResponse response =
                 new APIErrorResponse(Response.Status.BAD_REQUEST,
@@ -121,7 +136,7 @@ public class TranslateResource {
         }
         //return ok if there's no content in article
         if (StringUtils.isBlank(article.getTitle())
-            && StringUtils.isBlank(article.getDivContent())) {
+            && StringUtils.isBlank(article.getContent())) {
             return Response.ok().entity(article).build();
         }
         if (StringUtils.isBlank(article.getUrl()) ||
@@ -135,7 +150,7 @@ public class TranslateResource {
 
         log.debug("Request translations:" + article + " source_lang:"
             + sourceLang + " target_lang" + targetLang + " provider:"
-            + providerString);
+            + providerStr);
 
         LocaleId searchLocale = getLocaleFromMap(sourceLang);
         Locale srcLocale = localeDAO.getOrCreateByLocaleId(searchLocale);
@@ -151,12 +166,12 @@ public class TranslateResource {
                     translationService.translate(article.getTitle(), srcLocale,
                             transLocale, provider);
 
-            String translatedBody =
-                    translateBody(article.getDivContent(), srcLocale,
+            String translatedContent =
+                    translateContent(article.getContent(), srcLocale,
                             transLocale, provider);
 
             Article newArticle =
-                new Article(translatedTitle, translatedBody, article.getUrl());
+                new Article(translatedTitle, translatedContent, article.getUrl());
 
             doc.incrementCount();
             documentDAO.persist(doc);
@@ -168,7 +183,7 @@ public class TranslateResource {
                 new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
                 .build();
-        } catch (TranslationEngineException e) {
+        } catch (TranslationProviderException e) {
             String title = "Unable to get translations from engine";
             log.error(title, e);
             APIErrorResponse response =
@@ -177,10 +192,10 @@ public class TranslateResource {
         }
     }
 
-    private String translateBody(String body, Locale srcLocale,
+    private String translateContent(String content, Locale srcLocale,
             Locale transLocale, Provider provider)
-            throws TranslationEngineException, BadTranslationRequestException {
-        Document document = Jsoup.parse(body);
+            throws TranslationProviderException, BadTranslationRequestException {
+        Document document = Jsoup.parse(content);
         document = translateArticleHeader(document, srcLocale, transLocale,
                 provider);
         document = translateArticleBody(document, srcLocale, transLocale,
@@ -190,7 +205,7 @@ public class TranslateResource {
 
     private Document translateArticleHeader(Document document, Locale srcLocale,
             Locale transLocale, Provider provider)
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         Elements header = document.getElementsByTag("header");
         Element content = header.select("h1.title").first();
         Element secondaryContent = header.select("span.status").first();
@@ -216,7 +231,7 @@ public class TranslateResource {
 
     private Document translateArticleBody(Document document, Locale srcLocale,
             Locale transLocale, Provider provider)
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         Elements sections = document.getElementsByTag("section");
         for (Element section : sections) {
             // section with id 'private-notes...' is non-translatable
@@ -230,7 +245,7 @@ public class TranslateResource {
 
     private Element translateSection(Element section, Locale srcLocale,
             Locale transLocale, Provider provider)
-            throws TranslationEngineException, BadTranslationRequestException {
+            throws TranslationProviderException, BadTranslationRequestException {
         Map<String, Element> ignoreTranslationMap = Maps.newHashMap();
 
         /**

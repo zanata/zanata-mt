@@ -21,6 +21,14 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
+ * This filter is for REST API requests.
+ * It supports <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">
+ * Cross-Origin resource sharing (CORS)</a> by adding {@code Access-Control}
+ * headers to REST responses. CORS is needed for requests from different
+ * domains.
+ *
+ * This is needed if API call is triggered from browser from different domains.
+ *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @WebFilter(filterName = "APIResponseFilter")
