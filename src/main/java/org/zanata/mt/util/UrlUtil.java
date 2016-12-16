@@ -9,7 +9,12 @@ import java.net.URL;
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class UrlUtil {
+public final class UrlUtil {
+
+    @SuppressWarnings("unused")
+    private UrlUtil() {
+    }
+
     public static boolean isValidURL(String url) {
         if (StringUtils.isBlank(url)) {
             return false;

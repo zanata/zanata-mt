@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
   version="2.0">
 
-  <persistence-unit name="mtDatasourcePU" transaction-type="JTA">
+  <persistence-unit name="zanataMTDatasourcePU" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>${datasource.name}</jta-data-source>
     <class>org.zanata.mt.model.Document</class>
@@ -27,10 +27,6 @@
 
       <property name="hibernate.connection.useUnicode" value="true" />
       <property name="hibernate.connection.characterEncoding" value="UTF-8" />
-
-      <!-- for Hibernate 4.3 (but not 4.2):
-      <property name="hibernate.transaction.jta.platform" value="JBossAS" />
-      -->
 
       <!-- Run the Hibernate bytecode instrumentation at deployment time, for lazy loading of @ToOne and byte[] properties -->
       <!-- TODO: That doesn't work for me, using the enhancer in build.xml manually -->

@@ -23,6 +23,8 @@ import javax.persistence.ManyToOne;
     @TypeDef(name = "providerType", typeClass = ProviderType.class)
 })
 public class TextFlowTarget extends ModelEntity {
+    private static final long serialVersionUID = -64231181018123191L;
+
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "textFlowId", nullable = false, updatable = false)

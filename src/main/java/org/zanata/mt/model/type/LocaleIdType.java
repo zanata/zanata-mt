@@ -1,5 +1,5 @@
 /*
- * Copyright 2010, Red Hat, Inc. and individual contributors as indicated by the
+ * Copyright 2016, Red Hat, Inc. and individual contributors as indicated by the
  * @author tags. See the copyright.txt file in the distribution for a full
  * listing of individual contributors.
  *
@@ -29,6 +29,8 @@ import org.zanata.mt.api.dto.LocaleId;
 public class LocaleIdType extends
     AbstractSingleColumnStandardBasicType<LocaleId> implements
     LiteralType<LocaleId> {
+
+    private static final long serialVersionUID = 3064881963824869913L;
 
     public LocaleIdType() {
         super(StringType.INSTANCE.getSqlTypeDescriptor(),

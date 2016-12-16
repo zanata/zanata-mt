@@ -1,4 +1,4 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlValue;
@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlValue;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class MSString implements Serializable {
+    private static final long serialVersionUID = 7188269066576053950L;
+
     private String value;
 
     public MSString() {

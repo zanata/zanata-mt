@@ -1,14 +1,16 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.zanata.mt.service.MicrosoftTranslatorAPI;
+import org.zanata.mt.service.impl.MicrosoftTranslatorAPI;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class Options implements Serializable {
+public class MSTranslateArrayReqOptions implements Serializable {
+
+    private static final long serialVersionUID = -2828772281951163409L;
 
     private String category;
     private String contentType;
@@ -82,7 +84,7 @@ public class Options implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Options options = (Options) o;
+        MSTranslateArrayReqOptions options = (MSTranslateArrayReqOptions) o;
 
         if (category != null ? !category.equals(options.category) :
             options.category != null) return false;

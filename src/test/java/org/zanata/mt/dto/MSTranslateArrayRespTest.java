@@ -3,10 +3,10 @@ package org.zanata.mt.dto;
 import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.Microsoft.MSString;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayResp;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayResponse;
-import org.zanata.mt.api.dto.Microsoft.TextSentenceLength;
+import org.zanata.mt.api.dto.microsoft.MSString;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayResp;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayResponse;
+import org.zanata.mt.api.dto.microsoft.TextSentenceLength;
 import org.zanata.mt.util.DTOUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;

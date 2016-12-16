@@ -18,6 +18,8 @@ import java.util.Date;
 @MappedSuperclass
 public class ModelEntity implements Serializable {
 
+    private static final long serialVersionUID = 8978601573586456188L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

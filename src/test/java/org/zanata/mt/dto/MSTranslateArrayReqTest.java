@@ -4,9 +4,9 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.api.dto.Microsoft.MSString;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
-import org.zanata.mt.api.dto.Microsoft.Options;
+import org.zanata.mt.api.dto.microsoft.MSString;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReq;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReqOptions;
 import org.zanata.mt.util.DTOUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +22,7 @@ public class MSTranslateArrayReqTest {
         req.setTransLanguage(LocaleId.FR);
         req.getTexts().add(new MSString("test"));
         req.getTexts().add(new MSString("test1"));
-        Options options = new Options();
+        MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
         options.setContentType("xml");
         req.setOptions(options);
         String xml = DTOUtil.toXML(req);

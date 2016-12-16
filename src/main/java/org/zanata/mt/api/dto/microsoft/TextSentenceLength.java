@@ -1,4 +1,4 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class TextSentenceLength implements Serializable {
+    private static final long serialVersionUID = -5609939894237220707L;
     private Integer value;
 
     public TextSentenceLength(int value) {

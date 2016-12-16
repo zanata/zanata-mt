@@ -4,14 +4,16 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for KCS article
+ * DTO for content to be translated
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class Article implements Serializable {
+    private static final long serialVersionUID = 4123397809604573837L;
+
     private String title;
 
-    private String divContent;
+    private String content;
 
     @NotNull
     private String url;
@@ -20,9 +22,9 @@ public class Article implements Serializable {
     protected Article() {
     }
 
-    public Article(String title, String divContent, String url) {
+    public Article(String title, String content, String url) {
         this.title = title;
-        this.divContent = divContent;
+        this.content = content;
         this.url = url;
     }
 
@@ -34,12 +36,12 @@ public class Article implements Serializable {
         this.title = title;
     }
 
-    public String getDivContent() {
-        return divContent;
+    public String getContent() {
+        return content;
     }
 
-    public void setDivContent(String divContent) {
-        this.divContent = divContent;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getUrl() {
@@ -54,7 +56,7 @@ public class Article implements Serializable {
     public String toString() {
         return "Article{" +
             "title='" + title + '\'' +
-            ", divContent='" + divContent + '\'' +
+            ", content='" + content + '\'' +
             ", url='" + url + '\'' +
             '}';
     }
@@ -69,8 +71,8 @@ public class Article implements Serializable {
         if (title != null ? !title.equals(article.title) :
             article.title != null)
             return false;
-        if (divContent != null ? !divContent.equals(article.divContent) :
-            article.divContent != null) return false;
+        if (content != null ? !content.equals(article.content) :
+            article.content != null) return false;
         return url != null ? url.equals(article.url) : article.url == null;
 
     }
@@ -78,7 +80,7 @@ public class Article implements Serializable {
     @Override
     public int hashCode() {
         int result = title != null ? title.hashCode() : 0;
-        result = 31 * result + (divContent != null ? divContent.hashCode() : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
         result = 31 * result + (url != null ? url.hashCode() : 0);
         return result;
     }

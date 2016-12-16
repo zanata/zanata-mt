@@ -33,10 +33,10 @@ function requestTranslations() {
       + pageLang;
   // extract the page title and article div for translation
   var pageTitle = jQuery('html head title');
-  var divContent = jQuery('article#main-content div.content-wrapper');
+  var content = jQuery('article#main-content div.content-wrapper');
   var sourceData = {
     title : pageTitle.text(),
-    divContent : divContent.html(),
+    content : content.html(),
     url: window.location.href
   };
 
@@ -56,7 +56,7 @@ function requestTranslations() {
     crossDomain: true,
     success: function (response) {
       pageTitle.text(response.title);
-      divContent.html(response.divContent);
+      content.html(response.content);
       console.info('Translation completed');
       toggleLoading(false);
     },

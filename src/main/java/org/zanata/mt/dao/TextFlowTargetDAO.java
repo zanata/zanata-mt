@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @Stateless
 public class TextFlowTargetDAO extends AbstractDAO<TextFlowTarget> {
+    private static final long serialVersionUID = -318395870569312481L;
     @PersistenceContext
     private EntityManager entityManager;
 

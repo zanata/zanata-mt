@@ -1,0 +1,34 @@
+package org.zanata.mt.service;
+
+import java.util.List;
+
+import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.Locale;
+import org.zanata.mt.model.ValueUnit;
+
+/**
+ * Interface for machine translation provider
+ *
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
+ */
+public interface TranslationProvider {
+
+    /**
+     * Return translation from MT provider
+     * @throws ZanataMTException
+     */
+    ValueUnit translate(String message, Locale srcLocale,
+            Locale targetLocale) throws ZanataMTException;
+
+    /**
+     * Return translations (same index as request) from MT provider
+     * @throws ZanataMTException
+     */
+    List<ValueUnit> translate(List<String> messages, Locale srcLocale,
+        Locale targetLocale) throws ZanataMTException;
+
+    /**
+     * Init method when initialised
+     */
+    void init() throws ZanataMTException;
+}

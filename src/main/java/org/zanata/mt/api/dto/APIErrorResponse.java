@@ -2,34 +2,27 @@ package org.zanata.mt.api.dto;
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
+ * Response entity for any API error
+ *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class APIErrorResponse implements Serializable {
-    private final SimpleDateFormat DATE_FORMAT =
-        new SimpleDateFormat("dd-MM-yyyy HH:mm:ssZ");
 
-    /**
-     * The HTTP status code.
-     */
-    private String status;
+    private final static DateTimeFormatter DATE_FORMATTER =
+        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssZ");
 
-    /**
-     * Summary of the problem.
-     */
+    private static final long serialVersionUID = 6040356482529107259L;
+
+    private int status;
+
     private String title;
 
-    /**
-     * Detail explanation for this error.
-     */
     private String details;
 
-    /**
-     * Meta data for response. e.g. timestamp
-     */
     private String timestamp;
 
     public APIErrorResponse() {
@@ -40,22 +33,28 @@ public class APIErrorResponse implements Serializable {
     }
 
     public APIErrorResponse(Response.Status status, Exception e, String title) {
-        this.status = String.valueOf(status.getStatusCode());
+        this.status = status.getStatusCode();
         this.title = title;
         if (e != null) {
             this.details = e.getMessage();
         }
-        this.timestamp = DATE_FORMAT.format(new Date());
+        this.timestamp = ZonedDateTime.now().format(DATE_FORMATTER);
     }
 
-    public String getStatus() {
+    /**
+     * The HTTP status code.
+     */
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
+    /**
+     * Summary of the problem.
+     */
     public String getTitle() {
         return title;
     }
@@ -64,6 +63,9 @@ public class APIErrorResponse implements Serializable {
         this.title = title;
     }
 
+    /**
+     * Detail explanation for this error.
+     */
     public String getDetails() {
         return details;
     }
@@ -72,6 +74,9 @@ public class APIErrorResponse implements Serializable {
         this.details = details;
     }
 
+    /**
+     * Timestamp of the response. Format: dd-MM-yyyy HH:mm:ssZ
+     */
     public String getTimestamp() {
         return timestamp;
     }

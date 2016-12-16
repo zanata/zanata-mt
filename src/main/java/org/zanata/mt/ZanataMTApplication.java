@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationPath("api")
-public class MTApplication extends javax.ws.rs.core.Application {
+public class ZanataMTApplication extends javax.ws.rs.core.Application {
     private Set<Class<?>> classes = buildClasses();
 
     private static Set<Class<?>> buildClasses() {

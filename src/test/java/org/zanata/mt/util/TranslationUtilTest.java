@@ -37,8 +37,9 @@ public class TranslationUtilTest {
     @Test
     public void testGetNonTranslatableNode() {
         String id = "testing-id";
-        Element nonTranslatableNode = TranslationUtil.getNonTranslatableNode(id);
-        assertThat(nonTranslatableNode.id()).isEqualTo(id);
+        String expectedId = TranslationUtil.generateNodeId(id);
+        Element nonTranslatableNode = TranslationUtil.generateNonTranslatableNode(id);
+        assertThat(nonTranslatableNode.id()).isEqualTo(expectedId);
         assertThat(nonTranslatableNode.tagName()).isEqualTo("meta");
         assertThat(nonTranslatableNode.attr("translate")).isEqualTo("no");
     }

@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class LocaleId implements Serializable {
+    private static final long serialVersionUID = 2193027706150405364L;
 
     public static final LocaleId EN = new LocaleId("en");
     public static final LocaleId EN_US = new LocaleId("en-us");
@@ -21,8 +22,10 @@ public class LocaleId implements Serializable {
     public static final LocaleId RU = new LocaleId("ru");
     public static final LocaleId ZH_CN = new LocaleId("zh-cn");
 
+
     @Size(max = 255)
-    private @NotNull String id;
+    @NotNull
+    private String id;
 
     public LocaleId() {
         this("");
@@ -59,12 +62,11 @@ public class LocaleId implements Serializable {
         if (!(o instanceof LocaleId))
             return false;
         LocaleId localeId = (LocaleId) o;
-        return id != null ? id.equals(localeId.id)
-                : localeId.id == null;
+        return id.equals(localeId.id);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return id.hashCode();
     }
 }

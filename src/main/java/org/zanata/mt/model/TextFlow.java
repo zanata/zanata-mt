@@ -26,6 +26,8 @@ import org.zanata.mt.util.TranslationUtil;
 @Entity
 @Access(AccessType.FIELD)
 public class TextFlow extends ModelEntity {
+    private static final long serialVersionUID = -4550040877568062431L;
+
     @NotEmpty
     @Size(max = 255)
     private String hash;

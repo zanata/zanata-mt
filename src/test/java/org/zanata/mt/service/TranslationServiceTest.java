@@ -1,22 +1,26 @@
 package org.zanata.mt.service;
 
-import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jglue.cdiunit.CdiRunner;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.exception.BadTranslationRequestException;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.dao.TextFlowDAO;
+import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.Provider;
+import org.zanata.mt.service.impl.MicrosoftProvider;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_ID;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_SECRET;
 import static org.zanata.mt.service.TranslationService.MAX_LENGTH;
+import static org.zanata.mt.service.impl.MicrosoftProvider.AZURE_ID;
+import static org.zanata.mt.service.impl.MicrosoftProvider.AZURE_SECRET;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -24,7 +28,15 @@ import static org.zanata.mt.service.TranslationService.MAX_LENGTH;
 @RunWith(CdiRunner.class)
 public class TranslationServiceTest {
 
-    @Inject
+    @Mock
+    private TextFlowDAO textFlowDAO;
+
+    @Mock
+    private TextFlowTargetDAO textFlowTargetDAO;
+
+    @Mock
+    private MicrosoftProvider msProvider;
+
     private TranslationService translationService;
 
     @BeforeClass
@@ -35,9 +47,15 @@ public class TranslationServiceTest {
         System.setProperty(AZURE_SECRET, secret);
     }
 
+    @Before
+    public void setup() {
+        translationService =
+            new TranslationService(textFlowDAO, textFlowTargetDAO,
+                msProvider);
+    }
+
     @Test
-    public void testValidateLength()
-        throws TranslationEngineException, BadTranslationRequestException {
+    public void testValidateLength() throws BadRequestException {
         String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
@@ -46,32 +64,36 @@ public class TranslationServiceTest {
         assertThat(translations).isEqualTo(overLengthSource);
     }
 
-    @Test(expected = BadTranslationRequestException.class)
-    public void testValidateEmptySrcLocale()
-        throws TranslationEngineException, BadTranslationRequestException {
+    @Test
+    public void testValidateEmptySrcLocale() {
         String source = "testing source";
         Locale sourceLocale = null;
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        translationService.translate(source, sourceLocale, targetLocale,
-                Provider.MS);
+
+        assertThatThrownBy(() -> translationService.translate(source,
+                sourceLocale, targetLocale,
+                Provider.MS)).isInstanceOf(BadRequestException.class);
     }
 
-    @Test(expected = BadTranslationRequestException.class)
-    public void testValidateEmptyTargetLocale()
-        throws TranslationEngineException, BadTranslationRequestException {
+    @Test
+    public void testValidateEmptyTargetLocale() {
         String source = "testing source";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = null;
-        translationService.translate(source, sourceLocale, targetLocale,
-                Provider.MS);
+
+        assertThatThrownBy(() -> translationService.translate(source,
+                sourceLocale, targetLocale,
+                Provider.MS)).isInstanceOf(BadRequestException.class);
     }
 
-    @Test(expected = BadTranslationRequestException.class)
-    public void testValidateEmptyProvider()
-        throws TranslationEngineException, BadTranslationRequestException {
+    @Test
+    public void testValidateEmptyProvider() {
         String source = "testing source";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        translationService.translate(source, sourceLocale, targetLocale, null);
+
+        assertThatThrownBy(() -> translationService.translate(source,
+                sourceLocale, targetLocale, null))
+                        .isInstanceOf(BadRequestException.class);
     }
 }

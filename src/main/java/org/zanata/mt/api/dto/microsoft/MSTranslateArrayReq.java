@@ -1,4 +1,4 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,9 +39,11 @@ import org.zanata.mt.api.dto.LocaleIdAdapter;
 @XmlRootElement(name = "TranslateArrayRequest")
 @XmlType(propOrder = {"appId", "srcLanguage", "options", "texts", "transLanguage"})
 public class MSTranslateArrayReq implements Serializable {
+    private static final long serialVersionUID = 3821282850166291221L;
+
     private String appId;
     private LocaleId srcLanguage;
-    private Options options;
+    private MSTranslateArrayReqOptions options;
     private List<MSString> texts = new ArrayList<>();
     private LocaleId transLanguage;
 
@@ -68,11 +70,11 @@ public class MSTranslateArrayReq implements Serializable {
     }
 
     @XmlElement(name = "Options")
-    public Options getOptions() {
+    public MSTranslateArrayReqOptions getOptions() {
         return options;
     }
 
-    public void setOptions(Options options) {
+    public void setOptions(MSTranslateArrayReqOptions options) {
         this.options = options;
     }
 

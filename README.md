@@ -1,4 +1,4 @@
-# To test
+# To test (there is no access control, deploy only in localhost for testing)
 
 Run:
 
@@ -14,4 +14,4 @@ Run:
    - Body {
    url: String,
    title: String,
-   divContent: String }
+   content: String }

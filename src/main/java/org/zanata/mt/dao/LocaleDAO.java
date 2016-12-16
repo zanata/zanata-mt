@@ -17,6 +17,7 @@ import com.ibm.icu.util.ULocale;
  */
 @Stateless
 public class LocaleDAO extends AbstractDAO<Locale> {
+    private static final long serialVersionUID = -1640472923498327999L;
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors as indicated by the
+ * Copyright 2016, Red Hat, Inc. and individual contributors as indicated by the
  * @author tags. See the copyright.txt file in the distribution for a full
  * listing of individual contributors.
  *
@@ -33,6 +33,8 @@ import org.zanata.mt.model.Provider;
  */
 public class ProviderType extends AbstractSingleColumnStandardBasicType<Provider>
     implements DiscriminatorType<Provider> {
+
+    private static final long serialVersionUID = 7345081786271438120L;
 
     public ProviderType() {
         super(StringType.INSTANCE.getSqlTypeDescriptor(),

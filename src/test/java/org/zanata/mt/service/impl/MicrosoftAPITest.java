@@ -1,4 +1,4 @@
-package org.zanata.mt.service;
+package org.zanata.mt.service.impl;
 
 import java.io.UnsupportedEncodingException;
 
@@ -12,16 +12,17 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.exception.ZanataMTException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_ID;
-import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_SECRET;
+import static org.zanata.mt.service.impl.MicrosoftProvider.AZURE_ID;
+import static org.zanata.mt.service.impl.MicrosoftProvider.AZURE_SECRET;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -30,45 +31,12 @@ import static org.zanata.mt.service.MicrosoftTranslatorAPI.AZURE_SECRET;
 @PrepareForTest(MicrosoftTranslatorAPI.class)
 public class MicrosoftAPITest {
     private MicrosoftTranslatorAPI api;
-    @Before
-    public void init() {
-        System.clearProperty(AZURE_ID);
-        System.clearProperty(AZURE_SECRET);
-        api = new MicrosoftTranslatorAPI();
-    }
-
-    @Test(expected = TranslationEngineException.class)
-    public void testVerifyCredentialsInvalid() throws TranslationEngineException {
-        api.verifyCredentials();
-    }
-
-    @Test
-    public void testVerifyCredentials() throws TranslationEngineException {
-        System.setProperty(AZURE_ID, "id");
-        System.setProperty(AZURE_SECRET, "secret");
-        api.verifyCredentials();
-    }
-
-    @Test
-    public void testClientId() {
-        String id = "client_id";
-        System.setProperty(AZURE_ID, id);
-        assertThat(api.getClientId()).isEqualTo(id);
-    }
-
-    @Test
-    public void testClientSecret() {
-        String secret = "client_secret";
-        System.setProperty(AZURE_SECRET, secret);
-        assertThat(api.getSecret()).isEqualTo(secret);
-    }
 
     @Test
     public void testGetTokenParam() throws UnsupportedEncodingException {
         String id = "id";
         String secret = "secret";
-        System.setProperty(AZURE_ID, id);
-        System.setProperty(AZURE_SECRET, secret);
+        api = new MicrosoftTranslatorAPI(id, secret);
 
         String expectedParam = "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=" + id + "&client_secret=" + secret;
         String param = api.getTokenParam();
@@ -80,8 +48,7 @@ public class MicrosoftAPITest {
     public void testGetToken() throws Exception {
         String id = "id";
         String secret = "secret";
-        System.setProperty(AZURE_ID, id);
-        System.setProperty(AZURE_SECRET, secret);
+        api = new MicrosoftTranslatorAPI(id, secret);
         String expectedToken = "expected token";
 
         Response response = PowerMockito.mock(Response.class);

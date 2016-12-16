@@ -17,6 +17,8 @@ import javax.validation.constraints.NotNull;
 @Access(AccessType.FIELD)
 public class Document extends ModelEntity {
 
+    private static final long serialVersionUID = -3394088546058798299L;
+
     @URL
     @NotNull
     private String url;
@@ -61,7 +63,7 @@ public class Document extends ModelEntity {
         return usedCount;
     }
 
-    public void incrementCount() {
+    public void incrementUsedCount() {
         this.usedCount += 1;
     }
 

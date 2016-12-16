@@ -16,6 +16,8 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @Stateless
 public class DocumentDAO extends AbstractDAO<Document> {
+    private static final long serialVersionUID = -2806219348294855687L;
+
     @PersistenceContext
     private EntityManager entityManager;
 

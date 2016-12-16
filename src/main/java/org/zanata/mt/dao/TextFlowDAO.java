@@ -13,7 +13,8 @@ import com.google.common.annotations.VisibleForTesting;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Stateless
-public class TextFlowDAO extends AbstractDAO<TextFlow>{
+public class TextFlowDAO extends AbstractDAO<TextFlow> {
+    private static final long serialVersionUID = -4593105065135284822L;
     @PersistenceContext
     private EntityManager entityManager;
 

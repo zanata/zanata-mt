@@ -12,7 +12,7 @@
   </welcome-file-list>
 
   <!--
-  Make sure Liquibase is the first listener (after ClassLoaderLeakPreventor),
+  Make sure Liquibase is the first listener,
   so that it can update the database schema before
   anyone uses the database.
    -->
@@ -24,7 +24,7 @@
 
   <context-param>
     <param-name>liquibase.datasource</param-name>
-    <param-value>java:jboss/datasources/mt</param-value>
+    <param-value>java:jboss/datasources/zanataMT</param-value>
   </context-param>
 
   <context-param>

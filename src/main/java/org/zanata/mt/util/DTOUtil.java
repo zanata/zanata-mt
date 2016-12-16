@@ -16,8 +16,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public class DTOUtil {
-    private final static Logger log = LoggerFactory.getLogger(DTOUtil.class);
+public final class DTOUtil {
+    private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);
+
+    @SuppressWarnings("unused")
+    private DTOUtil() {
+    }
 
     @SuppressWarnings({ "unchecked" })
     public static <T> String toXML(T obj) {
@@ -41,7 +45,7 @@ public class DTOUtil {
             }
             return writer.toString();
         } catch (Exception e) {
-            log.error("toXML failed", e);
+            LOG.error("toXML failed", e);
             return obj.getClass().getName() + "@"
                     + Integer.toHexString(obj.hashCode());
         }
@@ -62,7 +66,7 @@ public class DTOUtil {
         try {
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            log.error("toJSON failed", e);
+            LOG.error("toJSON failed", e);
             return obj.getClass().getName() + "@"
                     + Integer.toHexString(obj.hashCode());
         }

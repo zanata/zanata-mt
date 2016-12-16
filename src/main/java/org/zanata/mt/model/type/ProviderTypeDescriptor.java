@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Red Hat, Inc. and individual contributors as indicated by the
+ * Copyright 2016, Red Hat, Inc. and individual contributors as indicated by the
  * @author tags. See the copyright.txt file in the distribution for a full
  * listing of individual contributors.
  *
@@ -33,6 +33,7 @@ public class ProviderTypeDescriptor extends
 
     public static final ProviderTypeDescriptor INSTANCE =
         new ProviderTypeDescriptor();
+    private static final long serialVersionUID = 6011517968596456576L;
 
     public ProviderTypeDescriptor() {
         super(Provider.class);

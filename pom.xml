@@ -8,34 +8,33 @@
   <version>1.0.0-SNAPSHOT</version>
   <name>Zanata MT</name>
   <packaging>war</packaging>
-  <url>http://maven.apache.org</url>
+  <url>http://zanata.org</url>
   <scm>
-    <connection>scm:git:git@gitlab.cee.redhat.com:zanata/machine-translation.git</connection>
+    <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
   </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <!-- bundled 2.3.x in EAP6 -->
-    <resteasy.version>3.0.12.Final</resteasy.version>
-    <javamelody.version>1.60.0</javamelody.version>
-    <guava.version>19.0</guava.version>
-    <slf4j.version>1.7.21</slf4j.version>
+    <resteasy.version>3.1.0.Final</resteasy.version>
+    <javamelody.version>1.62.0</javamelody.version>
+    <guava.version>20.0</guava.version>
+    <slf4j.version>1.7.22</slf4j.version>
     <validation-api.version>1.1.0.Final</validation-api.version>
-    <hibernate.validator.version>4.3.2.Final</hibernate.validator.version>
-    <hibernate.version>4.2.19.Final</hibernate.version>
-
-    <deltaspike.version>1.7.2</deltaspike.version>
+    <hibernate.validator.version>5.3.4.Final</hibernate.validator.version>
+    <hibernate.version>5.2.5.Final</hibernate.version>
+    <hibernate.commons.version>5.0.1.Final</hibernate.commons.version>
+    <powermock.version>1.6.6</powermock.version>
 
     <!-- database -->
     <postgresql.version>9.2-1004-jdbc3</postgresql.version>
     <postgresql.port>5432</postgresql.port>
     <postgressql.user>root</postgressql.user>
     <postgressql.password>root</postgressql.password>
-    <db.name>mt</db.name>
+    <db.name>zanataMT</db.name>
     <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
-    <icu4j.version>56.1</icu4j.version>
+    <icu4j.version>58.2</icu4j.version>
 
     <!-- cargo settings -->
     <cargo.host>localhost</cargo.host>
@@ -49,6 +48,20 @@
     <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
     <context.path>/</context.path>
 
+
+    <checkstyle.maven.version>2.17</checkstyle.maven.version>
+    <checkstyle.version>7.2</checkstyle.version>
+    <checkstyle.skip>false</checkstyle.skip>
+    <zanata.build-tools.version>4.1.0-SNAPSHOT</zanata.build-tools.version>
+    
+    <checkstyle.config.location>zanata-build-tools/checkstyle.xml</checkstyle.config.location>
+    <checkstyle.suppressions.location>zanata-build-tools/checkstyle-suppressions.xml</checkstyle.suppressions.location>
+    <!-- <checkstyle.enable.rules.summary>false</checkstyle.enable.rules.summary> -->
+    <!-- report violations to stdout (not console!) -->
+    <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+
+    <findbugs.failOnError>false</findbugs.failOnError>
+
   </properties>
 
   <build>
@@ -61,6 +74,58 @@
     </resources>
 
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>3.0.4</version>
+        <configuration>
+          <xmlOutput>true</xmlOutput>
+          <failOnError>${findbugs.failOnError}</failOnError>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- temporary disable, import build-tools from Zanata for configuration-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <skip>${checkstyle.skip}</skip>
+          <configLocation>${checkstyle.config.location}</configLocation>
+          <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
+          <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
+        </configuration>
+        <version>${checkstyle.maven.version}</version>
+        <executions>
+          <execution>
+            <id>check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${checkstyle.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.zanata</groupId>
+            <artifactId>build-tools</artifactId>
+            <version>${zanata.build-tools.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
       <plugin>
         <!-- The Docker Maven plugin is used to create docker image with the fat jar -->
         <groupId>io.fabric8</groupId>
@@ -165,7 +230,7 @@
 
               <!-- maven variables does not work here -->
               <cargo.datasource.datasource.postgres>
-                cargo.datasource.jndi=jboss/datasources/mt|
+                cargo.datasource.jndi=jboss/datasources/${db.name}|
                 cargo.datasource.driver=org.postgresql.Driver|
                 cargo.datasource.url=jdbc:postgresql://localhost:${postgresql.port}/${db.name}|
                 cargo.datasource.username=${postgressql.user}|
@@ -299,7 +364,7 @@
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>jaxrs-api</artifactId>
-      <version>${resteasy.version}</version>
+      <version>3.0.12.Final</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -382,12 +447,7 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>3.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.16</version>
+      <version>3.5.3</version>
     </dependency>
     <dependency>
       <groupId>com.mattbertolini</groupId>
@@ -399,7 +459,7 @@
     <dependency>
       <groupId>org.hibernate.common</groupId>
       <artifactId>hibernate-commons-annotations</artifactId>
-      <version>4.0.4.Final</version>
+      <version>${hibernate.commons.version}</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -459,13 +519,13 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.0</version>
+      <version>3.5</version>
     </dependency>
 
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.9.2</version>
+      <version>1.10.1</version>
     </dependency>
 
     <dependency>
@@ -509,26 +569,26 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.2.0</version>
+      <version>3.6.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>1.6.6</version>
+      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
-      <version>1.6.6</version>
+      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.6.6</version>
+      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -549,6 +609,7 @@
   </dependencies>
 
   <profiles>
+    <!-- This profile is used by openshift during deployment -->
     <profile>
       <id>openshift</id>
       <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->

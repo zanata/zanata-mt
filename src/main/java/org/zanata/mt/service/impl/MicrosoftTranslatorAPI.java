@@ -1,7 +1,6 @@
-package org.zanata.mt.service;
+package org.zanata.mt.service.impl;
 
 import org.apache.commons.codec.CharEncoding;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -9,8 +8,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.Microsoft.MSTranslateArrayReq;
-import org.zanata.mt.exception.TranslationEngineException;
+import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReq;
+import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.util.DTOUtil;
 
 import javax.ws.rs.client.Entity;
@@ -32,26 +31,40 @@ import com.google.common.collect.Maps;
  */
 public class MicrosoftTranslatorAPI {
 
-    private static final Logger log =
+    private static final Logger LOG =
         LoggerFactory.getLogger(MicrosoftTranslatorAPI.class);
 
-    public static final String TRANSLATIONS_BASE_URL = "http://api.microsofttranslator.com/V2/Http.svc/TranslateArray";
+    public static final String TRANSLATIONS_BASE_URL = "http://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
     public static final String DATA_MARKET_ACCESS_URI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
 
-    public static final String AZURE_ID = "AZURE_ID";
-    public static final String AZURE_SECRET = "AZURE_SECRET";
-
     public static final String ENCODING = CharEncoding.UTF_8;
-    public static final String MEDIA_TYPE = MediaType.TEXT_HTML;
+
+    /**
+     * HTML type of content for translation engine.
+     */
+    public static final String MEDIA_TYPE_HTML = MediaType.TEXT_HTML;
+    /**
+     * Plain text type of content for translation engine.
+     */
+    public static final String MEDIA_TYPE_TEXT = MediaType.TEXT_PLAIN;
 
     public static final String OPTIONS_NAMESPACE = "http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2";
 
-    private static final String templateTokenParam =
+    private static final String TEMPLATE_TOKEN_PARAM =
         "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=${clientId}&client_secret=${clientSecret}";
 
     // The access token is valid for 10 minutes
-    private static long tokenExpiration = 0;
-    private static String token;
+    private long tokenExpiration = 0;
+    private String token;
+
+    private final String clientId;
+
+    private final String clientSecret;
+
+    public MicrosoftTranslatorAPI(String clientId, String clientSecret) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
 
     /**
      * Get access token from MS API if token is expired.
@@ -59,7 +72,7 @@ public class MicrosoftTranslatorAPI {
      *
      * @throws Exception
      */
-    protected void getTokenIfNeeded() throws Exception {
+    protected void getTokenIfNeeded() {
         if (System.currentTimeMillis() > tokenExpiration) {
             String tokenJson = getToken();
             Integer expiresIn = Integer.parseInt(
@@ -69,15 +82,17 @@ public class MicrosoftTranslatorAPI {
                 System.currentTimeMillis() + ((expiresIn * 1000) - 1);
             token = "Bearer " + ((JSONObject) JSONValue.parse(tokenJson))
                 .get("access_token");
-            log.debug("New token:" + token);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("New token:" + token);
+            }
         }
     }
 
     /**
      * Return raw response from Microsoft API
      */
-    protected String requestTranslations(MSTranslateArrayReq req)
-            throws Exception {
+    public String requestTranslations(MSTranslateArrayReq req)
+            throws ZanataMTException {
         getTokenIfNeeded();
 
         ResteasyWebTarget webTarget =
@@ -90,23 +105,23 @@ public class MicrosoftTranslatorAPI {
                 .post(Entity.xml(DTOUtil.toXML(req)));
 
         if (response.getStatusInfo() != Response.Status.OK) {
-            throw new TranslationEngineException(
-                response.getStatusInfo().toString(),
-                "Error from Microsoft Translator API");
+            throw new ZanataMTException(
+                    "Error from Microsoft Translator API:"
+                            + response.getStatusInfo().toString());
         }
         String xml = response.readEntity(String.class);
         response.close();
-        log.info("Translation from Microsoft Engine:" + xml);
+        LOG.info("Translation from Microsoft Engine:" + xml);
         return xml;
     }
 
     /**
      * Get access token from MS API
      */
-    protected String getToken() throws Exception {
+    protected String getToken() throws ZanataMTException {
         Response response = null;
         try {
-            log.info("Getting token for Microsoft Engine");
+            LOG.info("Getting token for Microsoft Engine");
 
             Invocation.Builder builder = getBuilder();
             final String params = getTokenParam();
@@ -115,10 +130,13 @@ public class MicrosoftTranslatorAPI {
                 .entity(params, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
             if (response.getStatusInfo() != Response.Status.OK) {
-                throw new TranslationEngineException(
-                    response.getStatusInfo().toString(), "Error getting token");
+                throw new ZanataMTException(
+                        "Error getting token"
+                                + response.getStatusInfo().toString());
             }
             return response.readEntity(String.class);
+        } catch (UnsupportedEncodingException e) {
+            throw new ZanataMTException("Unable to get system properties", e);
         } finally {
             if (response != null) {
                 response.close();
@@ -139,37 +157,11 @@ public class MicrosoftTranslatorAPI {
         throws UnsupportedEncodingException {
         Map<String, String> valuesMap = Maps.newHashMap();
         valuesMap.put("clientId",
-            URLEncoder.encode(getClientId(), ENCODING));
+            URLEncoder.encode(clientId, ENCODING));
         valuesMap.put("clientSecret",
-            URLEncoder.encode(getSecret(), ENCODING));
+            URLEncoder.encode(clientSecret, ENCODING));
 
         StrSubstitutor sub = new StrSubstitutor(valuesMap);
-        return sub.replace(templateTokenParam);
-    }
-
-    /**
-     * @return Client id from system property: AZURE_ID
-     */
-    protected String getClientId() {
-        return System.getProperty(AZURE_ID);
-    }
-
-    /**
-     * @return Client secret from system property: AZURE_SECRET
-     */
-    protected String getSecret() {
-        return System.getProperty(AZURE_SECRET);
-    }
-
-    /**
-     * @throws TranslationEngineException if AZURE_ID or AZURE_SECRET is blank
-     */
-    protected void verifyCredentials() throws TranslationEngineException {
-        if (StringUtils.isBlank(getClientId())
-            || StringUtils.isBlank(getSecret())) {
-            throw new TranslationEngineException(
-                "Missing environment variables of AZURE_ID and AZURE_SECRET",
-                "Missing required AZURE credentials");
-        }
+        return sub.replace(TEMPLATE_TOKEN_PARAM);
     }
 }

@@ -1,19 +1,18 @@
-package org.zanata.mt.api.dto.Microsoft;
+package org.zanata.mt.api.dto.microsoft;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "TranslateArrayResponse")
+@XmlRootElement(name = "TranslateArray2Response")
 public class MSTranslateArrayResponse implements Serializable {
+    private static final long serialVersionUID = -6479498157835672314L;
     private String srcLanguage;
-    private String state;
+    private String alignment;
     private TextSentenceLength originalTextSentenceLengths;
     private TextSentenceLength translatedTextSentenceLengths;
     private MSString translatedText;
@@ -27,13 +26,13 @@ public class MSTranslateArrayResponse implements Serializable {
         this.srcLanguage = srcLanguage;
     }
 
-    @XmlElement(name = "State")
-    public String getState() {
-        return state;
+    @XmlElement(name = "Alignment")
+    public String getAlignment() {
+        return alignment;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setAlignment(String alignment) {
+        this.alignment = alignment;
     }
 
     @XmlElement(name = "OriginalTextSentenceLengths")
@@ -74,7 +73,7 @@ public class MSTranslateArrayResponse implements Serializable {
 
         if (srcLanguage != null ? !srcLanguage.equals(that.srcLanguage) :
             that.srcLanguage != null) return false;
-        if (state != null ? !state.equals(that.state) : that.state != null)
+        if (alignment != null ? !alignment.equals(that.alignment) : that.alignment != null)
             return false;
         if (originalTextSentenceLengths != null ?
             !originalTextSentenceLengths
@@ -93,7 +92,7 @@ public class MSTranslateArrayResponse implements Serializable {
     @Override
     public int hashCode() {
         int result = srcLanguage != null ? srcLanguage.hashCode() : 0;
-        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
         result = 31 * result + (originalTextSentenceLengths != null ?
             originalTextSentenceLengths.hashCode() : 0);
         result = 31 * result + (translatedTextSentenceLengths != null ?

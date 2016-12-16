@@ -5,9 +5,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.Microsoft.MSString;
+import org.zanata.mt.api.dto.microsoft.MSString;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -30,10 +31,11 @@ public class DTOUtilTest {
         assertThat(obj).isEqualTo(expectedObj);
     }
 
-    @Test(expected = UnmarshalException.class)
+    @Test
     public void testToObjectInvalid() throws JAXBException {
         String xml = "testing 123";
-        MSString obj = DTOUtil.toObject(xml, MSString.class);
+        assertThatThrownBy(() -> DTOUtil.toObject(xml, MSString.class))
+            .isInstanceOf(UnmarshalException.class);
     }
 
     @Test
@@ -52,9 +54,10 @@ public class DTOUtilTest {
         assertThat(obj).isEqualTo(expectedObj);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testFromJsonToObjInvalid() throws IOException {
         String json = "{\"testing 123\"}";
-        MSString obj = DTOUtil.fromJSONToObject(json, MSString.class);
+        assertThatThrownBy(() -> DTOUtil.fromJSONToObject(json, MSString.class))
+            .isInstanceOf(IOException.class);
     }
 }

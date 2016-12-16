@@ -20,6 +20,8 @@ import org.zanata.mt.model.type.LocaleIdType;
 @TypeDef(name = "localeId", typeClass = LocaleIdType.class)
 public class Locale extends ModelEntity {
 
+    private static final long serialVersionUID = -7976081605962247643L;
+
     @Type(type = "localeId")
     @NaturalId
     @NotNull
