@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -46,7 +47,7 @@ public class KCSArticleService implements ResourceService {
             ZanataMTException {
         String translatedTitle =
                 translationService.translate(article.getTitle(), srcLocale,
-                        transLocale, provider);
+                        transLocale, provider, MediaType.TEXT_PLAIN_TYPE);
 
         String translatedContent =
                 translateContent(article.getContent(), srcLocale,
@@ -78,7 +79,7 @@ public class KCSArticleService implements ResourceService {
                 Lists.newArrayList(content.outerHtml(),
                         secondaryContent.outerHtml());
         List<String> translations = translationService.translate(headers,
-                srcLocale, transLocale, provider);
+                srcLocale, transLocale, provider, MediaType.TEXT_HTML_TYPE);
 
         if (!translations.isEmpty()) {
             Elements translatedContent =
@@ -136,7 +137,7 @@ public class KCSArticleService implements ResourceService {
 
         // send section to translate
         List<String> translations = translationService.translate(strings,
-                srcLocale, transLocale, provider);
+                srcLocale, transLocale, provider, MediaType.TEXT_HTML_TYPE);
         if (!translations.isEmpty()) {
             int index = 0;
             for (Element sectionChild : section.children()) {

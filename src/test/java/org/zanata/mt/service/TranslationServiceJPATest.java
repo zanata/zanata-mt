@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -76,14 +77,16 @@ public class TranslationServiceJPATest {
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        when(msProvider.translate(sources, sourceLocale, targetLocale))
-                .thenReturn(expectedTranslations);
+        when(msProvider.translate(sources, sourceLocale, targetLocale,
+                MediaType.TEXT_PLAIN_TYPE))
+                        .thenReturn(expectedTranslations);
 
         List<String> translations =
                 translationService.translate(sources, sourceLocale,
-                        targetLocale, Provider.MS);
+                        targetLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(msProvider).translate(sources, sourceLocale, targetLocale);
+        verify(msProvider).translate(sources, sourceLocale, targetLocale,
+                MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByHash(hash);
         verify(textFlowDAO).persist(expectedTf);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -113,7 +116,7 @@ public class TranslationServiceJPATest {
 
         String translation =
                 translationService.translate(source, sourceLocale, targetLocale,
-                        Provider.MS);
+                        Provider.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(hash);
         verify(textFlowTargetDAO).persist(expectedTft);

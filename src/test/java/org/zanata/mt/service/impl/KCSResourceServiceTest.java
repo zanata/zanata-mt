@@ -19,6 +19,7 @@ import org.zanata.mt.util.DTOUtil;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -94,21 +95,25 @@ public class KCSResourceServiceTest {
             transLocale)).thenReturn(doc);
 
         when(translationService.translate(article.getTitle(), srcLocale,
-            transLocale, Provider.MS)).thenReturn(translatedTitle);
+                transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                        .thenReturn(translatedTitle);
         when(translationService.translate(headers, srcLocale,
-            transLocale, Provider.MS)).thenReturn(translatedHeaders);
+                transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                        .thenReturn(translatedHeaders);
 
         List<String> translatedSection1 =
             Lists.newArrayList("<h2>Translated Normal section</h2>",
                 "<p>Translated this is normal section, should be translated</p>");
         when(translationService.translate(formattedSection1, srcLocale,
-            transLocale, Provider.MS)).thenReturn(translatedSection1);
+            transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE)).thenReturn(translatedSection1);
 
         List<String> translatedSection2 =
-            Lists.newArrayList("<h2>Translated coding section</h2>",
-                "<div class=\"code-raw\">\n <meta id=\"ZanataMT-0\" translate=\"no\">\n</div>", "<div class=\"code-raw\">\n <meta id=\"ZanataMT-1\" translate=\"no\">\n</div>");
+                Lists.newArrayList("<h2>Translated coding section</h2>",
+                        "<div class=\"code-raw\">\n <meta id=\"ZanataMT-0\" translate=\"no\">\n</div>",
+                        "<div class=\"code-raw\">\n <meta id=\"ZanataMT-1\" translate=\"no\">\n</div>");
         when(translationService.translate(formattedSection2, srcLocale,
-            transLocale, Provider.MS)).thenReturn(translatedSection2);
+                transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE))
+                        .thenReturn(translatedSection2);
 
         Article translateArticle = kcsResourceService.translateArticle(article, srcLocale,
             transLocale, Provider.MS);
@@ -127,18 +132,18 @@ public class KCSResourceServiceTest {
 
         // title
         verify(translationService).translate(article.getTitle(), srcLocale,
-            transLocale, Provider.MS);
+            transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE);
 
         // translateArticleHeader
         verify(translationService).translate(headers, srcLocale,
-            transLocale, Provider.MS);
+            transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
 
         // translateArticleBody
         verify(translationService).translate(formattedSection1,
-            srcLocale, transLocale, Provider.MS);
+            srcLocale, transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
 
         verify(translationService).translate(formattedSection2,
-            srcLocale, transLocale, Provider.MS);
+            srcLocale, transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
 
         verifyNoMoreInteractions(translationService);
     }

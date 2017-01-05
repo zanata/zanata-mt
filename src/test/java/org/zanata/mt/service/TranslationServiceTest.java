@@ -1,6 +1,7 @@
 package org.zanata.mt.service;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jglue.cdiunit.CdiRunner;
@@ -60,7 +61,8 @@ public class TranslationServiceTest {
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         String translations = translationService.translate(overLengthSource,
-                sourceLocale, targetLocale, Provider.MS);
+                sourceLocale, targetLocale, Provider.MS,
+                MediaType.TEXT_PLAIN_TYPE);
         assertThat(translations).isEqualTo(overLengthSource);
     }
 
@@ -72,7 +74,8 @@ public class TranslationServiceTest {
 
         assertThatThrownBy(() -> translationService.translate(source,
                 sourceLocale, targetLocale,
-                Provider.MS)).isInstanceOf(BadRequestException.class);
+                Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                        .isInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -83,7 +86,8 @@ public class TranslationServiceTest {
 
         assertThatThrownBy(() -> translationService.translate(source,
                 sourceLocale, targetLocale,
-                Provider.MS)).isInstanceOf(BadRequestException.class);
+                Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                        .isInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -93,7 +97,7 @@ public class TranslationServiceTest {
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
         assertThatThrownBy(() -> translationService.translate(source,
-                sourceLocale, targetLocale, null))
+                sourceLocale, targetLocale, null, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
 }

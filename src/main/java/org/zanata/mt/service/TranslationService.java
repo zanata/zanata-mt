@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import com.google.common.collect.Maps;
 
@@ -88,10 +89,10 @@ public class TranslationService {
     @TransactionAttribute
     public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull Provider provider)
+            @NotNull Provider provider, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
         List<String> translations = translate(Lists.newArrayList(string),
-                srcLocale, targetLocale, provider);
+                srcLocale, targetLocale, provider, mediaType);
         return translations.get(0);
     }
 
@@ -103,7 +104,7 @@ public class TranslationService {
     @TransactionAttribute
     public List<String> translate(@NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull Provider provider)
+            @NotNull Provider provider, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
         if (strings == null || strings.isEmpty() || srcLocale == null
                 || targetLocale == null || provider == null) {
@@ -166,7 +167,8 @@ public class TranslationService {
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
         List<ValueUnit> translations =
-            microsoftProvider.translate(sources, srcLocale, targetLocale);
+                microsoftProvider.translate(sources, srcLocale, targetLocale,
+                        mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);

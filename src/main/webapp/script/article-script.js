@@ -1,8 +1,12 @@
+/**
+ * Process KCS article and request machine translation using api
+ *
+ * ${service.url} is set in pom.xml profile
+ */
 function requestTranslations() {
   console.info('Requesting translations...');
-  // var BASE_URL = '//mt-zanata.itos.redhat.com/';
-  var BASE_URL = '//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/';
-  var baseRestUrl = BASE_URL + 'api/translate';
+  var BASE_URL = '${service.url}';
+  var baseRestUrl = BASE_URL + '/api/translate';
   var DEFAULT_SRC_LANG = 'en';
   var LANG_PREFIX_CLASS = 'i18n-';
 
@@ -28,7 +32,7 @@ function requestTranslations() {
     alert('Unable to translate from content language: ' + contentLang);
     return false;
   }
-  toggleLoading(true);
+  showLoading(true);
   var restUrl = baseRestUrl + '?sourceLang=' + contentLang + '&targetLang='
       + pageLang;
   // extract the page title and article div for translation
@@ -58,17 +62,22 @@ function requestTranslations() {
       pageTitle.text(response.title);
       content.html(response.content);
       console.info('Translation completed');
-      toggleLoading(false);
+      showLoading(false);
     },
     error : function(jqXHR, textStatus, errorThrown) {
       alert('Translation error');
       console.error(textStatus, errorThrown);
-      toggleLoading(false);
+      showLoading(false);
     }
   });
 }
 
-function toggleLoading(show) {
+/**
+ * Manually display loading text in KCS page
+ *
+ * @param show
+ */
+function showLoading(show) {
   var id = 'loading-div';
   var loadingDiv = jQuery('#' + id);
   if (show) {

@@ -20,8 +20,7 @@
   <h2>To use this service</h2>
   <ul>
     <li>
-      1) Drag <a href="javascript:(function()%7Bvar%20BASE_URL%20%3D%20'%2F%2Fmt-zanata.itos.redhat.com%2F'%3Bvar%20scriptUrl%20%3D%20BASE_URL%20%2B%20'script%2Fbookmarklet.js'%3Bvar%20script%20%3D%20document.createElement('script')%3Bscript.setAttribute('src'%2C%20scriptUrl)%3Bscript.addEventListener('load'%2C%20function()%20%7BrequestTranslations()%3B%7D%2C%20false)%3Bdocument.body.appendChild(script)%7D)()
-    ">this bookmarklet</a> to your browser bookmark toolbar OR create a bookmark in your browser and copy/paste the bookmarklet
+      1) Drag <a id="bookmarklet-link" href="This will be filled by bookmarklet js"><strong>this bookmarklet</strong></a> to your browser bookmark toolbar OR create a bookmark in your browser and copy/paste the bookmarklet
       below as the link.
     </li>
     <li>
@@ -29,7 +28,7 @@
       icon from the top right menu and select a translation language.
     </li>
     <li>
-      3) Click on the bookmarklet created to request for machine translations.
+      3) Click on the created bookmarklet to request for machine translations.
     </li>
   </ul>
 </div>
@@ -38,10 +37,10 @@
 
 <div class="container-fluid">
   <h2>Bookmarklet Javascript</h2>
-  <div>Bookmarklet generate from raw javascript and from <a
-    href="http://mrcoles.com/bookmarklet" target="_blank">here</a></div>
-    <textarea style="width: 50em;height:9em" readonly>
-      javascript:(function()%7Bvar%20BASE_URL%20%3D%20'%2F%2Fmt-zanata.itos.redhat.com%2F'%3Bvar%20scriptUrl%20%3D%20BASE_URL%20%2B%20'script%2Fbookmarklet.js'%3Bvar%20script%20%3D%20document.createElement('script')%3Bscript.setAttribute('src'%2C%20scriptUrl)%3Bscript.addEventListener('load'%2C%20function()%20%7BrequestTranslations()%3B%7D%2C%20false)%3Bdocument.body.appendChild(script)%7D)()
+  <div>This bookmarklet generated from raw javascript and using <a
+    href="http://mrcoles.com/bookmarklet" target="_blank">http://mrcoles.com/bookmarklet</a></div>
+    <textarea style="width: 50em;height:9em" readonly id="bookmarklet-area">
+       <!--This will be filled by bookmarklet js -->
     </textarea>
 
   <h2>Raw Javascript</h2>
@@ -50,6 +49,7 @@
   </pre>
 </div>
 <script>
+  displayBookmarklet();
   displayRawJS();
 </script>
 </body>

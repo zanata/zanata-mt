@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.SystemProperty;
@@ -60,14 +61,14 @@ public class MicrosoftProvider implements TranslationProvider {
 
     @Override
     public ValueUnit translate(String message, Locale srcLocale,
-            Locale targetLocale) throws ZanataMTException {
-        return translate(Lists.newArrayList(message), srcLocale, targetLocale)
-                .get(0);
+            Locale targetLocale, MediaType mediaType) throws ZanataMTException {
+        return translate(Lists.newArrayList(message), srcLocale, targetLocale,
+                mediaType).get(0);
     }
 
     @Override
     public List<ValueUnit> translate(List<String> messages, Locale srcLocale,
-        Locale targetLocale) throws ZanataMTException {
+        Locale targetLocale, MediaType mediaType) throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
             req.setSrcLanguage(srcLocale.getLocaleId());
@@ -76,7 +77,7 @@ public class MicrosoftProvider implements TranslationProvider {
                 req.getTexts().add(new MSString(message));
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
-            options.setContentType(api.MEDIA_TYPE_HTML);
+            options.setContentType(mediaType.getType());
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);

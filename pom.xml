@@ -16,6 +16,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <maven-war-plugin.version>2.1.1</maven-war-plugin.version>
     <resteasy.version>3.1.0.Final</resteasy.version>
     <javamelody.version>1.62.0</javamelody.version>
     <guava.version>20.0</guava.version>
@@ -48,20 +49,15 @@
     <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
     <context.path>/</context.path>
 
-
+    <!-- checkstyle -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
     <checkstyle.version>7.2</checkstyle.version>
     <checkstyle.skip>false</checkstyle.skip>
-    <zanata.build-tools.version>4.1.0-SNAPSHOT</zanata.build-tools.version>
-    
-    <checkstyle.config.location>zanata-build-tools/checkstyle.xml</checkstyle.config.location>
-    <checkstyle.suppressions.location>zanata-build-tools/checkstyle-suppressions.xml</checkstyle.suppressions.location>
-    <!-- <checkstyle.enable.rules.summary>false</checkstyle.enable.rules.summary> -->
-    <!-- report violations to stdout (not console!) -->
+    <checkstyle.config.location>src/main/resources/checkstyle.xml</checkstyle.config.location>
+    <checkstyle.suppressions.location>src/main/resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
 
     <findbugs.failOnError>false</findbugs.failOnError>
-
   </properties>
 
   <build>
@@ -92,17 +88,17 @@
         </executions>
       </plugin>
 
-      <!-- temporary disable, import build-tools from Zanata for configuration-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${checkstyle.maven.version}</version>
         <configuration>
           <skip>${checkstyle.skip}</skip>
           <configLocation>${checkstyle.config.location}</configLocation>
           <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
           <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
         </configuration>
-        <version>${checkstyle.maven.version}</version>
+
         <executions>
           <execution>
             <id>check</id>
@@ -117,11 +113,6 @@
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
             <version>${checkstyle.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.zanata</groupId>
-            <artifactId>build-tools</artifactId>
-            <version>${zanata.build-tools.version}</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -272,10 +263,19 @@
       </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>2.1.1</version>
+        <version>${maven-war-plugin.version}</version>
         <configuration>
           <outputDirectory>target/deployments</outputDirectory>
           <warName>ROOT</warName>
+          <webResources>
+            <resource>
+              <filtering>true</filtering>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>script/*.js</include>
+              </includes>
+            </resource>
+          </webResources>
         </configuration>
       </plugin>
       <plugin>
@@ -609,19 +609,48 @@
   </dependencies>
 
   <profiles>
+    <!-- default profile -->
+    <profile>
+      <id>dev</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <!--
+        This should be the base url of where this service is hosted.
+        It is used as base-url for script.js to download article-script.js in bookmarklet.
+        -->
+        <service.url>//${cargo.host}:${cargo.servlet.port}</service.url>
+      </properties>
+    </profile>
+
     <!-- This profile is used by openshift during deployment -->
     <profile>
       <id>openshift</id>
-      <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
+      <properties>
+        <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
+
+        <!-- TODO: read from openshift variable -->
+        <service.url>//mt-zanata.itos.redhat.com</service.url>
+      </properties>
       <build>
         <finalName>ZanataMT</finalName>
         <plugins>
           <plugin>
             <artifactId>maven-war-plugin</artifactId>
-            <version>2.1.1</version>
+            <version>${maven-war-plugin.version}</version>
             <configuration>
               <outputDirectory>deployments</outputDirectory>
               <warName>ROOT</warName>
+              <webResources>
+                <resource>
+                  <filtering>true</filtering>
+                  <directory>src/main/webapp</directory>
+                  <includes>
+                    <include>script/*.js</include>
+                  </includes>
+                </resource>
+              </webResources>
             </configuration>
           </plugin>
         </plugins>
