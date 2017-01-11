@@ -13,5 +13,5 @@ Run:
 - {POST} /translate?sourceLang={sourceLocale}&targetLang={targetLocale} 
    - Body {
    url: String,
-   title: String,
-   content: String }
+   titleText: String,
+   contentHTML: String }

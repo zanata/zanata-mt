@@ -18,7 +18,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.util.TranslationUtil;
+import org.zanata.mt.util.HashUtil;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -61,7 +61,7 @@ public class TextFlow extends ModelEntity {
     @Transient
     private void updateContentHash() {
         this.setHash(
-                TranslationUtil.generateHash(content, locale.getLocaleId()));
+                HashUtil.generateHash(content, locale.getLocaleId()));
     }
 
     public String getHash() {

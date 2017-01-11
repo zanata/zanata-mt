@@ -4,44 +4,48 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for content to be translated
+ * DTO for contentHTML to be translated
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class Article implements Serializable {
     private static final long serialVersionUID = 4123397809604573837L;
 
-    private String title;
+    private String titleText;
 
-    private String content;
+    private String contentHTML;
 
     @NotNull
     private String url;
+
+    @NotNull
+    private String articleType;
 
     @SuppressWarnings("unused")
     protected Article() {
     }
 
-    public Article(String title, String content, String url) {
-        this.title = title;
-        this.content = content;
+    public Article(String titleText, String contentHTML, String url, String articleType) {
+        this.titleText = titleText;
+        this.contentHTML = contentHTML;
         this.url = url;
+        this.articleType = articleType;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTitleText() {
+        return titleText;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitleText(String titleText) {
+        this.titleText = titleText;
     }
 
-    public String getContent() {
-        return content;
+    public String getContentHTML() {
+        return contentHTML;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setContentHTML(String contentHTML) {
+        this.contentHTML = contentHTML;
     }
 
     public String getUrl() {
@@ -52,12 +56,21 @@ public class Article implements Serializable {
         this.url = url;
     }
 
+    public String getArticleType() {
+        return articleType;
+    }
+
+    public void setArticleType(String articleType) {
+        this.articleType = articleType;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
-            "title='" + title + '\'' +
-            ", content='" + content + '\'' +
+            "titleText='" + titleText + '\'' +
+            ", contentHTML='" + contentHTML + '\'' +
             ", url='" + url + '\'' +
+            ", articleType='" + articleType + '\'' +
             '}';
     }
 
@@ -68,20 +81,25 @@ public class Article implements Serializable {
 
         Article article = (Article) o;
 
-        if (title != null ? !title.equals(article.title) :
-            article.title != null)
+        if (titleText != null ? !titleText.equals(article.titleText) :
+            article.titleText != null)
             return false;
-        if (content != null ? !content.equals(article.content) :
-            article.content != null) return false;
-        return url != null ? url.equals(article.url) : article.url == null;
+        if (contentHTML != null ? !contentHTML.equals(article.contentHTML) :
+            article.contentHTML != null) return false;
+        if (url != null ? !url.equals(article.url) : article.url != null)
+            return false;
+        return articleType != null ? articleType.equals(article.articleType) :
+            article.articleType == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = title != null ? title.hashCode() : 0;
-        result = 31 * result + (content != null ? content.hashCode() : 0);
+        int result = titleText != null ? titleText.hashCode() : 0;
+        result = 31 * result + (contentHTML != null ? contentHTML.hashCode() : 0);
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result =
+            31 * result + (articleType != null ? articleType.hashCode() : 0);
         return result;
     }
 }
