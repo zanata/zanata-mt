@@ -12,11 +12,11 @@ import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
-import org.zanata.mt.model.ContentType;
+import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
-import org.zanata.mt.service.ResourceService;
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.service.ArticleTranslatorService;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,12 +27,12 @@ import static org.mockito.Mockito.when;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class TranslateResourceTest {
+public class ArticleTranslatorResourceTest {
 
-    private TranslateResource translateResource;
+    private ArticleTranslatorResource articleTranslatorResource;
 
     @Mock
-    private ResourceService resourceService;
+    private ArticleTranslatorService articleTranslatorService;
 
     @Mock
     private LocaleDAO localeDAO;
@@ -42,34 +42,34 @@ public class TranslateResourceTest {
 
     @Before
     public void setup() {
-        translateResource =
-                new TranslateResource(resourceService, localeDAO, documentDAO);
+        articleTranslatorResource =
+                new ArticleTranslatorResource(articleTranslatorService, localeDAO, documentDAO);
     }
 
     @Test
     public void testTranslateBadParams() {
         // empty source locale
         Article article = new Article(null, null, null);
-        Response response = translateResource.translate(article, null,
-                LocaleId.DE, Provider.MS.name(), ContentType.KCS_ARTICLE.name());
+        Response response = articleTranslatorResource.translate(article, null,
+                LocaleId.DE, BackendID.MS.name(), ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty trans locale
-        response = translateResource.translate(article, LocaleId.EN,
-            null, Provider.MS.name(), ContentType.KCS_ARTICLE.name());
+        response = articleTranslatorResource.translate(article, LocaleId.EN,
+            null, BackendID.MS.name(), ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty provider
-        response = translateResource.translate(article, LocaleId.EN,
-            LocaleId.DE, null, ContentType.KCS_ARTICLE.name());
+        response = articleTranslatorResource.translate(article, LocaleId.EN,
+            LocaleId.DE, null, ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // invalid provider
-        response = translateResource.translate(article, LocaleId.EN,
-            LocaleId.DE, "not supported provider", ContentType.KCS_ARTICLE.name());
+        response = articleTranslatorResource.translate(article, LocaleId.EN,
+            LocaleId.DE, "not supported provider", ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -78,22 +78,22 @@ public class TranslateResourceTest {
     public void testTranslateBadArticle() {
         // null article
         Article article = null;
-        Response response = translateResource.translate(article, null,
-            LocaleId.DE, Provider.MS.name(), ContentType.KCS_ARTICLE.name());
+        Response response = articleTranslatorResource.translate(article, null,
+            LocaleId.DE, BackendID.MS.name(), ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with no content
         article = new Article(null, null, null);
-        response = translateResource.translate(article, LocaleId.EN,
-            LocaleId.DE, Provider.MS.name(), ContentType.KCS_ARTICLE.name());
+        response = articleTranslatorResource.translate(article, LocaleId.EN,
+            LocaleId.DE, BackendID.MS.name(), ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with content but no url
         article = new Article("title", "content", null);
-        response = translateResource.translate(article, null,
-            LocaleId.DE, Provider.MS.name(), ContentType.KCS_ARTICLE.name());
+        response = articleTranslatorResource.translate(article, null,
+            LocaleId.DE, BackendID.MS.name(), ArticleType.KCS_ARTICLE.name());
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -120,22 +120,22 @@ public class TranslateResourceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
                 transLocale)).thenReturn(doc);
 
-        when(resourceService.translateArticle(article, srcLocale,
-            transLocale, Provider.MS)).thenReturn(translatedArticle);
+        when(articleTranslatorService.translateArticle(article, srcLocale,
+            transLocale, BackendID.MS)).thenReturn(translatedArticle);
 
         Response response =
-            translateResource.translate(article, srcLocale.getLocaleId(),
-                transLocale.getLocaleId(), Provider.MS.name(),
-                ContentType.KCS_ARTICLE.name());
+            articleTranslatorResource.translate(article, srcLocale.getLocaleId(),
+                transLocale.getLocaleId(), BackendID.MS.name(),
+                ArticleType.KCS_ARTICLE.name());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         Article returnedArticle = (Article)response.getEntity();
 
-        assertThat(returnedArticle.getTitle()).isEqualTo(translatedTitle);
-        assertThat(returnedArticle.getContent()).isEqualTo(translatedContent);
+        assertThat(returnedArticle.getTitleText()).isEqualTo(translatedTitle);
+        assertThat(returnedArticle.getContentHTML()).isEqualTo(translatedContent);
 
-        doc.incrementUsedCount();
+        doc.increaseUsedCount();
         verify(documentDAO).persist(doc);
     }
 }

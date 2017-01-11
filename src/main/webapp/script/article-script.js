@@ -34,14 +34,15 @@ function requestTranslations() {
   }
   showLoading(true);
   var restUrl = baseRestUrl + '?sourceLang=' + contentLang + '&targetLang='
-      + pageLang;
+      + pageLang + '&backendId=MS';
   // extract the page title and article div for translation
   var pageTitle = jQuery('html head title');
   var content = jQuery('article#main-content div.content-wrapper');
   var sourceData = {
     title : pageTitle.text(),
     content : content.html(),
-    url: window.location.href
+    url: window.location.href,
+    articleType: 'KCS_ARTICLE'
   };
 
   jQuery.ajax({

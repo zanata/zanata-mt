@@ -5,7 +5,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.zanata.mt.model.type.ProviderType;
+import org.zanata.mt.model.type.BackendIdType;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Access(AccessType.FIELD)
 @TypeDefs({
-    @TypeDef(name = "providerType", typeClass = ProviderType.class)
+    @TypeDef(name = "backendIdType", typeClass = BackendIdType.class)
 })
 public class TextFlowTarget extends ModelEntity {
     private static final long serialVersionUID = -64231181018123191L;
@@ -43,20 +43,20 @@ public class TextFlowTarget extends ModelEntity {
 
     private int usedCount;
 
-    @Type(type = "providerType")
+    @Type(type = "backendIdType")
     @Column(nullable = false)
-    private Provider provider;
+    private BackendID backendId;
 
     public TextFlowTarget() {
     }
 
     public TextFlowTarget(String content, String rawContent, TextFlow textFlow,
-            Locale locale, Provider provider) {
+            Locale locale, BackendID backendID) {
         this.content = content;
         this.rawContent = rawContent;
         this.textFlow = textFlow;
         this.locale = locale;
-        this.provider = provider;
+        this.backendId = backendID;
     }
 
     public void incrementCount() {
@@ -83,7 +83,7 @@ public class TextFlowTarget extends ModelEntity {
         return usedCount;
     }
 
-    public Provider getProvider() {
-        return provider;
+    public BackendID getBackendId() {
+        return backendId;
     }
 }

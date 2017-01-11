@@ -22,10 +22,10 @@ import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
-import org.zanata.mt.model.ValueUnit;
+import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.impl.MicrosoftProvider;
 import org.zanata.mt.util.TranslationUtil;
 
@@ -89,10 +89,10 @@ public class TranslationService {
     @TransactionAttribute
     public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull Provider provider, @NotNull MediaType mediaType)
+            @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
         List<String> translations = translate(Lists.newArrayList(string),
-                srcLocale, targetLocale, provider, mediaType);
+                srcLocale, targetLocale, backendID, mediaType);
         return translations.get(0);
     }
 
@@ -104,10 +104,10 @@ public class TranslationService {
     @TransactionAttribute
     public List<String> translate(@NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull Provider provider, @NotNull MediaType mediaType)
+            @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
         if (strings == null || strings.isEmpty() || srcLocale == null
-                || targetLocale == null || provider == null) {
+                || targetLocale == null || backendID == null) {
             throw new BadRequestException();
         }
         int totalChar = strings.stream().mapToInt(String::length).sum();
@@ -138,7 +138,7 @@ public class TranslationService {
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
                         matchedHashTf.getTargetsByLocaleId(
-                                targetLocale.getLocaleId()), provider);
+                                targetLocale.getLocaleId()), backendID);
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
@@ -166,23 +166,23 @@ public class TranslationService {
 
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
-        List<ValueUnit> translations =
+        List<AugmentedTranslation> translations =
                 microsoftProvider.translate(sources, srcLocale, targetLocale,
                         mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
-            ValueUnit translation = translations.get(sources.indexOf(source));
-            results.set(index, translation.getValue());
+            AugmentedTranslation translation = translations.get(sources.indexOf(source));
+            results.set(index, translation.getPlainTranslation());
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
                 tf = textFlowDAO.persist(new TextFlow(source, srcLocale));
             }
             TextFlowTarget target =
-                    new TextFlowTarget(translation.getValue(),
-                            translation.getRawValue(), tf,
-                            targetLocale, provider);
+                    new TextFlowTarget(translation.getPlainTranslation(),
+                            translation.getRawTranslation(), tf,
+                            targetLocale, backendID);
             target = textFlowTargetDAO.persist(target);
             tf.getTargets().add(target);
         }
@@ -190,9 +190,9 @@ public class TranslationService {
     }
 
     private Optional<TextFlowTarget> getTargetByProvider(
-            List<TextFlowTarget> targets, Provider provider) {
+            List<TextFlowTarget> targets, BackendID backendID) {
         for (TextFlowTarget target : targets) {
-            if (target.getProvider().equals(provider)) {
+            if (target.getBackendId().equals(backendID)) {
                 return Optional.of(target);
             }
         }

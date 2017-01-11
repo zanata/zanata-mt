@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,10 +23,10 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
-import org.zanata.mt.model.ContentType;
+import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
-import org.zanata.mt.service.ResourceService;
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.service.ArticleTranslatorService;
 
 import com.google.common.collect.Maps;
 import org.zanata.mt.util.UrlUtil;
@@ -36,25 +35,15 @@ import org.zanata.mt.util.UrlUtil;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class TranslateResource {
+public class ArticleTranslatorResource {
     private static final Logger LOG =
-        LoggerFactory.getLogger(TranslateResource.class);
+        LoggerFactory.getLogger(ArticleTranslatorResource.class);
 
-    private ResourceService kcsArticleService;
+    private ArticleTranslatorService kcsArticleService;
 
     private LocaleDAO localeDAO;
 
     private DocumentDAO documentDAO;
-
-    /**
-     * Default Machine translation provider: {@link Provider#MS}
-     */
-    private static final String DEFAULT_PROVIDER = "MS";
-
-    /**
-     * Default content type: {@link org.zanata.mt.model.ContentType#KCS_ARTICLE}
-     */
-    private static final String DEFAULT_CONTENT_TYPE = "KCS_ARTICLE";
 
     /**
      * Locale mapping
@@ -70,11 +59,11 @@ public class TranslateResource {
     }
 
     @SuppressWarnings("unused")
-    public TranslateResource() {
+    public ArticleTranslatorResource() {
     }
 
     @Inject
-    public TranslateResource(ResourceService kcsArticleService,
+    public ArticleTranslatorResource(ArticleTranslatorService kcsArticleService,
             LocaleDAO localeDAO, DocumentDAO documentDAO) {
         this.kcsArticleService = kcsArticleService;
         this.localeDAO = localeDAO;
@@ -85,23 +74,22 @@ public class TranslateResource {
     public Response translate(@NotNull Article article,
             @NotNull @QueryParam("sourceLang") LocaleId sourceLang,
             @NotNull @QueryParam("targetLang") LocaleId targetLang,
-            @QueryParam("provider") @DefaultValue(DEFAULT_PROVIDER) String providerStr,
-            @QueryParam("contentType") @DefaultValue(DEFAULT_CONTENT_TYPE) String contentTypeStr) {
+            @NotNull @QueryParam("backendId") String backendId) {
 
         Optional<APIErrorResponse> errorResp = validatePostRequest(article,
-                sourceLang, targetLang, providerStr, contentTypeStr);
+                sourceLang, targetLang, backendId);
         if (errorResp.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(errorResp.get()).build();
         }
 
-        Provider provider = Provider.valueOf(providerStr);
-        ContentType contentType = ContentType.valueOf(contentTypeStr);
+        BackendID backendID = new BackendID(backendId);
+        ArticleType articleType = new ArticleType(article.getArticleType());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Request translations:" + article + " source_lang:"
-                + sourceLang + " target_lang" + targetLang + " provider:"
-                + providerStr);
+                + sourceLang + " target_lang" + targetLang + " backendId:"
+                + backendId);
         }
 
         Locale srcLocale = getLocale(sourceLang);
@@ -111,48 +99,43 @@ public class TranslateResource {
             .getOrCreateByUrl(article.getUrl(), srcLocale, transLocale);
 
         try {
-            ResourceService resourceService = getResourceService(contentType);
-            Article newArticle = resourceService
-                .translateArticle(article, srcLocale, transLocale, provider);
-            doc.incrementUsedCount();
+            ArticleTranslatorService articleTranslatorService = getResourceService(articleType);
+            Article newArticle = articleTranslatorService
+                .translateArticle(article, srcLocale, transLocale, backendID);
+            doc.increaseUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newArticle).build();
-        } catch (BadRequestException | ZanataMTException e) {
+        } catch (BadRequestException e) {
             String title = "Error";
             LOG.error(title, e);
             APIErrorResponse response =
                     new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
                     .build();
+        } catch (ZanataMTException e) {
+            String title = "Error";
+            LOG.error(title, e);
+            APIErrorResponse response =
+                new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, e, title);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response)
+                .build();
         }
     }
 
     private Optional<APIErrorResponse> validatePostRequest(Article article,
-            LocaleId sourceLang, LocaleId targetLang, String providerStr,
-            String contentTypeStr) {
+            LocaleId sourceLang, LocaleId targetLang, String backendId) {
         if (sourceLang == null || targetLang == null
-                || StringUtils.isBlank(providerStr)) {
+                || StringUtils.isBlank(backendId)) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                     "Invalid query param: sourceLang, targetLang or provider"));
         }
 
-        try {
-            Provider.valueOf(providerStr);
-        } catch (IllegalArgumentException e) {
-            return Optional
-                    .of(new APIErrorResponse(Response.Status.BAD_REQUEST, e,
-                            "Provider not supported:" + providerStr));
+        if (!backendId.equals(BackendID.MS)) {
+            throw new ZanataMTException("Not supported backendId:" + backendId);
         }
 
-        try {
-            ContentType.valueOf(contentTypeStr);
-        } catch (IllegalArgumentException e) {
-            Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST, e,
-                    "ContentType not supported:" + contentTypeStr));
-        }
-
-        if (article == null || StringUtils.isBlank(article.getTitle())
-            && StringUtils.isBlank(article.getContent())) {
+        if (article == null || StringUtils.isBlank(article.getTitleText())
+            && StringUtils.isBlank(article.getContentHTML())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                 "Empty content:" + article));
         }
@@ -169,11 +152,11 @@ public class TranslateResource {
         return localeDAO.getOrCreateByLocaleId(searchLocale);
     }
 
-    private ResourceService getResourceService(ContentType contentType)
+    private ArticleTranslatorService getResourceService(ArticleType articleType)
         throws ZanataMTException {
-        if (contentType.equals(ContentType.KCS_ARTICLE)) {
+        if (articleType.equals(ArticleType.KCS_ARTICLE)) {
             return kcsArticleService;
         }
-        throw new ZanataMTException("Not supported contentType" + contentType);
+        throw new ZanataMTException("Not supported articleType" + articleType);
     }
 }

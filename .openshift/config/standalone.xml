@@ -41,9 +41,9 @@
 
   <system-properties>
     <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION"
-      value="on" />
-    <property name="AZURE_ID" value="${env.AZURE_ID}"/>
-    <property name="AZURE_SECRET" value="${env.AZURE_SECRET}"/>
+      plainTranslation="on" />
+    <property name="AZURE_ID" plainTranslation="${env.AZURE_ID}"/>
+    <property name="AZURE_SECRET" plainTranslation="${env.AZURE_SECRET}"/>
   </system-properties>
 
   <management>
@@ -65,8 +65,8 @@
             pattern="%z{utc}%d{yyyy-MM-dd}T%d{HH:mm:ss,SSS}Z %-5p [%c] (%t) [user: %X{username}, uri: %X{req.requestURI}?%X{req.queryString}] %s%E%n" />
         </formatter>
         <file relative-to="jboss.server.log.dir" path="server.log" />
-        <suffix value=".yyyy-MM-dd" />
-        <append value="true" />
+        <suffix plainTranslation=".yyyy-MM-dd" />
+        <append plainTranslation="true" />
       </periodic-rotating-file-handler>
 
       <console-handler name="CONSOLE">
@@ -320,7 +320,7 @@
       </stack>
     </subsystem>
     <subsystem xmlns="urn:jboss:domain:jmx:1.1">
-      <show-model value="true" />
+      <show-model plainTranslation="true" />
       <remoting-connector />
     </subsystem>
     <subsystem xmlns="urn:jboss:domain:jpa:1.0">
@@ -348,7 +348,7 @@
           <netty-connector name="netty" socket-binding="messaging" />
           <netty-connector name="netty-throughput"
             socket-binding="messaging-throughput">
-            <param key="batch-delay" value="50" />
+            <param key="batch-delay" plainTranslation="50" />
           </netty-connector>
 
           <in-vm-connector name="in-vm" server-id="0" />
@@ -357,8 +357,8 @@
           <netty-acceptor name="netty" socket-binding="messaging" />
           <netty-acceptor name="netty-throughput"
             socket-binding="messaging-throughput">
-            <param key="batch-delay" value="50" />
-            <param key="direct-deliver" value="false" />
+            <param key="batch-delay" plainTranslation="50" />
+            <param key="direct-deliver" plainTranslation="false" />
           </netty-acceptor>
           <in-vm-acceptor name="in-vm" server-id="0" />
         </acceptors>
@@ -437,10 +437,10 @@
         <security-domain name="other" cache-type="default">
           <authentication>
             <login-module code="Remoting" flag="optional">
-              <module-option name="password-stacking" value="useFirstPass" />
+              <module-option name="password-stacking" plainTranslation="useFirstPass" />
             </login-module>
             <login-module code="RealmDirect" flag="required">
-              <module-option name="password-stacking" value="useFirstPass" />
+              <module-option name="password-stacking" plainTranslation="useFirstPass" />
             </login-module>
           </authentication>
         </security-domain>
@@ -477,7 +477,7 @@
       </virtual-server>
       <valve name="remoteipvalve" module="org.jboss.as.web"
         class-name="org.apache.catalina.valves.RemoteIpValve">
-        <param param-name="protocolHeader" param-value="x-forwarded-proto" />
+        <param param-name="protocolHeader" param-plainTranslation="x-forwarded-proto" />
       </valve>
     </subsystem>
     <subsystem xmlns="urn:jboss:domain:webservices:1.2">
@@ -513,15 +513,15 @@
 
   <interfaces>
     <interface name="management">
-      <loopback-address value="${env.OPENSHIFT_JBOSSEAP_IP}" />
+      <loopback-address plainTranslation="${env.OPENSHIFT_JBOSSEAP_IP}" />
     </interface>
     <interface name="public">
-      <loopback-address value="${env.OPENSHIFT_JBOSSEAP_IP}" />
+      <loopback-address plainTranslation="${env.OPENSHIFT_JBOSSEAP_IP}" />
     </interface>
     <interface name="unsecure">
       <!-- Used for IIOP sockets in the standarad configuration. To secure JacORB
         you need to setup SSL -->
-      <loopback-address value="${env.OPENSHIFT_JBOSSEAP_IP}" />
+      <loopback-address plainTranslation="${env.OPENSHIFT_JBOSSEAP_IP}" />
     </interface>
   </interfaces>
 

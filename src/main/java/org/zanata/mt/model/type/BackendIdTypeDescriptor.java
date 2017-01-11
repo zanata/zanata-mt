@@ -23,55 +23,55 @@ package org.zanata.mt.model.type;
 
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
-import org.zanata.mt.model.Provider;
+import org.zanata.mt.model.BackendID;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ProviderTypeDescriptor extends
-    AbstractTypeDescriptor<Provider> {
+public class BackendIdTypeDescriptor extends
+    AbstractTypeDescriptor<BackendID> {
 
-    public static final ProviderTypeDescriptor INSTANCE =
-        new ProviderTypeDescriptor();
+    public static final BackendIdTypeDescriptor INSTANCE =
+        new BackendIdTypeDescriptor();
     private static final long serialVersionUID = 6011517968596456576L;
 
-    public ProviderTypeDescriptor() {
-        super(Provider.class);
+    public BackendIdTypeDescriptor() {
+        super(BackendID.class);
     }
 
     @Override
-    public Provider fromString(String string) {
+    public BackendID fromString(String string) {
         if (string == null) {
             return null;
         } else {
-            return Provider.valueOf(string);
+            return new BackendID(string);
         }
     }
 
     @Override
-    public String toString(Provider value) {
-        return value.name();
+    public String toString(BackendID value) {
+        return value.getId();
     }
 
     @Override
-    public <X> X unwrap(Provider value, Class<X> type,
+    public <X> X unwrap(BackendID value, Class<X> type,
             WrapperOptions options) {
         if (value == null) {
             return null;
         }
         if (String.class.isAssignableFrom(type)) {
-            return (X) String.valueOf(value.name());
+            return (X) value.getId();
         }
         throw unknownUnwrap(type);
     }
 
     @Override
-    public <X> Provider wrap(X value, WrapperOptions options) {
+    public <X> BackendID wrap(X value, WrapperOptions options) {
         if (value == null) {
             return null;
         }
         if (String.class.isInstance(value)) {
-            return Provider.valueOf((String) value);
+            return new BackendID((String) value);
         }
         throw unknownWrap(value.getClass());
     }

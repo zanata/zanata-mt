@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     localeId      BIGINT      NOT NULL REFERENCES Locale (id),
     content       TEXT        NOT NULL,
     rawContent    TEXT        NOT NULL,
-    provider      VARCHAR(20) NOT NULL,
+    backendId      VARCHAR(20) NOT NULL,
     usedCount     INTEGER     DEFAULT 0,
     creationDate  DATE        NOT NULL,
     lastChanged  DATE         NOT NULL,

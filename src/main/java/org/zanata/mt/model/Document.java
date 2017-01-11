@@ -63,7 +63,7 @@ public class Document extends ModelEntity {
         return usedCount;
     }
 
-    public void incrementUsedCount() {
+    public void increaseUsedCount() {
         this.usedCount += 1;
     }
 

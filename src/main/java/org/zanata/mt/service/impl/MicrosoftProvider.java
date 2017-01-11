@@ -15,7 +15,7 @@ import org.zanata.mt.api.dto.microsoft.MSTranslateArrayResp;
 import org.zanata.mt.api.dto.microsoft.MSTranslateArrayReqOptions;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.ValueUnit;
+import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.TranslationProvider;
 import org.zanata.mt.util.DTOUtil;
 
@@ -60,14 +60,14 @@ public class MicrosoftProvider implements TranslationProvider {
     }
 
     @Override
-    public ValueUnit translate(String message, Locale srcLocale,
+    public AugmentedTranslation translate(String message, Locale srcLocale,
             Locale targetLocale, MediaType mediaType) throws ZanataMTException {
         return translate(Lists.newArrayList(message), srcLocale, targetLocale,
                 mediaType).get(0);
     }
 
     @Override
-    public List<ValueUnit> translate(List<String> messages, Locale srcLocale,
+    public List<AugmentedTranslation> translate(List<String> messages, Locale srcLocale,
         Locale targetLocale, MediaType mediaType) throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
@@ -84,7 +84,7 @@ public class MicrosoftProvider implements TranslationProvider {
             MSTranslateArrayResp resp =
                     DTOUtil.toObject(rawResponse, MSTranslateArrayResp.class);
             return resp.getResponse().stream().map(
-                    res -> new ValueUnit(res.getTranslatedText().getValue(),
+                    res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
                             DTOUtil.toXML(res)))
                     .collect(Collectors.toList());
         } catch (Exception e) {

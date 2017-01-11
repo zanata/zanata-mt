@@ -14,7 +14,7 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.impl.MicrosoftProvider;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,7 +61,7 @@ public class TranslationServiceTest {
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         String translations = translationService.translate(overLengthSource,
-                sourceLocale, targetLocale, Provider.MS,
+                sourceLocale, targetLocale, BackendID.MS,
                 MediaType.TEXT_PLAIN_TYPE);
         assertThat(translations).isEqualTo(overLengthSource);
     }
@@ -74,7 +74,7 @@ public class TranslationServiceTest {
 
         assertThatThrownBy(() -> translationService.translate(source,
                 sourceLocale, targetLocale,
-                Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
 
@@ -86,7 +86,7 @@ public class TranslationServiceTest {
 
         assertThatThrownBy(() -> translationService.translate(source,
                 sourceLocale, targetLocale,
-                Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
 

@@ -15,9 +15,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
-import org.zanata.mt.service.ResourceService;
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.service.ArticleConverter;
 import org.zanata.mt.service.TranslationService;
 import org.zanata.mt.util.TranslationUtil;
 
@@ -28,48 +29,48 @@ import com.google.common.collect.Maps;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationScoped
-public class KCSArticleService implements ResourceService {
+public class KCSArticleConverter implements ArticleConverter {
 
     private TranslationService translationService;
 
     @SuppressWarnings("unused")
-    private KCSArticleService() {
+    private KCSArticleConverter() {
     }
 
     @Inject
-    public KCSArticleService(TranslationService translationService) {
+    public KCSArticleConverter(TranslationService translationService) {
         this.translationService = translationService;
     }
 
     @Override
     public Article translateArticle(Article article, Locale srcLocale,
-            Locale transLocale, Provider provider) throws BadRequestException,
+            Locale transLocale, BackendID backendID) throws BadRequestException,
             ZanataMTException {
         String translatedTitle =
-                translationService.translate(article.getTitle(), srcLocale,
-                        transLocale, provider, MediaType.TEXT_PLAIN_TYPE);
+                translationService.translate(article.getTitleText(), srcLocale,
+                        transLocale, backendID, MediaType.TEXT_PLAIN_TYPE);
 
         String translatedContent =
-                translateContent(article.getContent(), srcLocale,
-                        transLocale, provider);
+                translateContent(article.getContentHTML(), srcLocale,
+                        transLocale, backendID);
 
         return new Article(translatedTitle, translatedContent,
-                article.getUrl());
+                article.getUrl(), ArticleType.KCS_ARTICLE.getType());
     }
 
     private String translateContent(String content, Locale srcLocale,
-            Locale transLocale, Provider provider) throws BadRequestException,
+            Locale transLocale, BackendID backendID) throws BadRequestException,
             ZanataMTException {
         Document document = Jsoup.parse(content);
         document = translateArticleHeader(document, srcLocale, transLocale,
-                provider);
+            backendID);
         document = translateArticleBody(document, srcLocale, transLocale,
-                provider);
+            backendID);
         return TranslationUtil.extractBodyContentHTML(document);
     }
 
     private Document translateArticleHeader(Document document, Locale srcLocale,
-            Locale transLocale, Provider provider) throws BadRequestException,
+            Locale transLocale, BackendID backendID) throws BadRequestException,
             ZanataMTException {
         Elements header = document.getElementsByTag("header");
         Element content = header.select("h1.title").first();
@@ -79,7 +80,7 @@ public class KCSArticleService implements ResourceService {
                 Lists.newArrayList(content.outerHtml(),
                         secondaryContent.outerHtml());
         List<String> translations = translationService.translate(headers,
-                srcLocale, transLocale, provider, MediaType.TEXT_HTML_TYPE);
+                srcLocale, transLocale, backendID, MediaType.TEXT_HTML_TYPE);
 
         if (!translations.isEmpty()) {
             Elements translatedContent =
@@ -102,7 +103,7 @@ public class KCSArticleService implements ResourceService {
     }
 
     private Document translateArticleBody(Document document, Locale srcLocale,
-            Locale transLocale, Provider provider) throws BadRequestException,
+            Locale transLocale, BackendID backendID) throws BadRequestException,
             ZanataMTException {
         Elements sections = document.getElementsByTag("section");
         for (Element section : sections) {
@@ -110,13 +111,13 @@ public class KCSArticleService implements ResourceService {
             if (TranslationUtil.isPrivateNotes(section)) {
                 continue;
             }
-            translateSection(section, srcLocale, transLocale, provider);
+            translateSection(section, srcLocale, transLocale, backendID);
         }
         return document;
     }
 
     private Element translateSection(Element section, Locale srcLocale,
-            Locale transLocale, Provider provider) throws BadRequestException,
+            Locale transLocale, BackendID backendID) throws BadRequestException,
             ZanataMTException {
         Map<String, Element> ignoreTranslationMap = Maps.newHashMap();
 
@@ -137,7 +138,7 @@ public class KCSArticleService implements ResourceService {
 
         // send section to translate
         List<String> translations = translationService.translate(strings,
-                srcLocale, transLocale, provider, MediaType.TEXT_HTML_TYPE);
+                srcLocale, transLocale, backendID, MediaType.TEXT_HTML_TYPE);
         if (!translations.isEmpty()) {
             int index = 0;
             for (Element sectionChild : section.children()) {

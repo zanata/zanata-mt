@@ -15,10 +15,10 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
-import org.zanata.mt.model.ValueUnit;
+import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.impl.MicrosoftProvider;
 import org.zanata.mt.util.TranslationUtil;
 
@@ -57,8 +57,8 @@ public class TranslationServiceJPATest {
     public void testNewTranslation()
             throws BadRequestException {
         List<String> sources = Lists.newArrayList("string to translate");
-        List<ValueUnit> expectedTranslations =
-                Lists.newArrayList(new ValueUnit(
+        List<AugmentedTranslation> expectedTranslations =
+                Lists.newArrayList(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
        
@@ -66,9 +66,9 @@ public class TranslationServiceJPATest {
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
         TextFlowTarget expectedTft =
-                new TextFlowTarget(expectedTranslations.get(0).getValue(),
-                        expectedTranslations.get(0).getRawValue(), expectedTf,
-                        targetLocale, Provider.MS);
+                new TextFlowTarget(expectedTranslations.get(0).getPlainTranslation(),
+                        expectedTranslations.get(0).getRawTranslation(), expectedTf,
+                        targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
         String hash = TranslationUtil.generateHash(sources.get(0),
                 sourceLocale.getLocaleId());
@@ -83,7 +83,7 @@ public class TranslationServiceJPATest {
 
         List<String> translations =
                 translationService.translate(sources, sourceLocale,
-                        targetLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE);
+                        targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(msProvider).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
@@ -91,7 +91,7 @@ public class TranslationServiceJPATest {
         verify(textFlowDAO).persist(expectedTf);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
-                expectedTranslations.stream().map(ValueUnit::getValue).collect(
+                expectedTranslations.stream().map(AugmentedTranslation::getPlainTranslation).collect(
                         Collectors.toList()));
     }
 
@@ -106,7 +106,7 @@ public class TranslationServiceJPATest {
 
         TextFlow expectedTf = new TextFlow(source, sourceLocale);
         TextFlowTarget expectedTft = new TextFlowTarget(expectedTranslation,
-                expectedRawContent, expectedTf, targetLocale, Provider.MS);
+                expectedRawContent, expectedTf, targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
 
         String hash = TranslationUtil.generateHash(source,
@@ -116,7 +116,7 @@ public class TranslationServiceJPATest {
 
         String translation =
                 translationService.translate(source, sourceLocale, targetLocale,
-                        Provider.MS, MediaType.TEXT_PLAIN_TYPE);
+                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(hash);
         verify(textFlowTargetDAO).persist(expectedTft);

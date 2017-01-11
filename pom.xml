@@ -71,6 +71,46 @@
 
     <plugins>
       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.8</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>COMPLEXITY</counter>
+                      <plainTranslation>COVEREDRATIO</plainTranslation>
+                      <minimum>0.00</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.4</version>
@@ -616,6 +656,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
+        <name>dev</name>
         <!--
         This should be the base url of where this service is hosted.
         It is used as base-url for script.js to download article-script.js in bookmarklet.
@@ -624,10 +665,11 @@
       </properties>
     </profile>
 
-    <!-- This profile is used by openshift during deployment -->
+    <!-- This profile is used by openshift for deployment when build from source. -->
     <profile>
       <id>openshift</id>
       <properties>
+        <name>openshift</name>
         <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
 
         <!-- TODO: read from openshift variable -->

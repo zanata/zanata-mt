@@ -9,7 +9,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class MicrosoftProviderTest {
+public class MicrosoftBackendIDTest {
     private MicrosoftProvider provider = null;
 
     @Test

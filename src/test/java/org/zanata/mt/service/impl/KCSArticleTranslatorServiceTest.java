@@ -12,7 +12,7 @@ import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.Provider;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslationService;
 import org.zanata.mt.util.DTOUtil;
 
@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class KCSResourceServiceTest {
+public class KCSArticleTranslatorServiceTest {
 
-    private KCSArticleService kcsResourceService;
+    private KCSArticleConverter kcsResourceService;
 
     @Mock
     private LocaleDAO localeDAO;
@@ -45,7 +45,7 @@ public class KCSResourceServiceTest {
 
     @Before
     public void setup() {
-        kcsResourceService = new KCSArticleService(translationService);
+        kcsResourceService = new KCSArticleConverter(translationService);
     }
 
     private String headerH1 = "<h1 class=\"title\">Article header title</h1>";
@@ -94,56 +94,56 @@ public class KCSResourceServiceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
             transLocale)).thenReturn(doc);
 
-        when(translationService.translate(article.getTitle(), srcLocale,
-                transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+        when(translationService.translate(article.getTitleText(), srcLocale,
+                transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(translatedTitle);
         when(translationService.translate(headers, srcLocale,
-                transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE))
+                transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(translatedHeaders);
 
         List<String> translatedSection1 =
             Lists.newArrayList("<h2>Translated Normal section</h2>",
                 "<p>Translated this is normal section, should be translated</p>");
         when(translationService.translate(formattedSection1, srcLocale,
-            transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE)).thenReturn(translatedSection1);
+            transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE)).thenReturn(translatedSection1);
 
         List<String> translatedSection2 =
                 Lists.newArrayList("<h2>Translated coding section</h2>",
                         "<div class=\"code-raw\">\n <meta id=\"ZanataMT-0\" translate=\"no\">\n</div>",
                         "<div class=\"code-raw\">\n <meta id=\"ZanataMT-1\" translate=\"no\">\n</div>");
         when(translationService.translate(formattedSection2, srcLocale,
-                transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE))
+                transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                         .thenReturn(translatedSection2);
 
         Article translateArticle = kcsResourceService.translateArticle(article, srcLocale,
-            transLocale, Provider.MS);
+            transLocale, BackendID.MS);
 
-        assertThat(translateArticle.getTitle()).isEqualTo(translatedTitle);
-        assertThat(translateArticle.getContent())
+        assertThat(translateArticle.getTitleText()).isEqualTo(translatedTitle);
+        assertThat(translateArticle.getContentHTML())
             .contains(translatedSection1);
-        assertThat(translateArticle.getContent())
+        assertThat(translateArticle.getContentHTML())
             .contains(translatedSection2.get(0));
-        assertThat(translateArticle.getContent())
+        assertThat(translateArticle.getContentHTML())
             .doesNotContain(translatedSection2.get(1));
 
         assertThat(DTOUtil
-            .removeWhiteSpaceBetweenTag(translateArticle.getContent()))
+            .removeWhiteSpaceBetweenTag(translateArticle.getContentHTML()))
             .contains(section3);
 
         // title
-        verify(translationService).translate(article.getTitle(), srcLocale,
-            transLocale, Provider.MS, MediaType.TEXT_PLAIN_TYPE);
+        verify(translationService).translate(article.getTitleText(), srcLocale,
+            transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         // translateArticleHeader
         verify(translationService).translate(headers, srcLocale,
-            transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
+            transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
 
         // translateArticleBody
         verify(translationService).translate(formattedSection1,
-            srcLocale, transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
+            srcLocale, transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
 
         verify(translationService).translate(formattedSection2,
-            srcLocale, transLocale, Provider.MS, MediaType.TEXT_HTML_TYPE);
+            srcLocale, transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
 
         verifyNoMoreInteractions(translationService);
     }
