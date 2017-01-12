@@ -39,8 +39,8 @@ function requestTranslations() {
   var pageTitle = jQuery('html head title');
   var content = jQuery('article#main-content div.content-wrapper');
   var sourceData = {
-    title : pageTitle.text(),
-    content : content.html(),
+    titleText : pageTitle.text(),
+    contentHTML : content.html(),
     url: window.location.href,
     articleType: 'KCS_ARTICLE'
   };
