@@ -135,7 +135,7 @@ public class ArticleTranslatorResourceTest {
         assertThat(returnedArticle.getTitleText()).isEqualTo(translatedTitle);
         assertThat(returnedArticle.getContentHTML()).isEqualTo(translatedContent);
 
-        doc.increaseUsedCount();
+        doc.incrementUsedCount();
         verify(documentDAO).persist(doc);
     }
 }

@@ -106,7 +106,7 @@ public class ArticleTranslatorResource {
         try {
             Article newArticle = articleTranslatorService
                 .translateArticle(article, srcLocale, transLocale, backendID);
-            doc.increaseUsedCount();
+            doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newArticle).build();
         } catch (BadRequestException e) {
