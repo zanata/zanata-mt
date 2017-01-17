@@ -1,6 +1,15 @@
-package org.zanata.mt.article.kcs;
+package org.zanata.mt.service;
 
-import com.google.common.collect.Lists;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,32 +17,24 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.article.kcs.KCSArticleConverter;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.ArticleType;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.BackendID;
-import org.zanata.mt.service.PersistentTranslationService;
 import org.zanata.mt.util.DTOUtil;
 
-import java.util.List;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class KCSArticleTypeServiceTest {
+public class ArticleTranslatorServiceTest {
 
-    private KCSArticleTypeService kcsResourceService;
+    private KCSArticleConverter converter;
 
     @Mock
     private LocaleDAO localeDAO;
@@ -46,7 +47,7 @@ public class KCSArticleTypeServiceTest {
 
     @Before
     public void setup() {
-        kcsResourceService = new KCSArticleTypeService(translationService);
+        converter = new KCSArticleConverter();
     }
 
     private String headerH1 = "<h1 class=\"title\">Article header title</h1>";
@@ -116,8 +117,10 @@ public class KCSArticleTypeServiceTest {
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                         .thenReturn(translatedSection2);
 
-        Article translateArticle = kcsResourceService.translateArticle(article, srcLocale,
-            transLocale, BackendID.MS);
+        Article translateArticle = null;
+
+//        Article translateArticle = kcsResourceService.translateArticle(article, srcLocale,
+//            transLocale, BackendID.MS);
 
         assertThat(translateArticle.getTitleText()).isEqualTo(translatedTitle);
         assertThat(translateArticle.getContentHTML())

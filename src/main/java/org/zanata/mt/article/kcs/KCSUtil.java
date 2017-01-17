@@ -1,8 +1,6 @@
 package org.zanata.mt.article.kcs;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
@@ -12,21 +10,22 @@ import org.jsoup.select.Elements;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-final class DomUtil {
+final class KCSUtil {
     public static final String ID_PREFIX = "ZanataMT";
 
     @SuppressWarnings("unused")
-    private DomUtil() {
+    private KCSUtil() {
     }
 
-    protected static String generateNodeId(String id) {
-        return ID_PREFIX + "-" + id;
+    protected static String generateCodeElementName(int sectionIndex,
+            int codeElementsIndex) {
+        return ID_PREFIX + "-"
+                + String.valueOf(sectionIndex + "_" + codeElementsIndex);
     }
 
-
-    protected static Element generateNonTranslatableNode(String id) {
+    protected static Element generateNonTranslatableNode(String name) {
         Attributes attributes = new Attributes();
-        attributes.put("id", generateNodeId(id));
+        attributes.put("name", name);
         attributes.put("translate", "no");
         return new Element(Tag.valueOf("meta"), "", attributes);
     }
@@ -45,21 +44,5 @@ final class DomUtil {
      */
     protected static boolean isPrivateNotes(Element element) {
         return element.id().startsWith("private-notes");
-    }
-
-    /**
-     * Parse html and return as Jsoup elements
-     *
-     * @param html - html to parse
-     */
-    protected static Elements parseAsElement(String html) {
-        Document doc = Jsoup.parse(html);
-        Element body = doc.body();
-        return body != null && !body.children().isEmpty()
-            ? body.children() : null;
-    }
-
-    protected static String extractBodyContentHTML(Document doc) {
-        return doc.body() != null ? doc.body().html() : "";
     }
 }
