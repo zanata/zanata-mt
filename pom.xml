@@ -661,7 +661,7 @@
         This should be the base url of where this service is hosted.
         It is used as base-url for script.js to download article-script.js in bookmarklet.
         -->
-        <service.url>//${cargo.host}:${cargo.servlet.port}</service.url>
+        <service.url>http://${cargo.host}:${cargo.servlet.port}</service.url>
       </properties>
     </profile>
 
@@ -673,7 +673,7 @@
         <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
 
         <!-- TODO: read from openshift variable -->
-        <service.url>//mt-zanata.itos.redhat.com</service.url>
+        <service.url>https://mt-zanata.itos.redhat.com</service.url>
       </properties>
       <build>
         <finalName>ZanataMT</finalName>

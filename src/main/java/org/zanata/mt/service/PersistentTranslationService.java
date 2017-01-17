@@ -149,8 +149,7 @@ public class PersistentTranslationService {
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, srcLocale, targetLocale,
-                        mediaType);
+                .translate(sources, srcLocale, targetLocale, mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);

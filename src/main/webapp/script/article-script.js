@@ -60,8 +60,8 @@ function requestTranslations() {
     dataType: 'json',
     crossDomain: true,
     success: function (response) {
-      pageTitle.text(response.title);
-      content.html(response.content);
+      pageTitle.text(response.titleText);
+      content.html(response.contentHTML);
       console.info('Translation completed');
       showLoading(false);
     },

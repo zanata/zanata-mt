@@ -86,7 +86,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                 req.getTexts().add(new MSString(content));
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
-            options.setContentType(mediaType.getType());
+            options.setContentType(mediaType.toString());
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);

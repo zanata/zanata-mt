@@ -34,7 +34,7 @@ class MicrosoftTranslatorClient {
     private static final Logger LOG =
         LoggerFactory.getLogger(MicrosoftTranslatorClient.class);
 
-    private static final String TRANSLATIONS_BASE_URL = "http://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
+    private static final String TRANSLATIONS_BASE_URL = "https://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
     private static final String DATA_MARKET_ACCESS_URI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
 
     private static final String ENCODING = CharEncoding.UTF_8;
