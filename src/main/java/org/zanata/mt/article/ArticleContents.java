@@ -6,15 +6,13 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.zanata.mt.article.kcs.Contents;
 import org.zanata.mt.util.DomUtil;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ArticleContents implements Contents {
+public class ArticleContents {
 
     @NotNull
     private Document document;
@@ -37,7 +35,6 @@ public class ArticleContents implements Contents {
         return document;
     }
 
-    @Override
     public List<ArticleNode> getArticleNodes() {
         return articleNodes;
     }
@@ -46,7 +43,6 @@ public class ArticleContents implements Contents {
         return ignoreNodeMap;
     }
 
-    @Override
     public String getDocumentHtml() {
         return DomUtil.extractBodyContentHTML(document);
     }

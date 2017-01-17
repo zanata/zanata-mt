@@ -29,7 +29,7 @@ public class KCSArticleConverter implements ArticleConverter {
         Map<String, ArticleNode> ignoreNodeMap = Maps.newHashMap();
 
         extractArticleHeader(document, nodes);
-        convertArticleBody(document, nodes, ignoreNodeMap);
+        extractArticleBody(document, nodes, ignoreNodeMap);
 
         return new ArticleContents(document, nodes, ignoreNodeMap);
     }
@@ -44,7 +44,7 @@ public class KCSArticleConverter implements ArticleConverter {
         nodes.add(new ArticleNode(solutionStatus));
     }
 
-    private List<ArticleNode> convertArticleBody(Document document,
+    private List<ArticleNode> extractArticleBody(Document document,
             List<ArticleNode> nodes, Map<String, ArticleNode> ignoreNodeMap) {
         Elements sections = document.getElementsByTag("section");
         for (Element section : sections) {

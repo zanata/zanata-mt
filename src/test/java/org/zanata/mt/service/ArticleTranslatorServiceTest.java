@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.article.kcs.KCSArticleConverter;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.ArticleType;
@@ -34,7 +33,7 @@ import com.google.common.collect.Lists;
 @RunWith(MockitoJUnitRunner.class)
 public class ArticleTranslatorServiceTest {
 
-    private KCSArticleConverter converter;
+    private ArticleTranslatorService articleTranslatorService;
 
     @Mock
     private LocaleDAO localeDAO;
@@ -43,51 +42,63 @@ public class ArticleTranslatorServiceTest {
     private DocumentDAO documentDAO;
 
     @Mock
-    private PersistentTranslationService translationService;
+    private PersistentTranslationService persistentTranslationService;
 
     @Before
     public void setup() {
-        converter = new KCSArticleConverter();
+        articleTranslatorService =
+                new ArticleTranslatorService(persistentTranslationService);
     }
 
     private String headerH1 = "<h1 class=\"title\">Article header title</h1>";
     private String headerContent =
         "<span class=\"status inprogress\" data-content=" +
             "\"This solution is in progress.\">Solution In Progress</span>";
+
+    private String section1Header = "<h2>Normal section</h2>";
+    private String section1Content = "<p>This is normal section, should be translated</p>";
     private String section1 =
-        "<section><h2>Normal section</h2><p>This is normal section, should be translated</p></section>";
-    private List<String> formattedSection1 =
-        Lists.newArrayList("<h2>Normal section</h2>",
-            "<p>This is normal section, should be translated</p>");
+        "<section>" + section1Header + section1Content + "</section>";
 
+    private String section2Header = "<h2>Coding section</h2>";
+    private String section2Content1 = "<div class=\"code-raw\"><pre>source code1, stack trace here. Should not be translated</pre></div>";
+    private String section2Content2 = "<div class=\"code-raw\"><pre>source code2, stack trace here. Should not be translated</pre></div>";
     private String section2 =
-        "<section><h2>Coding section</h2><div class=\"code-raw\"><pre>source code1, stack trace here. Should not be translated</pre></div>"
-            +
-            "<div class=\"code-raw\"><pre>source code2, stack trace here. Should not be translated</pre></div></section>";
-    private List<String> formattedSection2 =
-        Lists.newArrayList("<h2>Coding section</h2>",
-            "<div class=\"code-raw\">\n <meta id=\"ZanataMT-0\" translate=\"no\">\n</div>", "<div class=\"code-raw\">\n <meta id=\"ZanataMT-1\" translate=\"no\">\n</div>");
+        "<section>" + section2Header + section2Content1 + section2Content2 + "</section>";
 
+    private String processedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_0\" translate=\"no\">\n</div>";
+    private String processedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_1\" translate=\"no\">\n</div>";
+
+    private String section3Header = "<h2>private section</h2>";
+    private String section3Content = "<p>private notes which should be ignore</p>";
     private String section3 =
-        "<section id=\"private-notes-section\"><h2>private section</h2><p>private notes which should be ignore</p></section>";
+        "<section id=\"private-notes-section\">" + section3Header + section3Content + "</section>";
 
     @Test
-    public void testTranslate()
-        throws BadRequestException {
+    public void testTranslate() throws BadRequestException {
         String divContent = getSampleArticleBody();
         Article article = new Article("Article title", divContent,
             "http://localhost:8080", ArticleType.KCS_ARTICLE.getType());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
         Document doc = new Document();
-        List<String> headers = Lists.newArrayList(headerH1, headerContent);
+
         String translatedTitle = "Translated article title";
         String translatedHeaderH1 = "<h1 class=\"title\">Translated article header title</h1>";
         String translatedHeaderContent =
             "<span class=\"status inprogress\" data-content=" +
                 "\"Translated this solution is in progress.\">Translated Solution In Progress</span>";
-        List<String> translatedHeaders =
-            Lists.newArrayList(translatedHeaderH1, translatedHeaderContent);
+        String translatedSection1Header = "<h2>Translated Normal section</h2>";
+        String translatedSection1Content = "<p>Translated this is normal section, should be translated</p>";
+        String translatedSection2Header = "<h2>Translated coding section</h2>";
+        String translatedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_0\" translate=\"no\">\n</div>";
+        String translatedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_1\" translate=\"no\">\n</div>";
+
+        List<String> translatedStrings =
+                Lists.newArrayList(translatedHeaderH1, translatedHeaderContent,
+                        translatedSection1Header, translatedSection1Content,
+                        translatedSection2Header, translatedSection2Content1,
+                        translatedSection2Content2);
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
             .thenReturn(srcLocale);
@@ -96,60 +107,43 @@ public class ArticleTranslatorServiceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
             transLocale)).thenReturn(doc);
 
-        when(translationService.translate(article.getTitleText(), srcLocale,
+        when(persistentTranslationService.translate(article.getTitleText(), srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(translatedTitle);
-        when(translationService.translate(headers, srcLocale,
-                transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
-                        .thenReturn(translatedHeaders);
 
-        List<String> translatedSection1 =
-            Lists.newArrayList("<h2>Translated Normal section</h2>",
-                "<p>Translated this is normal section, should be translated</p>");
-        when(translationService.translate(formattedSection1, srcLocale,
-            transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE)).thenReturn(translatedSection1);
+        List<String> requestTranslations = Lists.newArrayList(headerH1,
+            headerContent, section1Header, section1Content, section2Header,
+            processedSection2Content1, processedSection2Content2);
 
-        List<String> translatedSection2 =
-                Lists.newArrayList("<h2>Translated coding section</h2>",
-                        "<div class=\"code-raw\">\n <meta id=\"ZanataMT-0\" translate=\"no\">\n</div>",
-                        "<div class=\"code-raw\">\n <meta id=\"ZanataMT-1\" translate=\"no\">\n</div>");
-        when(translationService.translate(formattedSection2, srcLocale,
+        when(persistentTranslationService.translate(requestTranslations, srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
-                        .thenReturn(translatedSection2);
+                        .thenReturn(translatedStrings);
 
-        Article translateArticle = null;
-
-//        Article translateArticle = kcsResourceService.translateArticle(article, srcLocale,
-//            transLocale, BackendID.MS);
+        Article translateArticle =
+                articleTranslatorService.translateArticle(article, srcLocale,
+                        transLocale, BackendID.MS);
 
         assertThat(translateArticle.getTitleText()).isEqualTo(translatedTitle);
+
         assertThat(translateArticle.getContentHTML())
-            .contains(translatedSection1);
-        assertThat(translateArticle.getContentHTML())
-            .contains(translatedSection2.get(0));
-        assertThat(translateArticle.getContentHTML())
-            .doesNotContain(translatedSection2.get(1));
+                .contains(translatedHeaderH1, translatedHeaderContent,
+                        translatedSection1Header, translatedSection1Content,
+                        translatedSection2Header)
+                .doesNotContain(processedSection2Content1)
+                .doesNotContain(processedSection2Content2);
 
         assertThat(DTOUtil
             .removeWhiteSpaceBetweenTag(translateArticle.getContentHTML()))
             .contains(section3);
 
         // title
-        verify(translationService).translate(article.getTitleText(), srcLocale,
+        verify(persistentTranslationService).translate(article.getTitleText(), srcLocale,
             transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        // translateArticleHeader
-        verify(translationService).translate(headers, srcLocale,
+        verify(persistentTranslationService).translate(requestTranslations, srcLocale,
             transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
 
-        // translateArticleBody
-        verify(translationService).translate(formattedSection1,
-            srcLocale, transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
-
-        verify(translationService).translate(formattedSection2,
-            srcLocale, transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
-
-        verifyNoMoreInteractions(translationService);
+        verifyNoMoreInteractions(persistentTranslationService);
     }
 
     private String getSampleArticleBody() {

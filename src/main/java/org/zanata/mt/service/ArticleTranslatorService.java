@@ -82,25 +82,6 @@ public class ArticleTranslatorService {
                 article.getArticleType());
     }
 
-//    public Article translateArticle(Article article, Locale srcLocale,
-//            Locale transLocale, BackendID backendID) throws BadRequestException,
-//            ZanataMTException {
-//        ArticleTypeService articleTypeService = getArticleTypeService(article);
-//
-//        return articleTypeService.translateArticle(article, srcLocale,
-//                transLocale, backendID);
-//    }
-//
-//    private ArticleTypeService getArticleTypeService(Article article)
-//        throws ZanataMTException {
-//        ArticleType articleType = new ArticleType(article.getArticleType());
-//
-//        if (articleType.equals(ArticleType.KCS_ARTICLE)) {
-//           return kcsArticleTypeService;
-//        }
-//        throw new ZanataMTException("Not supported articleType" + articleType);
-//    }
-
     private ArticleConverter getConverter(Article article)
         throws ZanataMTException {
         ArticleType articleType = new ArticleType(article.getArticleType());

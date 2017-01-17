@@ -31,7 +31,7 @@ public class BackendID implements Serializable {
 
         BackendID backendID = (BackendID) o;
 
-        return id != null ? id.equals(backendID.id) : backendID.id == null;
+        return id.equals(backendID.id);
 
     }
 
