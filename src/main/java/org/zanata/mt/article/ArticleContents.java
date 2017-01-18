@@ -3,7 +3,8 @@ package org.zanata.mt.article;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -14,14 +15,15 @@ import org.zanata.mt.util.DomUtil;
  */
 public class ArticleContents {
 
-    @NotNull
+    @Nonnull
     private Document document;
 
     // List of nodes which has modified with placeholder
-    @NotNull
+    @Nonnull
     private List<ArticleNode> articleNodes;
 
     // Map of element name with unmodified ArticleNode
+    @Nullable
     private Map<String, ArticleNode> ignoreNodeMap;
 
     public ArticleContents(Document document, List<ArticleNode> articleNodes,

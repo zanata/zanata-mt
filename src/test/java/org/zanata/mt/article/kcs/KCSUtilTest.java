@@ -17,11 +17,13 @@ import static org.zanata.mt.article.kcs.KCSUtil.ID_PREFIX;
 public class KCSUtilTest {
     @Test
     public void testGetRawCodePreElements() {
+        String pre = "<pre>coding which should not be translated</pre>";
         String html =
-            "<html><div class=\"code-raw testing1 classes\"><span></span><pre></pre></div><div><div class=\"code-raw testing classes\"></div></div></html>";
+            "<html><div class=\"code-raw testing1 classes\"><span></span>" + pre + "</div><div><div class=\"code-raw testing classes\"></div></div></html>";
         Document document = Jsoup.parse(html);
         Elements elements = KCSUtil.getRawCodePreElements(document);
-        assertThat(elements.size()).isEqualTo(1);
+        assertThat(elements).hasSize(1).extracting(Element::outerHtml)
+                .contains(pre);
     }
 
     @Test

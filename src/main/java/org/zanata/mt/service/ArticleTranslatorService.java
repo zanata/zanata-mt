@@ -1,7 +1,9 @@
 package org.zanata.mt.service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -61,11 +63,10 @@ public class ArticleTranslatorService {
 
         assert htmls.size() == translations.size();
 
-        int index = 0;
-        for (ArticleNode articleNode: articleContents.getArticleNodes()) {
-            articleNode.setHtml(translations.get(index));
-            index++;
-        }
+        iterateBoth(articleContents.getArticleNodes(), translations,
+                (node, translation) -> {
+                    node.setHtml(translation);
+                });
 
         // replace placeholder with initial element
         Map<String, ArticleNode> ignoreNodeMap = articleContents.getIgnoreNodeMap();
@@ -90,5 +91,16 @@ public class ArticleTranslatorService {
             return new KCSArticleConverter();
         }
         throw new ZanataMTException("Not supported articleType" + articleType);
+    }
+
+    private static <T1, T2> void iterateBoth(Iterable<T1> c1, Iterable<T2> c2,
+            BiConsumer<T1, T2> consumer) {
+        Iterator<T1> i1 = c1.iterator();
+        Iterator<T2> i2 = c2.iterator();
+        while (i1.hasNext() && i2.hasNext()) {
+            consumer.accept(i1.next(), i2.next());
+        }
+        assert !i1.hasNext();
+        assert !i2.hasNext();
     }
 }

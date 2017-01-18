@@ -57,6 +57,7 @@ public class KCSArticleConverterTest {
                 .doesNotContain(section2Content, section3Header,
                         section3Content);
 
+        // there are 2 pre tag (section2Content) which should be ignored
         assertThat(content.getIgnoreNodeMap()).isNotEmpty().hasSize(2);
     }
 

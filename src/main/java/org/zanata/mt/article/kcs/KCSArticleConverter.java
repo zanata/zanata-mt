@@ -56,15 +56,13 @@ public class KCSArticleConverter implements ArticleConverter {
              * replace pre element with non-translatable node as placeholder
              */
             Elements codeElements = KCSUtil.getRawCodePreElements(section);
-            if (!codeElements.isEmpty()) {
-                for (Element element : codeElements) {
-                    String name = KCSUtil.generateCodeElementName(
-                            sections.indexOf(section),
-                            codeElements.indexOf(element));
-                    ignoreNodeMap.put(name, new ArticleNode(element.clone()));
-                    element.replaceWith(
-                            KCSUtil.generateNonTranslatableNode(name));
-                }
+            for (Element element : codeElements) {
+                String name = KCSUtil.generateCodeElementName(
+                        sections.indexOf(section),
+                        codeElements.indexOf(element));
+                ignoreNodeMap.put(name, new ArticleNode(element.clone()));
+                element.replaceWith(
+                        KCSUtil.generateNonTranslatableNode(name));
             }
             nodes.addAll(section.children().stream()
                 .map((element -> new ArticleNode(element)))

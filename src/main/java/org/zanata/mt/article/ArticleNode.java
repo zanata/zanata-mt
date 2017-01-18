@@ -1,6 +1,6 @@
 package org.zanata.mt.article;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 
 import org.jsoup.nodes.Element;
 import org.zanata.mt.util.DomUtil;
@@ -9,7 +9,7 @@ import org.zanata.mt.util.DomUtil;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class ArticleNode {
-    @NotNull
+    @Nonnull
     private Element element;
 
     public ArticleNode(Element element) {

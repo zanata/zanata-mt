@@ -20,6 +20,7 @@
     <resteasy.version>3.1.0.Final</resteasy.version>
     <javamelody.version>1.62.0</javamelody.version>
     <guava.version>20.0</guava.version>
+    <findbugs.maven.version>3.0.1u2</findbugs.maven.version>
     <slf4j.version>1.7.22</slf4j.version>
     <validation-api.version>1.1.0.Final</validation-api.version>
     <hibernate.validator.version>5.3.4.Final</hibernate.validator.version>
@@ -398,6 +399,23 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
+      <version>${findbugs.maven.version}</version>
+      <scope>provided</scope>
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<groupId>com.google.code.findbugs</groupId>-->
+          <!--<artifactId>jsr305</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>net.jcip</groupId>-->
+          <!--<artifactId>jcip-annotations</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
     </dependency>
 
     <!-- resteasy -->
