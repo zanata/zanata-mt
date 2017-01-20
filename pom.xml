@@ -29,7 +29,7 @@
     <powermock.version>1.6.6</powermock.version>
 
     <!-- database -->
-    <postgresql.version>9.2-1004-jdbc3</postgresql.version>
+    <postgresql.version>9.4.1212</postgresql.version>
     <postgresql.port>5432</postgresql.port>
     <postgressql.user>root</postgressql.user>
     <postgressql.password>root</postgressql.password>
@@ -169,8 +169,8 @@
           <images>
             <!-- Postgres Image is used 'as-is' and is linked into the service image -->
             <image>
-              <alias>db</alias>
-              <name>postgres:9.2</name>
+              <alias>zanataMTDB</alias>
+              <name>postgres:9.4</name>
               <run>
                 <env>
                   <POSTGRES_DB>${db.name}</POSTGRES_DB>
@@ -188,6 +188,7 @@
                   <prefix>DB</prefix>
                   <color>yellow</color>
                 </log>
+                <namingStrategy>alias</namingStrategy>
               </run>
             </image>
           </images>
@@ -683,15 +684,12 @@
       </properties>
     </profile>
 
-    <!-- This profile is used by openshift for deployment when build from source. -->
+    <!-- This profile is used for production build.. -->
     <profile>
-      <id>openshift</id>
+      <id>production</id>
       <properties>
-        <name>openshift</name>
-        <!-- rhc set-env AZURE_ID=VALUE1 AZURE_SECRET=VALUE2 -a mt -->
-
-        <!-- TODO: read from openshift variable -->
-        <service.url>https://mt-zanata.itos.redhat.com</service.url>
+        <name>production</name>
+        <service.url>https://server-zanata-mt.int.open.paas.redhat.com</service.url>
       </properties>
       <build>
         <finalName>ZanataMT</finalName>
@@ -700,7 +698,7 @@
             <artifactId>maven-war-plugin</artifactId>
             <version>${maven-war-plugin.version}</version>
             <configuration>
-              <outputDirectory>deployments</outputDirectory>
+              <outputDirectory>target/deployments</outputDirectory>
               <warName>ROOT</warName>
               <webResources>
                 <resource>
