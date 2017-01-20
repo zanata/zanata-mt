@@ -57,7 +57,7 @@ public class KCSArticleConverter implements ArticleConverter {
             List<ArticleNode> nodes, Map<String, Element> nonTranslatableElements) {
         Elements sections = document.getElementsByTag("section");
 
-        int sectionIndex = 0;
+        int eleIndex = 0;
         for (Element section : sections) {
             // section with id 'private-notes...' is non-translatable
             if (isPrivateNotes(section)) {
@@ -65,10 +65,8 @@ public class KCSArticleConverter implements ArticleConverter {
             }
             // replace pre elements with non-translatable placeholders
             Elements codeElements = getRawCodePreElements(section);
-            int eleIndex = 0;
             for (Element element : codeElements) {
-                String name =
-                        generateCodeElementName(sectionIndex, eleIndex);
+                String name = generateCodeElementName(eleIndex);
                 nonTranslatableElements.put(name, element.clone());
                 element.replaceWith(generateNonTranslatableNode(name));
                 eleIndex++;
@@ -76,7 +74,6 @@ public class KCSArticleConverter implements ArticleConverter {
             nodes.addAll(section.children().stream()
                 .map((element -> new ArticleNode(element)))
                 .collect(Collectors.toList()));
-            sectionIndex++;
         }
         return nodes;
     }

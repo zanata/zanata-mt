@@ -112,7 +112,8 @@ public class PersistentTranslationService {
         for (String string: strings) {
             String hash =
                     HashUtil.generateHash(string, srcLocale.getLocaleId());
-            TextFlow matchedHashTf = textFlowDAO.getByHash(hash);
+            TextFlow matchedHashTf =
+                    textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);
 
             int index = strings.indexOf(string);
 

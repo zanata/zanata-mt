@@ -32,8 +32,8 @@ public class KCSUtilTest {
 
     @Test
     public void testGenerateNonTranslatable() {
-        String name = ID_PREFIX + "-" + String.valueOf(1 + "_" + 1);
-        String expectedName = generateCodeElementName(1, 1);
+        String name = ID_PREFIX + "-" + String.valueOf(1);
+        String expectedName = generateCodeElementName(1);
         Element nonTranslatableNode = generateNonTranslatableNode(name);
         assertThat(nonTranslatableNode.attr("name")).isEqualTo(expectedName);
         assertThat(nonTranslatableNode.tagName()).isEqualTo("meta");

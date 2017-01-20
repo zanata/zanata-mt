@@ -17,10 +17,8 @@ final class KCSUtil {
     private KCSUtil() {
     }
 
-    static String generateCodeElementName(int sectionIndex,
-            int codeElementsIndex) {
-        return ID_PREFIX + "-"
-                + String.valueOf(sectionIndex + "_" + codeElementsIndex);
+    static String generateCodeElementName(int codeElementsIndex) {
+        return ID_PREFIX + "-" + String.valueOf(codeElementsIndex);
     }
 
     static Element generateNonTranslatableNode(String name) {

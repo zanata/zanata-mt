@@ -65,8 +65,8 @@ public class ArticleTranslatorServiceTest {
     private String section2 =
         "<section>" + section2Header + section2Content1 + section2Content2 + "</section>";
 
-    private String processedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_0\" translate=\"no\">\n</div>";
-    private String processedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_1\" translate=\"no\">\n</div>";
+    private String processedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-0\" translate=\"no\">\n</div>";
+    private String processedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1\" translate=\"no\">\n</div>";
 
     private String section3Header = "<h2>private section</h2>";
     private String section3Content = "<p>private notes which should be ignore</p>";
@@ -90,8 +90,8 @@ public class ArticleTranslatorServiceTest {
         String translatedSection1Header = "<h2>Translated Normal section</h2>";
         String translatedSection1Content = "<p>Translated this is normal section, should be translated</p>";
         String translatedSection2Header = "<h2>Translated coding section</h2>";
-        String translatedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_0\" translate=\"no\">\n</div>";
-        String translatedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1_1\" translate=\"no\">\n</div>";
+        String translatedSection2Content1 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-0\" translate=\"no\">\n</div>";
+        String translatedSection2Content2 = "<div class=\"code-raw\">\n <meta name=\"ZanataMT-1\" translate=\"no\">\n</div>";
 
         List<String> translatedStrings =
                 Lists.newArrayList(translatedHeaderH1, translatedHeaderContent,

@@ -66,14 +66,16 @@ public class PersistentTranslationServiceJPATest {
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
         TextFlowTarget expectedTft =
-                new TextFlowTarget(expectedTranslations.get(0).getPlainTranslation(),
-                        expectedTranslations.get(0).getRawTranslation(), expectedTf,
-                        targetLocale, BackendID.MS);
+                new TextFlowTarget(
+                        expectedTranslations.get(0).getPlainTranslation(),
+                        expectedTranslations.get(0).getRawTranslation(),
+                        expectedTf, targetLocale, BackendID.MS);
 
         String hash = HashUtil.generateHash(sources.get(0),
                 sourceLocale.getLocaleId());
 
-        when(textFlowDAO.getByHash(hash)).thenReturn(null);
+        when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
+                .thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
@@ -87,11 +89,13 @@ public class PersistentTranslationServiceJPATest {
 
         verify(msProvider).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO).getByHash(hash);
+        verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
-                expectedTranslations.stream().map(AugmentedTranslation::getPlainTranslation).collect(
-                        Collectors.toList()));
+                expectedTranslations
+                    .stream()
+                    .map(AugmentedTranslation::getPlainTranslation)
+                    .collect(Collectors.toList()));
     }
 
     @Test
@@ -111,14 +115,15 @@ public class PersistentTranslationServiceJPATest {
         String hash = HashUtil.generateHash(source,
                 sourceLocale.getLocaleId());
 
-        when(textFlowDAO.getByHash(hash)).thenReturn(expectedTf);
+        when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
+                .thenReturn(expectedTf);
 
         String translation =
                 persistentTranslationService
                     .translate(source, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(textFlowDAO).getByHash(hash);
+        verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         verifyZeroInteractions(msProvider);
         assertThat(translation).isEqualTo(expectedTranslation);

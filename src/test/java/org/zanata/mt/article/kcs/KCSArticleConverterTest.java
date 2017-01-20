@@ -59,9 +59,9 @@ public class KCSArticleConverterTest {
         List<ArticleNode> nodes = content.getArticleNodes();
 
         Element placeholderEle1 = generateNonTranslatableNode(
-            generateCodeElementName(1, 0));
+            generateCodeElementName(0));
         Element placeholderEle2 = generateNonTranslatableNode(
-            generateCodeElementName(1, 1));
+            generateCodeElementName(1));
         String placeholder1 = "<div class=\"code-raw\">\n " + placeholderEle1.outerHtml() + "\n</div>";
         String placeholder2 = "<div class=\"code-raw\">\n " + placeholderEle2.outerHtml() + "\n</div>";
 
