@@ -16,7 +16,7 @@ import java.util.Date;
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @MappedSuperclass
-public class ModelEntity implements Serializable {
+public abstract class ModelEntity implements Serializable {
 
     private static final long serialVersionUID = 8978601573586456188L;
 
@@ -64,28 +64,4 @@ public class ModelEntity implements Serializable {
         this.lastChanged = new Date();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ModelEntity)) return false;
-
-        ModelEntity that = (ModelEntity) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (creationDate != null ? !creationDate.equals(that.creationDate) :
-            that.creationDate != null) return false;
-        return lastChanged != null ? lastChanged.equals(that.lastChanged) :
-            that.lastChanged == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result =
-            31 * result + (creationDate != null ? creationDate.hashCode() : 0);
-        result =
-            31 * result + (lastChanged != null ? lastChanged.hashCode() : 0);
-        return result;
-    }
 }

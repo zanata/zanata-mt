@@ -72,29 +72,24 @@ public class Document extends ModelEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Document)) return false;
-        if (!super.equals(o)) return false;
 
         Document document = (Document) o;
 
-        if (usedCount != document.usedCount) return false;
         if (url != null ? !url.equals(document.url) : document.url != null)
             return false;
         if (srcLocale != null ? !srcLocale.equals(document.srcLocale) :
-            document.srcLocale != null) return false;
+                document.srcLocale != null) return false;
         return targetLocale != null ?
-            targetLocale.equals(document.targetLocale) :
-            document.targetLocale == null;
-
+                targetLocale.equals(document.targetLocale) :
+                document.targetLocale == null;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (url != null ? url.hashCode() : 0);
+        int result = url != null ? url.hashCode() : 0;
         result = 31 * result + (srcLocale != null ? srcLocale.hashCode() : 0);
-        result =
-            31 * result + (targetLocale != null ? targetLocale.hashCode() : 0);
-        result = 31 * result + usedCount;
+        result = 31 * result +
+                (targetLocale != null ? targetLocale.hashCode() : 0);
         return result;
     }
 }
