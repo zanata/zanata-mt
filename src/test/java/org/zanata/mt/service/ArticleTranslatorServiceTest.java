@@ -134,13 +134,6 @@ public class ArticleTranslatorServiceTest {
         assertThat(DTOUtil
             .removeWhiteSpaceBetweenTag(translatedArticle.getContentHTML()))
             .contains(section3);
-
-        // title
-        verify(persistentTranslationService).translate(article.getTitleText(), srcLocale,
-            transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
-
-        verify(persistentTranslationService).translate(requestTranslations, srcLocale,
-            transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
     }
 
     private String getSampleArticleBody() {
