@@ -26,7 +26,7 @@ public class KCSArticleConverter implements ArticleConverter {
         Document document = Jsoup.parse(html);
 
         List<ArticleNode> nodes = Lists.newArrayList();
-        Map<String, ArticleNode> ignoreNodeMap = Maps.newHashMap();
+        Map<String, Element> ignoreNodeMap = Maps.newHashMap();
 
         extractArticleHeader(document, nodes);
         extractArticleBody(document, nodes, ignoreNodeMap);
@@ -45,8 +45,10 @@ public class KCSArticleConverter implements ArticleConverter {
     }
 
     private List<ArticleNode> extractArticleBody(Document document,
-            List<ArticleNode> nodes, Map<String, ArticleNode> ignoreNodeMap) {
+            List<ArticleNode> nodes, Map<String, Element> ignoreNodeMap) {
         Elements sections = document.getElementsByTag("section");
+
+        int sectionIndex = 0;
         for (Element section : sections) {
             // section with id 'private-notes...' is non-translatable
             if (KCSUtil.isPrivateNotes(section)) {
@@ -56,17 +58,19 @@ public class KCSArticleConverter implements ArticleConverter {
              * replace pre element with non-translatable node as placeholder
              */
             Elements codeElements = KCSUtil.getRawCodePreElements(section);
+            int eleIndex = 0;
             for (Element element : codeElements) {
-                String name = KCSUtil.generateCodeElementName(
-                        sections.indexOf(section),
-                        codeElements.indexOf(element));
-                ignoreNodeMap.put(name, new ArticleNode(element.clone()));
+                String name =
+                        KCSUtil.generateCodeElementName(sectionIndex, eleIndex);
+                ignoreNodeMap.put(name, element.clone());
                 element.replaceWith(
                         KCSUtil.generateNonTranslatableNode(name));
+                eleIndex++;
             }
             nodes.addAll(section.children().stream()
                 .map((element -> new ArticleNode(element)))
                 .collect(Collectors.toList()));
+            sectionIndex++;
         }
         return nodes;
     }

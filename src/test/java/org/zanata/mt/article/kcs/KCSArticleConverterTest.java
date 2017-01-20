@@ -1,5 +1,6 @@
 package org.zanata.mt.article.kcs;
 
+import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.mt.article.ArticleContents;
@@ -33,6 +34,8 @@ public class KCSArticleConverterTest {
         "<section>" + section1Header + section1Content + "</section>";
 
     private String section2Header = "<h2>Coding section</h2>";
+
+    // 2 non-translatable pre tags in this content
     private String section2Content =
             "<div class=\"code-raw\"><pre>source code1, stack trace here. Should not be translated</pre></div>"
                     + "<div class=\"code-raw\"><pre>source code2, stack trace here. Should not be translated</pre></div>";
@@ -41,6 +44,8 @@ public class KCSArticleConverterTest {
 
     private String section3Header = "<h2>private section</h2>";
     private String section3Content = "<p>private notes which should be ignore</p>";
+    // section 3 (and thus section3Header and section3Content) will not be extracted for translation
+    // because the section id starts with "private-notes".
     private String section3 =
         "<section id=\"private-notes-section\">" + section3Header + section3Content + "</section>";
 
@@ -51,14 +56,19 @@ public class KCSArticleConverterTest {
         ArticleContents content = converter.extractArticle(divContent);
         List<ArticleNode> nodes = content.getArticleNodes();
 
+        Element placeholderEle1 = KCSUtil.generateNonTranslatableNode(
+            KCSUtil.generateCodeElementName(1, 0));
+        Element placeholderEle2 = KCSUtil.generateNonTranslatableNode(
+            KCSUtil.generateCodeElementName(1, 1));
+        String placeholder1 = "<div class=\"code-raw\">\n " + placeholderEle1.outerHtml() + "\n</div>";
+        String placeholder2 = "<div class=\"code-raw\">\n " + placeholderEle2.outerHtml() + "\n</div>";
+
         assertThat(nodes).extracting(ArticleNode::getHtml)
                 .contains(headerH1, headerContent, section1Header,
-                        section1Content, section2Header)
+                        section1Content, section2Header, placeholder1,
+                        placeholder2)
                 .doesNotContain(section2Content, section3Header,
                         section3Content);
-
-        // there are 2 pre tag (section2Content) which should be ignored
-        assertThat(content.getIgnoreNodeMap()).isNotEmpty().hasSize(2);
     }
 
     private String getSampleArticleBody() {

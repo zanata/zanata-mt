@@ -2,7 +2,6 @@ package org.zanata.mt.service;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
@@ -18,6 +17,8 @@ import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Translate an article using service based on {@link Article#getArticleType()}
@@ -53,8 +54,7 @@ public class ArticleTranslatorService {
                 converter.extractArticle(article.getContentHTML());
 
         List<String> htmls = articleContents.getArticleNodes().stream()
-                .map(ArticleNode::getHtml).collect(
-                        Collectors.toList());
+                .map(ArticleNode::getHtml).collect(toList());
 
         List<String> translations =
                 persistentTranslationService.translate(htmls,
@@ -69,14 +69,7 @@ public class ArticleTranslatorService {
                 });
 
         // replace placeholder with initial element
-        Map<String, ArticleNode> ignoreNodeMap = articleContents.getIgnoreNodeMap();
-        if (ignoreNodeMap != null && !ignoreNodeMap.isEmpty()) {
-            for (Map.Entry<String, ArticleNode> entry : ignoreNodeMap
-                    .entrySet()) {
-                articleContents.replaceNodeByName(entry.getKey(),
-                        entry.getValue());
-            }
-        }
+        articleContents.replaceWithNonTranslatableNode();
 
         return new Article(translatedPageTitle,
                 articleContents.getDocumentHtml(), article.getUrl(),

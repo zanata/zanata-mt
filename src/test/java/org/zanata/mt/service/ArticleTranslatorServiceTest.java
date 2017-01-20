@@ -2,7 +2,6 @@ package org.zanata.mt.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -119,21 +118,21 @@ public class ArticleTranslatorServiceTest {
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                         .thenReturn(translatedStrings);
 
-        Article translateArticle =
+        Article translatedArticle =
                 articleTranslatorService.translateArticle(article, srcLocale,
                         transLocale, BackendID.MS);
 
-        assertThat(translateArticle.getTitleText()).isEqualTo(translatedTitle);
+        assertThat(translatedArticle.getTitleText()).isEqualTo(translatedTitle);
 
-        assertThat(translateArticle.getContentHTML())
-                .contains(translatedHeaderH1, translatedHeaderContent,
+        assertThat(translatedArticle.getContentHTML())
+                .containsSequence(translatedHeaderH1, translatedHeaderContent,
                         translatedSection1Header, translatedSection1Content,
                         translatedSection2Header)
                 .doesNotContain(processedSection2Content1)
                 .doesNotContain(processedSection2Content2);
 
         assertThat(DTOUtil
-            .removeWhiteSpaceBetweenTag(translateArticle.getContentHTML()))
+            .removeWhiteSpaceBetweenTag(translatedArticle.getContentHTML()))
             .contains(section3);
 
         // title
@@ -142,8 +141,6 @@ public class ArticleTranslatorServiceTest {
 
         verify(persistentTranslationService).translate(requestTranslations, srcLocale,
             transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE);
-
-        verifyNoMoreInteractions(persistentTranslationService);
     }
 
     private String getSampleArticleBody() {

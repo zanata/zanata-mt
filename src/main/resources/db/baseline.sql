@@ -25,10 +25,8 @@ CREATE TABLE IF NOT EXISTS TextFlow (
     content       TEXT              NOT NULL,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
-    UNIQUE (hash, localeId)
+    UNIQUE (localeId, hash)
 );
-
-CREATE INDEX ON TextFlow (hash);
 
 CREATE TABLE IF NOT EXISTS TextFlowTarget (
     id            SERIAL PRIMARY KEY,
@@ -40,7 +38,7 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     usedCount     INTEGER     DEFAULT 0,
     creationDate  DATE        NOT NULL,
     lastChanged  DATE         NOT NULL,
-    UNIQUE (textFlowId, localeId, backendId)
+    UNIQUE (localeId, textFlowId, backendId)
 );
 
 INSERT INTO Locale VALUES (1, 'de', 'German', now(), now());

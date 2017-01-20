@@ -30,6 +30,7 @@ public class TextFlow extends ModelEntity {
 
     @NotEmpty
     @Size(max = 255)
+    @NaturalId
     private String hash;
 
     @NaturalId

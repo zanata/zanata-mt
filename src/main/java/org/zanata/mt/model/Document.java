@@ -21,6 +21,7 @@ public class Document extends ModelEntity {
 
     @URL
     @NotNull
+    @NaturalId
     private String url;
 
     @NotNull
