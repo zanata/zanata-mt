@@ -22,39 +22,45 @@ public class ArticleContents {
     @Nonnull
     private List<ArticleNode> articleNodes;
 
+    // A Map of non-translatable parts of the article, keyed by placeholder id.
     @Nullable
-    private Map<String, Element> nonTranslatableNode;
+    private Map<String, Element> nonTranslatableElements;
+
+    // TODO record original and translated locale, translation backendId
 
     public ArticleContents(Document document, List<ArticleNode> articleNodes,
-            Map<String, Element> nonTranslatableNode) {
+            Map<String, Element> nonTranslatableElements) {
         this.document = document;
         this.articleNodes = articleNodes;
-        this.nonTranslatableNode = nonTranslatableNode;
+        this.nonTranslatableElements = nonTranslatableElements;
     }
 
-    Document getDocument() {
-        return document;
-    }
-
-    // List of nodes which should be translated.
-    // Any non-translatable parts of these nodes will be replaced by placeholders.
+    /**
+     * List of nodes which should be translated.
+     * Any non-translatable parts of these nodes have been replaced by placeholders.
+     * @return
+     */
     public List<ArticleNode> getArticleNodes() {
         return articleNodes;
     }
 
-    // A Map of non-translatable parts of the article, keyed by placeholder id.
-    Map<String, Element> getNonTranslatableNode() {
-        return nonTranslatableNode;
-    }
-
+    /**
+     * Gets the article body as HTML. Should only be called after
+     * replacePlaceholdersWithOriginals().
+     * @return
+     */
     public String getDocumentHtml() {
         return DomUtil.extractBodyContentHTML(document);
     }
 
-    // replace placeholder element with initial element
-    public void replaceWithNonTranslatableNode() {
-        if (nonTranslatableNode != null && !nonTranslatableNode.isEmpty()) {
-            for (Map.Entry<String, Element> entry : nonTranslatableNode
+    /**
+     * Post-processes the document by replacing placeholder elements with original
+     * non-translatable elements.
+     */
+    public void replacePlaceholdersWithOriginals() {
+        if (nonTranslatableElements != null && !nonTranslatableElements
+                .isEmpty()) {
+            for (Map.Entry<String, Element> entry : nonTranslatableElements
                     .entrySet()) {
                 Elements placeholderElements =
                         document.getElementsByAttributeValue("name",

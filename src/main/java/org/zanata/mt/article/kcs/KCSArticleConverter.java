@@ -12,8 +12,12 @@ import org.zanata.mt.article.ArticleContents;
 import org.zanata.mt.article.ArticleNode;
 import org.zanata.mt.service.ArticleConverter;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static org.zanata.mt.article.kcs.KCSUtil.generateCodeElementName;
+import static org.zanata.mt.article.kcs.KCSUtil.generateNonTranslatableNode;
+import static org.zanata.mt.article.kcs.KCSUtil.getRawCodePreElements;
+import static org.zanata.mt.article.kcs.KCSUtil.isPrivateNotes;
 
 /**
  * Extract KCS article for translation
@@ -25,15 +29,16 @@ public class KCSArticleConverter implements ArticleConverter {
     public ArticleContents extractArticle(String html) {
         Document document = Jsoup.parse(html);
 
-        List<ArticleNode> nodes = Lists.newArrayList();
-        Map<String, Element> ignoreNodeMap = Maps.newHashMap();
+        List<ArticleNode> nodes = newArrayList();
+        Map<String, Element> nonTranslatableElements = newHashMap();
 
         extractArticleHeader(document, nodes);
-        extractArticleBody(document, nodes, ignoreNodeMap);
+        preprocessArticleBody(document, nodes, nonTranslatableElements);
 
-        return new ArticleContents(document, nodes, ignoreNodeMap);
+        return new ArticleContents(document, nodes, nonTranslatableElements);
     }
 
+    // Extracts translatable headings as ArticleNodes to the list 'nodes'
     private void extractArticleHeader(Document document,
             List<ArticleNode> nodes) {
         Elements header = document.getElementsByTag("header");
@@ -44,27 +49,28 @@ public class KCSArticleConverter implements ArticleConverter {
         nodes.add(new ArticleNode(solutionStatus));
     }
 
-    private List<ArticleNode> extractArticleBody(Document document,
-            List<ArticleNode> nodes, Map<String, Element> ignoreNodeMap) {
+    // Modifies body of article by replacing non-translatable elements with placeholders.
+    // Translatable sections are added as ArticleNodes to the list 'nodes'.
+    // Original non-translatable elements within sections are stored in
+    // 'nonTranslatableElements' for postprocessing after translation.
+    private List<ArticleNode> preprocessArticleBody(Document document,
+            List<ArticleNode> nodes, Map<String, Element> nonTranslatableElements) {
         Elements sections = document.getElementsByTag("section");
 
         int sectionIndex = 0;
         for (Element section : sections) {
             // section with id 'private-notes...' is non-translatable
-            if (KCSUtil.isPrivateNotes(section)) {
+            if (isPrivateNotes(section)) {
                 continue;
             }
-            /**
-             * replace pre element with non-translatable node as placeholder
-             */
-            Elements codeElements = KCSUtil.getRawCodePreElements(section);
+            // replace pre elements with non-translatable placeholders
+            Elements codeElements = getRawCodePreElements(section);
             int eleIndex = 0;
             for (Element element : codeElements) {
                 String name =
-                        KCSUtil.generateCodeElementName(sectionIndex, eleIndex);
-                ignoreNodeMap.put(name, element.clone());
-                element.replaceWith(
-                        KCSUtil.generateNonTranslatableNode(name));
+                        generateCodeElementName(sectionIndex, eleIndex);
+                nonTranslatableElements.put(name, element.clone());
+                element.replaceWith(generateNonTranslatableNode(name));
                 eleIndex++;
             }
             nodes.addAll(section.children().stream()

@@ -11,19 +11,19 @@ import org.jsoup.select.Elements;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 final class KCSUtil {
-    public static final String ID_PREFIX = "ZanataMT";
+    static final String ID_PREFIX = "ZanataMT";
 
     @SuppressWarnings("unused")
     private KCSUtil() {
     }
 
-    protected static String generateCodeElementName(int sectionIndex,
+    static String generateCodeElementName(int sectionIndex,
             int codeElementsIndex) {
         return ID_PREFIX + "-"
                 + String.valueOf(sectionIndex + "_" + codeElementsIndex);
     }
 
-    protected static Element generateNonTranslatableNode(String name) {
+    static Element generateNonTranslatableNode(String name) {
         Attributes attributes = new Attributes();
         attributes.put("name", name);
         attributes.put("translate", "no");
@@ -33,7 +33,7 @@ final class KCSUtil {
     /**
      * Get child elements of <pre> with parent <div> with class="code-raw"
      */
-    protected static Elements getRawCodePreElements(Element element) {
+    static Elements getRawCodePreElements(Element element) {
         return element.select("div.code-raw > pre");
     }
 
@@ -42,7 +42,7 @@ final class KCSUtil {
      *
      * section with id 'private-notes...'
      */
-    protected static boolean isPrivateNotes(Element element) {
+    static boolean isPrivateNotes(Element element) {
         return element.id().startsWith("private-notes");
     }
 }

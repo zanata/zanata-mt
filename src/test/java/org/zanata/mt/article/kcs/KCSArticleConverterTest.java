@@ -9,6 +9,8 @@ import org.zanata.mt.article.ArticleNode;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.zanata.mt.article.kcs.KCSUtil.generateCodeElementName;
+import static org.zanata.mt.article.kcs.KCSUtil.generateNonTranslatableNode;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -56,10 +58,10 @@ public class KCSArticleConverterTest {
         ArticleContents content = converter.extractArticle(divContent);
         List<ArticleNode> nodes = content.getArticleNodes();
 
-        Element placeholderEle1 = KCSUtil.generateNonTranslatableNode(
-            KCSUtil.generateCodeElementName(1, 0));
-        Element placeholderEle2 = KCSUtil.generateNonTranslatableNode(
-            KCSUtil.generateCodeElementName(1, 1));
+        Element placeholderEle1 = generateNonTranslatableNode(
+            generateCodeElementName(1, 0));
+        Element placeholderEle2 = generateNonTranslatableNode(
+            generateCodeElementName(1, 1));
         String placeholder1 = "<div class=\"code-raw\">\n " + placeholderEle1.outerHtml() + "\n</div>";
         String placeholder2 = "<div class=\"code-raw\">\n " + placeholderEle2.outerHtml() + "\n</div>";
 

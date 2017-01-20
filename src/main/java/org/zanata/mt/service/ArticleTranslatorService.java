@@ -3,7 +3,6 @@ package org.zanata.mt.service;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -53,23 +52,23 @@ public class ArticleTranslatorService {
         ArticleContents articleContents =
                 converter.extractArticle(article.getContentHTML());
 
-        List<String> htmls = articleContents.getArticleNodes().stream()
-                .map(ArticleNode::getHtml).collect(toList());
+        List<String> translatableHtmls = articleContents.getArticleNodes()
+                .stream()
+                .map(ArticleNode::getHtml)
+                .collect(toList());
 
-        List<String> translations =
-                persistentTranslationService.translate(htmls,
+        List<String> translatedHtmls =
+                persistentTranslationService.translate(translatableHtmls,
                         srcLocale, transLocale, backendID,
                         MediaType.TEXT_HTML_TYPE);
 
-        assert htmls.size() == translations.size();
+        assert translatableHtmls.size() == translatedHtmls.size();
+        assert articleContents.getArticleNodes().size() == translatedHtmls.size();
 
-        iterateBoth(articleContents.getArticleNodes(), translations,
-                (node, translation) -> {
-                    node.setHtml(translation);
-                });
+        forBoth(articleContents.getArticleNodes(), translatedHtmls,
+                ArticleNode::setHtml);
 
-        // replace placeholder with initial element
-        articleContents.replaceWithNonTranslatableNode();
+        articleContents.replacePlaceholdersWithOriginals();
 
         return new Article(translatedPageTitle,
                 articleContents.getDocumentHtml(), article.getUrl(),
@@ -86,7 +85,8 @@ public class ArticleTranslatorService {
         throw new ZanataMTException("Not supported articleType" + articleType);
     }
 
-    private static <T1, T2> void iterateBoth(Iterable<T1> c1, Iterable<T2> c2,
+    // Assumes that both iterables are the same size.
+    private static <T1, T2> void forBoth(Iterable<T1> c1, Iterable<T2> c2,
             BiConsumer<T1, T2> consumer) {
         Iterator<T1> i1 = c1.iterator();
         Iterator<T2> i2 = c2.iterator();
