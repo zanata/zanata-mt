@@ -4,7 +4,6 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Locale;
@@ -18,8 +17,6 @@ import com.ibm.icu.util.ULocale;
 @Stateless
 public class LocaleDAO extends AbstractDAO<Locale> {
     private static final long serialVersionUID = -1640472923498327999L;
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @SuppressWarnings("unused")
     public LocaleDAO() {
@@ -27,11 +24,11 @@ public class LocaleDAO extends AbstractDAO<Locale> {
 
     @VisibleForTesting
     public LocaleDAO(EntityManager entityManager) {
-        this.entityManager = entityManager;
+        setEntityManager(entityManager);
     }
 
     public Locale getByLocaleId(LocaleId localeId) {
-        List<Locale> locales = entityManager
+        List<Locale> locales = getEntityManager()
                 .createQuery("from Locale where lower(localeId) = :localeId")
                 .setParameter("localeId", localeId)
                 .getResultList();
@@ -49,10 +46,5 @@ public class LocaleDAO extends AbstractDAO<Locale> {
             flush();
         }
         return locale;
-    }
-
-    @Override
-    EntityManager getEntityManager() {
-        return entityManager;
     }
 }

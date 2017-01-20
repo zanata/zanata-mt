@@ -86,4 +86,48 @@ public class TextFlowTarget extends ModelEntity {
     public BackendID getBackendId() {
         return backendId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TextFlowTarget)) return false;
+        if (!super.equals(o)) return false;
+
+        TextFlowTarget target = (TextFlowTarget) o;
+
+        if (getUsedCount() != target.getUsedCount()) return false;
+        if (getTextFlow() != null ?
+            !getTextFlow().equals(target.getTextFlow()) :
+            target.getTextFlow() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(target.getLocale()) :
+            target.getLocale() != null) return false;
+        if (getContent() != null ? !getContent().equals(target.getContent()) :
+            target.getContent() != null) return false;
+        if (getRawContent() != null ?
+            !getRawContent().equals(target.getRawContent()) :
+            target.getRawContent() != null) return false;
+        return getBackendId() != null ?
+            getBackendId().equals(target.getBackendId()) :
+            target.getBackendId() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result =
+            31 * result +
+                (getTextFlow() != null ? getTextFlow().hashCode() : 0);
+        result =
+            31 * result + (getLocale() != null ? getLocale().hashCode() : 0);
+        result =
+            31 * result + (getContent() != null ? getContent().hashCode() : 0);
+        result = 31 * result +
+            (getRawContent() != null ? getRawContent().hashCode() : 0);
+        result = 31 * result + getUsedCount();
+        result =
+            31 * result +
+                (getBackendId() != null ? getBackendId().hashCode() : 0);
+        return result;
+    }
 }

@@ -69,7 +69,7 @@ public class PersistentTranslationServiceJPATest {
                 new TextFlowTarget(expectedTranslations.get(0).getPlainTranslation(),
                         expectedTranslations.get(0).getRawTranslation(), expectedTf,
                         targetLocale, BackendID.MS);
-        expectedTf.getTargets().add(expectedTft);
+
         String hash = HashUtil.generateHash(sources.get(0),
                 sourceLocale.getLocaleId());
 
@@ -88,7 +88,6 @@ public class PersistentTranslationServiceJPATest {
         verify(msProvider).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByHash(hash);
-        verify(textFlowDAO).persist(expectedTf);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations.stream().map(AugmentedTranslation::getPlainTranslation).collect(

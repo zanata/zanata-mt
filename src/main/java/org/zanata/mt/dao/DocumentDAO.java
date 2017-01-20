@@ -6,7 +6,6 @@ import org.zanata.mt.model.Locale;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -18,20 +17,17 @@ import com.google.common.annotations.VisibleForTesting;
 public class DocumentDAO extends AbstractDAO<Document> {
     private static final long serialVersionUID = -2806219348294855687L;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @SuppressWarnings("unused")
     public DocumentDAO() {
     }
 
     @VisibleForTesting
     DocumentDAO(EntityManager entityManager) {
-        this.entityManager = entityManager;
+        setEntityManager(entityManager);
     }
 
     public Document getByUrl(String url, Locale srcLocale, Locale targetLocale) {
-        List<Document> documents = entityManager
+        List<Document> documents = getEntityManager()
             .createQuery("from Document where url = :url and srcLocale = :srcLocale and targetLocale = :targetLocale")
             .setParameter("url", url)
             .setParameter("srcLocale", srcLocale)
@@ -50,10 +46,5 @@ public class DocumentDAO extends AbstractDAO<Document> {
             flush();
         }
         return doc;
-    }
-
-    @Override
-    EntityManager getEntityManager() {
-        return entityManager;
     }
 }

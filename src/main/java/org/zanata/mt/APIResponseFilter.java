@@ -1,6 +1,7 @@
 package org.zanata.mt;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.CharEncoding;
 
 import com.google.common.base.Joiner;
 
@@ -53,6 +56,7 @@ public class APIResponseFilter implements Filter {
         if (isBlank(origin)) {
             origin = "*";
         }
+        origin = URLEncoder.encode(origin, CharEncoding.UTF_8);
         servletResponse.addHeader("Access-Control-Allow-Origin", origin);
 
         // Allow standard HTTP methods.
@@ -68,10 +72,6 @@ public class APIResponseFilter implements Filter {
         // a pre-flight request).
         List<String> nextRequestHeaders = Collections.list(
             servletRequest.getHeaders("Access-Control-Request-Headers"));
-        Set<String> allowedHeaders = new HashSet<>(nextRequestHeaders);
-        allowedHeaders.add("X-Requested-With");
-        allowedHeaders.add("Content-Type");
-        allowedHeaders.add("Accept");
 
         // Allow any requested headers. Again, check your Origin!
         servletResponse.addHeader("Access-Control-Allow-Headers",

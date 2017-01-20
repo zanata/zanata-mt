@@ -2,6 +2,7 @@ package org.zanata.mt.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
@@ -97,5 +98,38 @@ public class TextFlow extends ModelEntity {
                 return target.getLocale().getLocaleId().equals(localeId);
             }
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TextFlow)) return false;
+        if (!super.equals(o)) return false;
+
+        TextFlow textFlow = (TextFlow) o;
+
+        if (getHash() != null ? !getHash().equals(textFlow.getHash()) :
+            textFlow.getHash() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
+            textFlow.getLocale() != null) return false;
+        if (getContent() != null ? !getContent().equals(textFlow.getContent()) :
+            textFlow.getContent() != null) return false;
+        return getTargets() != null ?
+            getTargets().equals(textFlow.getTargets()) :
+            textFlow.getTargets() == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getHash() != null ? getHash().hashCode() : 0);
+        result =
+            31 * result + (getLocale() != null ? getLocale().hashCode() : 0);
+        result =
+            31 * result + (getContent() != null ? getContent().hashCode() : 0);
+        result =
+            31 * result + (getTargets() != null ? getTargets().hashCode() : 0);
+        return result;
     }
 }
