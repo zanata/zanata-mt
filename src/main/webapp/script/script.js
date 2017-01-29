@@ -25,12 +25,10 @@ function displayRawJS() {
 /**
  * To display bookmarklet js in index.jsp
  *
- * This is generated from http://mrcoles.com/bookmarklet based on JS function bookmarklet()
- * Note: update var#bookmarklet whenever bookmarklet() is being upadated
  */
 function displayBookmarklet() {
-  var bookmarklet = "javascript:(function()%7Bvar%20BASE_URL%20%3D%20'%2F%2Fmt-zanata.itos.redhat.com%2F'%3Bvar%20scriptUrl%20%3D%20BASE_URL%20%2B%20'script%2Fbookmarklet.js'%3Bvar%20script%20%3D%20document.createElement('script')%3Bscript.setAttribute('src'%2C%20scriptUrl)%3Bscript.addEventListener('load'%2C%20function()%20%7BrequestTranslations()%3B%7D%2C%20false)%3Bdocument.body.appendChild(script)%7D)()";
-
+  var BASE_URL = '${service.url}';
+  var bookmarklet = "javascript:(function()%7Bvar%20BASE_URL%20%3D%20'" + encodeURIComponent(BASE_URL) + "'%3Bvar%20scriptUrl%20%3D%20BASE_URL%20%2B%20'%2Fscript%2Farticle-script.js'%3Bvar%20script%20%3D%20document.createElement('script')%3Bscript.setAttribute('src'%2C%20scriptUrl)%3Bscript.addEventListener('load'%2C%20function()%20%7BrequestTranslations()%3B%7D%2C%20false)%3Bdocument.body.appendChild(script)%7D)()"
   document.getElementById('bookmarklet-link').href = bookmarklet;
   document.getElementById('bookmarklet-area').value = bookmarklet;
 }

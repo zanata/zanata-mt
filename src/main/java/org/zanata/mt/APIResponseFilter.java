@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableList;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@WebFilter(filterName = "APIResponseFilter")
+@WebFilter(filterName = "APIResponseFilter", value = { "/api/*" })
 public class APIResponseFilter implements Filter {
     private static final String ORIGIN_WHITELIST =
         "ZANATAMT_ORIGIN_WHITELIST";
@@ -52,6 +52,7 @@ public class APIResponseFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
         if (originWhitelist.isEmpty()) {
+            chain.doFilter(request, response);
             return;
         }
 
@@ -83,9 +84,8 @@ public class APIResponseFilter implements Filter {
             // Allow any requested headers. Again, check your Origin!
             servletResponse.addHeader("Access-Control-Allow-Headers",
                 Joiner.on(",").join(nextRequestHeaders));
-
-            chain.doFilter(request, response);
         }
+        chain.doFilter(request, response);
     }
 
     @Override

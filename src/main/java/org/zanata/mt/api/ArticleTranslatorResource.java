@@ -92,7 +92,7 @@ public class ArticleTranslatorResource {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + article + " source_lang:"
+            LOG.info("Request translations:" + article + " source_lang:"
                 + sourceLang + " target_lang" + targetLang + " backendId:"
                 + backendId);
         }

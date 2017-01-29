@@ -45,11 +45,6 @@
    <url-pattern>/*</url-pattern>
  </filter-mapping>
 
-  <filter-mapping>
-    <filter-name>APIResponseFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
  <listener>
    <listener-class>net.bull.javamelody.SessionListener</listener-class>
  </listener>
