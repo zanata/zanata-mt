@@ -49,27 +49,20 @@ public class ArticleTranslatorResourceTest {
     @Test
     public void testTranslateBadParams() {
         // empty source locale
-        Article article = new Article(null, null, null, null);
-        Response response = articleTranslatorResource.translate(article, null,
-                LocaleId.DE, BackendID.MS.getId());
+        Article article = new Article(null, null, null, null, null);
+        Response response = articleTranslatorResource.translate(article,
+                LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty trans locale
-        response = articleTranslatorResource.translate(article, LocaleId.EN,
-            null, BackendID.MS.getId());
+        response = articleTranslatorResource.translate(article, null);
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty backend
-        response = articleTranslatorResource.translate(article, LocaleId.EN,
-            LocaleId.DE, null);
-        assertThat(response.getStatus())
-            .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
-        // invalid backend
-        response = articleTranslatorResource.translate(article, LocaleId.EN,
-            LocaleId.DE, "not supported backend");
+        response =
+                articleTranslatorResource.translate(article, LocaleId.DE);
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -78,22 +71,20 @@ public class ArticleTranslatorResourceTest {
     public void testTranslateBadArticle() {
         // null article
         Article article = null;
-        Response response = articleTranslatorResource.translate(article, null,
-            LocaleId.DE, BackendID.MS.getId());
+        Response response =
+                articleTranslatorResource.translate(article, LocaleId.DE);
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with no content
-        article = new Article(null, null, null, null);
-        response = articleTranslatorResource.translate(article, LocaleId.EN,
-            LocaleId.DE, BackendID.MS.getId());
+        article = new Article(null, null, null, null, null);
+        response = articleTranslatorResource.translate(article, LocaleId.DE);
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with content but no url
-        article = new Article("title", "content", null, null);
-        response = articleTranslatorResource.translate(article, null,
-            LocaleId.DE, BackendID.MS.getId());
+        article = new Article("title", "content", null, null, null);
+        response = articleTranslatorResource.translate(article, LocaleId.DE);
         assertThat(response.getStatus())
             .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -103,7 +94,8 @@ public class ArticleTranslatorResourceTest {
         throws BadRequestException {
         String divContent = "<div>content</div>";
         Article article = new Article("Article title", divContent,
-                "http://localhost:8080", ArticleType.KCS_ARTICLE.getType());
+                "http://localhost:8080", ArticleType.KCS_ARTICLE.getType(),
+                LocaleId.EN.getId());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
         Document doc = new Document();
@@ -112,7 +104,8 @@ public class ArticleTranslatorResourceTest {
 
         Article translatedArticle =
                 new Article(translatedTitle, translatedContent,
-                        article.getUrl(), ArticleType.KCS_ARTICLE.getType());
+                        article.getUrl(), ArticleType.KCS_ARTICLE.getType(),
+                        transLocale.getLocaleId().getId());
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
@@ -125,8 +118,8 @@ public class ArticleTranslatorResourceTest {
             transLocale, BackendID.MS)).thenReturn(translatedArticle);
 
         Response response =
-            articleTranslatorResource.translate(article, srcLocale.getLocaleId(),
-                transLocale.getLocaleId(), BackendID.MS.getId());
+                articleTranslatorResource.translate(article,
+                        transLocale.getLocaleId());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -134,6 +127,8 @@ public class ArticleTranslatorResourceTest {
 
         assertThat(returnedArticle.getTitleText()).isEqualTo(translatedTitle);
         assertThat(returnedArticle.getContentHTML()).isEqualTo(translatedContent);
+        assertThat(returnedArticle.getLocale())
+                .isEqualTo(transLocale.getLocaleId().getId());
 
         doc.incrementUsedCount();
         verify(documentDAO).persist(doc);

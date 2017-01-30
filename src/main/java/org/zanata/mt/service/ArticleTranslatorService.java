@@ -72,7 +72,8 @@ public class ArticleTranslatorService {
 
         return new Article(translatedPageTitle,
                 articleContents.getDocumentHtml(), article.getUrl(),
-                article.getArticleType());
+                article.getArticleType(), transLocale.getLocaleId().getId(),
+                backendID.getId());
     }
 
     private ArticleConverter getConverter(Article article)

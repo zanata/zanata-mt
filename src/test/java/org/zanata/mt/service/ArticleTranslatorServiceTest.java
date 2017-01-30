@@ -77,7 +77,7 @@ public class ArticleTranslatorServiceTest {
     public void testTranslate() throws BadRequestException {
         String divContent = getSampleArticleBody();
         Article article = new Article("Article title", divContent,
-            "http://localhost:8080", ArticleType.KCS_ARTICLE.getType());
+            "http://localhost:8080", ArticleType.KCS_ARTICLE.getType(), LocaleId.EN_US.getId());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
         Document doc = new Document();

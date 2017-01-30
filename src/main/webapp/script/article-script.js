@@ -33,8 +33,7 @@ function requestTranslations() {
     return false;
   }
   showLoading(true);
-  var restUrl = baseRestUrl + '?sourceLang=' + contentLang + '&targetLang='
-      + pageLang + '&backendId=MS';
+  var restUrl = baseRestUrl + '?targetLang=' + pageLang;
   // extract the page title and article div for translation
   var pageTitle = jQuery('html head title');
   var content = jQuery('article#main-content div.content-wrapper');
@@ -42,7 +41,8 @@ function requestTranslations() {
     titleText : pageTitle.text(),
     contentHTML : content.html(),
     url: window.location.href,
-    articleType: 'KCS_ARTICLE'
+    articleType: 'KCS_ARTICLE',
+    locale: contentLang
   };
 
   jQuery.ajax({

@@ -34,7 +34,7 @@ import org.zanata.mt.util.UrlUtil;
 /**
  * API entry point for article translation: '/translate'
  *
- * See {@link #translate(Article, LocaleId, LocaleId, String)} method.
+ * See {@link #translate(Article, LocaleId)} method.
  */
 @Path("/translate")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -78,26 +78,24 @@ public class ArticleTranslatorResource {
 
     @POST
     public Response translate(@NotNull Article article,
-            @NotNull @QueryParam("sourceLang") LocaleId sourceLang,
-            @NotNull @QueryParam("targetLang") LocaleId targetLang,
-            @NotNull @QueryParam("backendId") String backendId) {
+            @NotNull @QueryParam("targetLang") LocaleId targetLang) {
 
-        BackendID backendID = new BackendID(backendId);
+        // Default to MS engine for translation
+        BackendID backendID = BackendID.MS;
 
-        Optional<APIErrorResponse> errorResp = validatePostRequest(article,
-                sourceLang, targetLang, backendID);
+        Optional<APIErrorResponse> errorResp =
+                validatePostRequest(article, targetLang, backendID);
         if (errorResp.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(errorResp.get()).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.info("Request translations:" + article + " source_lang:"
-                + sourceLang + " target_lang" + targetLang + " backendId:"
-                + backendId);
+            LOG.info("Request translations:" + article + " target_lang"
+                    + targetLang + " backendId:" + backendID.getId());
         }
 
-        Locale srcLocale = getLocale(sourceLang);
+        Locale srcLocale = getLocale(new LocaleId(article.getLocale()));
         Locale transLocale = getLocale(targetLang);
 
         org.zanata.mt.model.Document doc = documentDAO
@@ -127,11 +125,10 @@ public class ArticleTranslatorResource {
     }
 
     private Optional<APIErrorResponse> validatePostRequest(Article article,
-            LocaleId sourceLang, LocaleId targetLang, BackendID backendId) {
-        if (sourceLang == null || targetLang == null
-                || StringUtils.isBlank(backendId.getId())) {
+            LocaleId targetLang, BackendID backendId) {
+        if (targetLang == null || StringUtils.isBlank(backendId.getId())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: sourceLang, targetLang or provider"));
+                    "Invalid query param: targetLang or provider"));
         }
         if (!backendId.equals(BackendID.MS)) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
@@ -141,6 +138,10 @@ public class ArticleTranslatorResource {
             && StringUtils.isBlank(article.getContentHTML())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                 "Empty content:" + article));
+        }
+        if (StringUtils.isBlank(article.getLocale())) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                "Empty locale"));
         }
         if (!article.getArticleType().equals(ArticleType.KCS_ARTICLE.getType())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
