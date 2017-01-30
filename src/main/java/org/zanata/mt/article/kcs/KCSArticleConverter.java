@@ -26,6 +26,7 @@ import static org.zanata.mt.article.kcs.KCSUtil.isPrivateNotes;
  */
 public class KCSArticleConverter implements ArticleConverter {
 
+    @Override
     public ArticleContents extractArticle(String html) {
         Document document = Jsoup.parse(html);
 
@@ -38,15 +39,23 @@ public class KCSArticleConverter implements ArticleConverter {
         return new ArticleContents(document, nodes, nonTranslatableElements);
     }
 
+    @Override
+    public void insertAttribution(ArticleContents articleContents,
+            String html) {
+        KCSUtil.insertAttribution(articleContents.getDocument(), html);
+    }
+
     // Extracts translatable headings as ArticleNodes to the list 'nodes'
     private void extractArticleHeader(Document document,
             List<ArticleNode> nodes) {
-        Elements header = document.getElementsByTag("header");
-        Element solutionTitle = header.select("h1.title").first();
-        Element solutionStatus = header.select("span.status").first();
+        Element header = KCSUtil.getHeader(document);
+        if (header != null) {
+            Element solutionTitle = header.select("h1.title").first();
+            Element solutionStatus = header.select("span.status").first();
 
-        nodes.add(new ArticleNode(solutionTitle));
-        nodes.add(new ArticleNode(solutionStatus));
+            nodes.add(new ArticleNode(solutionTitle));
+            nodes.add(new ArticleNode(solutionStatus));
+        }
     }
 
     // Modifies body of article by replacing non-translatable elements with placeholders.

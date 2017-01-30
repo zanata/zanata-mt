@@ -14,6 +14,7 @@ import org.zanata.mt.article.ArticleNode;
 import org.zanata.mt.article.kcs.KCSArticleConverter;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
+import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 
@@ -40,14 +41,16 @@ public class ArticleTranslatorService {
     }
 
     public Article translateArticle(Article article, Locale srcLocale,
-        Locale transLocale, BackendID backendID) throws BadRequestException,
-        ZanataMTException {
+            Locale transLocale, BackendID backendID, Boolean inlineAttribution)
+            throws BadRequestException, ZanataMTException {
         ArticleConverter converter = getConverter(article);
 
         String translatedPageTitle =
-            persistentTranslationService
-                .translate(article.getTitleText(), srcLocale,
-                    transLocale, backendID, MediaType.TEXT_PLAIN_TYPE);
+                persistentTranslationService
+                        .translate(article.getTitleText(), srcLocale,
+                                transLocale, backendID,
+                                MediaType.TEXT_PLAIN_TYPE)
+                        .getTranslations().get(0);
 
         ArticleContents articleContents =
                 converter.extractArticle(article.getContentHTML());
@@ -57,7 +60,7 @@ public class ArticleTranslatorService {
                 .map(ArticleNode::getHtml)
                 .collect(toList());
 
-        List<String> translatedHtmls =
+        BackendTranslations translatedHtmls =
                 persistentTranslationService.translate(translatableHtmls,
                         srcLocale, transLocale, backendID,
                         MediaType.TEXT_HTML_TYPE);
@@ -65,10 +68,16 @@ public class ArticleTranslatorService {
         assert translatableHtmls.size() == translatedHtmls.size();
         assert articleContents.getArticleNodes().size() == translatedHtmls.size();
 
-        forBoth(articleContents.getArticleNodes(), translatedHtmls,
+        forBoth(articleContents.getArticleNodes(),
+                translatedHtmls.getTranslations(),
                 ArticleNode::setHtml);
 
         articleContents.replacePlaceholdersWithOriginals();
+
+        if (inlineAttribution != null && inlineAttribution) {
+            converter.insertAttribution(articleContents,
+                    translatedHtmls.getAttribution());
+        }
 
         return new Article(translatedPageTitle,
                 articleContents.getDocumentHtml(), article.getUrl(),

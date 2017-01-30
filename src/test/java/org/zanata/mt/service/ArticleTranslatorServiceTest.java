@@ -1,7 +1,6 @@
 package org.zanata.mt.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -20,6 +19,7 @@ import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.util.DTOUtil;
@@ -106,21 +106,27 @@ public class ArticleTranslatorServiceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
             transLocale)).thenReturn(doc);
 
+        String attribution = "<img src=\"testing\">";
+
+        BackendTranslations translations = new BackendTranslations(translatedTitle, attribution);
         when(persistentTranslationService.translate(article.getTitleText(), srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
-                        .thenReturn(translatedTitle);
+                        .thenReturn(translations);
 
         List<String> requestTranslations = Lists.newArrayList(headerH1,
             headerContent, section1Header, section1Content, section2Header,
             processedSection2Content1, processedSection2Content2);
 
-        when(persistentTranslationService.translate(requestTranslations, srcLocale,
+        BackendTranslations translations2 =
+                new BackendTranslations(translatedStrings, attribution);
+        when(persistentTranslationService.translate(requestTranslations,
+                srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
-                        .thenReturn(translatedStrings);
+                        .thenReturn(translations2);
 
         Article translatedArticle =
                 articleTranslatorService.translateArticle(article, srcLocale,
-                        transLocale, BackendID.MS);
+                        transLocale, BackendID.MS, true);
 
         assertThat(translatedArticle.getTitleText()).isEqualTo(translatedTitle);
 
@@ -128,6 +134,7 @@ public class ArticleTranslatorServiceTest {
                 .containsSequence(translatedHeaderH1, translatedHeaderContent,
                         translatedSection1Header, translatedSection1Content,
                         translatedSection2Header)
+                .contains(attribution)
                 .doesNotContain(processedSection2Content1)
                 .doesNotContain(processedSection2Content2);
 

@@ -1,6 +1,5 @@
 package org.zanata.mt.service;
 
-import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.article.ArticleContents;
 
 /**
@@ -19,4 +18,9 @@ public interface ArticleConverter {
      * @param backendID
      */
     ArticleContents extractArticle(String html);
+
+    /**
+     * Insert inline attribution into ArticleContents
+     */
+    void insertAttribution(ArticleContents articleContents, String attributions);
 }

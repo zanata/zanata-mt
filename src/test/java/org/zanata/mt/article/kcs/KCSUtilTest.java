@@ -57,4 +57,31 @@ public class KCSUtilTest {
         Element element = new Element(Tag.valueOf("div"), "", attributes);
         assertThat(isPrivateNotes(element)).isFalse();
     }
+
+    @Test
+    public void testGetHeaderNotNull() {
+        String headerHtml = "<header>test</header>";
+        String html = "<html><body>" + headerHtml + "</body></html>";
+        Element element = KCSUtil.getHeader(Jsoup.parse(html));
+        assertThat(element).isNotNull();
+        assertThat(element.outerHtml().replaceAll(" ", "").replaceAll("\n", ""))
+                .isEqualTo(headerHtml);
+    }
+
+    @Test
+    public void testGetHeaderNull() {
+        String html = "<html><body></body></html>";
+        Element element = KCSUtil.getHeader(Jsoup.parse(html));
+        assertThat(element).isNull();
+    }
+
+    @Test
+    public void testInsertAttribution() {
+        String attributionHtml = "testingBase64Attribution";
+        String headerHtml = "<header>test</header>";
+        String html = "<html><body>" + headerHtml + "</body></html>";
+        Document doc = Jsoup.parse(html);
+        KCSUtil.insertAttribution(doc, attributionHtml);
+        assertThat(doc.outerHtml()).contains(attributionHtml);
+    }
 }

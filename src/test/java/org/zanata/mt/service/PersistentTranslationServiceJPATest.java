@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
+import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
@@ -26,7 +27,6 @@ import com.google.common.collect.Lists;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,7 +42,7 @@ public class PersistentTranslationServiceJPATest {
     private TextFlowTargetDAO textFlowTargetDAO;
 
     @Mock
-    private MicrosoftTranslatorBackend msProvider;
+    private MicrosoftTranslatorBackend msBackend;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -50,7 +50,7 @@ public class PersistentTranslationServiceJPATest {
     public void setup() {
         persistentTranslationService =
                 new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                    msProvider);
+                    msBackend);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class PersistentTranslationServiceJPATest {
             throws BadRequestException {
         List<String> sources = Lists.newArrayList("string to translate");
         List<AugmentedTranslation> expectedTranslations =
-                Lists.newArrayList(new AugmentedTranslation(
+            Lists.newArrayList(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
        
@@ -79,19 +79,19 @@ public class PersistentTranslationServiceJPATest {
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        when(msProvider.translate(sources, sourceLocale, targetLocale,
+        when(msBackend.translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(expectedTranslations);
 
-        List<String> translations =
+        BackendTranslations translations =
                 persistentTranslationService.translate(sources, sourceLocale,
                         targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(msProvider).translate(sources, sourceLocale, targetLocale,
+        verify(msBackend).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        assertThat(translations).isEqualTo(
+        assertThat(translations.getTranslations()).isEqualTo(
                 expectedTranslations
                     .stream()
                     .map(AugmentedTranslation::getPlainTranslation)
@@ -118,14 +118,15 @@ public class PersistentTranslationServiceJPATest {
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
-        String translation =
+        BackendTranslations translation =
                 persistentTranslationService
                     .translate(source, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        verifyZeroInteractions(msProvider);
-        assertThat(translation).isEqualTo(expectedTranslation);
+        verify(msBackend).getAttributionSmall();
+        assertThat(translation.getTranslations().get(0))
+                .isEqualTo(expectedTranslation);
     }
 }

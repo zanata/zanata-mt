@@ -34,7 +34,7 @@ import org.zanata.mt.util.UrlUtil;
 /**
  * API entry point for article translation: '/translate'
  *
- * See {@link #translate(Article, LocaleId)} method.
+ * See {@link #translate(Article, LocaleId, Boolean)} method.
  */
 @Path("/translate")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -78,7 +78,8 @@ public class ArticleTranslatorResource {
 
     @POST
     public Response translate(@NotNull Article article,
-            @NotNull @QueryParam("targetLang") LocaleId targetLang) {
+            @NotNull @QueryParam("targetLang") LocaleId targetLang,
+            @QueryParam("inlineAttribution") Boolean inlineAttribution) {
 
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
@@ -103,7 +104,8 @@ public class ArticleTranslatorResource {
 
         try {
             Article newArticle = articleTranslatorService
-                .translateArticle(article, srcLocale, transLocale, backendID);
+                    .translateArticle(article, srcLocale, transLocale,
+                            backendID, inlineAttribution);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newArticle).build();

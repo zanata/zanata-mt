@@ -1,6 +1,10 @@
 package org.zanata.mt.article.kcs;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
@@ -42,5 +46,24 @@ final class KCSUtil {
      */
     static boolean isPrivateNotes(Element element) {
         return element.id().startsWith("private-notes");
+    }
+
+    /**
+     * Return element with 'header' tag
+     */
+    static @Nullable Element getHeader(Document document) {
+        Elements elements = document.getElementsByTag("header");
+        return elements.isEmpty() ? null : elements.first();
+    }
+
+    /**
+     * Insert base64Image attribution after <header> tag
+     */
+    static void insertAttribution(@Nonnull Document document,
+            @Nonnull String html) {
+        Element header = getHeader(document);
+        if (header != null) {
+            header.after(html);
+        }
     }
 }

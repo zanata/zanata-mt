@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
+import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
@@ -60,10 +61,12 @@ public class PersistentTranslationServiceTest {
         String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        String translations = persistentTranslationService.translate(overLengthSource,
-                sourceLocale, targetLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE);
-        assertThat(translations).isEqualTo(overLengthSource);
+        BackendTranslations translations =
+                persistentTranslationService.translate(overLengthSource,
+                        sourceLocale, targetLocale, BackendID.MS,
+                        MediaType.TEXT_PLAIN_TYPE);
+        assertThat(translations.getTranslations().get(0))
+                .isEqualTo(overLengthSource);
     }
 
     @Test

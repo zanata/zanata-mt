@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
@@ -68,13 +69,13 @@ public class PersistentTranslationService {
      * Get from database if exists (hash), or from MT engine
      */
     @TransactionAttribute
-    public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
+    public BackendTranslations translate(
+            @NotNull @Size(max = MAX_LENGTH) String string,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
-        List<String> translations = translate(Lists.newArrayList(string),
+        return translate(Lists.newArrayList(string),
                 srcLocale, targetLocale, backendID, mediaType);
-        return translations.get(0);
     }
 
     /**
@@ -83,7 +84,7 @@ public class PersistentTranslationService {
      * Get from database if exists (hash), or from MT engine
      */
     @TransactionAttribute
-    public List<String> translate(@NotNull List<String> strings,
+    public BackendTranslations translate(@NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
@@ -98,7 +99,7 @@ public class PersistentTranslationService {
          */
         if (totalChar > MAX_LENGTH) {
             LOG.warn("Requested string length is more than " + MAX_LENGTH);
-            return strings;
+            return new BackendTranslations(strings, null);
         }
         if (totalChar > MAX_LENGTH_WARN) {
             LOG.warn("Requested string length is more than " + MAX_LENGTH_WARN);
@@ -143,7 +144,8 @@ public class PersistentTranslationService {
 
         // no need of machine translations
         if (untranslatedIndexMap.isEmpty()) {
-            return results;
+            return new BackendTranslations(results,
+                    microsoftTranslatorBackend.getAttributionSmall());
         }
 
         // trigger MT engine search
@@ -168,7 +170,8 @@ public class PersistentTranslationService {
             target = textFlowTargetDAO.persist(target);
             tf.getTargets().add(target);
         }
-        return results;
+        return new BackendTranslations(results,
+                microsoftTranslatorBackend.getAttributionSmall());
     }
 
     private Optional<TextFlowTarget> getTargetByProvider(
