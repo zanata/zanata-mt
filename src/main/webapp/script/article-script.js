@@ -54,7 +54,9 @@ function requestTranslations() {
     cache: false,
     headers : {
       'Accept' : 'application/json',
-      'Content-Type' : 'application/json'
+      'Content-Type' : 'application/json',
+      'X-Auth-User': '${ZANATA_MT_ID}',
+      'X-Auth-Token': '${ZANATA_MT_API_KEY}'
     },
     dataType: 'json',
     crossDomain: true,

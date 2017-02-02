@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.SystemProperty;
+import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -41,8 +42,8 @@ import com.google.common.collect.Lists;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    public static final String AZURE_ID = "AZURE_ID";
-    public static final String AZURE_SECRET = "AZURE_SECRET";
+    public static final String AZURE_ID = "ZANATA_MT_AZURE_ID";
+    public static final String AZURE_SECRET = "ZANATA_MT_AZURE_SECRET";
     public static final String ATTRIBUTION_REF = "http://aka.ms/MicrosoftTranslatorAttribution";
 
     private String clientId;
@@ -66,7 +67,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
         throws ZanataMTException {
         if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
             throw new ZanataMTException(
-                "Missing environment variables of AZURE_ID and AZURE_SECRET");
+                "Missing environment variables of" + AZURE_ID + " and " + AZURE_SECRET);
         }
         api = new MicrosoftTranslatorClient(clientId, clientSecret);
     }

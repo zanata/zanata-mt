@@ -6,9 +6,13 @@ import java.util.Properties;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.SystemProperty;
+import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.exception.ZanataMTException;
 
 /**
@@ -26,6 +30,16 @@ public class Application {
     private String version;
     private String buildDate;
 
+    private final String id;
+    private final String apiKey;
+
+    @Inject
+    public Application(@SystemProperty(APIConstant.ID) String id,
+        @SystemProperty(APIConstant.API_KEY) String apiKey) {
+        this.id = id;
+        this.apiKey = apiKey;
+    }
+
     public void onStartUp(
         @Observes @Initialized(ApplicationScoped.class) Object init)
         throws ZanataMTException {
@@ -37,6 +51,7 @@ public class Application {
         LOG.info("============================================");
         readBuildInfo();
         LOG.info("Build info: version-" + version + " date-" + buildDate);
+        verifyCredentials();
     }
 
     public void readBuildInfo() {
@@ -49,6 +64,13 @@ public class Application {
             version = properties.getProperty("build.version", "Unknown");
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
+        }
+    }
+
+    public void verifyCredentials() {
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(apiKey)) {
+            throw new ZanataMTException(
+                "Missing credentials of " + APIConstant.ID + " and " + APIConstant.API_KEY);
         }
     }
 }

@@ -42,8 +42,8 @@
   <system-properties>
     <property name="org.apache.coyote.http11.Http11Protocol.COMPRESSION"
       value="on" />
-    <property name="AZURE_ID" value="${env.AZURE_ID}"/>
-    <property name="AZURE_SECRET" value="${env.AZURE_SECRET}"/>
+    <property name="ZANATA_MT_AZURE_ID" value="${env.ZANATA_MT_AZURE_ID}"/>
+    <property name="ZANATA_MT_AZURE_SECRET" value="${env.ZANATA_MT_AZURE_SECRET}"/>
   </system-properties>
 
   <management>

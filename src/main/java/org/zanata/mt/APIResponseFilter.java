@@ -1,6 +1,7 @@
 package org.zanata.mt;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.Filter;
@@ -13,10 +14,13 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+
+import static org.zanata.mt.api.APIConstant.ORIGIN_WHITELIST;
 
 /**
  * This filter is for REST API requests.
@@ -31,9 +35,6 @@ import com.google.common.collect.ImmutableList;
  */
 @WebFilter(filterName = "APIResponseFilter", value = { "/api/*" })
 public class APIResponseFilter implements Filter {
-    private static final String ORIGIN_WHITELIST =
-        "ZANATAMT_ORIGIN_WHITELIST";
-
     private static final String ALLOW_METHODS =
         "PUT, POST, DELETE, GET, OPTIONS";
 
@@ -65,7 +66,9 @@ public class APIResponseFilter implements Filter {
         // Allow the specified Origin, but only if it is whitelisted.
         String origin = servletRequest.getHeader("Origin");
         if (!StringUtils.isBlank(origin) && originWhitelist.contains(origin)) {
-            servletResponse.addHeader("Access-Control-Allow-Origin", origin);
+            servletResponse.addHeader("Access-Control-Allow-Origin",
+                    URLEncoder.encode(origin,
+                            CharEncoding.UTF_8));
 
             // Allow standard HTTP methods.
             servletResponse
