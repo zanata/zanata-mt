@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.SystemProperty;
-import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -22,13 +21,15 @@ import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import static org.zanata.mt.api.APIConstant.AZURE_ID;
+import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
+
 /**
- * Service for Microsoft translator. Checks for {@link #AZURE_ID} and
- * {@link #AZURE_SECRET} during startup.
+ * Service for Microsoft translator.
+ * Checks for {@link org.zanata.mt.api.APIConstant.AZURE_ID} and
+ * {@link org.zanata.mt.api.APIConstant.AZURE_SECRET} during startup.
  *
  *
  * See
@@ -42,8 +43,6 @@ import com.google.common.collect.Lists;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    public static final String AZURE_ID = "ZANATA_MT_AZURE_ID";
-    public static final String AZURE_SECRET = "ZANATA_MT_AZURE_SECRET";
     public static final String ATTRIBUTION_REF = "http://aka.ms/MicrosoftTranslatorAttribution";
 
     private String clientId;

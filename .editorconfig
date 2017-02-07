@@ -25,7 +25,6 @@ trim_trailing_whitespace = false
 [LICENSE*.txt]
 indent_style = unset
 indent_size = unset
-trim_trailing_whitespace = false
 
 [{.babelrc,.stylelintrc,.eslintrc,*.json,*.jsb3,*.jsb2,*.bowerrc}]
 indent_style = space
@@ -43,7 +42,6 @@ continuation_indent_size = 4
 [{db.changelog-[123]*.xml,*_baseline.sql}]
 indent_style = unset
 indent_size = unset
-trim_trailing_whitespace = false
 
 [{*.ddl,*.sql}]
 indent_style = space

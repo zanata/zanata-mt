@@ -17,11 +17,11 @@ Run:
 
 # Available API
 
-- {POST} /translate?targetLang={targetLocale}&inlineAttribution={true|false} 
+- {POST} /translate?targetLang={targetLocale}&inlineAttribution={true|false}
    - Headers
      - X-Auth-User {ZANATA_MT_ID}
      - X-Auth-Token {ZANATA_MT_API_KEY}
-   - Body 
+   - Body
    ```
    {
      url: String {url of article},

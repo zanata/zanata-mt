@@ -20,9 +20,9 @@ import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.zanata.mt.api.APIConstant.AZURE_ID;
+import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
 import static org.zanata.mt.service.PersistentTranslationService.MAX_LENGTH;
-import static org.zanata.mt.backend.ms.MicrosoftTranslatorBackend.AZURE_ID;
-import static org.zanata.mt.backend.ms.MicrosoftTranslatorBackend.AZURE_SECRET;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

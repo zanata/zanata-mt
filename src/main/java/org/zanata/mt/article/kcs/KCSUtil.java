@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
+import org.zanata.mt.exception.ZanataMTException;
 
 /**
  * Utility for KCS converter
@@ -60,10 +61,11 @@ final class KCSUtil {
      * Insert base64Image attribution after <header> tag
      */
     static void insertAttribution(@Nonnull Document document,
-            @Nonnull String html) {
+            @Nonnull String html) throws ZanataMTException {
         Element header = getHeader(document);
         if (header != null) {
             header.after(html);
         }
+        throw new ZanataMTException("Unable to insert attribution after <header>");
     }
 }
