@@ -34,16 +34,16 @@ public class Article implements Serializable {
 
     public Article(String titleText, String contentHTML, String url,
         String articleType, String locale) {
+        this(titleText, contentHTML, url, articleType, locale, null);
+    }
+
+    public Article(String titleText, String contentHTML, String url,
+            String articleType, String locale, String backendId) {
         this.titleText = titleText;
         this.contentHTML = contentHTML;
         this.url = url;
         this.articleType = articleType;
         this.locale = locale;
-    }
-
-    public Article(String titleText, String contentHTML, String url,
-            String articleType, String locale, String backendId) {
-        this(titleText, contentHTML, url, articleType, locale);
         this.backendId = backendId;
     }
 

@@ -41,8 +41,8 @@ public class APISecurityFilter implements Filter {
     private static final RestCredentials REST_CREDENTIALS;
 
     static {
-        REST_CREDENTIALS = new RestCredentials(System.getProperty(ID, ""),
-            System.getProperty(API_KEY, ""));
+        REST_CREDENTIALS = new RestCredentials(System.getProperty(ID),
+            System.getProperty(API_KEY));
     }
 
     @Override
@@ -59,7 +59,7 @@ public class APISecurityFilter implements Filter {
         RestCredentials requestCredentials = new RestCredentials(servletRequest);
 
         if (!REST_CREDENTIALS.equals(requestCredentials)) {
-            String error = "Cannot authenticate REST request: " + requestCredentials;
+            String error = "API key authentication failed for user: " + requestCredentials.username;
             LOG.info(error);
             servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, error);
             return;

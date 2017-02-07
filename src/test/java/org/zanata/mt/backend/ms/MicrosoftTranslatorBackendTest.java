@@ -46,18 +46,4 @@ public class MicrosoftTranslatorBackendTest {
         String attribution = msBackend.getAttributionSmall();
         assertThat(attribution).contains(msBackend.ATTRIBUTION_REF);
     }
-
-    @Test
-    public void testAttributionMedium() {
-        msBackend = new MicrosoftTranslatorBackend(null, null);
-        String attribution = msBackend.getAttributionMedium();
-        assertThat(attribution).contains(msBackend.ATTRIBUTION_REF);
-    }
-
-    @Test
-    public void testAttribution() {
-        msBackend = new MicrosoftTranslatorBackend(null, null);
-        String attribution = msBackend.getAttribution();
-        assertThat(attribution).contains(msBackend.ATTRIBUTION_REF);
-    }
 }

@@ -65,7 +65,9 @@ final class KCSUtil {
         Element header = getHeader(document);
         if (header != null) {
             header.after(html);
+        } else {
+            throw new ZanataMTException(
+                    "Unable to insert attribution after <header>");
         }
-        throw new ZanataMTException("Unable to insert attribution after <header>");
     }
 }
