@@ -1,5 +1,8 @@
 package org.zanata.mt.api.dto;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -10,6 +13,7 @@ import java.time.format.DateTimeFormatter;
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@JsonSerialize(include = JsonSerialize.Inclusion.ALWAYS)
 public class APIErrorResponse implements Serializable {
 
     private final static DateTimeFormatter DATE_FORMATTER =
@@ -25,7 +29,8 @@ public class APIErrorResponse implements Serializable {
 
     private String timestamp;
 
-    public APIErrorResponse() {
+    @SuppressWarnings("unused")
+    protected APIErrorResponse() {
     }
 
     public APIErrorResponse(Response.Status status, String title) {
@@ -44,6 +49,7 @@ public class APIErrorResponse implements Serializable {
     /**
      * The HTTP status code.
      */
+    @JsonProperty("status")
     public int getStatus() {
         return status;
     }
@@ -55,6 +61,7 @@ public class APIErrorResponse implements Serializable {
     /**
      * Summary of the problem.
      */
+    @JsonProperty("title")
     public String getTitle() {
         return title;
     }
@@ -66,6 +73,7 @@ public class APIErrorResponse implements Serializable {
     /**
      * Detail explanation for this error.
      */
+    @JsonProperty("details")
     public String getDetails() {
         return details;
     }
@@ -77,6 +85,7 @@ public class APIErrorResponse implements Serializable {
     /**
      * Timestamp of the response. Format: dd-MM-yyyy HH:mm:ssZ
      */
+    @JsonProperty("timestamp")
     public String getTimestamp() {
         return timestamp;
     }

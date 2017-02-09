@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.DocumentDAO;
@@ -34,7 +35,10 @@ import org.zanata.mt.util.UrlUtil;
 /**
  * API entry point for article translation: '/translate'
  *
- * See {@link #translate(Article, LocaleId, Boolean)} method.
+ * See
+ * {@link #translate(Article, LocaleId)}
+ * {@link #translate(RawArticle, LocaleId)}
+ *
  */
 @Path("/translate")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -78,8 +82,55 @@ public class ArticleTranslatorResource {
 
     @POST
     public Response translate(@NotNull Article article,
-            @NotNull @QueryParam("targetLang") LocaleId targetLang,
-            @QueryParam("inlineAttribution") Boolean inlineAttribution) {
+            @NotNull @QueryParam("targetLang") LocaleId targetLang) {
+        // Default to MS engine for translation
+        BackendID backendID = BackendID.MS;
+
+        Optional<APIErrorResponse> errorResp =
+                validatePostRequest(article, targetLang, backendID);
+        if (errorResp.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(errorResp.get()).build();
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.info("Request translations:" + article + " target_lang"
+                    + targetLang + " backendId:" + backendID.getId());
+        }
+
+        Locale srcLocale = getLocale(new LocaleId(article.getLocale()));
+        Locale transLocale = getLocale(targetLang);
+
+        org.zanata.mt.model.Document doc = documentDAO
+                .getOrCreateByUrl(article.getUrl(), srcLocale, transLocale);
+
+        try {
+            Article newArticle = articleTranslatorService
+                    .translateArticle(article, srcLocale, transLocale,
+                            backendID);
+            doc.incrementUsedCount();
+            documentDAO.persist(doc);
+            return Response.ok().entity(newArticle).build();
+        } catch (BadRequestException e) {
+            String title = "Error";
+            LOG.error(title, e);
+            APIErrorResponse response =
+                    new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
+            return Response.status(Response.Status.BAD_REQUEST).entity(response)
+                    .build();
+        } catch (ZanataMTException e) {
+            String title = "Error";
+            LOG.error(title, e);
+            APIErrorResponse response =
+                    new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, e, title);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response)
+                    .build();
+        }
+    }
+
+    @POST
+    public Response translate(@NotNull RawArticle article,
+            @NotNull @QueryParam("targetLang") LocaleId targetLang) {
 
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
@@ -103,12 +154,12 @@ public class ArticleTranslatorResource {
             .getOrCreateByUrl(article.getUrl(), srcLocale, transLocale);
 
         try {
-            Article newArticle = articleTranslatorService
+            RawArticle newRawArticle = articleTranslatorService
                     .translateArticle(article, srcLocale, transLocale,
-                            backendID, inlineAttribution);
+                            backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
-            return Response.ok().entity(newArticle).build();
+            return Response.ok().entity(newRawArticle).build();
         } catch (BadRequestException e) {
             String title = "Error";
             LOG.error(title, e);
@@ -126,7 +177,7 @@ public class ArticleTranslatorResource {
         }
     }
 
-    private Optional<APIErrorResponse> validatePostRequest(Article article,
+    private Optional<APIErrorResponse> validatePostRequest(RawArticle rawArticle,
             LocaleId targetLang, BackendID backendId) {
         if (targetLang == null || StringUtils.isBlank(backendId.getId())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
@@ -136,21 +187,47 @@ public class ArticleTranslatorResource {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                 "Not supported backendId:" + backendId.getId()));
         }
-        if (article == null || StringUtils.isBlank(article.getTitleText())
-            && StringUtils.isBlank(article.getContentHTML())) {
+        if (rawArticle == null || StringUtils.isBlank(rawArticle.getTitleText())
+            && StringUtils.isBlank(rawArticle.getContentHTML())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                "Empty content:" + article));
+                "Empty content:" + rawArticle));
         }
-        if (StringUtils.isBlank(article.getLocale())) {
+        if (StringUtils.isBlank(rawArticle.getLocale())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                 "Empty locale"));
         }
-        if (!article.getArticleType().equals(ArticleType.KCS_ARTICLE.getType())) {
+        if (!rawArticle.getArticleType().equals(ArticleType.KCS_ARTICLE.getType())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                "Not supported articleType:" + article.getArticleType()));
+                "Not supported articleType:" + rawArticle.getArticleType()));
+        }
+        if (StringUtils.isBlank(rawArticle.getUrl()) ||
+            !UrlUtil.isValidURL(rawArticle.getUrl())) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Invalid url:" + rawArticle.getUrl()));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<APIErrorResponse> validatePostRequest(Article article,
+            LocaleId targetLang, BackendID backendId) {
+        if (targetLang == null || StringUtils.isBlank(backendId.getId())) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Invalid query param: targetLang or provider"));
+        }
+        if (!backendId.equals(BackendID.MS)) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Not supported backendId:" + backendId.getId()));
+        }
+        if (article == null || article.getContents() == null || article.getContents().isEmpty()) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Empty content:" + article));
+        }
+        if (StringUtils.isBlank(article.getLocale())) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Empty locale"));
         }
         if (StringUtils.isBlank(article.getUrl()) ||
-            !UrlUtil.isValidURL(article.getUrl())) {
+                !UrlUtil.isValidURL(article.getUrl())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                     "Invalid url:" + article.getUrl()));
         }

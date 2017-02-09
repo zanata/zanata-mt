@@ -1,7 +1,6 @@
 package org.zanata.mt.service;
 
 import org.zanata.mt.article.ArticleContents;
-import org.zanata.mt.exception.ZanataMTException;
 
 /**
  * Interface for different Article converter.
@@ -19,10 +18,4 @@ public interface ArticleConverter {
      * @param backendID
      */
     ArticleContents extractArticle(String html);
-
-    /**
-     * Insert inline attribution into ArticleContents
-     */
-    void insertAttribution(ArticleContents articleContents, String attributions) throws
-            ZanataMTException;
 }

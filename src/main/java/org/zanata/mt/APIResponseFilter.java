@@ -3,6 +3,7 @@ package org.zanata.mt;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,7 +43,8 @@ public class APIResponseFilter implements Filter {
 
     static {
         String whitelist = System.getProperty(ORIGIN_WHITELIST, "");
-        originWhitelist = ImmutableList.copyOf(whitelist.split(" +"));
+        originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :
+                ImmutableList.copyOf(whitelist.split(" +"));
     }
 
     @Override
@@ -81,12 +83,15 @@ public class APIResponseFilter implements Filter {
 
             // Client will use these headers for the next request (assuming this is
             // a pre-flight request).
-            List<String> nextRequestHeaders = Collections.list(
-                servletRequest.getHeaders("Access-Control-Request-Headers"));
 
-            // Allow any requested headers. Again, check your Origin!
-            servletResponse.addHeader("Access-Control-Allow-Headers",
-                Joiner.on(",").join(nextRequestHeaders));
+            Enumeration<String> enumList =
+                    servletRequest.getHeaders("Access-Control-Request-Headers");
+            if (enumList.hasMoreElements()) {
+                List<String> nextRequestHeaders = Collections.list(enumList);
+                // Allow any requested headers. Again, check your Origin!
+                servletResponse.addHeader("Access-Control-Allow-Headers",
+                        Joiner.on(",").join(nextRequestHeaders));
+            }
         }
         chain.doFilter(request, response);
     }

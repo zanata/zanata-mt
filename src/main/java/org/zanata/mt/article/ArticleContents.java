@@ -53,11 +53,6 @@ public class ArticleContents {
         return DomUtil.extractBodyContentHTML(document);
     }
 
-    @Nonnull
-    public Document getDocument() {
-        return document;
-    }
-
     /**
      * Post-processes the document by replacing placeholder elements with original
      * non-translatable elements.

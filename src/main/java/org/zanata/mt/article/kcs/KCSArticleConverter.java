@@ -10,7 +10,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.zanata.mt.article.ArticleContents;
 import org.zanata.mt.article.ArticleNode;
-import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.service.ArticleConverter;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -38,12 +37,6 @@ public class KCSArticleConverter implements ArticleConverter {
         preprocessArticleBody(document, nodes, nonTranslatableElements);
 
         return new ArticleContents(document, nodes, nonTranslatableElements);
-    }
-
-    @Override
-    public void insertAttribution(ArticleContents articleContents,
-            String html) throws ZanataMTException {
-        KCSUtil.insertAttribution(articleContents.getDocument(), html);
     }
 
     // Extracts translatable headings as ArticleNodes to the list 'nodes'

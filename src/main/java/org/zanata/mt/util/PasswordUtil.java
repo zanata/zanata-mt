@@ -47,7 +47,7 @@ public class PasswordUtil {
      *            a byte[] to convert to Hex characters
      * @return A char[] containing hexidecimal characters
      */
-    public static char[] encodeHex(byte[] data) {
+    private static char[] encodeHex(byte[] data) {
 
         int l = data.length;
 

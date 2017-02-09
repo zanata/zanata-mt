@@ -14,7 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
-import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
@@ -25,7 +24,7 @@ import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +60,7 @@ public class PersistentTranslationServiceJPATest {
             Lists.newArrayList(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
-       
+
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
@@ -83,7 +82,7 @@ public class PersistentTranslationServiceJPATest {
                 MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(expectedTranslations);
 
-        BackendTranslations translations =
+        List<String> translations =
                 persistentTranslationService.translate(sources, sourceLocale,
                         targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
@@ -91,7 +90,7 @@ public class PersistentTranslationServiceJPATest {
                 MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        assertThat(translations.getTranslations()).isEqualTo(
+        assertThat(translations).isEqualTo(
                 expectedTranslations
                     .stream()
                     .map(AugmentedTranslation::getPlainTranslation)
@@ -118,15 +117,13 @@ public class PersistentTranslationServiceJPATest {
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
-        BackendTranslations translation =
+        String translation =
                 persistentTranslationService
                     .translate(source, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        verify(msBackend).getAttributionSmall();
-        assertThat(translation.getTranslations().get(0))
-                .isEqualTo(expectedTranslation);
+        assertThat(translation).isEqualTo(expectedTranslation);
     }
 }

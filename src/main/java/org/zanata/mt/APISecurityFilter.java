@@ -23,8 +23,8 @@ import static org.zanata.mt.api.APIConstant.ID;
 /**
  * Filter for handling auth in /api path.
  * Request header required to have a matching
- * {@link org.zanata.mt.api.APIConstant.ID} and {@link org.zanata.mt.api.APIConstant.API_KEY} with request header
- * {@link org.zanata.mt.api.APIConstant.HEADER_USERNAME} and {@link org.zanata.mt.api.APIConstant.HEADER_API_KEY}
+ * {@link org.zanata.mt.api.APIConstant#ID} and {@link org.zanata.mt.api.APIConstant#API_KEY} with request header
+ * {@link org.zanata.mt.api.APIConstant#HEADER_USERNAME} and {@link org.zanata.mt.api.APIConstant#HEADER_API_KEY}
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -59,9 +59,11 @@ public class APISecurityFilter implements Filter {
         RestCredentials requestCredentials = new RestCredentials(servletRequest);
 
         if (!REST_CREDENTIALS.equals(requestCredentials)) {
-            String error = "API key authentication failed for user: " + requestCredentials.username;
+            String error = "API key authentication failed for user. " +
+                    (requestCredentials.hasUsername() ? requestCredentials.username.get() : "");
             LOG.info(error);
-            servletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, error);
+            servletResponse
+                    .sendError(HttpServletResponse.SC_UNAUTHORIZED, error);
             return;
         }
         chain.doFilter(request, response);

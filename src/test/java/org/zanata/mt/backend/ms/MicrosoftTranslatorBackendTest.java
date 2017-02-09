@@ -39,11 +39,4 @@ public class MicrosoftTranslatorBackendTest {
         msBackend = new MicrosoftTranslatorBackend(null, secret);
         assertThat(msBackend.getClientSecret()).isEqualTo(secret);
     }
-
-    @Test
-    public void testAttributionSmall() {
-        msBackend = new MicrosoftTranslatorBackend(null, null);
-        String attribution = msBackend.getAttributionSmall();
-        assertThat(attribution).contains(msBackend.ATTRIBUTION_REF);
-    }
 }

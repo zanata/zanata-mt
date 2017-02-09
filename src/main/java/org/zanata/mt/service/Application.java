@@ -48,7 +48,6 @@ public class Application {
         LOG.info("=====Zanata Machine Translation Service=====");
         LOG.info("============================================");
         LOG.info("============================================");
-        LOG.info("============================================");
         readBuildInfo();
         LOG.info("Build info: version-" + version + " date-" + buildDate);
         verifyCredentials();

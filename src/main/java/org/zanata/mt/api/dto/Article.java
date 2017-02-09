@@ -1,68 +1,49 @@
 package org.zanata.mt.api.dto;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import java.io.Serializable;
+import java.util.List;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for contentHTML to be translated
+ * DTO for article to be translated
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@JsonSerialize
 public class Article implements Serializable {
     private static final long serialVersionUID = 4123397809604573837L;
 
-    private String titleText;
-
-    private String contentHTML;
-
-    @NotNull
     private String url;
 
-    @NotNull
-    private String articleType;
+    private List<TypeString> contents;
 
-    @Nullable
     private String locale;
 
-    @Nullable
     private String backendId;
 
     @SuppressWarnings("unused")
     protected Article() {
     }
 
-    public Article(String titleText, String contentHTML, String url,
-        String articleType, String locale) {
-        this(titleText, contentHTML, url, articleType, locale, null);
+    public Article(List<TypeString> contents, String url, String locale) {
+        this(contents, url, locale, null);
     }
 
-    public Article(String titleText, String contentHTML, String url,
-            String articleType, String locale, String backendId) {
-        this.titleText = titleText;
-        this.contentHTML = contentHTML;
+    public Article(List<TypeString> contents, String url, String locale,
+            String backendId) {
+        this.contents = contents;
         this.url = url;
-        this.articleType = articleType;
         this.locale = locale;
         this.backendId = backendId;
     }
 
-    public String getTitleText() {
-        return titleText;
-    }
-
-    public void setTitleText(String titleText) {
-        this.titleText = titleText;
-    }
-
-    public String getContentHTML() {
-        return contentHTML;
-    }
-
-    public void setContentHTML(String contentHTML) {
-        this.contentHTML = contentHTML;
-    }
-
+    @JsonProperty("url")
+    @NotNull
     public String getUrl() {
         return url;
     }
@@ -71,18 +52,21 @@ public class Article implements Serializable {
         this.url = url;
     }
 
-    public String getArticleType() {
-        return articleType;
+    @JsonProperty("contents")
+    @NotNull
+    public List<TypeString> getContents() {
+        return contents;
     }
 
-    public void setArticleType(String articleType) {
-        this.articleType = articleType;
+    public void setContents(List<TypeString> contents) {
+        this.contents = contents;
     }
 
     /**
      * @return locale of this Article
      */
-    @Nullable
+    @JsonProperty("locale")
+    @NotNull
     public String getLocale() {
         return locale;
     }
@@ -94,6 +78,7 @@ public class Article implements Serializable {
     /**
      * @return backendId of translated content for this Article
      */
+    @JsonProperty("backendId")
     @Nullable
     public String getBackendId() {
         return backendId;
@@ -105,14 +90,12 @@ public class Article implements Serializable {
 
     @Override
     public String toString() {
-        return "Article{" +
-            "titleText='" + titleText + '\'' +
-            ", contentHTML='" + contentHTML + '\'' +
-            ", url='" + url + '\'' +
-            ", articleType='" + articleType + '\'' +
-            ", locale='" + locale + '\'' +
-            ", backendId='" + backendId + '\'' +
-            '}';
+        return "Article2{" +
+                "url='" + url + '\'' +
+                ", contents=" + contents +
+                ", locale='" + locale + '\'' +
+                ", backendId='" + backendId + '\'' +
+                '}';
     }
 
     @Override
@@ -122,38 +105,23 @@ public class Article implements Serializable {
 
         Article article = (Article) o;
 
-        if (getTitleText() != null ?
-            !getTitleText().equals(article.getTitleText()) :
-            article.getTitleText() != null) return false;
-        if (getContentHTML() != null ?
-            !getContentHTML().equals(article.getContentHTML()) :
-            article.getContentHTML() != null) return false;
-        if (getUrl() != null ? !getUrl().equals(article.getUrl()) :
-            article.getUrl() != null) return false;
-        if (getArticleType() != null ?
-            !getArticleType().equals(article.getArticleType()) :
-            article.getArticleType() != null) return false;
-        if (getLocale() != null ? !getLocale().equals(article.getLocale()) :
-            article.getLocale() != null) return false;
-        return getBackendId() != null ?
-            getBackendId().equals(article.getBackendId()) :
-            article.getBackendId() == null;
+        if (url != null ? !url.equals(article.url) : article.url != null)
+            return false;
+        if (contents != null ? !contents.equals(article.contents) :
+                article.contents != null) return false;
+        if (locale != null ? !locale.equals(article.locale) :
+                article.locale != null) return false;
+        return backendId != null ? backendId.equals(article.backendId) :
+                article.backendId == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = getTitleText() != null ? getTitleText().hashCode() : 0;
-        result = 31 * result +
-            (getContentHTML() != null ? getContentHTML().hashCode() : 0);
-        result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
-        result = 31 * result +
-            (getArticleType() != null ? getArticleType().hashCode() : 0);
-        result =
-            31 * result + (getLocale() != null ? getLocale().hashCode() : 0);
-        result =
-            31 * result +
-                (getBackendId() != null ? getBackendId().hashCode() : 0);
+        int result = url != null ? url.hashCode() : 0;
+        result = 31 * result + (contents != null ? contents.hashCode() : 0);
+        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        result = 31 * result + (backendId != null ? backendId.hashCode() : 0);
         return result;
     }
 }

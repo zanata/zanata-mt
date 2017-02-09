@@ -56,18 +56,4 @@ final class KCSUtil {
         Elements elements = document.getElementsByTag("header");
         return elements.isEmpty() ? null : elements.first();
     }
-
-    /**
-     * Insert base64Image attribution after <header> tag
-     */
-    static void insertAttribution(@Nonnull Document document,
-            @Nonnull String html) throws ZanataMTException {
-        Element header = getHeader(document);
-        if (header != null) {
-            header.after(html);
-        } else {
-            throw new ZanataMTException(
-                    "Unable to insert attribution after <header>");
-        }
-    }
 }

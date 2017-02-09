@@ -1,6 +1,5 @@
 package org.zanata.mt.backend.ms;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,8 +9,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.SystemProperty;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
@@ -46,16 +43,11 @@ import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    public static final String ATTRIBUTION_REF = "http://aka.ms/MicrosoftTranslatorAttribution";
-
     private String clientId;
 
     private String clientSecret;
 
     private MicrosoftTranslatorClient api;
-
-    //200X41
-    private String base64Image;
 
     @SuppressWarnings("unused")
     public MicrosoftTranslatorBackend() {
@@ -75,14 +67,6 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                 "Missing system properties of" + AZURE_ID + " and " + AZURE_SECRET);
         }
         api = new MicrosoftTranslatorClient(clientId, clientSecret);
-
-        ClassLoader classLoader = getClass().getClassLoader();
-        try {
-            base64Image = IOUtils.toString(classLoader.getResourceAsStream("ms-attribution.uri"),
-                    CharEncoding.UTF_8);
-        } catch (IOException e) {
-            throw new ZanataMTException("Unable to load MS attribution image", e);
-        }
     }
 
     @Override
@@ -124,19 +108,5 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     public String getClientSecret() {
         return clientSecret;
-    }
-
-    public String getAttributionSmall() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("<a href='")
-                .append(ATTRIBUTION_REF)
-                .append("'>")
-                .append("<img src='")
-                .append(base64Image)
-                .append("'/>")
-                .append("</a>");
-
-        return sb.toString();
     }
 }

@@ -22,9 +22,6 @@ public class LocaleId implements Serializable {
     public static final LocaleId RU = new LocaleId("ru");
     public static final LocaleId ZH_CN = new LocaleId("zh-cn");
 
-
-    @Size(max = 255)
-    @NotNull
     private String id;
 
     public LocaleId() {
@@ -51,6 +48,8 @@ public class LocaleId implements Serializable {
         return id;
     }
 
+    @Size(max = 255)
+    @NotNull
     public String getId() {
         return id;
     }

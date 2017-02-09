@@ -74,14 +74,4 @@ public class KCSUtilTest {
         Element element = KCSUtil.getHeader(Jsoup.parse(html));
         assertThat(element).isNull();
     }
-
-    @Test
-    public void testInsertAttribution() {
-        String attributionHtml = "testingBase64Attribution";
-        String headerHtml = "<header>test</header>";
-        String html = "<html><body>" + headerHtml + "</body></html>";
-        Document doc = Jsoup.parse(html);
-        KCSUtil.insertAttribution(doc, attributionHtml);
-        assertThat(doc.outerHtml()).contains(attributionHtml);
-    }
 }

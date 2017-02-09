@@ -1,8 +1,10 @@
 package org.zanata.mt.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
@@ -14,12 +16,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.Article;
+import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.BackendID;
-import org.zanata.mt.model.BackendTranslations;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.util.DTOUtil;
@@ -74,9 +77,9 @@ public class ArticleTranslatorServiceTest {
         "<section id=\"private-notes-section\">" + section3Header + section3Content + "</section>";
 
     @Test
-    public void testTranslate() throws BadRequestException {
+    public void testTranslateRaw() throws BadRequestException {
         String divContent = getSampleArticleBody();
-        Article article = new Article("Article title", divContent,
+        RawArticle article = new RawArticle("Article title", divContent,
             "http://localhost:8080", ArticleType.KCS_ARTICLE.getType(), LocaleId.EN_US.getId());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
@@ -106,27 +109,22 @@ public class ArticleTranslatorServiceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
             transLocale)).thenReturn(doc);
 
-        String attribution = "<img src=\"testing\">";
-
-        BackendTranslations translations = new BackendTranslations(translatedTitle, attribution);
         when(persistentTranslationService.translate(article.getTitleText(), srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
-                        .thenReturn(translations);
+                        .thenReturn(translatedTitle);
 
         List<String> requestTranslations = Lists.newArrayList(headerH1,
             headerContent, section1Header, section1Content, section2Header,
             processedSection2Content1, processedSection2Content2);
 
-        BackendTranslations translations2 =
-                new BackendTranslations(translatedStrings, attribution);
         when(persistentTranslationService.translate(requestTranslations,
                 srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
-                        .thenReturn(translations2);
+                        .thenReturn(translatedStrings);
 
-        Article translatedArticle =
+        RawArticle translatedArticle =
                 articleTranslatorService.translateArticle(article, srcLocale,
-                        transLocale, BackendID.MS, true);
+                        transLocale, BackendID.MS);
 
         assertThat(translatedArticle.getTitleText()).isEqualTo(translatedTitle);
 
@@ -134,13 +132,91 @@ public class ArticleTranslatorServiceTest {
                 .containsSequence(translatedHeaderH1, translatedHeaderContent,
                         translatedSection1Header, translatedSection1Content,
                         translatedSection2Header)
-                .contains(attribution)
                 .doesNotContain(processedSection2Content1)
                 .doesNotContain(processedSection2Content2);
 
         assertThat(DTOUtil
             .removeWhiteSpaceBetweenTag(translatedArticle.getContentHTML()))
             .contains(section3);
+    }
+
+    @Test
+    public void testTranslateArticle() {
+        Locale srcLocale = new Locale(LocaleId.EN, "English");
+        Locale transLocale = new Locale(LocaleId.DE, "German");
+
+        List<String> htmls =
+                Lists.newArrayList("<html><body>Entry 1</body></html>",
+                        "<html><body>Entry 2</body></html>",
+                        "<html><body>Entry 5</body></html>");
+        List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
+
+        List<String> translatedHtmls =
+                Lists.newArrayList("<html><body>MS: Entry 1</body></html>",
+                        "<html><body>MS: Entry 2</body></html>",
+                        "<html><body>MS: Entry 5</body></html>");
+        List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString(htmls.get(0), MediaType.TEXT_HTML),
+                new TypeString(htmls.get(1), MediaType.TEXT_HTML),
+                new TypeString(text.get(0), MediaType.TEXT_PLAIN),
+                new TypeString(text.get(1), MediaType.TEXT_PLAIN),
+                new TypeString(htmls.get(2), MediaType.TEXT_HTML));
+
+        List<TypeString> translatedContents = Lists.newArrayList(
+                new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML),
+                new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML),
+                new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN),
+                new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN),
+                new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML));
+
+        Article article = new Article(contents, "http://localhost", "en");
+        Document doc = new Document();
+
+        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
+                .thenReturn(srcLocale);
+        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
+                .thenReturn(transLocale);
+        when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
+                transLocale)).thenReturn(doc);
+
+        when(persistentTranslationService.translate(htmls,
+                srcLocale,
+                transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
+                .thenReturn(translatedHtmls);
+
+        when(persistentTranslationService.translate(text,
+                srcLocale,
+                transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(translatedText);
+
+
+        Article translatedArticle = articleTranslatorService
+                .translateArticle(article, srcLocale, transLocale,
+                        BackendID.MS);
+
+        assertThat(translatedArticle.getLocale())
+                .isEqualTo(transLocale.getLocaleId().getId());
+        assertThat(translatedArticle.getBackendId()).isEqualTo(BackendID.MS.getId());
+        assertThat(translatedArticle.getUrl()).isEqualTo(article.getUrl());
+        assertThat(translatedArticle.getContents())
+                .isEqualTo(translatedContents);
+
+        verify(persistentTranslationService)
+                .translate(htmls, srcLocale, transLocale, BackendID.MS,
+                        MediaType.TEXT_HTML_TYPE);
+
+        verify(persistentTranslationService)
+                .translate(text, srcLocale, transLocale, BackendID.MS,
+                        MediaType.TEXT_PLAIN_TYPE);
+    }
+
+    @Test
+    public void main() {
+        List< TypeString > contents = Lists.newArrayList(new TypeString("testing", MediaType.TEXT_PLAIN));
+        Article article = new Article(contents, "http://localhost", "en");
+        System.out.println(DTOUtil.toJSON(article));
     }
 
     private String getSampleArticleBody() {

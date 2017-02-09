@@ -73,16 +73,6 @@ public class KCSArticleConverterTest {
                         section3Content);
     }
 
-    @Test
-    public void testInsertAttribution() {
-        String attribution = "<img src=\"test\">";
-        String divContent = getSampleArticleBody();
-
-        ArticleContents content = converter.extractArticle(divContent);
-        converter.insertAttribution(content, attribution);
-        assertThat(content.getDocumentHtml()).contains(attribution);
-    }
-
     private String getSampleArticleBody() {
         String html = "<header class='header'>" + headerH1 +
             "<div class='header-meta'>" + headerContent +
