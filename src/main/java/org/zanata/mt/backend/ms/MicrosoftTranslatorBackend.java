@@ -8,7 +8,9 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.SystemProperty;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
@@ -97,7 +99,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                     res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
                             DTOUtil.toXML(res)))
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (JAXBException e) {
             throw new ZanataMTException("Unable to get translations from MS API", e);
         }
     }
@@ -108,5 +110,10 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     public String getClientSecret() {
         return clientSecret;
+    }
+
+    @VisibleForTesting
+    protected void setApi(MicrosoftTranslatorClient api) {
+        this.api = api;
     }
 }

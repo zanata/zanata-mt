@@ -9,7 +9,7 @@ import org.zanata.mt.api.dto.LocaleId;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class HashUtil {
+public final class HashUtil {
     public static final String SEPARATOR = "|";
 
     public static String generateHash(String string, LocaleId localeId)

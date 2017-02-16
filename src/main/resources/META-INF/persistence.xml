@@ -5,7 +5,7 @@
   version="2.0">
 
   <persistence-unit name="zanataMTDatasourcePU" transaction-type="JTA">
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <jta-data-source>${datasource.name}</jta-data-source>
     <class>org.zanata.mt.model.Document</class>
     <class>org.zanata.mt.model.Locale</class>

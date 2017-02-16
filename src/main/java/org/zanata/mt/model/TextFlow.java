@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NaturalId;
@@ -37,6 +38,7 @@ public class TextFlow extends ModelEntity {
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "localeId", nullable = false, updatable = false)
+    @NotNull
     private Locale locale;
 
     @NotEmpty
@@ -62,8 +64,7 @@ public class TextFlow extends ModelEntity {
 
     @Transient
     private void updateContentHash() {
-        this.setHash(
-                HashUtil.generateHash(content, locale.getLocaleId()));
+        this.hash = HashUtil.generateHash(content, locale.getLocaleId());
     }
 
     public String getHash() {
@@ -80,14 +81,6 @@ public class TextFlow extends ModelEntity {
 
     public List<TextFlowTarget> getTargets() {
         return targets;
-    }
-
-    protected void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
     }
 
     @Transient
@@ -107,16 +100,15 @@ public class TextFlow extends ModelEntity {
 
         TextFlow textFlow = (TextFlow) o;
 
-        if (hash != null ? !hash.equals(textFlow.hash) : textFlow.hash != null)
+        if (!hash.equals(textFlow.hash))
             return false;
-        return locale != null ? locale.equals(textFlow.locale) :
-                textFlow.locale == null;
+        return locale.equals(textFlow.locale);
     }
 
     @Override
     public int hashCode() {
-        int result = hash != null ? hash.hashCode() : 0;
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        int result = hash.hashCode();
+        result = 31 * result + locale.hashCode();
         return result;
     }
 }

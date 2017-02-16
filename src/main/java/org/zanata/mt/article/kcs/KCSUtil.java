@@ -1,6 +1,5 @@
 package org.zanata.mt.article.kcs;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.jsoup.nodes.Attributes;
@@ -8,7 +7,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
-import org.zanata.mt.exception.ZanataMTException;
 
 /**
  * Utility for KCS converter
@@ -17,10 +15,6 @@ import org.zanata.mt.exception.ZanataMTException;
  */
 final class KCSUtil {
     static final String ID_PREFIX = "ZanataMT";
-
-    @SuppressWarnings("unused")
-    private KCSUtil() {
-    }
 
     static String generateCodeElementName(int codeElementsIndex) {
         return ID_PREFIX + "-" + String.valueOf(codeElementsIndex);

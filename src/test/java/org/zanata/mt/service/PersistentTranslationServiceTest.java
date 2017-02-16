@@ -4,7 +4,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import static org.zanata.mt.service.PersistentTranslationService.MAX_LENGTH;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@RunWith(CdiRunner.class)
 public class PersistentTranslationServiceTest {
 
     @Mock

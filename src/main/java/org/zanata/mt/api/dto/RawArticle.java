@@ -48,6 +48,7 @@ public class RawArticle implements Serializable {
     }
 
     @JsonProperty("titleText")
+    @Nullable
     public String getTitleText() {
         return titleText;
     }
@@ -57,6 +58,7 @@ public class RawArticle implements Serializable {
     }
 
     @JsonProperty("contentHTML")
+    @Nullable
     public String getContentHTML() {
         return contentHTML;
     }
@@ -113,7 +115,7 @@ public class RawArticle implements Serializable {
 
     @Override
     public String toString() {
-        return "Article{" +
+        return "RawArticle{" +
             "titleText='" + titleText + '\'' +
             ", contentHTML='" + contentHTML + '\'' +
             ", url='" + url + '\'' +
@@ -136,13 +138,12 @@ public class RawArticle implements Serializable {
         if (getContentHTML() != null ?
             !getContentHTML().equals(rawArticle.getContentHTML()) :
             rawArticle.getContentHTML() != null) return false;
-        if (getUrl() != null ? !getUrl().equals(rawArticle.getUrl()) :
-            rawArticle.getUrl() != null) return false;
-        if (getArticleType() != null ?
-            !getArticleType().equals(rawArticle.getArticleType()) :
-            rawArticle.getArticleType() != null) return false;
-        if (getLocale() != null ? !getLocale().equals(rawArticle.getLocale()) :
-            rawArticle.getLocale() != null) return false;
+        if (!getUrl().equals(rawArticle.getUrl()))
+            return false;
+        if (!getArticleType().equals(rawArticle.getArticleType()))
+            return false;
+        if (!getLocale().equals(rawArticle.getLocale()))
+            return false;
         return getBackendId() != null ?
             getBackendId().equals(rawArticle.getBackendId()) :
             rawArticle.getBackendId() == null;
@@ -154,11 +155,10 @@ public class RawArticle implements Serializable {
         int result = getTitleText() != null ? getTitleText().hashCode() : 0;
         result = 31 * result +
             (getContentHTML() != null ? getContentHTML().hashCode() : 0);
-        result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
-        result = 31 * result +
-            (getArticleType() != null ? getArticleType().hashCode() : 0);
+        result = 31 * result + getUrl().hashCode();
+        result = 31 * result + getArticleType().hashCode();
         result =
-            31 * result + (getLocale() != null ? getLocale().hashCode() : 0);
+            31 * result + getLocale().hashCode();
         result =
             31 * result +
                 (getBackendId() != null ? getBackendId().hashCode() : 0);

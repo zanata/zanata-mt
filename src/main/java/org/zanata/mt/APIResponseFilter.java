@@ -15,6 +15,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,7 +40,7 @@ public class APIResponseFilter implements Filter {
     private static final String ALLOW_METHODS =
         "PUT, POST, DELETE, GET, OPTIONS";
 
-    private static final ImmutableList<String> originWhitelist;
+    private static ImmutableList<String> originWhitelist;
 
     static {
         String whitelist = System.getProperty(ORIGIN_WHITELIST, "");
@@ -98,5 +99,11 @@ public class APIResponseFilter implements Filter {
 
     @Override
     public void destroy() {
+    }
+
+    @VisibleForTesting
+    protected void setOriginWhitelist(String whitelist) {
+        originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :
+                ImmutableList.copyOf(whitelist.split(" +"));
     }
 }

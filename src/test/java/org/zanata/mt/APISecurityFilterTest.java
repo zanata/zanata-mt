@@ -35,6 +35,13 @@ public class APISecurityFilterTest {
     }
 
     @Test
+    public void testInitDestroy() throws ServletException {
+        //do nothing in both method
+        filter.init(null);
+        filter.destroy();
+    }
+
+    @Test
     public void testFilterNotMatchingCredentials()
             throws IOException, ServletException {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);

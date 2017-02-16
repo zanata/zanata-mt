@@ -63,9 +63,6 @@ public class ArticleTranslatorResource {
     static {
         LOCALE_MAP.put(new LocaleId("zh-hans"), LocaleId.ZH_CN);
     }
-    private LocaleId getLocaleFromMap(LocaleId locale) {
-        return LOCALE_MAP.containsKey(locale) ? LOCALE_MAP.get(locale) : locale;
-    }
 
     @SuppressWarnings("unused")
     public ArticleTranslatorResource() {
@@ -87,7 +84,7 @@ public class ArticleTranslatorResource {
         BackendID backendID = BackendID.MS;
 
         Optional<APIErrorResponse> errorResp =
-                validatePostRequest(article, targetLang, backendID);
+                validatePostRequest(article, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(errorResp.get()).build();
@@ -122,13 +119,16 @@ public class ArticleTranslatorResource {
             String title = "Error";
             LOG.error(title, e);
             APIErrorResponse response =
-                    new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, e, title);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response)
+                    new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                            e, title);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(response)
                     .build();
         }
     }
 
     @POST
+    @Path("/raw")
     public Response translate(@NotNull RawArticle article,
             @NotNull @QueryParam("targetLang") LocaleId targetLang) {
 
@@ -136,7 +136,7 @@ public class ArticleTranslatorResource {
         BackendID backendID = BackendID.MS;
 
         Optional<APIErrorResponse> errorResp =
-                validatePostRequest(article, targetLang, backendID);
+                validatePostRequest(article, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(errorResp.get()).build();
@@ -171,34 +171,38 @@ public class ArticleTranslatorResource {
             String title = "Error";
             LOG.error(title, e);
             APIErrorResponse response =
-                new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, e, title);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(response)
-                .build();
+                    new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                            e, title);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(response)
+                    .build();
         }
     }
 
     private Optional<APIErrorResponse> validatePostRequest(RawArticle rawArticle,
-            LocaleId targetLang, BackendID backendId) {
-        if (targetLang == null || StringUtils.isBlank(backendId.getId())) {
+            LocaleId targetLang) {
+        if (targetLang == null) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: targetLang or provider"));
-        }
-        if (!backendId.equals(BackendID.MS)) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                "Not supported backendId:" + backendId.getId()));
+                    "Invalid query param: targetLang"));
         }
         if (rawArticle == null || StringUtils.isBlank(rawArticle.getTitleText())
             && StringUtils.isBlank(rawArticle.getContentHTML())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                "Empty content:" + rawArticle));
+                "Empty content"));
         }
         if (StringUtils.isBlank(rawArticle.getLocale())) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                 "Empty locale"));
         }
-        if (!rawArticle.getArticleType().equals(ArticleType.KCS_ARTICLE.getType())) {
+        if (rawArticle.getArticleType() == null) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                "Not supported articleType:" + rawArticle.getArticleType()));
+                    "Empty articleType"));
+        }
+        if (!rawArticle.getArticleType()
+                .equals(ArticleType.KCS_ARTICLE.getType())) {
+            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                    "Not supported articleType:" +
+                            rawArticle.getArticleType()));
         }
         if (StringUtils.isBlank(rawArticle.getUrl()) ||
             !UrlUtil.isValidURL(rawArticle.getUrl())) {
@@ -209,16 +213,13 @@ public class ArticleTranslatorResource {
     }
 
     private Optional<APIErrorResponse> validatePostRequest(Article article,
-            LocaleId targetLang, BackendID backendId) {
-        if (targetLang == null || StringUtils.isBlank(backendId.getId())) {
+            LocaleId targetLang) {
+        if (targetLang == null) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: targetLang or provider"));
+                    "Invalid query param: targetLang"));
         }
-        if (!backendId.equals(BackendID.MS)) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
-                    "Not supported backendId:" + backendId.getId()));
-        }
-        if (article == null || article.getContents() == null || article.getContents().isEmpty()) {
+        if (article == null || article.getContents() == null ||
+                article.getContents().isEmpty()) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                     "Empty content:" + article));
         }
@@ -237,5 +238,9 @@ public class ArticleTranslatorResource {
     private Locale getLocale(@NotNull LocaleId localeId) {
         LocaleId searchLocale = getLocaleFromMap(localeId);
         return localeDAO.getOrCreateByLocaleId(searchLocale);
+    }
+
+    private LocaleId getLocaleFromMap(LocaleId locale) {
+        return LOCALE_MAP.containsKey(locale) ? LOCALE_MAP.get(locale) : locale;
     }
 }

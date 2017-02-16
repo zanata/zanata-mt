@@ -19,7 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <maven-war-plugin.version>2.1.1</maven-war-plugin.version>
+    <maven-war-plugin.version>2.6</maven-war-plugin.version>
     <resteasy.version>3.1.0.Final</resteasy.version>
     <javamelody.version>1.62.0</javamelody.version>
     <guava.version>20.0</guava.version>
@@ -105,7 +105,12 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.20</minimum>
+                      <minimum>0.70</minimum>
+                    </limit>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.90</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -292,22 +297,22 @@
           </deployables>
         </configuration>
 
-        <executions>
-          <execution>
-            <id>cargo-start</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>cargo-stop</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>cargo-start</id>-->
+            <!--<phase>pre-integration-test</phase>-->
+            <!--<goals>-->
+              <!--<goal>start</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+          <!--<execution>-->
+            <!--<id>cargo-stop</id>-->
+            <!--<phase>post-integration-test</phase>-->
+            <!--<goals>-->
+              <!--<goal>stop</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+        <!--</executions>-->
       </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
@@ -315,6 +320,7 @@
         <configuration>
           <outputDirectory>target/deployments</outputDirectory>
           <warName>ROOT</warName>
+          <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>
             <resource>
               <filtering>true</filtering>
@@ -614,6 +620,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jglue.cdi-unit</groupId>
+      <artifactId>cdi-unit</artifactId>
+      <version>3.1.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.6.1</version>
@@ -621,28 +634,22 @@
     </dependency>
 
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.7.9</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.jglue.cdi-unit</groupId>
-      <artifactId>cdi-unit</artifactId>
-      <version>3.1.4</version>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.6.5</version>
       <scope>test</scope>
     </dependency>
 
@@ -692,6 +699,7 @@
             <configuration>
               <outputDirectory>target/deployments</outputDirectory>
               <warName>ROOT</warName>
+              <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
               <webResources>
                 <resource>
                   <filtering>true</filtering>

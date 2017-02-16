@@ -10,6 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PasswordUtilTest {
 
     @Test
+    public void testConstructor() {
+        PasswordUtil util = new PasswordUtil();
+    }
+
+    @Test
     public void testGenerateRandomHashWithSameUsername() {
         String username = "username";
         String key1 = PasswordUtil.createSaltedApiKey(username);

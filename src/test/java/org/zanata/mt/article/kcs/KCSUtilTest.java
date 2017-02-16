@@ -19,6 +19,12 @@ import static org.zanata.mt.article.kcs.KCSUtil.isPrivateNotes;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class KCSUtilTest {
+
+    @Test
+    public void testConstructor() {
+        KCSUtil util = new KCSUtil();
+    }
+
     @Test
     public void rawCodePreElementsAreFound() {
         String pre = "<pre>coding which should not be translated</pre>";

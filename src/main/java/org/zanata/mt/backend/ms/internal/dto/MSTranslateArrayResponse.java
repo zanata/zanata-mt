@@ -67,26 +67,25 @@ public class MSTranslateArrayResponse implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MSTranslateArrayResponse)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         MSTranslateArrayResponse that = (MSTranslateArrayResponse) o;
 
         if (srcLanguage != null ? !srcLanguage.equals(that.srcLanguage) :
-            that.srcLanguage != null) return false;
-        if (alignment != null ? !alignment.equals(that.alignment) : that.alignment != null)
-            return false;
+                that.srcLanguage != null) return false;
+        if (alignment != null ? !alignment.equals(that.alignment) :
+                that.alignment != null) return false;
         if (originalTextSentenceLengths != null ?
-            !originalTextSentenceLengths
-                .equals(that.originalTextSentenceLengths) :
-            that.originalTextSentenceLengths != null) return false;
+                !originalTextSentenceLengths
+                        .equals(that.originalTextSentenceLengths) :
+                that.originalTextSentenceLengths != null) return false;
         if (translatedTextSentenceLengths != null ?
-            !translatedTextSentenceLengths
-                .equals(that.translatedTextSentenceLengths) :
-            that.translatedTextSentenceLengths != null) return false;
+                !translatedTextSentenceLengths
+                        .equals(that.translatedTextSentenceLengths) :
+                that.translatedTextSentenceLengths != null) return false;
         return translatedText != null ?
-            translatedText.equals(that.translatedText) :
-            that.translatedText == null;
-
+                translatedText.equals(that.translatedText) :
+                that.translatedText == null;
     }
 
     @Override
@@ -94,12 +93,13 @@ public class MSTranslateArrayResponse implements Serializable {
         int result = srcLanguage != null ? srcLanguage.hashCode() : 0;
         result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
         result = 31 * result + (originalTextSentenceLengths != null ?
-            originalTextSentenceLengths.hashCode() : 0);
+                originalTextSentenceLengths.hashCode() : 0);
         result = 31 * result + (translatedTextSentenceLengths != null ?
-            translatedTextSentenceLengths.hashCode() : 0);
+                translatedTextSentenceLengths.hashCode() : 0);
         result =
-            31 * result +
-                (translatedText != null ? translatedText.hashCode() : 0);
+                31 * result +
+                        (translatedText != null ? translatedText.hashCode() :
+                                0);
         return result;
     }
 }

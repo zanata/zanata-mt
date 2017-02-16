@@ -6,7 +6,7 @@
 function requestTranslations() {
   console.info('Requesting translations...');
   var BASE_URL = '${service.url}';
-  var baseRestUrl = BASE_URL + '/api/translate';
+  var baseRestUrl = BASE_URL + '/api/translate/raw';
   var DEFAULT_SRC_LANG = 'en';
   var LANG_PREFIX_CLASS = 'i18n-';
 

@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -28,11 +29,13 @@ public class TextFlowTarget extends ModelEntity {
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "textFlowId", nullable = false, updatable = false)
+    @NotNull
     private TextFlow textFlow;
 
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "localeId", nullable = false, updatable = false)
+    @NotNull
     private Locale locale;
 
     @NotEmpty
@@ -45,6 +48,7 @@ public class TextFlowTarget extends ModelEntity {
 
     @Type(type = "backendIdType")
     @Column(nullable = false)
+    @NotNull
     private BackendID backendId;
 
     public TextFlowTarget() {
@@ -94,16 +98,15 @@ public class TextFlowTarget extends ModelEntity {
 
         TextFlowTarget that = (TextFlowTarget) o;
 
-        if (textFlow != null ? !textFlow.equals(that.textFlow) :
-                that.textFlow != null) return false;
-        return locale != null ? locale.equals(that.locale) :
-                that.locale == null;
+        if (!textFlow.equals(that.textFlow))
+            return false;
+        return locale.equals(that.locale);
     }
 
     @Override
     public int hashCode() {
-        int result = textFlow != null ? textFlow.hashCode() : 0;
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        int result = textFlow.hashCode();
+        result = 31 * result + locale.hashCode();
         return result;
     }
 }

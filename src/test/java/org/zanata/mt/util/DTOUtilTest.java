@@ -16,6 +16,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DTOUtilTest {
 
     @Test
+    public void testConstructor() {
+        DTOUtil util = new DTOUtil();
+    }
+
+    @Test
     public void testToXML() {
         String expectedXml = "<MSString>testing 123</MSString>";
         MSString obj = new MSString("testing 123");

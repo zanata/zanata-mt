@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
@@ -14,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
@@ -102,13 +101,6 @@ public class ArticleTranslatorServiceTest {
                         translatedSection2Header, translatedSection2Content1,
                         translatedSection2Content2);
 
-        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
-            .thenReturn(srcLocale);
-        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
-            .thenReturn(transLocale);
-        when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
-            transLocale)).thenReturn(doc);
-
         when(persistentTranslationService.translate(article.getTitleText(), srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(translatedTitle);
@@ -172,14 +164,6 @@ public class ArticleTranslatorServiceTest {
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML));
 
         Article article = new Article(contents, "http://localhost", "en");
-        Document doc = new Document();
-
-        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
-                .thenReturn(srcLocale);
-        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
-                .thenReturn(transLocale);
-        when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
-                transLocale)).thenReturn(doc);
 
         when(persistentTranslationService.translate(htmls,
                 srcLocale,

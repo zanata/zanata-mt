@@ -1,5 +1,6 @@
 package org.zanata.mt.backend.ms;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -34,7 +35,7 @@ class MicrosoftTranslatorClient {
     private static final Logger LOG =
         LoggerFactory.getLogger(MicrosoftTranslatorClient.class);
 
-    private static final String TRANSLATIONS_BASE_URL = "https://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
+    protected static final String TRANSLATIONS_BASE_URL = "https://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
     private static final String DATA_MARKET_ACCESS_URI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
 
     private static final String ENCODING = CharEncoding.UTF_8;
@@ -84,9 +85,7 @@ class MicrosoftTranslatorClient {
             throws ZanataMTException {
         getTokenIfNeeded();
 
-        ResteasyWebTarget webTarget =
-                new ResteasyClientBuilder().build()
-                        .target(TRANSLATIONS_BASE_URL);
+        ResteasyWebTarget webTarget = getWebTarget();
         Response response = webTarget.request(MediaType.TEXT_XML)
                 .header("Content-Type",
                         MediaType.TEXT_XML + "; charset=" + ENCODING)
@@ -133,6 +132,11 @@ class MicrosoftTranslatorClient {
         }
     }
 
+    protected ResteasyWebTarget getWebTarget() {
+        return new ResteasyClientBuilder().build()
+                        .target(TRANSLATIONS_BASE_URL);
+    }
+
     protected Invocation.Builder getBuilder() {
         return new ResteasyClientBuilder()
             .build()
@@ -152,5 +156,15 @@ class MicrosoftTranslatorClient {
 
         StrSubstitutor sub = new StrSubstitutor(valuesMap);
         return sub.replace(TEMPLATE_TOKEN_PARAM);
+    }
+
+    @VisibleForTesting
+    protected String getCurrentToken() {
+        return token;
+    }
+
+    @VisibleForTesting
+    protected Long getTokenExpiration() {
+        return tokenExpiration;
     }
 }

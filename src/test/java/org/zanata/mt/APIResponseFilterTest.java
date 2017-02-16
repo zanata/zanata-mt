@@ -1,11 +1,10 @@
 package org.zanata.mt;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,13 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.zanata.mt.api.APIConstant.ORIGIN_WHITELIST;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -39,9 +38,17 @@ public class APIResponseFilterTest {
     private FilterChain chain;
 
     @Test
-    public void testEmptyWhiteList() throws IOException, ServletException {
-        System.setProperty(ORIGIN_WHITELIST, "");
+    public void testInitDestroy() throws ServletException {
         filter = new APIResponseFilter();
+        //do nothing in both method
+        filter.init(null);
+        filter.destroy();
+    }
+
+    @Test
+    public void testEmptyWhiteList() throws IOException, ServletException {
+        filter = new APIResponseFilter();
+        filter.setOriginWhitelist("");
 
         filter.doFilter(request, response, chain);
         verifyZeroInteractions(request);
@@ -50,8 +57,8 @@ public class APIResponseFilterTest {
 
     @Test
     public void testEmptyOrigin() throws IOException, ServletException {
-        System.setProperty(ORIGIN_WHITELIST, "http://localhost");
         filter = new APIResponseFilter();
+        filter.setOriginWhitelist("http://localhost");
 
         filter.doFilter(request, response, chain);
         verify(response).addHeader("Vary", "Origin");
@@ -61,8 +68,9 @@ public class APIResponseFilterTest {
 
     @Test
     public void testFilter() throws IOException, ServletException {
-        System.setProperty(ORIGIN_WHITELIST, "http://localhost");
         filter = new APIResponseFilter();
+        filter.setOriginWhitelist("http://localhost");
+
         when(request.getHeader("Origin")).thenReturn("http://localhost");
 
         Enumeration enumList = Mockito.mock(Enumeration.class);
@@ -74,4 +82,31 @@ public class APIResponseFilterTest {
         verify(response, times(4)).addHeader(anyString(), anyString());
     }
 
+    @Test
+    public void testRestCredentialsEmpty() {
+        APISecurityFilter.RestCredentials restCredentials =
+                new APISecurityFilter.RestCredentials(null, null);
+        assertThat(restCredentials.hasUsername()).isFalse();
+        assertThat(restCredentials.hasApiKey()).isFalse();
+    }
+
+    @Test
+    public void testRestCredentialsNotEmpty() {
+        APISecurityFilter.RestCredentials restCredentials =
+                new APISecurityFilter.RestCredentials("user", "api");
+        assertThat(restCredentials.hasUsername()).isTrue();
+        assertThat(restCredentials.hasApiKey()).isTrue();
+    }
+
+    @Test
+    public void testRestCredentialsEqualsAndHashCode() {
+        APISecurityFilter.RestCredentials restCredentials =
+                new APISecurityFilter.RestCredentials("user", "api");
+
+        APISecurityFilter.RestCredentials restCredentials2 =
+                new APISecurityFilter.RestCredentials("user", "api");
+        assertThat(restCredentials).isEqualTo(restCredentials2);
+        assertThat(restCredentials.hashCode())
+                .isEqualTo(restCredentials2.hashCode());
+    }
 }

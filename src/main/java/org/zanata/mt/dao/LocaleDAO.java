@@ -23,7 +23,7 @@ public class LocaleDAO extends AbstractDAO<Locale> {
     }
 
     @VisibleForTesting
-    public LocaleDAO(EntityManager entityManager) {
+    LocaleDAO(EntityManager entityManager) {
         setEntityManager(entityManager);
     }
 

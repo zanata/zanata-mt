@@ -10,6 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HashUtilTest {
     @Test
+    public void testConstructor() {
+        HashUtil util = new HashUtil();
+    }
+
+    @Test
     public void testGenerateHash() {
         String test = "testing";
         LocaleId localeId = LocaleId.DE;

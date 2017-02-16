@@ -28,7 +28,7 @@ public class ArticleType implements Serializable {
 
         ArticleType that = (ArticleType) o;
 
-        return type != null ? type.equals(that.type) : that.type == null;
+        return type.equals(that.type);
 
     }
 

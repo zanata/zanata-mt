@@ -10,10 +10,22 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class UrlUtilTest {
 
     @Test
+    public void testConstructor() {
+        UrlUtil util = new UrlUtil();
+    }
+
+    @Test
     public void testIsValidUrl() {
         String url = "http://localhost:8080";
         assertThat(UrlUtil.isValidURL(url)).isTrue();
     }
+
+    @Test
+    public void testEmptyUrl() {
+        String url = "";
+        assertThat(UrlUtil.isValidURL(url)).isFalse();
+    }
+
 
     @Test
     public void testIsInvalidUrl() {

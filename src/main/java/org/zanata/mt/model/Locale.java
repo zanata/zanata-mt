@@ -53,12 +53,11 @@ public class Locale extends ModelEntity {
 
         Locale locale = (Locale) o;
 
-        return localeId != null ? localeId.equals(locale.localeId) :
-                locale.localeId == null;
+        return localeId.equals(locale.localeId);
     }
 
     @Override
     public int hashCode() {
-        return localeId != null ? localeId.hashCode() : 0;
+        return localeId.hashCode();
     }
 }

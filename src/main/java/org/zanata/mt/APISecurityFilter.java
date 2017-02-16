@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,9 @@ public class APISecurityFilter implements Filter {
     public void destroy() {
     }
 
-    private static class RestCredentials {
-        private final Optional<String> username;
-        private final Optional<String> apiKey;
+    protected static class RestCredentials {
+        private final @NotNull Optional<String> username;
+        private final @NotNull Optional<String> apiKey;
 
         RestCredentials(String username, String apiKey) {
             this.username = Optional.ofNullable(username);
@@ -96,31 +97,22 @@ public class APISecurityFilter implements Filter {
         }
 
         @Override
-        public String toString() {
-            return "{" +
-                "username=" + username +
-                ", apiKey=" + apiKey +
-                '}';
-        }
-
-        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof RestCredentials)) return false;
 
             RestCredentials that = (RestCredentials) o;
 
-            if (username != null ? !username.equals(that.username) :
-                that.username != null) return false;
-            return apiKey != null ? apiKey.equals(that.apiKey) :
-                that.apiKey == null;
+            if (!username.equals(that.username))
+                return false;
+            return apiKey.equals(that.apiKey);
 
         }
 
         @Override
         public int hashCode() {
-            int result = username != null ? username.hashCode() : 0;
-            result = 31 * result + (apiKey != null ? apiKey.hashCode() : 0);
+            int result = username.hashCode();
+            result = 31 * result + apiKey.hashCode();
             return result;
         }
     }

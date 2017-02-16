@@ -56,17 +56,17 @@ public class TypeString implements Serializable {
 
         TypeString that = (TypeString) o;
 
-        if (getValue() != null ? !getValue().equals(that.getValue()) :
-                that.getValue() != null) return false;
-        return getType() != null ? getType().equals(that.getType()) :
-                that.getType() == null;
+        if (!getValue().equals(that.getValue()))
+            return false;
+
+        return getType().equals(that.getType());
 
     }
 
     @Override
     public int hashCode() {
-        int result = getValue() != null ? getValue().hashCode() : 0;
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        int result = getValue().hashCode();
+        result = 31 * result + getType().hashCode();
         return result;
     }
 }

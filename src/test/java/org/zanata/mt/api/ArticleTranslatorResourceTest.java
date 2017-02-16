@@ -10,24 +10,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
+import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.ArticleTranslatorService;
-import org.zanata.mt.util.DTOUtil;
-
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +55,11 @@ public class ArticleTranslatorResourceTest {
     }
 
     @Test
+    public void testConstructor() {
+        ArticleTranslatorResource resource = new ArticleTranslatorResource();
+    }
+
+    @Test
     public void testTranslateArticleBadParams() {
         Article article = new Article(null, null, null);
         // empty trans locale
@@ -68,7 +73,7 @@ public class ArticleTranslatorResourceTest {
         // null article
         Article article = null;
         Response response =
-                articleTranslatorResource.translate(article, LocaleId.DE);
+                articleTranslatorResource.translate(article, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -85,12 +90,57 @@ public class ArticleTranslatorResourceTest {
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
+        // empty locale
+        article = new Article(
+                Lists.newArrayList(new TypeString("string", "text/plain")),
+                "http://localhost", null);
+        response = articleTranslatorResource.translate(article, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
         // article with content but no url
         article = new Article(Lists.newArrayList(new TypeString("test",
                 MediaType.TEXT_PLAIN)), null, "en");
         response = articleTranslatorResource.translate(article, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testTranslateArticleBackendFailed() {
+        testArticleFailed(new BadRequestException(), Response.Status.BAD_REQUEST);
+    }
+
+    @Test
+    public void testTranslateArticleInternalError() {
+        testArticleFailed(new ZanataMTException("error"), Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
+    private void testArticleFailed(Exception expectedException,
+            Response.Status expectedStatus) {
+        Locale srcLocale = new Locale(LocaleId.EN, "English");
+        Locale transLocale = new Locale(LocaleId.DE, "German");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html>test</html>", MediaType.TEXT_HTML));
+        Article article = new Article(contents, "http://localhost",
+                srcLocale.getLocaleId().getId());
+
+        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
+                .thenReturn(srcLocale);
+        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
+                .thenReturn(transLocale);
+
+        doThrow(expectedException).when(articleTranslatorService)
+                .translateArticle(article, srcLocale,
+                        transLocale, BackendID.MS);
+
+        Response response =
+                articleTranslatorResource
+                        .translate(article, transLocale.getLocaleId());
+
+        assertThat(response.getStatus())
+                .isEqualTo(expectedStatus.getStatusCode());
     }
 
     @Test
@@ -129,8 +179,6 @@ public class ArticleTranslatorResourceTest {
                 new Article(translatedContents, "http://localhost",
                         transLocale.getLocaleId().getId());
 
-        System.out.println(DTOUtil.toJSON(translatedArticle));
-
         Document doc = Mockito.mock(Document.class);
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
@@ -162,10 +210,10 @@ public class ArticleTranslatorResourceTest {
     public void testTranslateRawArticleBadParams() {
         // empty trans locale
         RawArticle rawArticle = new RawArticle(null, null, null, null, null);
-        Response response = articleTranslatorResource.translate(rawArticle, null);
+        Response response =
+                articleTranslatorResource.translate(rawArticle, null);
         assertThat(response.getStatus())
-            .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -181,13 +229,77 @@ public class ArticleTranslatorResourceTest {
         rawArticle = new RawArticle(null, null, null, null, null);
         response = articleTranslatorResource.translate(rawArticle, LocaleId.DE);
         assertThat(response.getStatus())
-            .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        // article with content but no url
-        rawArticle = new RawArticle("title", "content", null, null, null);
+        // no article locale
+        rawArticle =
+                new RawArticle("title", "content", "http://localhost", null,
+                        null);
         response = articleTranslatorResource.translate(rawArticle, LocaleId.DE);
         assertThat(response.getStatus())
-            .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // no articleType
+        rawArticle =
+                new RawArticle("title", "content", "http://localhost", null,
+                        LocaleId.EN.getId());
+        response = articleTranslatorResource.translate(rawArticle, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // invalid articleType
+        rawArticle =
+                new RawArticle("title", "content", "http://localhost",
+                        "NEW_ARTICLE", LocaleId.EN.getId());
+        response = articleTranslatorResource.translate(rawArticle, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // no url
+        rawArticle =
+                new RawArticle("title", "content", null,
+                        "KCS_ARTICLE", LocaleId.EN.getId());
+        response = articleTranslatorResource.translate(rawArticle, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+    }
+
+    @Test
+    public void testTranslateRawArticleBackendFailed() {
+        testRawArticleFailed(new BadRequestException(), Response.Status.BAD_REQUEST);
+    }
+
+    @Test
+    public void testTranslateRawArticleInternalError() {
+        testRawArticleFailed(new ZanataMTException("failed"),
+                Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
+    private void testRawArticleFailed(Exception exceptionToThrow,
+            Response.Status expectedStatus) {
+        String divContent = "<div>content</div>";
+        RawArticle rawArticle = new RawArticle("Article title", divContent,
+                "http://localhost:8080", ArticleType.KCS_ARTICLE.getType(),
+                LocaleId.EN.getId());
+        Locale srcLocale = new Locale(LocaleId.EN, "English");
+        Locale transLocale = new Locale(LocaleId.DE, "German");
+
+        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
+                .thenReturn(srcLocale);
+        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
+                .thenReturn(transLocale);
+
+        doThrow(exceptionToThrow).when(articleTranslatorService)
+                .translateArticle(rawArticle, srcLocale,
+                        transLocale, BackendID.MS);
+
+        Response response =
+                articleTranslatorResource
+                        .translate(rawArticle, transLocale.getLocaleId());
+
+        assertThat(response.getStatus())
+                .isEqualTo(expectedStatus.getStatusCode());
     }
 
     @Test

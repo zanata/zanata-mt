@@ -90,7 +90,7 @@ public class Article implements Serializable {
 
     @Override
     public String toString() {
-        return "Article2{" +
+        return "Article{" +
                 "url='" + url + '\'' +
                 ", contents=" + contents +
                 ", locale='" + locale + '\'' +
@@ -105,12 +105,12 @@ public class Article implements Serializable {
 
         Article article = (Article) o;
 
-        if (url != null ? !url.equals(article.url) : article.url != null)
+        if (!url.equals(article.url))
             return false;
-        if (contents != null ? !contents.equals(article.contents) :
-                article.contents != null) return false;
-        if (locale != null ? !locale.equals(article.locale) :
-                article.locale != null) return false;
+        if (!contents.equals(article.contents))
+            return false;
+        if (!locale.equals(article.locale))
+            return false;
         return backendId != null ? backendId.equals(article.backendId) :
                 article.backendId == null;
 
@@ -118,9 +118,9 @@ public class Article implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = url != null ? url.hashCode() : 0;
-        result = 31 * result + (contents != null ? contents.hashCode() : 0);
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        int result = url.hashCode();
+        result = 31 * result + contents.hashCode();
+        result = 31 * result + locale.hashCode();
         result = 31 * result + (backendId != null ? backendId.hashCode() : 0);
         return result;
     }

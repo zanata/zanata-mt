@@ -33,11 +33,11 @@ public abstract class ModelEntity implements Serializable {
     private Date lastChanged;
 
     public Date getCreationDate() {
-        return new Date(creationDate.getTime());
+        return creationDate != null ? new Date(creationDate.getTime()) : null;
     }
 
     public Date getLastChanged() {
-        return new Date(lastChanged.getTime());
+        return lastChanged != null ? new Date(lastChanged.getTime()) : null;
     }
 
     public Long getId() {

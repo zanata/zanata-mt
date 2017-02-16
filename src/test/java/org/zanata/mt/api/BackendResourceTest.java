@@ -35,4 +35,12 @@ public class BackendResourceTest {
         assertThat(response.getHeaders()).isNotEmpty()
                 .containsKeys("Content-Disposition");
     }
+
+    @Test
+    public void testGetAttributionInvalidId() {
+        String id = "google";
+        Response response = backendResource.getAttribution(id);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
 }
