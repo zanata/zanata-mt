@@ -40,15 +40,3 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     lastChanged  DATE         NOT NULL,
     UNIQUE (localeId, textFlowId, backendId)
 );
-
-INSERT INTO Locale VALUES (1, 'de', 'German', now(), now());
-INSERT INTO Locale VALUES (2, 'en-us', 'English (United States)', now(), now());
-INSERT INTO Locale VALUES (3, 'en', 'English', now(), now());
-INSERT INTO Locale VALUES (4, 'es', 'Spanish', now(), now());
-INSERT INTO Locale VALUES (5, 'fr', 'French', now(), now());
-INSERT INTO Locale VALUES (6, 'it', 'Italian', now(), now());
-INSERT INTO Locale VALUES (7, 'ja', 'Japanese', now(), now());
-INSERT INTO Locale VALUES (8, 'ko', 'Korean', now(), now());
-INSERT INTO Locale VALUES (9, 'pt', 'Portuguese', now(), now());
-INSERT INTO Locale VALUES (10, 'ru', 'Russian', now(), now());
-INSERT INTO Locale VALUES (11, 'zh-cn', 'Chinese (China)', now(), now());

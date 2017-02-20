@@ -251,8 +251,8 @@
               <!-- Require double quote around the value to escape special char which throws error in jboss-cli -->
               <ZANATA_MT_AZURE_ID>"${ZANATA_MT_AZURE_ID}"</ZANATA_MT_AZURE_ID>
               <ZANATA_MT_AZURE_SECRET>"${ZANATA_MT_AZURE_SECRET}"</ZANATA_MT_AZURE_SECRET>
-              <ZANATA_MT_ID>"${ZANATA_MT_ID}"</ZANATA_MT_ID>
-              <ZANATA_MT_API_KEY>"${ZANATA_MT_API_KEY}"</ZANATA_MT_API_KEY>
+              <ZANATA_MT_ID>devID</ZANATA_MT_ID>
+              <ZANATA_MT_API_KEY>devKey</ZANATA_MT_API_KEY>
             </systemProperties>
           </container>
 
@@ -676,8 +676,6 @@
         It is used as base-url for script.js to download article-script.js in bookmarklet.
         -->
         <service.url>http://${cargo.host}:${cargo.servlet.port}</service.url>
-        <ZANATA_MT_ID>devID</ZANATA_MT_ID>
-        <ZANATA_MT_API_KEY>devKey</ZANATA_MT_API_KEY>
       </properties>
     </profile>
 
@@ -687,8 +685,6 @@
       <properties>
         <name>production</name>
         <service.url>https://server-zanata-mt.int.open.paas.redhat.com</service.url>
-        <ZANATA_MT_ID></ZANATA_MT_ID>
-        <ZANATA_MT_API_KEY></ZANATA_MT_API_KEY>
       </properties>
       <build>
         <finalName>ZanataMT</finalName>
