@@ -21,7 +21,7 @@
     - X-Auth-Token {[ZANATA_MT_API_KEY](/docs/system-properties.md)}
 
 - Body
-   ```json
+   ```
    {
      'url': String {url of article},
      'contents': TypeString[] {Array of TypeString},
@@ -32,7 +32,7 @@
 ### Response
 
 - Body
-  ```json
+  ```
   {
     'url': String {url of article},
     'contents': [TypeString](#typeString)[] {Array of translated strings},
@@ -57,7 +57,7 @@
     - X-Auth-Token {[ZANATA_MT_API_KEY](/docs/system-properties.md)}
 
 - Body
-   ```json
+   ```
    {
        'url': String {url of article},
        'titleText': String {title text of the page},
@@ -70,7 +70,7 @@
 ### Response
 
 - Body
-  ```json
+  ```
   {
     'url': String {url of article},
     'titleText': String {translated title text of the page},
@@ -105,7 +105,7 @@
 ## Types
 
 ### TypeString<a name="TypeString"></a>
-```json
+```
 {
     'value': String {value},
     'type': String {'text/html', 'text/plain'}
@@ -113,7 +113,7 @@
 ```
 
 ### Error<a name="ErrorType"></a>
-```json
+```
 {
     'status': integer {http status code},
     'title': String {error title},
