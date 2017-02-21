@@ -58,9 +58,9 @@ public class TextFlowTarget extends ModelEntity {
             Locale locale, BackendID backendID) {
         this.content = content;
         this.rawContent = rawContent;
-        this.textFlow = textFlow;
         this.locale = locale;
         this.backendId = backendID;
+        this.textFlow = textFlow;
     }
 
     public void incrementCount() {
@@ -98,15 +98,35 @@ public class TextFlowTarget extends ModelEntity {
 
         TextFlowTarget that = (TextFlowTarget) o;
 
-        if (!textFlow.equals(that.textFlow))
-            return false;
-        return locale.equals(that.locale);
+        if (getUsedCount() != that.getUsedCount()) return false;
+        if (getTextFlow() != null ? !getTextFlow().equals(that.getTextFlow()) :
+                that.getTextFlow() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(that.getLocale()) :
+                that.getLocale() != null) return false;
+        if (getContent() != null ? !getContent().equals(that.getContent()) :
+                that.getContent() != null) return false;
+        if (getRawContent() != null ?
+                !getRawContent().equals(that.getRawContent()) :
+                that.getRawContent() != null) return false;
+        return getBackendId() != null ?
+                getBackendId().equals(that.getBackendId()) :
+                that.getBackendId() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = textFlow.hashCode();
-        result = 31 * result + locale.hashCode();
+        int result = getTextFlow() != null ? getTextFlow().hashCode() : 0;
+        result = 31 * result +
+                (getLocale() != null ? getLocale().hashCode() : 0);
+        result = 31 * result +
+                (getContent() != null ? getContent().hashCode() : 0);
+        result = 31 * result +
+                (getRawContent() != null ? getRawContent().hashCode() : 0);
+        result = 31 * result + getUsedCount();
+        result =
+                31 * result +
+                        (getBackendId() != null ? getBackendId().hashCode() :
+                                0);
         return result;
     }
 }

@@ -74,17 +74,28 @@ public class Document extends ModelEntity {
         if (!(o instanceof Document)) return false;
 
         Document document = (Document) o;
-        if (!url.equals(document.url)) return false;
 
-        if (!srcLocale.equals(document.srcLocale)) return false;
-        return targetLocale.equals(document.targetLocale);
+        if (getUsedCount() != document.getUsedCount()) return false;
+        if (getUrl() != null ? !getUrl().equals(document.getUrl()) :
+                document.getUrl() != null) return false;
+        if (getSrcLocale() != null ?
+                !getSrcLocale().equals(document.getSrcLocale()) :
+                document.getSrcLocale() != null) return false;
+        return getTargetLocale() != null ?
+                getTargetLocale().equals(document.getTargetLocale()) :
+                document.getTargetLocale() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = url.hashCode();
-        result = 31 * result + srcLocale.hashCode();
-        result = 31 * result + targetLocale.hashCode();
+        int result = getUrl() != null ? getUrl().hashCode() : 0;
+        result =
+                31 * result +
+                        (getSrcLocale() != null ? getSrcLocale().hashCode() :
+                                0);
+        result = 31 * result +
+                (getTargetLocale() != null ? getTargetLocale().hashCode() : 0);
+        result = 31 * result + getUsedCount();
         return result;
     }
 }

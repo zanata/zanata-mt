@@ -100,15 +100,26 @@ public class TextFlow extends ModelEntity {
 
         TextFlow textFlow = (TextFlow) o;
 
-        if (!hash.equals(textFlow.hash))
-            return false;
-        return locale.equals(textFlow.locale);
+        if (getHash() != null ? !getHash().equals(textFlow.getHash()) :
+                textFlow.getHash() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
+                textFlow.getLocale() != null) return false;
+        if (getContent() != null ? !getContent().equals(textFlow.getContent()) :
+                textFlow.getContent() != null) return false;
+        return getTargets() != null ?
+                getTargets().equals(textFlow.getTargets()) :
+                textFlow.getTargets() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = hash.hashCode();
-        result = 31 * result + locale.hashCode();
+        int result = getHash() != null ? getHash().hashCode() : 0;
+        result = 31 * result +
+                (getLocale() != null ? getLocale().hashCode() : 0);
+        result = 31 * result +
+                (getContent() != null ? getContent().hashCode() : 0);
+        result = 31 * result +
+                (getTargets() != null ? getTargets().hashCode() : 0);
         return result;
     }
 }
