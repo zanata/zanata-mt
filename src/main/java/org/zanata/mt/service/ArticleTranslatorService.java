@@ -152,14 +152,22 @@ public class ArticleTranslatorService {
         }
     }
 
-    private MediaType getMediaType(String mediaType) {
-        if (StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML, MediaType.TEXT_PLAIN)) {
+    public MediaType getMediaType(String mediaType) throws BadRequestException {
+        if (isMediaTypeSupported(mediaType)) {
             return MediaType.valueOf(mediaType);
         }
         throw new BadRequestException("Unsupported media type:" + mediaType);
     }
 
-    private ArticleConverter getConverter(RawArticle rawArticle)
+    public boolean isMediaTypeSupported(String mediaType) {
+        if (StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,
+                MediaType.TEXT_PLAIN)) {
+            return true;
+        }
+        return false;
+    }
+
+    public ArticleConverter getConverter(RawArticle rawArticle)
         throws ZanataMTException {
         ArticleType articleType = new ArticleType(rawArticle.getArticleType());
 

@@ -1,6 +1,5 @@
 package org.zanata.mt.api;
 
-import java.util.HashMap;
 import java.util.Optional;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -21,15 +20,14 @@ import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
-import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.ArticleTranslatorService;
 
-import com.google.common.collect.Maps;
 import org.zanata.mt.util.UrlUtil;
 
 /**
@@ -53,16 +51,6 @@ public class ArticleTranslatorResource {
     private LocaleDAO localeDAO;
 
     private DocumentDAO documentDAO;
-
-    /**
-     * Locale mapping
-     *
-     * TODO: make this configurable, at the moment it is done manually.
-     */
-    private static final HashMap<LocaleId, LocaleId> LOCALE_MAP = Maps.newHashMap();
-    static {
-        LOCALE_MAP.put(new LocaleId("zh-hans"), LocaleId.ZH_CN);
-    }
 
     @SuppressWarnings("unused")
     public ArticleTranslatorResource() {
@@ -115,7 +103,7 @@ public class ArticleTranslatorResource {
                     new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
                     .build();
-        } catch (ZanataMTException e) {
+        } catch (Exception e) {
             String title = "Error";
             LOG.error(title, e);
             APIErrorResponse response =
@@ -167,7 +155,7 @@ public class ArticleTranslatorResource {
                     new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
                     .build();
-        } catch (ZanataMTException e) {
+        } catch (Exception e) {
             String title = "Error";
             LOG.error(title, e);
             APIErrorResponse response =
@@ -232,15 +220,24 @@ public class ArticleTranslatorResource {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
                     "Invalid url:" + article.getUrl()));
         }
+        for (TypeString string : article.getContents()) {
+            if (StringUtils.isBlank(string.getValue()) ||
+                    StringUtils.isBlank(string.getType())) {
+                return Optional
+                        .of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                                "Empty content: " + string.toString()));
+            }
+            if (!articleTranslatorService
+                    .isMediaTypeSupported(string.getType())) {
+                return Optional
+                        .of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                                "Invalid mediaType: " + string.getType()));
+            }
+        }
         return Optional.empty();
     }
 
     private Locale getLocale(@NotNull LocaleId localeId) {
-        LocaleId searchLocale = getLocaleFromMap(localeId);
-        return localeDAO.getOrCreateByLocaleId(searchLocale);
-    }
-
-    private LocaleId getLocaleFromMap(LocaleId locale) {
-        return LOCALE_MAP.containsKey(locale) ? LOCALE_MAP.get(locale) : locale;
+        return localeDAO.getOrCreateByLocaleId(localeId);
     }
 }

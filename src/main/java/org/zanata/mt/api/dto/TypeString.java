@@ -50,6 +50,14 @@ public class TypeString implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return "TypeString{" +
+                "value='" + value + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TypeString)) return false;

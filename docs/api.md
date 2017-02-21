@@ -23,9 +23,9 @@
 - Body
    ```
    {
-     'url': String {url of article},
-     'contents': TypeString[] {Array of TypeString},
-     'locale': String {source locale id}
+     'url': String {REQUIRED: url of article},
+     'contents': TypeString[] {REQUIRED, MAX-TOTAL-LENGTH(6000):  Array of TypeString},
+     'locale': String {REQUIRED, MAX-LENGTH(255): source locale id}
    }
    ```
 
@@ -59,11 +59,11 @@
 - Body
    ```
    {
-       'url': String {url of article},
+       'url': String {REQUIRED: url of article},
        'titleText': String {title text of the page},
        'contentHTML': String {html content},
-       'articleType': String {'KCS_ARTICLE'},
-       'locale': String {source locale id},
+       'articleType': String {REQUIRED: 'KCS_ARTICLE'},
+       'locale': String {REQUIRED, MAX-LENGTH(255): source locale id},
    }
    ```
 
@@ -107,8 +107,8 @@
 ### TypeString<a name="TypeString"></a>
 ```
 {
-    'value': String {value},
-    'type': String {'text/html', 'text/plain'}
+    'value': String {REQUIRED: value},
+    'type': String {REQUIRED: 'text/html', 'text/plain'}
 }
 ```
 

@@ -111,13 +111,12 @@ public class PersistentTranslationService {
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
         // search from database
-        for (String string: strings) {
+        for (int index = 0; index < strings.size(); index++) {
+            String string = strings.get(index);
             String hash =
                     HashUtil.generateHash(string, srcLocale.getLocaleId());
             TextFlow matchedHashTf =
                     textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);
-
-            int index = strings.indexOf(string);
 
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
@@ -129,9 +128,9 @@ public class PersistentTranslationService {
                     matchedEntity.incrementCount();
                     textFlowTargetDAO.persist(matchedEntity);
                     LOG.info(
-                        "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
-                            string + "\nTranslation-" + targetLocale.getLocaleId() +
-                            ":" + matchedEntity.getContent());
+                            "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
+                                    string + "\nTranslation-" + targetLocale.getLocaleId() +
+                                    ":" + matchedEntity.getContent());
                     results.set(index, matchedEntity.getContent());
                 } else {
                     untranslatedIndexMap.put(string, index);

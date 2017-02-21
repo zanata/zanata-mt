@@ -1,6 +1,7 @@
 package org.zanata.mt.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,8 +19,8 @@ import org.zanata.mt.api.dto.Article;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.dao.DocumentDAO;
-import org.zanata.mt.dao.LocaleDAO;
+import org.zanata.mt.article.kcs.KCSArticleConverter;
+import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
@@ -35,12 +36,6 @@ import com.google.common.collect.Lists;
 public class ArticleTranslatorServiceTest {
 
     private ArticleTranslatorService articleTranslatorService;
-
-    @Mock
-    private LocaleDAO localeDAO;
-
-    @Mock
-    private DocumentDAO documentDAO;
 
     @Mock
     private PersistentTranslationService persistentTranslationService;
@@ -74,6 +69,49 @@ public class ArticleTranslatorServiceTest {
     private String section3Content = "<p>private notes which should be ignore</p>";
     private String section3 =
         "<section id=\"private-notes-section\">" + section3Header + section3Content + "</section>";
+
+    @Test
+    public void testEmptyConstructor() {
+        ArticleTranslatorService articleTranslatorService = new ArticleTranslatorService();
+    }
+
+    @Test
+    public void testGetMediaType() {
+        assertThatThrownBy(
+                () -> articleTranslatorService.getMediaType("notSupportType"))
+                .isInstanceOf(BadRequestException.class);
+
+        String mediaType = "text/plain";
+        assertThat(articleTranslatorService.getMediaType(mediaType)).isNotNull()
+                .isEqualTo(MediaType.TEXT_PLAIN_TYPE);
+
+        mediaType = "text/html";
+        assertThat(articleTranslatorService.getMediaType(mediaType)).isNotNull()
+                .isEqualTo(MediaType.TEXT_HTML_TYPE);
+    }
+
+    @Test
+    public void testGetConverter() {
+        RawArticle emptyTypeRawArticle =
+                new RawArticle("titleText", "htmlContent", "http://localhost",
+                        "", "en");
+        assertThatThrownBy(
+                () -> articleTranslatorService.getConverter(emptyTypeRawArticle))
+                .isInstanceOf(ZanataMTException.class);
+
+        RawArticle invalidRawArticle =
+                new RawArticle("titleText", "htmlContent", "http://localhost",
+                        "invalidType", "en");
+        assertThatThrownBy(
+                () -> articleTranslatorService.getConverter(invalidRawArticle))
+                .isInstanceOf(ZanataMTException.class);
+
+        RawArticle validRawArticle =
+                new RawArticle("titleText", "htmlContent", "http://localhost",
+                        ArticleType.KCS_ARTICLE.getType(), "en");
+        assertThat(articleTranslatorService.getConverter(validRawArticle)).isNotNull()
+                .isInstanceOf(KCSArticleConverter.class);
+    }
 
     @Test
     public void testTranslateRaw() throws BadRequestException {
@@ -194,13 +232,6 @@ public class ArticleTranslatorServiceTest {
         verify(persistentTranslationService)
                 .translate(text, srcLocale, transLocale, BackendID.MS,
                         MediaType.TEXT_PLAIN_TYPE);
-    }
-
-    @Test
-    public void main() {
-        List< TypeString > contents = Lists.newArrayList(new TypeString("testing", MediaType.TEXT_PLAIN));
-        Article article = new Article(contents, "http://localhost", "en");
-        System.out.println(DTOUtil.toJSON(article));
     }
 
     private String getSampleArticleBody() {

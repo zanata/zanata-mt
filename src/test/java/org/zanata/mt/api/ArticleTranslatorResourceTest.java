@@ -27,6 +27,7 @@ import org.zanata.mt.service.ArticleTranslatorService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -130,6 +131,8 @@ public class ArticleTranslatorResourceTest {
                 .thenReturn(srcLocale);
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
+        when(articleTranslatorService.isMediaTypeSupported(any()))
+                .thenReturn(true);
 
         doThrow(expectedException).when(articleTranslatorService)
                 .translateArticle(article, srcLocale,
@@ -190,13 +193,15 @@ public class ArticleTranslatorResourceTest {
 
         when(articleTranslatorService.translateArticle(article, srcLocale,
                 transLocale, BackendID.MS)).thenReturn(translatedArticle);
+        when(articleTranslatorService.isMediaTypeSupported(any()))
+                .thenReturn(true);
 
         Response response =
                 articleTranslatorResource
                         .translate(article, transLocale.getLocaleId());
 
         assertThat(response.getStatus())
-                .isEqualTo(Response.Status.OK.getStatusCode());
+                    .isEqualTo(Response.Status.OK.getStatusCode());
         Article returnedArticle = (Article)response.getEntity();
 
         assertThat(returnedArticle.getContents()).isEqualTo(translatedContents);

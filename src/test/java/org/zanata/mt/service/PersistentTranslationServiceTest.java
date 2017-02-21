@@ -54,6 +54,11 @@ public class PersistentTranslationServiceTest {
     }
 
     @Test
+    public void testEmptyConstructor() {
+        persistentTranslationService = new PersistentTranslationService();
+    }
+
+    @Test
     public void testValidateLength() throws BadRequestException {
         String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
