@@ -4,6 +4,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.Serializable;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -13,14 +14,16 @@ import javax.validation.constraints.NotNull;
 public class TypeString implements Serializable {
     private String value;
     private String type;
+    private String metadata;
 
     @SuppressWarnings("unused")
     public TypeString() {
     }
 
-    public TypeString(String value, String type) {
+    public TypeString(String value, String type, String metadata) {
         this.value = value;
         this.type = type;
+        this.metadata = metadata;
     }
 
     /**
@@ -49,11 +52,25 @@ public class TypeString implements Serializable {
         this.type = type;
     }
 
+    /**
+     * @return 'text/plain' or 'text/html'
+     */
+    @JsonProperty("metadata")
+    @Nullable
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+    }
+
     @Override
     public String toString() {
         return "TypeString{" +
                 "value='" + value + '\'' +
                 ", type='" + type + '\'' +
+                ", metadata='" + metadata + '\'' +
                 '}';
     }
 
@@ -64,17 +81,22 @@ public class TypeString implements Serializable {
 
         TypeString that = (TypeString) o;
 
-        if (!getValue().equals(that.getValue()))
-            return false;
-
-        return getType().equals(that.getType());
-
+        if (getValue() != null ? !getValue().equals(that.getValue()) :
+                that.getValue() != null) return false;
+        if (getType() != null ? !getType().equals(that.getType()) :
+                that.getType() != null) return false;
+        return getMetadata() != null ?
+                getMetadata().equals(that.getMetadata()) :
+                that.getMetadata() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getValue().hashCode();
-        result = 31 * result + getType().hashCode();
+        int result = getValue() != null ? getValue().hashCode() : 0;
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        result =
+                31 * result +
+                        (getMetadata() != null ? getMetadata().hashCode() : 0);
         return result;
     }
 }

@@ -1,6 +1,5 @@
 package org.zanata.mt.service;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,8 +54,8 @@ public class ArticleTranslatorService {
             Locale transLocale, BackendID backendID)
             throws BadRequestException, ZanataMTException {
 
-        LinkedHashMap<Integer, String> indexHTMLMap = new LinkedHashMap<>();
-        LinkedHashMap<Integer, String> indexTextMap = new LinkedHashMap<>();
+        LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
+        LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
 
         //group by media type and send in batch for translation
         int index = 0;
@@ -64,9 +63,9 @@ public class ArticleTranslatorService {
             MediaType mediaType = getMediaType(typeString.getType());
 
             if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
-                indexHTMLMap.put(index, typeString.getValue());
+                indexHTMLMap.put(index, typeString);
             } else if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
-                indexTextMap.put(index, typeString.getValue());
+                indexTextMap.put(index, typeString);
             }
             index++;
         }
@@ -74,18 +73,26 @@ public class ArticleTranslatorService {
         List<TypeString> results = Lists.newArrayList(article.getContents());
 
         if (!indexHTMLMap.isEmpty()) {
+            List<String> htmls =
+                    indexHTMLMap.values().stream().map(TypeString::getValue)
+                            .collect(toList());
+
             List<String> translatedHtmls = persistentTranslationService
-                    .translate(new ArrayList(indexHTMLMap.values()), srcLocale,
-                            transLocale, backendID, MediaType.TEXT_HTML_TYPE);
+                    .translate(htmls, srcLocale, transLocale, backendID,
+                            MediaType.TEXT_HTML_TYPE);
 
             transferToResults(translatedHtmls, indexHTMLMap, results,
                     MediaType.TEXT_HTML);
         }
 
         if (!indexTextMap.isEmpty()) {
+            List<String> strings =
+                    indexTextMap.values().stream().map(TypeString::getValue)
+                            .collect(toList());
+
             List<String> translatedStrings = persistentTranslationService
-                    .translate(new ArrayList(indexTextMap.values()), srcLocale,
-                            transLocale, backendID, MediaType.TEXT_PLAIN_TYPE);
+                    .translate(strings, srcLocale, transLocale, backendID,
+                            MediaType.TEXT_PLAIN_TYPE);
 
             transferToResults(translatedStrings, indexTextMap, results,
                     MediaType.TEXT_PLAIN);
@@ -140,14 +147,15 @@ public class ArticleTranslatorService {
 
     // insert translatedStrings into results by index in indexStringMap
     private void transferToResults(List<String> translatedStrings,
-            LinkedHashMap<Integer, String> indexStringMap,
+            LinkedHashMap<Integer, TypeString> indexStringMap,
             List<TypeString> results, String mediaType) {
         int index = 0;
         for (String translatedString : translatedStrings) {
-            Map.Entry<Integer, String>
+            Map.Entry<Integer, TypeString>
                     entry = Iterables.get(indexStringMap.entrySet(), index);
             results.set(entry.getKey(),
-                    new TypeString(translatedString, mediaType));
+                    new TypeString(translatedString, mediaType,
+                            entry.getValue().getMetadata()));
             index++;
         }
     }

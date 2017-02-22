@@ -107,17 +107,18 @@
 ### TypeString<a name="TypeString"></a>
 ```
 {
-    'value': String {REQUIRED: value},
-    'type': String {REQUIRED: 'text/html', 'text/plain'}
+    "value": String {REQUIRED: value},
+    "type": String {REQUIRED: 'text/html', 'text/plain'},
+    "metadata": String {Optional: metadata for entry}
 }
 ```
 
 ### Error<a name="ErrorType"></a>
 ```
 {
-    'status': integer {http status code},
-    'title': String {error title},
-    'details': String {message},
-    'timestamp': String {format: dd-MM-yyyy HH:mm:ssZ}
+    "status": integer {http status code},
+    "title": String {error title},
+    "details": String {message},
+    "timestamp": String {format: dd-MM-yyyy HH:mm:ssZ}
 }
 ```
