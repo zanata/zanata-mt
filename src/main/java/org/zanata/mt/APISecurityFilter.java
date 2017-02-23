@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.service.ZanataMTStartup;
 
 import static org.zanata.mt.api.APIConstant.API_KEY;
 import static org.zanata.mt.api.APIConstant.HEADER_API_KEY;
@@ -37,7 +38,7 @@ public class APISecurityFilter implements Filter {
 
     /**
      * Nonnull value. Verified during startup
-     * {@link org.zanata.mt.service.Application#verifyCredentials
+     * {@link ZanataMTStartup#verifyCredentials
      */
     private static final RestCredentials REST_CREDENTIALS;
 

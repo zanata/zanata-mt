@@ -23,9 +23,9 @@ import org.zanata.mt.exception.ZanataMTException;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationScoped
-public class Application {
+public class ZanataMTStartup {
     private static final Logger LOG =
-        LoggerFactory.getLogger(Application.class);
+        LoggerFactory.getLogger(ZanataMTStartup.class);
 
     private String version;
     private String buildDate;
@@ -34,7 +34,7 @@ public class Application {
     private final String apiKey;
 
     @Inject
-    public Application(@SystemProperty(APIConstant.ID) String id,
+    public ZanataMTStartup(@SystemProperty(APIConstant.ID) String id,
         @SystemProperty(APIConstant.API_KEY) String apiKey) {
         this.id = id;
         this.apiKey = apiKey;
