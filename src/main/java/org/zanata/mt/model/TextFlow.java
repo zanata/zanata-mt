@@ -30,6 +30,7 @@ import org.zanata.mt.util.HashUtil;
 public class TextFlow extends ModelEntity {
     private static final long serialVersionUID = -4550040877568062431L;
 
+    // TODO should we stop hashing localeId, and call this contentHash?
     @NotEmpty
     @Size(max = 255)
     @NaturalId
@@ -104,8 +105,6 @@ public class TextFlow extends ModelEntity {
                 textFlow.getHash() != null) return false;
         if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
                 textFlow.getLocale() != null) return false;
-        if (getContent() != null ? !getContent().equals(textFlow.getContent()) :
-                textFlow.getContent() != null) return false;
         return getTargets() != null ?
                 getTargets().equals(textFlow.getTargets()) :
                 textFlow.getTargets() == null;
@@ -116,8 +115,6 @@ public class TextFlow extends ModelEntity {
         int result = getHash() != null ? getHash().hashCode() : 0;
         result = 31 * result +
                 (getLocale() != null ? getLocale().hashCode() : 0);
-        result = 31 * result +
-                (getContent() != null ? getContent().hashCode() : 0);
         result = 31 * result +
                 (getTargets() != null ? getTargets().hashCode() : 0);
         return result;

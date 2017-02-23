@@ -46,6 +46,7 @@ public class TextFlowTarget extends ModelEntity {
 
     private int usedCount;
 
+    // TODO add BackendID to NaturalId (and equals/hashCode)
     @Type(type = "backendIdType")
     @Column(nullable = false)
     @NotNull
@@ -102,11 +103,6 @@ public class TextFlowTarget extends ModelEntity {
                 that.getTextFlow() != null) return false;
         if (getLocale() != null ? !getLocale().equals(that.getLocale()) :
                 that.getLocale() != null) return false;
-        if (getContent() != null ? !getContent().equals(that.getContent()) :
-                that.getContent() != null) return false;
-        if (getRawContent() != null ?
-                !getRawContent().equals(that.getRawContent()) :
-                that.getRawContent() != null) return false;
         return getBackendId() != null ?
                 getBackendId().equals(that.getBackendId()) :
                 that.getBackendId() == null;
@@ -117,10 +113,6 @@ public class TextFlowTarget extends ModelEntity {
         int result = getTextFlow() != null ? getTextFlow().hashCode() : 0;
         result = 31 * result +
                 (getLocale() != null ? getLocale().hashCode() : 0);
-        result = 31 * result +
-                (getContent() != null ? getContent().hashCode() : 0);
-        result = 31 * result +
-                (getRawContent() != null ? getRawContent().hashCode() : 0);
         result =
                 31 * result +
                         (getBackendId() != null ? getBackendId().hashCode() :
