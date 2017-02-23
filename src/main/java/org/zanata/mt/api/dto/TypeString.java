@@ -53,7 +53,7 @@ public class TypeString implements Serializable {
     }
 
     /**
-     * @return 'text/plain' or 'text/html'
+     * @return metadata of the entry
      */
     @JsonProperty("metadata")
     @Nullable

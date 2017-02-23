@@ -3,6 +3,8 @@ package org.zanata.mt.api.dto;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -62,6 +64,7 @@ public class APIErrorResponse implements Serializable {
      * Summary of the problem.
      */
     @JsonProperty("title")
+    @NotNull
     public String getTitle() {
         return title;
     }
@@ -74,6 +77,7 @@ public class APIErrorResponse implements Serializable {
      * Detail explanation for this error.
      */
     @JsonProperty("details")
+    @Nullable
     public String getDetails() {
         return details;
     }
@@ -86,6 +90,7 @@ public class APIErrorResponse implements Serializable {
      * Timestamp of the response. Format: dd-MM-yyyy HH:mm:ssZ
      */
     @JsonProperty("timestamp")
+    @NotNull
     public String getTimestamp() {
         return timestamp;
     }
