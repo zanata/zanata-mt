@@ -1,5 +1,6 @@
 package org.zanata.mt;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,16 +29,15 @@ public class APISecurityFilterTest {
     private String key = "key";
 
     @Before
-    public void setup() {
+    public void beforeTest() throws ServletException {
         System.setProperty(APIConstant.ID, id);
         System.setProperty(APIConstant.API_KEY, key);
         filter = new APISecurityFilter();
+        filter.init(null);
     }
 
-    @Test
-    public void testInitDestroy() throws ServletException {
-        //do nothing in both method
-        filter.init(null);
+    @After
+    public void afterTest() throws ServletException {
         filter.destroy();
     }
 

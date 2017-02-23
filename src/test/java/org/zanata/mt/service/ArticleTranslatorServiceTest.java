@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.Article;
+import org.zanata.mt.api.dto.Document;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
@@ -23,7 +23,6 @@ import org.zanata.mt.article.kcs.KCSArticleConverter;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.BackendID;
-import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.util.DTOUtil;
 
@@ -120,7 +119,7 @@ public class ArticleTranslatorServiceTest {
             "http://localhost:8080", ArticleType.KCS_ARTICLE.getType(), LocaleId.EN_US.getId());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        Document doc = new Document();
+        org.zanata.mt.model.Document doc = new org.zanata.mt.model.Document();
 
         String translatedTitle = "Translated article title";
         String translatedHeaderH1 = "<h1 class=\"title\">Translated article header title</h1>";
@@ -153,7 +152,7 @@ public class ArticleTranslatorServiceTest {
                         .thenReturn(translatedStrings);
 
         RawArticle translatedArticle =
-                articleTranslatorService.translateArticle(article, srcLocale,
+                articleTranslatorService.translateRawArticle(article, srcLocale,
                         transLocale, BackendID.MS);
 
         assertThat(translatedArticle.getTitleText()).isEqualTo(translatedTitle);
@@ -201,7 +200,7 @@ public class ArticleTranslatorServiceTest {
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
-        Article article = new Article(contents, "http://localhost", "en");
+        Document article = new Document(contents, "http://localhost", "en");
 
         when(persistentTranslationService.translate(htmls,
                 srcLocale,
@@ -214,8 +213,8 @@ public class ArticleTranslatorServiceTest {
                 .thenReturn(translatedText);
 
 
-        Article translatedArticle = articleTranslatorService
-                .translateArticle(article, srcLocale, transLocale,
+        Document translatedArticle = articleTranslatorService
+                .translateDocument(article, srcLocale, transLocale,
                         BackendID.MS);
 
         assertThat(translatedArticle.getLocale())

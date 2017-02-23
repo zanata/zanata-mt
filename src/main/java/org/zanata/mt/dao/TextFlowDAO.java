@@ -25,11 +25,11 @@ public class TextFlowDAO extends AbstractDAO<TextFlow> {
         setEntityManager(entityManager);
     }
 
-    public TextFlow getByHash(LocaleId localeId, String hash) {
+    public TextFlow getByHash(LocaleId localeId, String contentHash) {
         List<TextFlow> tfs = getEntityManager()
                 .createQuery(
-                        "from TextFlow where hash =:hash and locale.localeId =:localeId")
-                .setParameter("hash", hash)
+                        "from TextFlow where contentHash =:contentHash and locale.localeId =:localeId")
+                .setParameter("contentHash", contentHash)
                 .setParameter("localeId", localeId)
                 .getResultList();
         return (tfs == null || tfs.isEmpty()) ? null : tfs.get(0);

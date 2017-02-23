@@ -22,6 +22,5 @@ public class TextFlowTargetDAOTest extends JPATest {
 
     @Override
     protected void setupTestData() {
-
     }
 }

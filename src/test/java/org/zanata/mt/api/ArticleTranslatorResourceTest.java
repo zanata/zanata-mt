@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.Article;
+import org.zanata.mt.api.dto.Document;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
@@ -19,7 +19,6 @@ import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.ArticleType;
-import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.ArticleTranslatorService;
@@ -50,7 +49,7 @@ public class ArticleTranslatorResourceTest {
     private DocumentDAO documentDAO;
 
     @Before
-    public void setup() {
+    public void beforeTest() {
         articleTranslatorResource =
                 new ArticleTranslatorResource(articleTranslatorService, localeDAO, documentDAO);
     }
@@ -62,7 +61,7 @@ public class ArticleTranslatorResourceTest {
 
     @Test
     public void testTranslateArticleBadParams() {
-        Article article = new Article(null, null, null);
+        Document article = new Document(null, null, null);
         // empty trans locale
         Response response = articleTranslatorResource.translate(article, null);
         assertThat(response.getStatus())
@@ -70,39 +69,39 @@ public class ArticleTranslatorResourceTest {
     }
 
     @Test
-    public void testTranslateBadArticle() {
+    public void testInvalidDocRequest() {
         // null article
-        Article article = null;
+        Document document = null;
         Response response =
-                articleTranslatorResource.translate(article, null);
+                articleTranslatorResource.translate(document, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty fields
-        article = new Article(null, null, null);
-        response = articleTranslatorResource.translate(article,
+        document = new Document(null, null, null);
+        response = articleTranslatorResource.translate(document,
                 LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with no content
-        article = new Article(null, null, null);
-        response = articleTranslatorResource.translate(article, LocaleId.DE);
+        document = new Document(null, null, null);
+        response = articleTranslatorResource.translate(document, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty locale
-        article = new Article(
+        document = new Document(
                 Lists.newArrayList(new TypeString("string", "text/plain", "meta")),
                 "http://localhost", null);
-        response = articleTranslatorResource.translate(article, LocaleId.DE);
+        response = articleTranslatorResource.translate(document, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with content but no url
-        article = new Article(Lists.newArrayList(new TypeString("test",
+        document = new Document(Lists.newArrayList(new TypeString("test",
                 MediaType.TEXT_PLAIN, "meta")), null, "en");
-        response = articleTranslatorResource.translate(article, LocaleId.DE);
+        response = articleTranslatorResource.translate(document, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -125,7 +124,7 @@ public class ArticleTranslatorResourceTest {
         List<TypeString> contents = Lists.newArrayList(
                 new TypeString("<html>test</html>", MediaType.TEXT_HTML,
                         "meta"));
-        Article article = new Article(contents, "http://localhost",
+        Document article = new Document(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
@@ -136,7 +135,7 @@ public class ArticleTranslatorResourceTest {
                 .thenReturn(true);
 
         doThrow(expectedException).when(articleTranslatorService)
-                .translateArticle(article, srcLocale,
+                .translateDocument(article, srcLocale,
                         transLocale, BackendID.MS);
 
         Response response =
@@ -178,12 +177,13 @@ public class ArticleTranslatorResourceTest {
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
-        Article article = new Article(contents, "http://localhost", "en");
-        Article translatedArticle =
-                new Article(translatedContents, "http://localhost",
+        Document article = new Document(contents, "http://localhost", "en");
+        Document translatedArticle =
+                new Document(translatedContents, "http://localhost",
                         transLocale.getLocaleId().getId());
 
-        Document doc = Mockito.mock(Document.class);
+        org.zanata.mt.model.Document
+                doc = Mockito.mock(org.zanata.mt.model.Document.class);
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
@@ -192,7 +192,7 @@ public class ArticleTranslatorResourceTest {
         when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
                 transLocale)).thenReturn(doc);
 
-        when(articleTranslatorService.translateArticle(article, srcLocale,
+        when(articleTranslatorService.translateDocument(article, srcLocale,
                 transLocale, BackendID.MS)).thenReturn(translatedArticle);
         when(articleTranslatorService.isMediaTypeSupported(any()))
                 .thenReturn(true);
@@ -203,7 +203,7 @@ public class ArticleTranslatorResourceTest {
 
         assertThat(response.getStatus())
                     .isEqualTo(Response.Status.OK.getStatusCode());
-        Article returnedArticle = (Article)response.getEntity();
+        Document returnedArticle = (Document)response.getEntity();
 
         assertThat(returnedArticle.getContents()).isEqualTo(translatedContents);
         assertThat(returnedArticle.getLocale())
@@ -223,7 +223,7 @@ public class ArticleTranslatorResourceTest {
     }
 
     @Test
-    public void testTranslateBadRawArticle() {
+    public void testInvalidRawArticleRequest() {
         // null article
         RawArticle rawArticle = null;
         Response response =
@@ -297,7 +297,7 @@ public class ArticleTranslatorResourceTest {
                 .thenReturn(transLocale);
 
         doThrow(exceptionToThrow).when(articleTranslatorService)
-                .translateArticle(rawArticle, srcLocale,
+                .translateRawArticle(rawArticle, srcLocale,
                         transLocale, BackendID.MS);
 
         Response response =
@@ -316,7 +316,7 @@ public class ArticleTranslatorResourceTest {
                 LocaleId.EN.getId());
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        Document doc = new Document();
+        org.zanata.mt.model.Document doc = new org.zanata.mt.model.Document();
         String translatedTitle = "Translated article title";
         String translatedContent = "<div>translated content</div>";
 
@@ -332,7 +332,7 @@ public class ArticleTranslatorResourceTest {
         when(documentDAO.getOrCreateByUrl(rawArticle.getUrl(), srcLocale,
                 transLocale)).thenReturn(doc);
 
-        when(articleTranslatorService.translateArticle(rawArticle, srcLocale,
+        when(articleTranslatorService.translateRawArticle(rawArticle, srcLocale,
             transLocale, BackendID.MS)).thenReturn(translatedRawArticle);
 
         Response response =

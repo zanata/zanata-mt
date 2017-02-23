@@ -2,7 +2,6 @@ package org.zanata.mt.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
@@ -33,7 +32,7 @@ public class TextFlow extends ModelEntity {
     @NotEmpty
     @Size(max = 255)
     @NaturalId
-    private String hash;
+    private String contentHash;
 
     @NaturalId
     @ManyToOne(optional = false)
@@ -63,11 +62,11 @@ public class TextFlow extends ModelEntity {
     }
 
     private void updateContentHash() {
-        this.hash = HashUtil.generateHash(content);
+        this.contentHash = HashUtil.generateHash(content);
     }
 
-    public String getHash() {
-        return hash;
+    public String getContentHash() {
+        return contentHash;
     }
 
     public Locale getLocale() {
@@ -99,8 +98,8 @@ public class TextFlow extends ModelEntity {
 
         TextFlow textFlow = (TextFlow) o;
 
-        if (getHash() != null ? !getHash().equals(textFlow.getHash()) :
-                textFlow.getHash() != null) return false;
+        if (getContentHash() != null ? !getContentHash().equals(textFlow.getContentHash()) :
+                textFlow.getContentHash() != null) return false;
         if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
                 textFlow.getLocale() != null) return false;
         return getTargets() != null ?
@@ -110,7 +109,7 @@ public class TextFlow extends ModelEntity {
 
     @Override
     public int hashCode() {
-        int result = getHash() != null ? getHash().hashCode() : 0;
+        int result = getContentHash() != null ? getContentHash().hashCode() : 0;
         result = 31 * result +
                 (getLocale() != null ? getLocale().hashCode() : 0);
         result = 31 * result +

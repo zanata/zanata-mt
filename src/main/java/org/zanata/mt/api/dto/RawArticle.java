@@ -8,7 +8,11 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for contentHTML to be translated
+ * JSON entity for article translations request and response.
+ * This entity is used for KCS article translations by accepting html contents.
+ *
+ * Used in
+ * {@link org.zanata.mt.api.ArticleTranslatorResource#translate(RawArticle, LocaleId)}}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */

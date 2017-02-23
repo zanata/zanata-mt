@@ -14,14 +14,14 @@ public class ArticleTest {
 
     @Test
     public void testEmptyConstructor() {
-        Article article = new Article();
+        Document article = new Document();
     }
 
     @Test
     public void testConstructor() {
         List<TypeString> lists = Lists.newArrayList(
                 new TypeString("test", "text/plain", "meta"));
-        Article article = new Article(lists, "http://localhost", "en");
+        Document article = new Document(lists, "http://localhost", "en");
 
         assertThat(article.getBackendId()).isNull();
         assertThat(article.getContents()).isEqualTo(lists);
@@ -33,7 +33,7 @@ public class ArticleTest {
     public void testConstructor2() {
         List<TypeString> lists = Lists.newArrayList(
                 new TypeString("test", "text/plain", "meta"));
-        Article article = new Article(lists, "http://localhost", "en", "backendId");
+        Document article = new Document(lists, "http://localhost", "en", "backendId");
 
         assertThat(article.getContents()).isEqualTo(lists);
         assertThat(article.getLocale()).isEqualTo("en");
@@ -43,14 +43,14 @@ public class ArticleTest {
 
     @Test
     public void testUrl() {
-        Article article = new Article();
+        Document article = new Document();
         article.setUrl("http://localhost");
         assertThat(article.getUrl()).isEqualTo("http://localhost");
    }
 
     @Test
     public void testContents() {
-        Article article = new Article();
+        Document article = new Document();
         List<TypeString> lists =
                 Lists.newArrayList(
                         new TypeString("test", "text/plain", "meta"));
@@ -60,24 +60,24 @@ public class ArticleTest {
 
     @Test
     public void testLocale() {
-        Article article = new Article();
+        Document article = new Document();
         article.setLocale("en");
         assertThat(article.getLocale()).isEqualTo("en");
     }
 
     @Test
     public void testBackendId() {
-        Article article = new Article();
+        Document article = new Document();
         article.setBackendId("backendId");
         assertThat(article.getBackendId()).isEqualTo("backendId");
     }
 
     @Test
     public void testEqualsAndHashcode() {
-        Article article1 = getDefaultArticle();
+        Document article1 = getDefaultArticle();
 
         // change backend id
-        Article article2 = getDefaultArticle();
+        Document article2 = getDefaultArticle();
         article2.setBackendId("backendId2");
 
         assertThat(article1.equals(article2)).isFalse();
@@ -112,10 +112,10 @@ public class ArticleTest {
         assertThat(article1.hashCode()).isEqualTo(article2.hashCode());
     }
 
-    private Article getDefaultArticle() {
+    private Document getDefaultArticle() {
         List<TypeString> lists =
                 Lists.newArrayList(
                         new TypeString("test", "text/plain", "meta"));
-        return new Article(lists, "http://localhost", "en", "backendId");
+        return new Document(lists, "http://localhost", "en", "backendId");
     }
 }

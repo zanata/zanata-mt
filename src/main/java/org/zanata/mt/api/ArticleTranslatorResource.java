@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.api.dto.RawArticle;
-import org.zanata.mt.api.dto.Article;
+import org.zanata.mt.api.dto.Document;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.dao.DocumentDAO;
@@ -34,7 +34,7 @@ import org.zanata.mt.util.UrlUtil;
  * API entry point for article translation: '/translate'
  *
  * See
- * {@link #translate(Article, LocaleId)}
+ * {@link #translate(Document, LocaleId)}
  * {@link #translate(RawArticle, LocaleId)}
  *
  */
@@ -66,7 +66,7 @@ public class ArticleTranslatorResource {
     }
 
     @POST
-    public Response translate(@NotNull Article article,
+    public Response translate(@NotNull Document article,
             @NotNull @QueryParam("targetLang") LocaleId targetLang) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
@@ -79,7 +79,7 @@ public class ArticleTranslatorResource {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.info("Request translations:" + article + " target_lang"
+            LOG.debug("Request translations:" + article + " target_lang"
                     + targetLang + " backendId:" + backendID.getId());
         }
 
@@ -90,8 +90,8 @@ public class ArticleTranslatorResource {
                 .getOrCreateByUrl(article.getUrl(), srcLocale, transLocale);
 
         try {
-            Article newArticle = articleTranslatorService
-                    .translateArticle(article, srcLocale, transLocale,
+            Document newArticle = articleTranslatorService
+                    .translateDocument(article, srcLocale, transLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
@@ -115,6 +115,7 @@ public class ArticleTranslatorResource {
         }
     }
 
+    @Deprecated
     @POST
     @Path("/raw")
     public Response translate(@NotNull RawArticle article,
@@ -143,7 +144,7 @@ public class ArticleTranslatorResource {
 
         try {
             RawArticle newRawArticle = articleTranslatorService
-                    .translateArticle(article, srcLocale, transLocale,
+                    .translateRawArticle(article, srcLocale, transLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
@@ -200,7 +201,7 @@ public class ArticleTranslatorResource {
         return Optional.empty();
     }
 
-    private Optional<APIErrorResponse> validatePostRequest(Article article,
+    private Optional<APIErrorResponse> validatePostRequest(Document article,
             LocaleId targetLang) {
         if (targetLang == null) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,

@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
+ * JSON entity for source and translation string with specified {@link #type}
+ *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @JsonSerialize

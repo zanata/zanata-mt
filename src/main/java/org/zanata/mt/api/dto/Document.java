@@ -10,12 +10,16 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
- * DTO for article to be translated
+ * JSON entity for a document translations request and response.
+ * This entity is used for generic translations by accepting array of strings with type.
+ *
+ * Used in
+ * {@link org.zanata.mt.api.ArticleTranslatorResource#translate(Document, LocaleId)}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @JsonSerialize
-public class Article implements Serializable {
+public class Document implements Serializable {
     private static final long serialVersionUID = 4123397809604573837L;
 
     private String url;
@@ -27,14 +31,14 @@ public class Article implements Serializable {
     private String backendId;
 
     @SuppressWarnings("unused")
-    protected Article() {
+    protected Document() {
     }
 
-    public Article(List<TypeString> contents, String url, String locale) {
+    public Document(List<TypeString> contents, String url, String locale) {
         this(contents, url, locale, null);
     }
 
-    public Article(List<TypeString> contents, String url, String locale,
+    public Document(List<TypeString> contents, String url, String locale,
             String backendId) {
         this.contents = contents;
         this.url = url;
@@ -101,9 +105,9 @@ public class Article implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Article)) return false;
+        if (!(o instanceof Document)) return false;
 
-        Article article = (Article) o;
+        Document article = (Document) o;
 
         if (!url.equals(article.url))
             return false;

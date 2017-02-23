@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Document (
 
 CREATE TABLE IF NOT EXISTS TextFlow (
     id            SERIAL PRIMARY KEY,
-    hash          VARCHAR(255)      NOT NULL,
+    contentHash          VARCHAR(255)      NOT NULL,
     localeId      BIGINT            NOT NULL REFERENCES Locale (id),
     content       TEXT              NOT NULL,
     creationDate  DATE              NOT NULL,

@@ -29,10 +29,10 @@ public class TextFlowTest {
     public void testContent() {
         Locale srcLang = new Locale(LocaleId.EN_US, "English US");
         TextFlow tf = new TextFlow("old content", srcLang);
-        String oldHash = tf.getHash();
+        String oldHash = tf.getContentHash();
         tf.setContent("content");
         assertThat(tf.getContent()).isEqualTo("content");
-        assertThat(tf.getHash()).isNotEqualTo(oldHash);
+        assertThat(tf.getContentHash()).isNotEqualTo(oldHash);
     }
 
     @Test

@@ -4,7 +4,6 @@ import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.zanata.mt.JPATest;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Locale;
@@ -42,7 +41,7 @@ public class TextFlowDAOTest extends JPATest {
         TextFlow tf = dao.getByHash(LocaleId.EN_US, hash);
         assertThat(tf).isNotNull();
         assertThat(tf.getContent()).isEqualTo("content");
-        assertThat(tf.getHash()).isEqualTo(hash);
+        assertThat(tf.getContentHash()).isEqualTo(hash);
     }
 
     @Override
@@ -52,6 +51,6 @@ public class TextFlowDAOTest extends JPATest {
 
         TextFlow tf = new TextFlow("content", locale);
         getEm().persist(tf);
-        hash = tf.getHash();
+        hash = tf.getContentHash();
     }
 }

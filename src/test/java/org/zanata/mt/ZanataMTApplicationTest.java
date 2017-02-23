@@ -1,11 +1,9 @@
 package org.zanata.mt;
 
-import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
-import org.zanata.mt.api.ArticleTranslatorResource;
-import org.zanata.mt.api.BackendResource;
 
+import javax.ws.rs.ApplicationPath;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,12 +21,18 @@ public class ZanataMTApplicationTest {
     }
 
     @Test
+    public void testApplicationPath() {
+        Class clazz = zanataMTApplication.getClass();
+        assertThat(clazz.isAnnotationPresent(ApplicationPath.class)).isTrue();
+
+        ApplicationPath annotation =
+                (ApplicationPath) clazz.getAnnotation(ApplicationPath.class);
+        assertThat(annotation.value()).isEqualTo("api");
+    }
+
+    @Test
     public void testGetClasses() {
-        Set<Class> expectedClasses = ImmutableSet.of(
-                ArticleTranslatorResource.class, BackendResource.class);
-
         Set<Class<?>> classes = zanataMTApplication.getClasses();
-
-        assertThat(classes).isEqualTo(expectedClasses);
+        assertThat(classes).isNotEmpty();
     }
 }

@@ -14,6 +14,9 @@
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
+      <!-- Scan for annotated classes and Hibernate mapping XML files -->
+      <property name="hibernate.archive.autodetection" value="class, hbm" />
+
       <!-- Configuring JDBC properties -->
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:zanataMT;DB_CLOSE_DELAY=-1"/>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>

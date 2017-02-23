@@ -13,6 +13,8 @@ import org.zanata.mt.model.Locale;
 
 import javax.persistence.EntityManager;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -55,6 +57,31 @@ public class DocumentDAOTest extends JPATest {
     public void testGetOrCreateByUrl() {
         Document doc = dao.getOrCreateByUrl("http://localhost3", srcLocale, transLocale);
         assertThat(doc).isNotNull();
+    }
+
+    @Test
+    public void testOnPersist() {
+        Document document = new Document("http://localhost3", srcLocale, transLocale);
+        Date creationDate = document.getCreationDate();
+        Date lastChanged = document.getLastChanged();
+
+        document = dao.persist(document);
+        assertThat(document.getCreationDate()).isNotNull()
+                .isNotEqualTo(creationDate);
+        assertThat(document.getLastChanged()).isNotNull()
+                .isNotEqualTo(lastChanged);
+    }
+
+    @Test
+    public void testPreUpdate() {
+        Document doc = dao.getByUrl("http://localhost", srcLocale, transLocale);
+        Date lastChanged = doc.getLastChanged();
+        doc.incrementUsedCount();
+        dao.persist(doc);
+        dao.flush();
+        doc = dao.getByUrl("http://localhost", srcLocale, transLocale);
+        assertThat(doc.getLastChanged()).isNotNull()
+                .isNotEqualTo(lastChanged);
     }
 
     @Override
