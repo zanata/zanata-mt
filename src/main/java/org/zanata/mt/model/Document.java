@@ -75,7 +75,6 @@ public class Document extends ModelEntity {
 
         Document document = (Document) o;
 
-        if (getUsedCount() != document.getUsedCount()) return false;
         if (getUrl() != null ? !getUrl().equals(document.getUrl()) :
                 document.getUrl() != null) return false;
         if (getSrcLocale() != null ?
@@ -95,7 +94,6 @@ public class Document extends ModelEntity {
                                 0);
         result = 31 * result +
                 (getTargetLocale() != null ? getTargetLocale().hashCode() : 0);
-        result = 31 * result + getUsedCount();
         return result;
     }
 }

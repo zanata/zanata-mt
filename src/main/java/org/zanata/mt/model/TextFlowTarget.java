@@ -98,7 +98,6 @@ public class TextFlowTarget extends ModelEntity {
 
         TextFlowTarget that = (TextFlowTarget) o;
 
-        if (getUsedCount() != that.getUsedCount()) return false;
         if (getTextFlow() != null ? !getTextFlow().equals(that.getTextFlow()) :
                 that.getTextFlow() != null) return false;
         if (getLocale() != null ? !getLocale().equals(that.getLocale()) :
@@ -122,7 +121,6 @@ public class TextFlowTarget extends ModelEntity {
                 (getContent() != null ? getContent().hashCode() : 0);
         result = 31 * result +
                 (getRawContent() != null ? getRawContent().hashCode() : 0);
-        result = 31 * result + getUsedCount();
         result =
                 31 * result +
                         (getBackendId() != null ? getBackendId().hashCode() :
