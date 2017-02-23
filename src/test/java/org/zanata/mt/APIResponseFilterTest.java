@@ -1,5 +1,7 @@
 package org.zanata.mt;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,17 +39,19 @@ public class APIResponseFilterTest {
     @Mock
     private FilterChain chain;
 
-    @Test
-    public void testInitDestroy() throws ServletException {
+    @Before
+    public void beforeTest() throws ServletException {
         filter = new APIResponseFilter();
-        //do nothing in both method
         filter.init(null);
+    }
+
+    @After
+    public void afterTest() {
         filter.destroy();
     }
 
     @Test
     public void testEmptyWhiteList() throws IOException, ServletException {
-        filter = new APIResponseFilter();
         filter.setOriginWhitelist("");
 
         filter.doFilter(request, response, chain);
@@ -57,7 +61,6 @@ public class APIResponseFilterTest {
 
     @Test
     public void testEmptyOrigin() throws IOException, ServletException {
-        filter = new APIResponseFilter();
         filter.setOriginWhitelist("http://localhost");
 
         filter.doFilter(request, response, chain);
@@ -68,7 +71,6 @@ public class APIResponseFilterTest {
 
     @Test
     public void testFilter() throws IOException, ServletException {
-        filter = new APIResponseFilter();
         filter.setOriginWhitelist("http://localhost");
 
         when(request.getHeader("Origin")).thenReturn("http://localhost");

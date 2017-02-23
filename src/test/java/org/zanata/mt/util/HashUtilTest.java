@@ -10,17 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HashUtilTest {
     @Test
-    public void testConstructor() {
-        HashUtil util = new HashUtil();
-    }
-
-    @Test
     public void testGenerateHash() {
         String test = "testing";
-        LocaleId localeId = LocaleId.DE;
-        String expectedHash = "78abe7884fa62f37e99113e843c1949a";
+        String expectedHash = "ae2b1fca515949e5d54fb22b8ed95575";
 
-        String hash = HashUtil.generateHash(test, localeId);
+        String hash = HashUtil.generateHash(test);
         assertThat(hash).isEqualTo(expectedHash);
     }
 }

@@ -7,6 +7,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
@@ -23,13 +24,18 @@ import static org.mockito.Mockito.when;
  */
 public class MicrosoftTranslatorClientTest {
     private MicrosoftTranslatorClient api;
+    private MicrosoftRestEasyClient restClient;
+    private String id = "id";
+    private String secret = "secret";
+
+    @Before
+    public void setup() {
+        restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
+    }
 
     @Test
     public void testGetTokenParam() throws UnsupportedEncodingException {
-        String id = "id";
-        String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret, new MicrosoftRestEasyClient());
-
         String expectedParam = "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=" + id + "&client_secret=" + secret;
         String param = api.getTokenParam();
 
@@ -38,11 +44,6 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testGetTokenIfNeeded() {
-        String id = "id";
-        String secret = "secret";
-        MicrosoftRestEasyClient
-                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
 
         Response response = Mockito.mock(Response.class);
@@ -64,11 +65,6 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testGetToken() throws Exception {
-        String id = "id";
-        String secret = "secret";
-        MicrosoftRestEasyClient
-                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String expectedToken = "expected token";
 
         Response response = Mockito.mock(Response.class);
@@ -89,12 +85,6 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testGetTokenException() throws Exception {
-        String id = "id";
-        String secret = "secret";
-        MicrosoftRestEasyClient
-                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
-
         Response response = Mockito.mock(Response.class);
         when(response.getStatusInfo()).thenReturn(Response.Status.BAD_REQUEST);
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
@@ -107,11 +97,6 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testRequestTranslations() {
-        String id = "id";
-        String secret = "secret";
-        MicrosoftRestEasyClient
-                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
         String responseXml = "response";
 
@@ -144,11 +129,6 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testRequestTranslationsException() {
-        String id = "id";
-        String secret = "secret";
-        MicrosoftRestEasyClient
-                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
 
         Response builderResp = Mockito.mock(Response.class);

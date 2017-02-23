@@ -62,8 +62,6 @@ class MicrosoftTranslatorClient {
     /**
      * Get access token from MS API if token is expired.
      * 10 minutes by default
-     *
-     * @throws Exception
      */
     protected void getTokenIfNeeded() {
         if (System.currentTimeMillis() > tokenExpiration) {

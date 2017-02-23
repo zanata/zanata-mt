@@ -34,8 +34,8 @@
     <!-- database -->
     <postgresql.version>9.4.1212</postgresql.version>
     <postgresql.port>5432</postgresql.port>
-    <postgressql.user>root</postgressql.user>
-    <postgressql.password>root</postgressql.password>
+    <postgresql.user>root</postgresql.user>
+    <postgresql.password>root</postgresql.password>
     <db.name>zanataMT</db.name>
     <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
@@ -182,8 +182,8 @@
               <run>
                 <env>
                   <POSTGRES_DB>${db.name}</POSTGRES_DB>
-                  <POSTGRES_USER>${postgressql.user}</POSTGRES_USER>
-                  <POSTGRES_PASSWORD>${postgressql.password}</POSTGRES_PASSWORD>
+                  <POSTGRES_USER>${postgresql.user}</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>${postgresql.password}</POSTGRES_PASSWORD>
                 </env>
                 <ports>
                   <port>${postgresql.port}:${postgresql.port}</port>
@@ -277,8 +277,8 @@
                 cargo.datasource.jndi=jboss/datasources/${db.name}|
                 cargo.datasource.driver=org.postgresql.Driver|
                 cargo.datasource.url=jdbc:postgresql://localhost:${postgresql.port}/${db.name}|
-                cargo.datasource.username=${postgressql.user}|
-                cargo.datasource.password=${postgressql.password}
+                cargo.datasource.username=${postgresql.user}|
+                cargo.datasource.password=${postgresql.password}
               </cargo.datasource.datasource.postgres>
             </properties>
           </configuration>

@@ -113,8 +113,7 @@ public class PersistentTranslationService {
         // search from database
         for (int index = 0; index < strings.size(); index++) {
             String string = strings.get(index);
-            String hash =
-                    HashUtil.generateHash(string, srcLocale.getLocaleId());
+            String hash = HashUtil.generateHash(string);
             TextFlow matchedHashTf =
                     textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);
 
@@ -142,7 +141,7 @@ public class PersistentTranslationService {
             }
         }
 
-        // no need of machine translations
+        // all translations got from database records
         if (untranslatedIndexMap.isEmpty()) {
             return results;
         }

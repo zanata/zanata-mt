@@ -19,6 +19,10 @@ import java.io.StringWriter;
 public final class DTOUtil {
     private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);
 
+    @SuppressWarnings("unused")
+    private DTOUtil() {
+    }
+
     @SuppressWarnings({ "unchecked" })
     public static <T> String toXML(T obj) {
         try {

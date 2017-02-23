@@ -70,8 +70,7 @@ public class PersistentTranslationServiceJPATest {
                         expectedTranslations.get(0).getRawTranslation(),
                         expectedTf, targetLocale, BackendID.MS);
 
-        String hash = HashUtil.generateHash(sources.get(0),
-                sourceLocale.getLocaleId());
+        String hash = HashUtil.generateHash(sources.get(0));
 
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(null);
@@ -111,8 +110,7 @@ public class PersistentTranslationServiceJPATest {
                 expectedRawContent, expectedTf, targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
 
-        String hash = HashUtil.generateHash(source,
-                sourceLocale.getLocaleId());
+        String hash = HashUtil.generateHash(source);
 
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);

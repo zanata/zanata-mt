@@ -60,7 +60,7 @@ public class BackendIdType extends AbstractSingleColumnStandardBasicType<Backend
     public BackendID stringToObject(String xml) throws Exception {
         if (xml == null || xml.length() < 1) {
             throw new MappingException(
-                "multiple or zero characters found parsing string");
+                "empty string found when parsing");
         }
         return new BackendID(xml);
     }
