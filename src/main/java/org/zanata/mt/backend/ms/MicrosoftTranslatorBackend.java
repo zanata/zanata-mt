@@ -51,6 +51,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     private MicrosoftTranslatorClient api;
 
+    private final MicrosoftRestEasyClient
+            restClient = new MicrosoftRestEasyClient();
+
     @SuppressWarnings("unused")
     public MicrosoftTranslatorBackend() {
     }
@@ -68,7 +71,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             throw new ZanataMTException(
                 "Missing system properties of" + AZURE_ID + " and " + AZURE_SECRET);
         }
-        api = new MicrosoftTranslatorClient(clientId, clientSecret);
+        api = new MicrosoftTranslatorClient(clientId, clientSecret, restClient);
     }
 
     @Override

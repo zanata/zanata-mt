@@ -3,7 +3,6 @@ package org.zanata.mt.backend.ms;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -51,9 +50,13 @@ class MicrosoftTranslatorClient {
 
     private final String clientSecret;
 
-    protected MicrosoftTranslatorClient(String clientId, String clientSecret) {
+    private final MicrosoftRestEasyClient restClient;
+
+    protected MicrosoftTranslatorClient(String clientId, String clientSecret,
+            MicrosoftRestEasyClient restClient) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.restClient = restClient;
     }
 
     /**
@@ -85,7 +88,8 @@ class MicrosoftTranslatorClient {
             throws ZanataMTException {
         getTokenIfNeeded();
 
-        ResteasyWebTarget webTarget = getWebTarget();
+        ResteasyWebTarget webTarget =
+                restClient.getWebTarget(TRANSLATIONS_BASE_URL);
         Response response = webTarget.request(MediaType.TEXT_XML)
                 .header("Content-Type",
                         MediaType.TEXT_XML + "; charset=" + ENCODING)
@@ -111,7 +115,8 @@ class MicrosoftTranslatorClient {
         try {
             LOG.info("Getting token for Microsoft Engine");
 
-            Invocation.Builder builder = getBuilder();
+            Invocation.Builder builder =
+                    restClient.getBuilder(DATA_MARKET_ACCESS_URI, ENCODING);
             final String params = getTokenParam();
 
             response = builder.post(Entity
@@ -130,20 +135,6 @@ class MicrosoftTranslatorClient {
                 response.close();
             }
         }
-    }
-
-    protected ResteasyWebTarget getWebTarget() {
-        return new ResteasyClientBuilder().build()
-                        .target(TRANSLATIONS_BASE_URL);
-    }
-
-    protected Invocation.Builder getBuilder() {
-        return new ResteasyClientBuilder()
-            .build()
-            .target(DATA_MARKET_ACCESS_URI)
-            .request()
-            .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
-            .header("Accept-Charset", ENCODING);
     }
 
     protected String getTokenParam()

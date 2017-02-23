@@ -7,8 +7,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.client.jaxrs.internal.ClientInvocationBuilder;
-import org.jboss.resteasy.client.jaxrs.internal.ClientRequestHeaders;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
@@ -17,11 +15,8 @@ import org.zanata.mt.exception.ZanataMTException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.backend.ms.MicrosoftTranslatorClient.TRANSLATIONS_BASE_URL;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -33,7 +28,7 @@ public class MicrosoftTranslatorClientTest {
     public void testGetTokenParam() throws UnsupportedEncodingException {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        api = new MicrosoftTranslatorClient(id, secret, new MicrosoftRestEasyClient());
 
         String expectedParam = "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=" + id + "&client_secret=" + secret;
         String param = api.getTokenParam();
@@ -45,7 +40,9 @@ public class MicrosoftTranslatorClientTest {
     public void testGetTokenIfNeeded() {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        MicrosoftRestEasyClient
+                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
 
         Response response = Mockito.mock(Response.class);
@@ -54,24 +51,24 @@ public class MicrosoftTranslatorClientTest {
 
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
         when(builder.post(any(Entity.class))).thenReturn(response);
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
 
-        MicrosoftTranslatorClient spyApi = spy(api);
-        doReturn(builder).when(spyApi).getBuilder();
+        String token = api.getCurrentToken();
+        Long tokenExpiry = api.getTokenExpiration();
 
-        String token = spyApi.getCurrentToken();
-        Long tokenExpiry = spyApi.getTokenExpiration();
+        api.getTokenIfNeeded();
 
-        spyApi.getTokenIfNeeded();
-
-        assertThat(spyApi.getCurrentToken()).isNotEqualTo(token);
-        assertThat(spyApi.getTokenExpiration()).isNotEqualTo(tokenExpiry);
+        assertThat(api.getCurrentToken()).isNotEqualTo(token);
+        assertThat(api.getTokenExpiration()).isNotEqualTo(tokenExpiry);
     }
 
     @Test
     public void testGetToken() throws Exception {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        MicrosoftRestEasyClient
+                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String expectedToken = "expected token";
 
         Response response = Mockito.mock(Response.class);
@@ -80,11 +77,9 @@ public class MicrosoftTranslatorClientTest {
 
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
         when(builder.post(any(Entity.class))).thenReturn(response);
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
 
-        MicrosoftTranslatorClient spyApi = spy(api);
-        doReturn(builder).when(spyApi).getBuilder();
-
-        String token = spyApi.getToken();
+        String token = api.getToken();
 
         verify(builder).post(any(Entity.class));
         verify(response).readEntity(String.class);
@@ -96,48 +91,27 @@ public class MicrosoftTranslatorClientTest {
     public void testGetTokenException() throws Exception {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        MicrosoftRestEasyClient
+                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
 
         Response response = Mockito.mock(Response.class);
         when(response.getStatusInfo()).thenReturn(Response.Status.BAD_REQUEST);
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
         when(builder.post(any(Entity.class))).thenReturn(response);
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
 
-        MicrosoftTranslatorClient spyApi = spy(api);
-        doReturn(builder).when(spyApi).getBuilder();
-        assertThatThrownBy(() -> spyApi.getToken())
+        assertThatThrownBy(() -> api.getToken())
                 .isInstanceOf(ZanataMTException.class);
-    }
-
-    @Test
-    public void testGetBuilder() {
-        String id = "id";
-        String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
-
-        Invocation.Builder builder = api.getBuilder();
-
-        ClientRequestHeaders headers = ((ClientInvocationBuilder) builder).getHeaders();
-        assertThat(headers.getHeader("Accept-Charset")).isEqualTo("UTF-8");
-        assertThat(headers.getHeader("Content-Type")).isEqualTo("application/x-www-form-urlencoded");
-    }
-
-    @Test
-    public void testGetWebTarget() {
-        String id = "id";
-        String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
-
-        ResteasyWebTarget webTarget = api.getWebTarget();
-        assertThat(webTarget.getUri().toString())
-                .isEqualTo(TRANSLATIONS_BASE_URL);
     }
 
     @Test
     public void testRequestTranslations() {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        MicrosoftRestEasyClient
+                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
         String responseXml = "response";
 
@@ -158,12 +132,11 @@ public class MicrosoftTranslatorClientTest {
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
         when(builder.post(any(Entity.class))).thenReturn(builderResp);
 
-        MicrosoftTranslatorClient spyApi = spy(api);
-        doReturn(builder).when(spyApi).getBuilder();
-        doReturn(webTarget).when(spyApi).getWebTarget();
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        String xml = spyApi.requestTranslations(req);
+        String xml = api.requestTranslations(req);
 
         assertThat(xml).isEqualTo(responseXml);
         verify(webResp).close();
@@ -173,7 +146,9 @@ public class MicrosoftTranslatorClientTest {
     public void testRequestTranslationsException() {
         String id = "id";
         String secret = "secret";
-        api = new MicrosoftTranslatorClient(id, secret);
+        MicrosoftRestEasyClient
+                restClient = Mockito.mock(MicrosoftRestEasyClient.class);
+        api = new MicrosoftTranslatorClient(id, secret, restClient);
         String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
 
         Response builderResp = Mockito.mock(Response.class);
@@ -193,11 +168,10 @@ public class MicrosoftTranslatorClientTest {
         Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
         when(builder.post(any(Entity.class))).thenReturn(builderResp);
 
-        MicrosoftTranslatorClient spyApi = spy(api);
-        doReturn(builder).when(spyApi).getBuilder();
-        doReturn(webTarget).when(spyApi).getWebTarget();
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        assertThatThrownBy(() -> spyApi.requestTranslations(req));
+        assertThatThrownBy(() -> api.requestTranslations(req));
     }
 }
