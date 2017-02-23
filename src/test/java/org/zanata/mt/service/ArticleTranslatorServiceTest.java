@@ -188,18 +188,18 @@ public class ArticleTranslatorServiceTest {
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
 
         List<TypeString> contents = Lists.newArrayList(
-                new TypeString(htmls.get(0), MediaType.TEXT_HTML),
-                new TypeString(htmls.get(1), MediaType.TEXT_HTML),
-                new TypeString(text.get(0), MediaType.TEXT_PLAIN),
-                new TypeString(text.get(1), MediaType.TEXT_PLAIN),
-                new TypeString(htmls.get(2), MediaType.TEXT_HTML));
+                new TypeString(htmls.get(0), MediaType.TEXT_HTML, "meta1"),
+                new TypeString(htmls.get(1), MediaType.TEXT_HTML, "meta2"),
+                new TypeString(text.get(0), MediaType.TEXT_PLAIN, "meta3"),
+                new TypeString(text.get(1), MediaType.TEXT_PLAIN, "meta4"),
+                new TypeString(htmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
         List<TypeString> translatedContents = Lists.newArrayList(
-                new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML),
-                new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML),
-                new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN),
-                new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN),
-                new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML));
+                new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
+                new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML, "meta2"),
+                new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN, "meta3"),
+                new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
+                new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
         Article article = new Article(contents, "http://localhost", "en");
 

@@ -16,7 +16,7 @@ public class TypeStringTest {
 
     @Test
     public void testConstructor() {
-        TypeString typeString = new TypeString("value", "type");
+        TypeString typeString = new TypeString("value", "type", "meta");
         assertThat(typeString.getType()).isEqualTo("type");
         assertThat(typeString.getValue()).isEqualTo("value");
     }
@@ -61,6 +61,6 @@ public class TypeStringTest {
     }
 
     private TypeString getDefault() {
-        return new TypeString("value", "type");
+        return new TypeString("value", "type", "meta");
     }
 }

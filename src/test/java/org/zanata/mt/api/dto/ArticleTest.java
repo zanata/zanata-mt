@@ -19,7 +19,8 @@ public class ArticleTest {
 
     @Test
     public void testConstructor() {
-        List<TypeString> lists = Lists.newArrayList(new TypeString("test", "text/plain"));
+        List<TypeString> lists = Lists.newArrayList(
+                new TypeString("test", "text/plain", "meta"));
         Article article = new Article(lists, "http://localhost", "en");
 
         assertThat(article.getBackendId()).isNull();
@@ -30,7 +31,8 @@ public class ArticleTest {
 
     @Test
     public void testConstructor2() {
-        List<TypeString> lists = Lists.newArrayList(new TypeString("test", "text/plain"));
+        List<TypeString> lists = Lists.newArrayList(
+                new TypeString("test", "text/plain", "meta"));
         Article article = new Article(lists, "http://localhost", "en", "backendId");
 
         assertThat(article.getContents()).isEqualTo(lists);
@@ -50,7 +52,8 @@ public class ArticleTest {
     public void testContents() {
         Article article = new Article();
         List<TypeString> lists =
-                Lists.newArrayList(new TypeString("test", "text/plain"));
+                Lists.newArrayList(
+                        new TypeString("test", "text/plain", "meta"));
         article.setContents(lists);
         assertThat(article.getContents()).isEqualTo(lists);
     }
@@ -97,7 +100,8 @@ public class ArticleTest {
         // change contents
         article2 = getDefaultArticle();
         article2.setContents(
-                Lists.newArrayList(new TypeString("test2", "text/plain")));
+                Lists.newArrayList(
+                        new TypeString("test2", "text/plain", "meta")));
 
         assertThat(article1.equals(article2)).isFalse();
         assertThat(article1.hashCode()).isNotEqualTo(article2.hashCode());
@@ -110,7 +114,8 @@ public class ArticleTest {
 
     private Article getDefaultArticle() {
         List<TypeString> lists =
-                Lists.newArrayList(new TypeString("test", "text/plain"));
+                Lists.newArrayList(
+                        new TypeString("test", "text/plain", "meta"));
         return new Article(lists, "http://localhost", "en", "backendId");
     }
 }
