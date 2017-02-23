@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.model.BackendID;
 
-import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -40,11 +39,11 @@ public class BackendResource {
         }
 
         BackendID backendID = new BackendID(id.toUpperCase());
-        String image = getAttributionImage(backendID);
+        String imageResource = getAttributionImageResource(backendID);
         String docName = id + "-attribution.png";
 
         ClassLoader classLoader = this.getClass().getClassLoader();
-        InputStream is = classLoader.getResourceAsStream(image);
+        InputStream is = classLoader.getResourceAsStream(imageResource);
         StreamingOutput output =
                 new InputStreamStreamingOutput(is);
         return Response.ok().header("Content-Disposition",
@@ -52,7 +51,7 @@ public class BackendResource {
                 .entity(output).build();
     }
 
-    private String getAttributionImage(BackendID backendID) {
+    private String getAttributionImageResource(BackendID backendID) {
         if (backendID.equals(BackendID.MS)) {
             return MS_ATTRIBUTION_IMAGE;
         }

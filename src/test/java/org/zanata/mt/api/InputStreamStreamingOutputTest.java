@@ -37,7 +37,6 @@ public class InputStreamStreamingOutputTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         InputStreamStreamingOutput streamingOutput = new InputStreamStreamingOutput(is);
         streamingOutput.write(out);
-        out.toString();
         assertThat(out.toString()).isEqualTo(text);
     }
 }

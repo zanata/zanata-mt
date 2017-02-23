@@ -343,7 +343,7 @@
           <useReleaseProfile>false</useReleaseProfile>
           <localCheckout>true</localCheckout>
           <pushChanges>true</pushChanges>
-          <goals>install</goals>
+          <goals>verify</goals>
         </configuration>
       </plugin>
 
