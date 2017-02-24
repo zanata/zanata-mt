@@ -75,7 +75,7 @@ public final class DTOUtil {
     public static <T> T fromJSONToObject(String json, Class<T> clazz)
         throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        return (T) mapper.readValue(json, clazz);
+        return mapper.readValue(json, clazz);
     }
 
     public static String removeWhiteSpaceBetweenTag(String xml) {

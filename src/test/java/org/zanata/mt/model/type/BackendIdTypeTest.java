@@ -3,7 +3,6 @@ package org.zanata.mt.model.type;
 import org.hibernate.MappingException;
 import org.hibernate.type.StringType;
 import org.junit.Test;
-import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.BackendID;
 
 import static org.assertj.core.api.Assertions.assertThat;

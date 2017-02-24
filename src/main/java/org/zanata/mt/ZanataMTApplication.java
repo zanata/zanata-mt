@@ -3,7 +3,7 @@ package org.zanata.mt;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 
-import org.zanata.mt.api.ArticleTranslatorResource;
+import org.zanata.mt.api.DocumentContentTranslatorResource;
 
 import com.google.common.collect.ImmutableSet;
 import org.zanata.mt.api.BackendResource;
@@ -18,7 +18,7 @@ public class ZanataMTApplication extends javax.ws.rs.core.Application {
     private static Set<Class<?>> buildClasses() {
         return ImmutableSet.<Class<?>>builder()
                 // api classes
-                .add(ArticleTranslatorResource.class)
+                .add(DocumentContentTranslatorResource.class)
                 .add(BackendResource.class)
                 // providers
                 .build();

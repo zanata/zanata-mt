@@ -1,7 +1,6 @@
 package org.zanata.mt.util;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

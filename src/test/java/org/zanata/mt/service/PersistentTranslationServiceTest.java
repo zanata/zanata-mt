@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
@@ -73,11 +72,10 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testValidateEmptySrcLocale() {
         String source = "testing source";
-        Locale sourceLocale = null;
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                sourceLocale, targetLocale,
+                null, targetLocale,
                 BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
@@ -86,10 +84,9 @@ public class PersistentTranslationServiceTest {
     public void testValidateEmptyTargetLocale() {
         String source = "testing source";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = null;
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                sourceLocale, targetLocale,
+                sourceLocale, null,
                 BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }

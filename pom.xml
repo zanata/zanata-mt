@@ -686,11 +686,6 @@
       </activation>
       <properties>
         <name>dev</name>
-        <!--
-        This should be the base url of where this service is hosted.
-        It is used as base-url for script.js to download article-script.js in bookmarklet.
-        -->
-        <service.url>http://${cargo.host}:${cargo.servlet.port}</service.url>
       </properties>
     </profile>
 
@@ -699,7 +694,6 @@
       <id>production</id>
       <properties>
         <name>production</name>
-        <service.url>https://server-zanata-mt.int.open.paas.redhat.com</service.url>
       </properties>
       <build>
         <finalName>ZanataMT</finalName>
@@ -711,15 +705,6 @@
               <outputDirectory>target/deployments</outputDirectory>
               <warName>ROOT</warName>
               <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-              <webResources>
-                <resource>
-                  <filtering>true</filtering>
-                  <directory>src/main/webapp</directory>
-                  <includes>
-                    <include>script/*.js</include>
-                  </includes>
-                </resource>
-              </webResources>
             </configuration>
           </plugin>
         </plugins>

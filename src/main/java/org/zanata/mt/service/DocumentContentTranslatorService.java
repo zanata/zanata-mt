@@ -1,10 +1,8 @@
 package org.zanata.mt.service;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -12,14 +10,10 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
-import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.article.ArticleContents;
-import org.zanata.mt.article.ArticleNode;
-import org.zanata.mt.article.kcs.KCSArticleConverter;
+import org.zanata.mt.util.DomUtil;
 import org.zanata.mt.exception.ZanataMTException;
-import org.zanata.mt.model.ArticleType;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 
@@ -32,16 +26,16 @@ import static java.util.stream.Collectors.toList;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Stateless
-public class ArticleTranslatorService {
+public class DocumentContentTranslatorService {
 
     private PersistentTranslationService persistentTranslationService;
 
     @SuppressWarnings("unused")
-    public ArticleTranslatorService() {
+    public DocumentContentTranslatorService() {
     }
 
     @Inject
-    public ArticleTranslatorService(
+    public DocumentContentTranslatorService(
             PersistentTranslationService persistentTranslationService) {
         this.persistentTranslationService = persistentTranslationService;
     }
@@ -50,8 +44,8 @@ public class ArticleTranslatorService {
      * Translate a Document
      * {@link DocumentContent}
      **/
-    public DocumentContent translateDocument(DocumentContent documentContent, Locale srcLocale,
-            Locale transLocale, BackendID backendID)
+    public DocumentContent translateDocument(DocumentContent documentContent,
+            Locale srcLocale, Locale transLocale, BackendID backendID)
             throws BadRequestException, ZanataMTException {
 
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
@@ -63,7 +57,13 @@ public class ArticleTranslatorService {
             MediaType mediaType = getMediaType(typeString.getType());
 
             if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
-                indexHTMLMap.put(index, typeString);
+                // filter out private notes, code, and non-translatable html
+                String html = typeString.getValue();
+                if (!DomUtil.isKCSPrivateNotes(html) &&
+                        !DomUtil.isKCSCodeSection(html) &&
+                        !DomUtil.isNonTranslatableNode(html)) {
+                    indexHTMLMap.put(index, typeString);
+                }
             } else if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
                 indexTextMap.put(index, typeString);
             }
@@ -92,49 +92,6 @@ public class ArticleTranslatorService {
 
         return new DocumentContent(results, documentContent.getUrl(),
                 transLocale.getLocaleId().getId(), backendID.getId());
-    }
-
-    /**
-     * Translate an RawArticle
-     * {@link RawArticle}
-     **/
-    public RawArticle translateRawArticle(RawArticle rawArticle,
-            Locale srcLocale, Locale transLocale, BackendID backendID)
-            throws BadRequestException, ZanataMTException {
-        ArticleConverter converter = getConverter(rawArticle);
-
-        String translatedPageTitle =
-                persistentTranslationService
-                        .translate(rawArticle.getTitleText(), srcLocale,
-                                transLocale, backendID,
-                                MediaType.TEXT_PLAIN_TYPE);
-
-        ArticleContents articleContents =
-                converter.extractArticle(rawArticle.getContentHTML());
-
-        List<String> translatableHtmls = articleContents.getArticleNodes()
-                .stream()
-                .map(ArticleNode::getHtml)
-                .collect(toList());
-
-        List<String> translatedHtmls =
-                persistentTranslationService.translate(translatableHtmls,
-                        srcLocale, transLocale, backendID,
-                        MediaType.TEXT_HTML_TYPE);
-
-        assert translatableHtmls.size() == translatedHtmls.size();
-        assert articleContents.getArticleNodes().size() == translatedHtmls.size();
-
-        forBoth(articleContents.getArticleNodes(),
-                translatedHtmls,
-                ArticleNode::setHtml);
-
-        articleContents.replacePlaceholdersWithOriginals();
-
-        return new RawArticle(translatedPageTitle,
-                articleContents.getDocumentHtml(), rawArticle.getUrl(),
-                rawArticle.getArticleType(), transLocale.getLocaleId().getId(),
-                backendID.getId());
     }
 
     // translate all string values in map with given mediaType
@@ -187,32 +144,7 @@ public class ArticleTranslatorService {
     }
 
     public boolean isMediaTypeSupported(String mediaType) {
-        if (StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,
-                MediaType.TEXT_PLAIN)) {
-            return true;
-        }
-        return false;
-    }
-
-    public ArticleConverter getConverter(RawArticle rawArticle)
-        throws ZanataMTException {
-        ArticleType articleType = new ArticleType(rawArticle.getArticleType());
-
-        if (articleType.equals(ArticleType.KCS_ARTICLE)) {
-            return new KCSArticleConverter();
-        }
-        throw new ZanataMTException("Not supported articleType" + articleType);
-    }
-
-    // Assumes that both iterables are the same size.
-    private static <T1, T2> void forBoth(Iterable<T1> c1, Iterable<T2> c2,
-            BiConsumer<T1, T2> consumer) {
-        Iterator<T1> i1 = c1.iterator();
-        Iterator<T2> i2 = c2.iterator();
-        while (i1.hasNext() && i2.hasNext()) {
-            consumer.accept(i1.next(), i2.next());
-        }
-        assert !i1.hasNext();
-        assert !i2.hasNext();
+        return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,
+                MediaType.TEXT_PLAIN);
     }
 }

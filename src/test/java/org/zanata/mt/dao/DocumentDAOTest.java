@@ -2,16 +2,12 @@ package org.zanata.mt.dao;
 
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.zanata.mt.JPATest;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-
-import javax.persistence.EntityManager;
 
 import java.util.Date;
 

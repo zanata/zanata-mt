@@ -4,10 +4,6 @@ import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.backend.ms.internal.dto.MSString;
-import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
-import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
-import org.zanata.mt.model.Locale;
 import org.zanata.mt.util.DTOUtil;
 
 import java.util.ArrayList;

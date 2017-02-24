@@ -6,6 +6,11 @@ package org.zanata.mt.api;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public final class APIConstant {
+
+    @SuppressWarnings("unused")
+    private APIConstant() {
+    }
+
     // System properties
     // list of url to allow access to /api. White space separated
     public static final String ORIGIN_WHITELIST = "ZANATA_MT_ORIGIN_WHITELIST";

@@ -95,9 +95,7 @@ public class PersistentTranslationService {
         }
         int totalChar = strings.stream().mapToInt(String::length).sum();
 
-        /**
-         * return original string if it is more than MAX_LENGTH
-         */
+        // return original string if it is more than MAX_LENGTH
         if (totalChar > MAX_LENGTH) {
             LOG.warn("Requested string length is more than " + MAX_LENGTH);
             return strings;

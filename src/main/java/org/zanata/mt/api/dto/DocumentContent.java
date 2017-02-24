@@ -2,6 +2,7 @@ package org.zanata.mt.api.dto;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.zanata.mt.api.DocumentContentTranslatorResource;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
  * This entity is used for generic translations by accepting array of strings with type.
  *
  * Used in
- * {@link org.zanata.mt.api.ArticleTranslatorResource#translate(DocumentContent, LocaleId)}
+ * {@link DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -67,7 +68,7 @@ public class DocumentContent implements Serializable {
     }
 
     /**
-     * @return locale of this Article
+     * @return locale of this DocumentContent
      */
     @JsonProperty("locale")
     @NotNull
@@ -80,7 +81,7 @@ public class DocumentContent implements Serializable {
     }
 
     /**
-     * @return backendId of translated content for this Article
+     * @return backendId of translated content for this DocumentContent
      */
     @JsonProperty("backendId")
     @Nullable
@@ -94,7 +95,7 @@ public class DocumentContent implements Serializable {
 
     @Override
     public String toString() {
-        return "Article{" +
+        return "DocumentContent{" +
                 "url='" + url + '\'' +
                 ", contents=" + contents +
                 ", locale='" + locale + '\'' +

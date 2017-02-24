@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.service.ZanataMTStartup;
 
 import static org.zanata.mt.api.APIConstant.API_KEY;
 import static org.zanata.mt.api.APIConstant.HEADER_API_KEY;
@@ -38,7 +37,7 @@ public class APISecurityFilter implements Filter {
 
     /**
      * Nonnull value. Verified during startup
-     * {@link ZanataMTStartup#verifyCredentials
+     * {@link org.zanata.mt.service.ZanataMTStartup#verifyCredentials
      */
     private static final RestCredentials REST_CREDENTIALS;
 
@@ -104,10 +103,7 @@ public class APISecurityFilter implements Filter {
 
             RestCredentials that = (RestCredentials) o;
 
-            if (!username.equals(that.username))
-                return false;
-            return apiKey.equals(that.apiKey);
-
+            return username.equals(that.username) && apiKey.equals(that.apiKey);
         }
 
         @Override

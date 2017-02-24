@@ -2,7 +2,6 @@ package org.zanata.mt.model.type;
 
 import org.hibernate.HibernateException;
 import org.junit.Test;
-import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.BackendID;
 
 import static org.assertj.core.api.Assertions.assertThat;

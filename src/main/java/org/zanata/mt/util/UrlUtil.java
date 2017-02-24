@@ -18,9 +18,7 @@ public final class UrlUtil {
         try {
             URL u = new URL(url);
             u.toURI();
-        } catch (MalformedURLException e) {
-            return false;
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             return false;
         }
         return true;

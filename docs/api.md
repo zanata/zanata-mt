@@ -2,13 +2,12 @@
 
 | Methods | Path |  Description |
 |---|---|---|
-|  {POST} | /api/translate?targetLang={targetLocale} |  [Translate article](#TranslateArticle) |
-|  {POST} | /api/translate?targetLang={targetLocale} |  [Translate raw article](#TranslateRawArticle) |
+|  {POST} | /api/translate?targetLang={targetLocale} |  [Translate document](#TranslateDocument) |
 |  {GET} | /api/backend/attribution?id={backendId} | [Get attribution image](#GetAttributionImage) |
 
 ----
 
-## Translate article<a name="TranslateArticle"></a>
+## Translate document<a name="TranslateDocument"></a>
 
 {POST} /api/translate?targetLang={targetLocale}
 
@@ -36,45 +35,6 @@
   {
     'url': String {url of article},
     'contents': [TypeString](#typeString)[] {Array of translated strings},
-    'articleType': String {'KCS_ARTICLE'},
-    'locale': String {translated locale id},
-    'backendId': String {'MS', use for attribution insertion}
-  }
-  ```
-
-- [Error](#ErrorType)
-
-----
-
-## Translate raw article<a name="TranslateRawArticle"></a>
-
-{POST} /api/translate?targetLang={targetLocale}
-
-### Request
-
-- Headers
-    - X-Auth-User {[ZANATA_MT_ID](/docs/system-properties.md)}
-    - X-Auth-Token {[ZANATA_MT_API_KEY](/docs/system-properties.md)}
-
-- Body
-   ```
-   {
-       'url': String {REQUIRED: url of article},
-       'titleText': String {title text of the page},
-       'contentHTML': String {html content},
-       'articleType': String {REQUIRED: 'KCS_ARTICLE'},
-       'locale': String {REQUIRED, MAX-LENGTH(255): source locale id},
-   }
-   ```
-
-### Response
-
-- Body
-  ```
-  {
-    'url': String {url of article},
-    'titleText': String {translated title text of the page},
-    'contentHTML': String {translated html content},
     'locale': String {translated locale id},
     'backendId': String {'MS', use for attribution insertion}
   }

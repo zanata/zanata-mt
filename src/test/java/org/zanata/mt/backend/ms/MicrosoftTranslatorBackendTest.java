@@ -65,8 +65,7 @@ public class MicrosoftTranslatorBackendTest {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
         MSTranslateArrayResp resp = new MSTranslateArrayResp();
-        List<MSTranslateArrayResponse> respList =
-                new ArrayList<MSTranslateArrayResponse>();
+        List<MSTranslateArrayResponse> respList = new ArrayList<>();
         respList.add(buildMSResponse("translation1"));
 
         resp.setResponse(respList);

@@ -2,7 +2,6 @@ package org.zanata.mt.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -83,12 +82,10 @@ public class TextFlow extends ModelEntity {
 
     @Transient
     public List<TextFlowTarget> getTargetsByLocaleId(LocaleId localeId) {
-        return getTargets().stream().filter(new Predicate<TextFlowTarget>() {
-            @Override
-            public boolean test(TextFlowTarget target) {
-                return target.getLocale().getLocaleId().equals(localeId);
-            }
-        }).collect(Collectors.toList());
+        return getTargets().stream()
+                .filter(textFlowTarget -> textFlowTarget.getLocale()
+                        .getLocaleId().equals(localeId))
+                .collect(Collectors.toList());
     }
 
     @Override

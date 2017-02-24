@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ArticleTest {
+public class DocumentContentTest {
 
     @Test
     public void testEmptyConstructor() {
