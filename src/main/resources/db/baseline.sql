@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS TextFlow (
     content       TEXT              NOT NULL,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
-    UNIQUE (localeId, hash)
+    UNIQUE (localeId, contentHash)
 );
 
 CREATE TABLE IF NOT EXISTS TextFlowTarget (
