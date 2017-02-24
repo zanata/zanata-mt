@@ -14,108 +14,110 @@ public class ArticleTest {
 
     @Test
     public void testEmptyConstructor() {
-        Document article = new Document();
+        DocumentContent docContent = new DocumentContent();
     }
 
     @Test
     public void testConstructor() {
         List<TypeString> lists = Lists.newArrayList(
                 new TypeString("test", "text/plain", "meta"));
-        Document article = new Document(lists, "http://localhost", "en");
+        DocumentContent
+                docContent = new DocumentContent(lists, "http://localhost", "en");
 
-        assertThat(article.getBackendId()).isNull();
-        assertThat(article.getContents()).isEqualTo(lists);
-        assertThat(article.getLocale()).isEqualTo("en");
-        assertThat(article.getUrl()).isEqualTo("http://localhost");
+        assertThat(docContent.getBackendId()).isNull();
+        assertThat(docContent.getContents()).isEqualTo(lists);
+        assertThat(docContent.getLocale()).isEqualTo("en");
+        assertThat(docContent.getUrl()).isEqualTo("http://localhost");
     }
 
     @Test
     public void testConstructor2() {
         List<TypeString> lists = Lists.newArrayList(
                 new TypeString("test", "text/plain", "meta"));
-        Document article = new Document(lists, "http://localhost", "en", "backendId");
+        DocumentContent
+                docContent = new DocumentContent(lists, "http://localhost", "en", "backendId");
 
-        assertThat(article.getContents()).isEqualTo(lists);
-        assertThat(article.getLocale()).isEqualTo("en");
-        assertThat(article.getUrl()).isEqualTo("http://localhost");
-        assertThat(article.getBackendId()).isEqualTo("backendId");
+        assertThat(docContent.getContents()).isEqualTo(lists);
+        assertThat(docContent.getLocale()).isEqualTo("en");
+        assertThat(docContent.getUrl()).isEqualTo("http://localhost");
+        assertThat(docContent.getBackendId()).isEqualTo("backendId");
     }
 
     @Test
     public void testUrl() {
-        Document article = new Document();
-        article.setUrl("http://localhost");
-        assertThat(article.getUrl()).isEqualTo("http://localhost");
+        DocumentContent docContent = new DocumentContent();
+        docContent.setUrl("http://localhost");
+        assertThat(docContent.getUrl()).isEqualTo("http://localhost");
    }
 
     @Test
     public void testContents() {
-        Document article = new Document();
+        DocumentContent docContent = new DocumentContent();
         List<TypeString> lists =
                 Lists.newArrayList(
                         new TypeString("test", "text/plain", "meta"));
-        article.setContents(lists);
-        assertThat(article.getContents()).isEqualTo(lists);
+        docContent.setContents(lists);
+        assertThat(docContent.getContents()).isEqualTo(lists);
     }
 
     @Test
     public void testLocale() {
-        Document article = new Document();
-        article.setLocale("en");
-        assertThat(article.getLocale()).isEqualTo("en");
+        DocumentContent docContent = new DocumentContent();
+        docContent.setLocale("en");
+        assertThat(docContent.getLocale()).isEqualTo("en");
     }
 
     @Test
     public void testBackendId() {
-        Document article = new Document();
-        article.setBackendId("backendId");
-        assertThat(article.getBackendId()).isEqualTo("backendId");
+        DocumentContent docContent = new DocumentContent();
+        docContent.setBackendId("backendId");
+        assertThat(docContent.getBackendId()).isEqualTo("backendId");
     }
 
     @Test
     public void testEqualsAndHashcode() {
-        Document article1 = getDefaultArticle();
+        DocumentContent docContent1 = getDefaultDocContent();
 
         // change backend id
-        Document article2 = getDefaultArticle();
-        article2.setBackendId("backendId2");
+        DocumentContent docContent2 = getDefaultDocContent();
+        docContent2.setBackendId("backendId2");
 
-        assertThat(article1.equals(article2)).isFalse();
-        assertThat(article1.hashCode()).isNotEqualTo(article2.hashCode());
+        assertThat(docContent1.equals(docContent2)).isFalse();
+        assertThat(docContent1.hashCode()).isNotEqualTo(docContent2.hashCode());
 
         // change locale
-        article2 = getDefaultArticle();
-        article2.setLocale("fr");
+        docContent2 = getDefaultDocContent();
+        docContent2.setLocale("fr");
 
-        assertThat(article1.equals(article2)).isFalse();
-        assertThat(article1.hashCode()).isNotEqualTo(article2.hashCode());
+        assertThat(docContent1.equals(docContent2)).isFalse();
+        assertThat(docContent1.hashCode()).isNotEqualTo(docContent2.hashCode());
 
         // change url
-        article2 = getDefaultArticle();
-        article2.setUrl("http://localhost2");
+        docContent2 = getDefaultDocContent();
+        docContent2.setUrl("http://localhost2");
 
-        assertThat(article1.equals(article2)).isFalse();
-        assertThat(article1.hashCode()).isNotEqualTo(article2.hashCode());
+        assertThat(docContent1.equals(docContent2)).isFalse();
+        assertThat(docContent1.hashCode()).isNotEqualTo(docContent2.hashCode());
 
         // change contents
-        article2 = getDefaultArticle();
-        article2.setContents(
+        docContent2 = getDefaultDocContent();
+        docContent2.setContents(
                 Lists.newArrayList(
                         new TypeString("test2", "text/plain", "meta")));
 
-        assertThat(article1.equals(article2)).isFalse();
-        assertThat(article1.hashCode()).isNotEqualTo(article2.hashCode());
+        assertThat(docContent1.equals(docContent2)).isFalse();
+        assertThat(docContent1.hashCode()).isNotEqualTo(docContent2.hashCode());
 
-        article2 = getDefaultArticle();
+        docContent2 = getDefaultDocContent();
 
-        assertThat(article1.equals(article2)).isTrue();
-        assertThat(article1.hashCode()).isEqualTo(article2.hashCode());
+        assertThat(docContent1.equals(docContent2)).isTrue();
+        assertThat(docContent1.hashCode()).isEqualTo(docContent2.hashCode());
     }
 
-    private Document getDefaultArticle() {
+    private DocumentContent getDefaultDocContent() {
         List<TypeString> lists =
                 Lists.newArrayList(
                         new TypeString("test", "text/plain", "meta"));
-        return new Document(lists, "http://localhost", "en", "backendId");
+        return new DocumentContent(lists, "http://localhost", "en", "backendId");
     }
 }

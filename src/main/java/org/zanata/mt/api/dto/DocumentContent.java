@@ -14,12 +14,12 @@ import javax.validation.constraints.NotNull;
  * This entity is used for generic translations by accepting array of strings with type.
  *
  * Used in
- * {@link org.zanata.mt.api.ArticleTranslatorResource#translate(Document, LocaleId)}
+ * {@link org.zanata.mt.api.ArticleTranslatorResource#translate(DocumentContent, LocaleId)}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @JsonSerialize
-public class Document implements Serializable {
+public class DocumentContent implements Serializable {
     private static final long serialVersionUID = 4123397809604573837L;
 
     private String url;
@@ -31,14 +31,14 @@ public class Document implements Serializable {
     private String backendId;
 
     @SuppressWarnings("unused")
-    protected Document() {
+    protected DocumentContent() {
     }
 
-    public Document(List<TypeString> contents, String url, String locale) {
+    public DocumentContent(List<TypeString> contents, String url, String locale) {
         this(contents, url, locale, null);
     }
 
-    public Document(List<TypeString> contents, String url, String locale,
+    public DocumentContent(List<TypeString> contents, String url, String locale,
             String backendId) {
         this.contents = contents;
         this.url = url;
@@ -105,18 +105,18 @@ public class Document implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Document)) return false;
+        if (!(o instanceof DocumentContent)) return false;
 
-        Document article = (Document) o;
+        DocumentContent docContent = (DocumentContent) o;
 
-        if (!url.equals(article.url))
+        if (!url.equals(docContent.url))
             return false;
-        if (!contents.equals(article.contents))
+        if (!contents.equals(docContent.contents))
             return false;
-        if (!locale.equals(article.locale))
+        if (!locale.equals(docContent.locale))
             return false;
-        return backendId != null ? backendId.equals(article.backendId) :
-                article.backendId == null;
+        return backendId != null ? backendId.equals(docContent.backendId) :
+                docContent.backendId == null;
 
     }
 

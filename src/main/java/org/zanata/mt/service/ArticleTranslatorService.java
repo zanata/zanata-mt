@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.api.dto.RawArticle;
-import org.zanata.mt.api.dto.Document;
+import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.article.ArticleContents;
 import org.zanata.mt.article.ArticleNode;
@@ -48,9 +48,9 @@ public class ArticleTranslatorService {
 
     /**
      * Translate a Document
-     * {@link Document}
+     * {@link DocumentContent}
      **/
-    public Document translateDocument(Document document, Locale srcLocale,
+    public DocumentContent translateDocument(DocumentContent documentContent, Locale srcLocale,
             Locale transLocale, BackendID backendID)
             throws BadRequestException, ZanataMTException {
 
@@ -59,7 +59,7 @@ public class ArticleTranslatorService {
 
         //group by media type and send in batch for translation
         int index = 0;
-        for (TypeString typeString: document.getContents()) {
+        for (TypeString typeString: documentContent.getContents()) {
             MediaType mediaType = getMediaType(typeString.getType());
 
             if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
@@ -70,7 +70,7 @@ public class ArticleTranslatorService {
             index++;
         }
 
-        List<TypeString> results = Lists.newArrayList(document.getContents());
+        List<TypeString> results = Lists.newArrayList(documentContent.getContents());
 
         if (!indexHTMLMap.isEmpty()) {
             List<String> translatedHtmls =
@@ -90,7 +90,7 @@ public class ArticleTranslatorService {
                     MediaType.TEXT_PLAIN);
         }
 
-        return new Document(results, document.getUrl(),
+        return new DocumentContent(results, documentContent.getUrl(),
                 transLocale.getLocaleId().getId(), backendID.getId());
     }
 

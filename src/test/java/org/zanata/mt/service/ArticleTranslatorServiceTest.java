@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.Document;
+import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
@@ -200,7 +200,8 @@ public class ArticleTranslatorServiceTest {
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
-        Document article = new Document(contents, "http://localhost", "en");
+        DocumentContent
+                article = new DocumentContent(contents, "http://localhost", "en");
 
         when(persistentTranslationService.translate(htmls,
                 srcLocale,
@@ -213,15 +214,15 @@ public class ArticleTranslatorServiceTest {
                 .thenReturn(translatedText);
 
 
-        Document translatedArticle = articleTranslatorService
+        DocumentContent translatedDocContent = articleTranslatorService
                 .translateDocument(article, srcLocale, transLocale,
                         BackendID.MS);
 
-        assertThat(translatedArticle.getLocale())
+        assertThat(translatedDocContent.getLocale())
                 .isEqualTo(transLocale.getLocaleId().getId());
-        assertThat(translatedArticle.getBackendId()).isEqualTo(BackendID.MS.getId());
-        assertThat(translatedArticle.getUrl()).isEqualTo(article.getUrl());
-        assertThat(translatedArticle.getContents())
+        assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
+        assertThat(translatedDocContent.getUrl()).isEqualTo(article.getUrl());
+        assertThat(translatedDocContent.getContents())
                 .isEqualTo(translatedContents);
 
         verify(persistentTranslationService)

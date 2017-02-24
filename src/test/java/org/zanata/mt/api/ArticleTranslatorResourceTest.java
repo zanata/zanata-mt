@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.Document;
+import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.RawArticle;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
@@ -61,9 +61,9 @@ public class ArticleTranslatorResourceTest {
 
     @Test
     public void testTranslateArticleBadParams() {
-        Document article = new Document(null, null, null);
+        DocumentContent docContent = new DocumentContent(null, null, null);
         // empty trans locale
-        Response response = articleTranslatorResource.translate(article, null);
+        Response response = articleTranslatorResource.translate(docContent, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -71,37 +71,37 @@ public class ArticleTranslatorResourceTest {
     @Test
     public void testInvalidDocRequest() {
         // null article
-        Document document = null;
+        DocumentContent documentContent = null;
         Response response =
-                articleTranslatorResource.translate(document, null);
+                articleTranslatorResource.translate(documentContent, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty fields
-        document = new Document(null, null, null);
-        response = articleTranslatorResource.translate(document,
+        documentContent = new DocumentContent(null, null, null);
+        response = articleTranslatorResource.translate(documentContent,
                 LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with no content
-        document = new Document(null, null, null);
-        response = articleTranslatorResource.translate(document, LocaleId.DE);
+        documentContent = new DocumentContent(null, null, null);
+        response = articleTranslatorResource.translate(documentContent, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty locale
-        document = new Document(
+        documentContent = new DocumentContent(
                 Lists.newArrayList(new TypeString("string", "text/plain", "meta")),
                 "http://localhost", null);
-        response = articleTranslatorResource.translate(document, LocaleId.DE);
+        response = articleTranslatorResource.translate(documentContent, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // article with content but no url
-        document = new Document(Lists.newArrayList(new TypeString("test",
+        documentContent = new DocumentContent(Lists.newArrayList(new TypeString("test",
                 MediaType.TEXT_PLAIN, "meta")), null, "en");
-        response = articleTranslatorResource.translate(document, LocaleId.DE);
+        response = articleTranslatorResource.translate(documentContent, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -124,7 +124,8 @@ public class ArticleTranslatorResourceTest {
         List<TypeString> contents = Lists.newArrayList(
                 new TypeString("<html>test</html>", MediaType.TEXT_HTML,
                         "meta"));
-        Document article = new Document(contents, "http://localhost",
+        DocumentContent
+                article = new DocumentContent(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
 
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
@@ -177,9 +178,10 @@ public class ArticleTranslatorResourceTest {
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
-        Document article = new Document(contents, "http://localhost", "en");
-        Document translatedArticle =
-                new Document(translatedContents, "http://localhost",
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost", "en");
+        DocumentContent translatedDocContent =
+                new DocumentContent(translatedContents, "http://localhost",
                         transLocale.getLocaleId().getId());
 
         org.zanata.mt.model.Document
@@ -189,21 +191,21 @@ public class ArticleTranslatorResourceTest {
                 .thenReturn(srcLocale);
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
-        when(documentDAO.getOrCreateByUrl(article.getUrl(), srcLocale,
+        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,
                 transLocale)).thenReturn(doc);
 
-        when(articleTranslatorService.translateDocument(article, srcLocale,
-                transLocale, BackendID.MS)).thenReturn(translatedArticle);
+        when(articleTranslatorService.translateDocument(docContent, srcLocale,
+                transLocale, BackendID.MS)).thenReturn(translatedDocContent);
         when(articleTranslatorService.isMediaTypeSupported(any()))
                 .thenReturn(true);
 
         Response response =
                 articleTranslatorResource
-                        .translate(article, transLocale.getLocaleId());
+                        .translate(docContent, transLocale.getLocaleId());
 
         assertThat(response.getStatus())
                     .isEqualTo(Response.Status.OK.getStatusCode());
-        Document returnedArticle = (Document)response.getEntity();
+        DocumentContent returnedArticle = (DocumentContent)response.getEntity();
 
         assertThat(returnedArticle.getContents()).isEqualTo(translatedContents);
         assertThat(returnedArticle.getLocale())

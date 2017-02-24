@@ -7,6 +7,7 @@
 
   <persistence-unit name="zanataMTDatasourcePUTest" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <!-- This list should be in sync with main/resources/META-INF/persistence.xml -->
     <class>org.zanata.mt.model.Document</class>
     <class>org.zanata.mt.model.Locale</class>
     <class>org.zanata.mt.model.TextFlow</class>

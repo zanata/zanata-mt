@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.api.dto.RawArticle;
-import org.zanata.mt.api.dto.Document;
+import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.dao.DocumentDAO;
@@ -31,10 +31,10 @@ import org.zanata.mt.service.ArticleTranslatorService;
 import org.zanata.mt.util.UrlUtil;
 
 /**
- * API entry point for article translation: '/translate'
+ * API entry point for docContent translation: '/translate'
  *
  * See
- * {@link #translate(Document, LocaleId)}
+ * {@link #translate(DocumentContent, LocaleId)}
  * {@link #translate(RawArticle, LocaleId)}
  *
  */
@@ -66,36 +66,36 @@ public class ArticleTranslatorResource {
     }
 
     @POST
-    public Response translate(@NotNull Document article,
+    public Response translate(@NotNull DocumentContent docContent,
             @NotNull @QueryParam("targetLang") LocaleId targetLang) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 
         Optional<APIErrorResponse> errorResp =
-                validatePostRequest(article, targetLang);
+                validatePostRequest(docContent, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(errorResp.get()).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + article + " target_lang"
+            LOG.debug("Request translations:" + docContent + " target_lang"
                     + targetLang + " backendId:" + backendID.getId());
         }
 
-        Locale srcLocale = getLocale(new LocaleId(article.getLocale()));
+        Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
         Locale transLocale = getLocale(targetLang);
 
         org.zanata.mt.model.Document doc = documentDAO
-                .getOrCreateByUrl(article.getUrl(), srcLocale, transLocale);
+                .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
 
         try {
-            Document newArticle = articleTranslatorService
-                    .translateDocument(article, srcLocale, transLocale,
+            DocumentContent newDocContent = articleTranslatorService
+                    .translateDocument(docContent, srcLocale, transLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
-            return Response.ok().entity(newArticle).build();
+            return Response.ok().entity(newDocContent).build();
         } catch (BadRequestException e) {
             String title = "Error";
             LOG.error(title, e);
@@ -132,7 +132,7 @@ public class ArticleTranslatorResource {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.info("Request translations:" + article + " target_lang"
+            LOG.debug("Request translations:" + article + " target_lang"
                     + targetLang + " backendId:" + backendID.getId());
         }
 
@@ -201,7 +201,7 @@ public class ArticleTranslatorResource {
         return Optional.empty();
     }
 
-    private Optional<APIErrorResponse> validatePostRequest(Document article,
+    private Optional<APIErrorResponse> validatePostRequest(DocumentContent article,
             LocaleId targetLang) {
         if (targetLang == null) {
             return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
