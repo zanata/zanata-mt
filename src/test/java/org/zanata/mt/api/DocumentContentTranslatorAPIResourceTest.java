@@ -14,6 +14,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.api.service.DocumentContentTranslatorResource;
+import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -33,7 +35,7 @@ import static org.mockito.Mockito.when;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DocumentContentTranslatorResourceTest {
+public class DocumentContentTranslatorAPIResourceTest {
 
     private DocumentContentTranslatorResource documentContentTranslatorResource;
 
@@ -49,13 +51,13 @@ public class DocumentContentTranslatorResourceTest {
     @Before
     public void beforeTest() {
         documentContentTranslatorResource =
-                new DocumentContentTranslatorResource(documentContentTranslatorService, localeDAO, documentDAO);
+                new DocumentContentTranslatorResourceImpl(documentContentTranslatorService, localeDAO, documentDAO);
     }
 
     @Test
     public void testConstructor() {
         DocumentContentTranslatorResource
-                resource = new DocumentContentTranslatorResource();
+                resource = new DocumentContentTranslatorResourceImpl();
     }
 
     @Test

@@ -2,6 +2,8 @@ package org.zanata.mt.api;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.zanata.mt.api.service.BackendResource;
+import org.zanata.mt.api.service.impl.BackendResourceImpl;
 
 import javax.ws.rs.core.Response;
 
@@ -16,7 +18,7 @@ public class BackendResourceTest {
 
     @Before
     public void setup() {
-        backendResource = new BackendResource();
+        backendResource = new BackendResourceImpl();
     }
 
     @Test

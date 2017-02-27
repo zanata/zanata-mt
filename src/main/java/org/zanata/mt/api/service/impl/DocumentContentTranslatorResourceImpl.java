@@ -1,17 +1,4 @@
-package org.zanata.mt.api;
-
-import java.util.Optional;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+package org.zanata.mt.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,28 +7,29 @@ import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.api.service.DocumentContentTranslatorResource;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
-import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Locale;
 import org.zanata.mt.service.DocumentContentTranslatorService;
-
 import org.zanata.mt.util.UrlUtil;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import java.util.Optional;
+
 /**
- * API entry point for docContent translation: '/translate'
- *
- * See
- * {@link #translate(DocumentContent, LocaleId)}
- *
+ * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Path("/translate")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class DocumentContentTranslatorResource {
+public class DocumentContentTranslatorResourceImpl implements DocumentContentTranslatorResource {
     private static final Logger LOG =
-        LoggerFactory.getLogger(DocumentContentTranslatorResource.class);
+            LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
     private DocumentContentTranslatorService documentContentTranslatorService;
 
@@ -50,11 +38,11 @@ public class DocumentContentTranslatorResource {
     private DocumentDAO documentDAO;
 
     @SuppressWarnings("unused")
-    public DocumentContentTranslatorResource() {
+    public DocumentContentTranslatorResourceImpl() {
     }
 
     @Inject
-    public DocumentContentTranslatorResource(
+    public DocumentContentTranslatorResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentDAO documentDAO) {
         this.documentContentTranslatorService =
@@ -63,7 +51,6 @@ public class DocumentContentTranslatorResource {
         this.documentDAO = documentDAO;
     }
 
-    @POST
     public Response translate(@NotNull DocumentContent docContent,
             @NotNull @QueryParam("targetLang") LocaleId targetLang) {
         // Default to MS engine for translation

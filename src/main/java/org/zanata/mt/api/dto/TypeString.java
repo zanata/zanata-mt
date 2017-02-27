@@ -29,7 +29,7 @@ public class TypeString implements Serializable {
     }
 
     /**
-     * @return value of the string
+     * value of the string
      */
     @JsonProperty("value")
     @NotNull
@@ -42,7 +42,7 @@ public class TypeString implements Serializable {
     }
 
     /**
-     * @return 'text/plain' or 'text/html'
+     * 'text/plain' or 'text/html'
      */
     @JsonProperty("type")
     @NotNull
@@ -55,7 +55,7 @@ public class TypeString implements Serializable {
     }
 
     /**
-     * @return metadata of the entry
+     * metadata of the entry
      */
     @JsonProperty("metadata")
     @Nullable

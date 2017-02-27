@@ -2,7 +2,7 @@ package org.zanata.mt.api.dto;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.zanata.mt.api.DocumentContentTranslatorResource;
+import org.zanata.mt.api.service.DocumentContentTranslatorResource;
 
 import java.io.Serializable;
 import java.util.List;
@@ -47,6 +47,9 @@ public class DocumentContent implements Serializable {
         this.backendId = backendId;
     }
 
+    /**
+     * Source url of this document
+     */
     @JsonProperty("url")
     @NotNull
     public String getUrl() {
@@ -57,6 +60,9 @@ public class DocumentContent implements Serializable {
         this.url = url;
     }
 
+    /**
+     * Content of this document in array of {@link TypeString}
+     */
     @JsonProperty("contents")
     @NotNull
     public List<TypeString> getContents() {
@@ -68,7 +74,7 @@ public class DocumentContent implements Serializable {
     }
 
     /**
-     * @return locale of this DocumentContent
+     * locale of this DocumentContent
      */
     @JsonProperty("locale")
     @NotNull
@@ -81,7 +87,7 @@ public class DocumentContent implements Serializable {
     }
 
     /**
-     * @return backendId of translated content for this DocumentContent
+     * backendId of translated content for this DocumentContent
      */
     @JsonProperty("backendId")
     @Nullable

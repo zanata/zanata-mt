@@ -61,6 +61,8 @@
     <checkstyle.suppressions.location>src/main/resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
 
+    <enunciate.version>2.8.0</enunciate.version>
+
     <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
 
@@ -118,6 +120,44 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+        <version>${enunciate.version}</version>
+        <configuration>
+          <enunciateArtifactId>zanataMT</enunciateArtifactId>
+          <docsDir>${project.build.directory}/rest-api-docs</docsDir>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-docs</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jackson1</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jaxb</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jaxrs</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -346,11 +386,23 @@
           <goals>verify</goals>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 
   <dependencies>
+
+    <!-- enunciate -->
+    <dependency>
+      <groupId>com.webcohesion.enunciate</groupId>
+      <artifactId>enunciate-core-annotations</artifactId>
+      <version>${enunciate.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>jsr250-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- CDI -->
     <dependency>

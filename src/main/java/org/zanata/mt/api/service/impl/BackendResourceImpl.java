@@ -1,17 +1,14 @@
-package org.zanata.mt.api;
+package org.zanata.mt.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.api.InputStreamStreamingOutput;
 import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.service.BackendResource;
 import org.zanata.mt.model.BackendID;
 
 import javax.enterprise.context.RequestScoped;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
@@ -20,17 +17,15 @@ import java.util.Optional;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Path("/backend")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class BackendResource {
+public class BackendResourceImpl implements BackendResource {
 
     private static final String MS_ATTRIBUTION_IMAGE = "/images/MS_attribution.png";
 
-    @GET
-    @Path("/attribution")
-    @Produces("image/png")
+    @SuppressWarnings("unused")
+    public BackendResourceImpl() {
+    }
+
     public Response getAttribution(@NotNull @QueryParam("id") String id) {
         Optional<APIErrorResponse> response = validateId(id);
         if (response.isPresent()) {
