@@ -1,4 +1,4 @@
-package org.zanata.mt.api;
+package org.zanata.mt.api.service;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;

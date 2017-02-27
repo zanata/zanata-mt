@@ -1,8 +1,9 @@
 # API
+See [here](/docs/rest-api-docs/index.html) for updated api.
 
 | Methods | Path |  Description |
 |---|---|---|
-|  {POST} | /api/translate?targetLang={targetLocale} |  [Translate document](#TranslateDocument) |
+|  {POST} | /api/document/translate?targetLang={targetLocale} |  [Translate document](#TranslateDocument) |
 |  {GET} | /api/backend/attribution?id={backendId} | [Get attribution image](#GetAttributionImage) |
 
 ----

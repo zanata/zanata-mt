@@ -59,7 +59,7 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
         Optional<APIErrorResponse> errorResp =
                 validatePostRequest(docContent, targetLang);
         if (errorResp.isPresent()) {
-            return Response.status(Response.Status.BAD_REQUEST)
+            return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
         }
 

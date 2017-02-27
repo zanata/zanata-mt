@@ -127,7 +127,7 @@
         <version>${enunciate.version}</version>
         <configuration>
           <enunciateArtifactId>zanataMT</enunciateArtifactId>
-          <docsDir>${project.build.directory}/rest-api-docs</docsDir>
+          <docsDir>${project.basedir}/docs/rest-api-docs</docsDir>
         </configuration>
         <executions>
           <execution>

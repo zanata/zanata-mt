@@ -5,8 +5,6 @@ Run:
 - Database: `mvn docker:start` (This will create docker image **zanataMTDB**)
 - Wildfly:  `mvn clean verify cargo:run`
 
-- Go to [index](/) and follow instructions
-
 ----
 
 # Documentations

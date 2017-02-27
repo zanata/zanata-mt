@@ -29,7 +29,7 @@ public class BackendResourceImpl implements BackendResource {
     public Response getAttribution(@NotNull @QueryParam("id") String id) {
         Optional<APIErrorResponse> response = validateId(id);
         if (response.isPresent()) {
-            return Response.status(Response.Status.BAD_REQUEST)
+            return Response.status(response.get().getStatus())
                     .entity(response.get()).build();
         }
 

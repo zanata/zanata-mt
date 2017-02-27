@@ -52,6 +52,7 @@ public class APIErrorResponse implements Serializable {
      * The HTTP status code.
      */
     @JsonProperty("status")
+    @NotNull
     public int getStatus() {
         return status;
     }

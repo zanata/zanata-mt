@@ -5,6 +5,7 @@ import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
+import org.zanata.mt.api.dto.APIErrorResponse;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -28,17 +29,19 @@ import javax.ws.rs.core.StreamingOutput;
 })
 public interface BackendResource {
     /**
+     *
      * @param id
      *      id for machine translations backend
      */
     @GET
     @Path("/attribution")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces("image/png")
+    @Produces({"image/png", "application/json"})
     @TypeHint(StreamingOutput.class)
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Attribution found for given id."),
-            @ResponseCode(code = 400, condition = "Invalid id, or id not supported.")
+            @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIErrorResponse.class)),
+            @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIErrorResponse.class))
     })
     Response getAttribution(@NotNull @QueryParam("id") String id);
 }

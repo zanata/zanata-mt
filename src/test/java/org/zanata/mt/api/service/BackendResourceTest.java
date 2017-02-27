@@ -1,4 +1,4 @@
-package org.zanata.mt.api;
+package org.zanata.mt.api.service;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +43,6 @@ public class BackendResourceTest {
         String id = "google";
         Response response = backendResource.getAttribution(id);
         assertThat(response.getStatus())
-                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 }

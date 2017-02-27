@@ -14,11 +14,12 @@ import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
+import org.zanata.mt.api.dto.APIErrorResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 
 /**
- * API entry point for DocumentContent translation
+ * API entry point for {@link DocumentContent}  translation
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -36,12 +37,12 @@ public interface DocumentContentTranslatorResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/translate")
-    @TypeHint(DocumentContent.class)
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Document is translated with given locale."),
-            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent."),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation.")
+            @ResponseCode(code = 200, condition = "Document is translated with given locale.", type = @TypeHint(DocumentContent.class)),
+            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent", type = @TypeHint(APIErrorResponse.class)),
+            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIErrorResponse.class))
     })
-    Response translate(@NotNull DocumentContent docContent,
+    Response translate(@TypeHint(DocumentContent.class) @NotNull
+            DocumentContent docContent,
             @NotNull @QueryParam("targetLang") LocaleId targetLang);
 }
