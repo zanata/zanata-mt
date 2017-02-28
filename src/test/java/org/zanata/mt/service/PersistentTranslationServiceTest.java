@@ -17,8 +17,7 @@ import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.zanata.mt.api.APIConstant.AZURE_ID;
-import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 import static org.zanata.mt.service.PersistentTranslationService.MAX_LENGTH;
 
 /**
@@ -39,10 +38,8 @@ public class PersistentTranslationServiceTest {
 
     @BeforeClass
     public static void beforeClass() {
-        String id = "id";
-        String secret = "secret";
-        System.setProperty(AZURE_ID, id);
-        System.setProperty(AZURE_SECRET, secret);
+        String secret = "subscriptionKey";
+        System.setProperty(AZURE_KEY, secret);
     }
 
     @Before

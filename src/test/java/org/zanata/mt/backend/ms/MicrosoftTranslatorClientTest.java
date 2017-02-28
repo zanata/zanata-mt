@@ -1,7 +1,5 @@
 package org.zanata.mt.backend.ms;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
@@ -25,34 +23,31 @@ import static org.mockito.Mockito.when;
 public class MicrosoftTranslatorClientTest {
     private MicrosoftTranslatorClient api;
     private MicrosoftRestEasyClient restClient;
-    private String id = "id";
-    private String secret = "secret";
+    private String subscriptionKey = "key";
+
+    private Invocation invocation;
+    private Invocation.Builder builder;
 
     @Before
     public void setup() {
         restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(id, secret, restClient);
-    }
+        api = new MicrosoftTranslatorClient(subscriptionKey, restClient);
 
-    @Test
-    public void testGetTokenParam() throws UnsupportedEncodingException {
-        String expectedParam = "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=" + id + "&client_secret=" + secret;
-        String param = api.getTokenParam();
+        builder = Mockito.mock(Invocation.Builder.class);
+        invocation = Mockito.mock(Invocation.class);
 
-        assertThat(param).isEqualTo(expectedParam);
+        when(builder.build("POST")).thenReturn(invocation);
+        when(restClient.getBuilder(any(), any())).thenReturn(builder);
     }
 
     @Test
     public void testGetTokenIfNeeded() {
-        String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
+        String responseKey = "randomKeyThatReturnsFromMS";
 
         Response response = Mockito.mock(Response.class);
         when(response.getStatusInfo()).thenReturn(Response.Status.OK);
-        when(response.readEntity(String.class)).thenReturn(jsonResponse);
-
-        Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
-        when(builder.post(any(Entity.class))).thenReturn(response);
-        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(response.readEntity(String.class)).thenReturn(responseKey);
+        when(invocation.invoke()).thenReturn(response);
 
         String token = api.getCurrentToken();
         Long tokenExpiry = api.getTokenExpiration();
@@ -65,31 +60,26 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testGetToken() throws Exception {
-        String expectedToken = "expected token";
+        String responseKey = "randomKeyThatReturnsFromMS";
 
         Response response = Mockito.mock(Response.class);
         when(response.getStatusInfo()).thenReturn(Response.Status.OK);
-        when(response.readEntity(String.class)).thenReturn(expectedToken);
-
-        Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
-        when(builder.post(any(Entity.class))).thenReturn(response);
-        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(response.readEntity(String.class)).thenReturn(responseKey);
+        when(invocation.invoke()).thenReturn(response);
 
         String token = api.getToken();
 
-        verify(builder).post(any(Entity.class));
+        verify(builder).build("POST");
         verify(response).readEntity(String.class);
 
-        assertThat(token).isEqualTo(expectedToken);
+        assertThat(token).isEqualTo(responseKey);
     }
 
     @Test
     public void testGetTokenException() throws Exception {
         Response response = Mockito.mock(Response.class);
         when(response.getStatusInfo()).thenReturn(Response.Status.BAD_REQUEST);
-        Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
-        when(builder.post(any(Entity.class))).thenReturn(response);
-        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(invocation.invoke()).thenReturn(response);
 
         assertThatThrownBy(() -> api.getToken())
                 .isInstanceOf(ZanataMTException.class);
@@ -97,12 +87,12 @@ public class MicrosoftTranslatorClientTest {
 
     @Test
     public void testRequestTranslations() {
-        String jsonResponse = "{\"expires_in\": \"1\", \"access_token\": \"new\"}";
+        String responseKey = "randomKeyThatReturnsFromMS";
         String responseXml = "response";
 
         Response builderResp = Mockito.mock(Response.class);
         when(builderResp.getStatusInfo()).thenReturn(Response.Status.OK);
-        when(builderResp.readEntity(String.class)).thenReturn(jsonResponse);
+        when(builderResp.readEntity(String.class)).thenReturn(responseKey);
 
         Response webResp = Mockito.mock(Response.class);
         when(webResp.getStatusInfo()).thenReturn(Response.Status.OK);
@@ -114,10 +104,7 @@ public class MicrosoftTranslatorClientTest {
         when(webBuilder.header(any(), any())).thenReturn(webBuilder);
         when(webBuilder.post(any())).thenReturn(webResp);
 
-        Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
-        when(builder.post(any(Entity.class))).thenReturn(builderResp);
-
-        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(invocation.invoke()).thenReturn(builderResp);
         when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();
@@ -145,10 +132,7 @@ public class MicrosoftTranslatorClientTest {
         when(webBuilder.header(any(), any())).thenReturn(webBuilder);
         when(webBuilder.post(any())).thenReturn(webResp);
 
-        Invocation.Builder builder = Mockito.mock(Invocation.Builder.class);
-        when(builder.post(any(Entity.class))).thenReturn(builderResp);
-
-        when(restClient.getBuilder(any(), any())).thenReturn(builder);
+        when(invocation.invoke()).thenReturn(builderResp);
         when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();

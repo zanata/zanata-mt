@@ -36,6 +36,13 @@ public class TypeStringTest {
     }
 
     @Test
+    public void testMetadata() {
+        TypeString typeString = new TypeString();
+        typeString.setMetadata("meta");
+        assertThat(typeString.getMetadata()).isEqualTo("meta");
+    }
+
+    @Test
     public void testEqualsAndHashcode() {
         TypeString typeString1 = getDefault();
 
@@ -50,6 +57,13 @@ public class TypeStringTest {
         // change type
         typeString2 = getDefault();
         typeString2.setType("type2");
+
+        assertThat(typeString1.equals(typeString2)).isFalse();
+        assertThat(typeString1.hashCode()).isNotEqualTo(typeString2.hashCode());
+
+        // change meta
+        typeString2 = getDefault();
+        typeString2.setMetadata("meta2");
 
         assertThat(typeString1.equals(typeString2)).isFalse();
         assertThat(typeString1.hashCode()).isNotEqualTo(typeString2.hashCode());

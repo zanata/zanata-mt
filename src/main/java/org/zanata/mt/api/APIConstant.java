@@ -18,10 +18,8 @@ public final class APIConstant {
     public static final String ID = "ZANATA_MT_ID";
     // API Key to be used for API request
     public static final String API_KEY = "ZANATA_MT_API_KEY";
-    // AZURE Id for MS backend
-    public static final String AZURE_ID = "ZANATA_MT_AZURE_ID";
-    // AZURE Secret for MS backend
-    public static final String AZURE_SECRET = "ZANATA_MT_AZURE_SECRET";
+    // AZURE Subscription key for MS backend
+    public static final String AZURE_KEY = "ZANATA_MT_AZURE_KEY";
 
     // HTTP header request authentication
     public static final String HEADER_API_KEY = "X-Auth-Token";

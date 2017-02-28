@@ -25,13 +25,11 @@ import org.zanata.mt.util.DTOUtil;
 
 import com.google.common.collect.Lists;
 
-import static org.zanata.mt.api.APIConstant.AZURE_ID;
-import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
 /**
  * Service for Microsoft translator.
- * Checks for {@link org.zanata.mt.api.APIConstant#AZURE_ID} and
- * {@link org.zanata.mt.api.APIConstant#AZURE_SECRET} during startup.
+ * {@link org.zanata.mt.api.APIConstant#AZURE_KEY} during startup.
  *
  *
  * See
@@ -45,9 +43,7 @@ import static org.zanata.mt.api.APIConstant.AZURE_SECRET;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    private String clientId;
-
-    private String clientSecret;
+    private String clientSubscriptionKey;
 
     private MicrosoftTranslatorClient api;
 
@@ -59,19 +55,18 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(@SystemProperty(AZURE_ID) String clientId,
-        @SystemProperty(AZURE_SECRET) String clientSecret) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    public MicrosoftTranslatorBackend(
+        @SystemProperty(AZURE_KEY) String clientSubscriptionKey) {
+        this.clientSubscriptionKey = clientSubscriptionKey;
     }
 
     public void onInit(@Observes @Initialized(ApplicationScoped.class) Object init)
         throws ZanataMTException {
-        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+        if (StringUtils.isBlank(clientSubscriptionKey)) {
             throw new ZanataMTException(
-                "Missing system properties of" + AZURE_ID + " and " + AZURE_SECRET);
+                "Missing system properties of" + AZURE_KEY);
         }
-        api = new MicrosoftTranslatorClient(clientId, clientSecret, restClient);
+        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
     }
 
     @Override
@@ -107,12 +102,8 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
         }
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
+    public String getClientSubscriptionKey() {
+        return clientSubscriptionKey;
     }
 
     @VisibleForTesting

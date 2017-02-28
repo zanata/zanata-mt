@@ -10,8 +10,5 @@ Api key for /api request
 ## `ZANATA_MT_ORIGIN_WHITELIST` (optional)
 Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.
 
-## `ZANATA_MT_AZURE_ID` (required for MS engine)
-Credentials for MS translators
-
-## `ZANATA_MT_AZURE_SECRET` (required for MS engine)
-Credentials for MS translators
+## `ZANATA_MT_AZURE_KEY` (required for MS engine)
+Subscription key for MS translators

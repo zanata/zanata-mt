@@ -34,29 +34,22 @@ public class MicrosoftTranslatorBackendTest {
 
     @Test
     public void testVerifyCredentialsInvalid() {
-        msBackend = new MicrosoftTranslatorBackend(null, null);
+        msBackend = new MicrosoftTranslatorBackend(null);
         assertThatThrownBy(() -> msBackend.onInit(null))
             .isInstanceOf(ZanataMTException.class);
     }
 
     @Test
     public void testVerifyCredentials() {
-        msBackend = new MicrosoftTranslatorBackend("id", "secret");
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         msBackend.onInit(null);
     }
 
     @Test
-    public void testClientId() {
-        String id = "client_id";
-        msBackend = new MicrosoftTranslatorBackend(id, null);
-        assertThat(msBackend.getClientId()).isEqualTo(id);
-    }
-
-    @Test
     public void testClientSecret() {
-        String secret = "client_secret";
-        msBackend = new MicrosoftTranslatorBackend(null, secret);
-        assertThat(msBackend.getClientSecret()).isEqualTo(secret);
+        String key = "subscriptionKey";
+        msBackend = new MicrosoftTranslatorBackend(key);
+        assertThat(msBackend.getClientSubscriptionKey()).isEqualTo(key);
     }
 
     @Test
@@ -74,7 +67,7 @@ public class MicrosoftTranslatorBackendTest {
         MicrosoftTranslatorClient api = Mockito.mock(MicrosoftTranslatorClient.class);
         when(api.requestTranslations(any())).thenReturn(responseString);
 
-        msBackend = new MicrosoftTranslatorBackend("id", "secret");
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         msBackend.setApi(api);
         AugmentedTranslation
                 translation = msBackend.translate(content, srcLocale, transLocale, MediaType.TEXT_PLAIN_TYPE);

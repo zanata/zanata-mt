@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DocumentContentTranslatorAPIResourceTest {
+public class DocumentContentTranslatorResourceTest {
 
     private DocumentContentTranslatorResource documentContentTranslatorResource;
 
@@ -108,6 +108,37 @@ public class DocumentContentTranslatorAPIResourceTest {
                 .translate(documentContent, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // empty content in typeString
+        List<TypeString> strings = Lists.newArrayList(
+                new TypeString("", "text/plain", "meta"));
+        documentContent =
+                new DocumentContent(strings, "http://localhost", "en");
+        response = documentContentTranslatorResource
+                .translate(documentContent, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // empty type in typeString
+        strings = Lists.newArrayList(
+                new TypeString("test", "", "meta"));
+        documentContent =
+                new DocumentContent(strings, "http://localhost", "en");
+        response = documentContentTranslatorResource
+                .translate(documentContent, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        // invalid type in typeString
+        strings = Lists.newArrayList(
+                new TypeString("test", "text/invalid", "meta"));
+        documentContent =
+                new DocumentContent(strings, "http://localhost", "en");
+        response = documentContentTranslatorResource
+                .translate(documentContent, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
     }
 
     @Test
