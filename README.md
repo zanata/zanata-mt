@@ -7,7 +7,27 @@ Run:
 
 ----
 
+
 # Documentations
 
-- [API](/docs/api.md)
-- [System properties](/docs/system-properties.md)
+## API
+
+See [here](http://zanata.org/zanata-mt/apidocs) for more information.
+
+
+## System properties
+
+List of system properties that are used in the application.
+
+### `ZANATA_MT_ID` (required)
+ID for /api request
+
+### `ZANATA_MT_API_KEY` (required)
+Api key for /api request
+
+### `ZANATA_MT_ORIGIN_WHITELIST` (optional)
+Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.
+
+### `ZANATA_MT_AZURE_KEY` (required for MS engine)
+Subscription key for MS translators
+
