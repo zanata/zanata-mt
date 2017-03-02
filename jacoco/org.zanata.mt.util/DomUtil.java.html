@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.util</a> &gt; <span class="el_source">DomUtil.java</span></div><h1>DomUtil.java</h1><pre class="source lang-java linenums">package org.zanata.mt.util;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+/**
+ * Utility for KCS article
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+public final class DomUtil {
+    static final String WRAPPER_ID = &quot;ZanataMT-wrapper&quot;;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L19">    private DomUtil() {</span>
+<span class="nc" id="L20">    }</span>
+
+    /**
+     * Check if element is non-translatable node
+     *
+     * section with id 'private-notes...'
+     */
+    public static boolean isNonTranslatableNode(String html) {
+<span class="fc" id="L28">        Document document = Jsoup.parse(appendWrapper(html));</span>
+<span class="fc" id="L29">        Element content = getContentInWrapper(document);</span>
+<span class="fc bfc" id="L30" title="All 4 branches covered.">        return content != null &amp;&amp; content.hasAttr(&quot;translate&quot;) &amp;&amp;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">                content.attr(&quot;translate&quot;).equals(&quot;no&quot;);</span>
+    }
+
+
+    /**
+     * Check if element is KCS article code-raw section
+     *
+     * section with id 'private-notes...'
+     */
+    public static boolean isKCSCodeSection(String html) {
+<span class="fc" id="L41">        Document document = Jsoup.parse(appendWrapper(html));</span>
+<span class="fc" id="L42">        Element content = getContentInWrapper(document);</span>
+<span class="fc bfc" id="L43" title="All 4 branches covered.">        return content != null &amp;&amp; content.id().equals(&quot;code-raw&quot;);</span>
+    }
+
+    /**
+     * Check if element is KCS article private notes
+     *
+     * section with id 'private-notes...'
+     */
+    public static boolean isKCSPrivateNotes(String html) {
+<span class="fc" id="L52">        Document document = Jsoup.parse(appendWrapper(html));</span>
+<span class="fc" id="L53">        Element content = getContentInWrapper(document);</span>
+<span class="fc bfc" id="L54" title="All 4 branches covered.">        return content != null &amp;&amp; content.id().startsWith(&quot;private-notes&quot;);</span>
+    }
+
+    /**
+     * Wrap the html with a ZanataMT-wrapper for easy search
+     */
+    public static String appendWrapper(String html) {
+<span class="fc" id="L61">        return &quot;&lt;div id='&quot; + WRAPPER_ID + &quot;'&gt;&quot; + html + &quot;&lt;/div&gt;&quot;;</span>
+    }
+
+    /**
+     * Get content in a ZanataMT-wrapper
+     * @param element
+     */
+    public static
+    @Nullable
+    Element getContentInWrapper(@Nonnull Element element) {
+<span class="fc" id="L71">        Element wrapper = element.getElementById(WRAPPER_ID);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        return wrapper.children().isEmpty() ? null : wrapper.children().first();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

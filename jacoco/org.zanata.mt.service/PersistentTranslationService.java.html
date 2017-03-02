@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistentTranslationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.service</a> &gt; <span class="el_source">PersistentTranslationService.java</span></div><h1>PersistentTranslationService.java</h1><pre class="source lang-java linenums">package org.zanata.mt.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
+
+import com.google.common.collect.Maps;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.mt.dao.TextFlowDAO;
+import org.zanata.mt.dao.TextFlowTargetDAO;
+import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.Locale;
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.TextFlow;
+import org.zanata.mt.model.TextFlowTarget;
+import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
+import org.zanata.mt.util.HashUtil;
+
+import com.google.common.collect.Lists;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">@ApplicationScoped</span>
+public class PersistentTranslationService {
+<span class="fc" id="L37">    private static final Logger LOG =</span>
+<span class="fc" id="L38">        LoggerFactory.getLogger(PersistentTranslationService.class);</span>
+
+    private TextFlowDAO textFlowDAO;
+
+    private TextFlowTargetDAO textFlowTargetDAO;
+
+    private MicrosoftTranslatorBackend microsoftTranslatorBackend;
+
+    // Max length for single string in Microsoft Engine
+    public static final int MAX_LENGTH = 6000;
+
+    // Max length before logging warning
+    public static final int MAX_LENGTH_WARN = 3000;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L53">    public PersistentTranslationService() {</span>
+<span class="fc" id="L54">    }</span>
+
+    @Inject
+    public PersistentTranslationService(TextFlowDAO textFlowDAO,
+        TextFlowTargetDAO textFlowTargetDAO,
+<span class="fc" id="L59">        MicrosoftTranslatorBackend microsoftTranslatorBackend) {</span>
+<span class="fc" id="L60">        this.textFlowDAO = textFlowDAO;</span>
+<span class="fc" id="L61">        this.textFlowTargetDAO = textFlowTargetDAO;</span>
+<span class="fc" id="L62">        this.microsoftTranslatorBackend = microsoftTranslatorBackend;</span>
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * Translate single string in an api trigger
+     *
+     * Get from database if exists (hash), or from MT engine
+     */
+    @TransactionAttribute
+    public String translate(
+            @NotNull @Size(max = MAX_LENGTH) String string,
+            @NotNull Locale srcLocale, @NotNull Locale targetLocale,
+            @NotNull BackendID backendID, @NotNull MediaType mediaType)
+            throws BadRequestException, ZanataMTException {
+<span class="fc" id="L76">        List&lt;String&gt; translations = translate(Lists.newArrayList(string),</span>
+                srcLocale, targetLocale, backendID, mediaType);
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">        assert translations.size() == 1;</span>
+<span class="fc" id="L79">        return translations.get(0);</span>
+    }
+
+    /**
+     * Translate multiple string in an api trigger
+     *
+     * Get from database if exists (hash), or from MT engine
+     */
+    @TransactionAttribute
+    public List&lt;String&gt; translate(@NotNull List&lt;String&gt; strings,
+            @NotNull Locale srcLocale, @NotNull Locale targetLocale,
+            @NotNull BackendID backendID, @NotNull MediaType mediaType)
+            throws BadRequestException, ZanataMTException {
+<span class="pc bpc" id="L92" title="2 of 10 branches missed.">        if (strings == null || strings.isEmpty() || srcLocale == null</span>
+                || targetLocale == null || backendID == null) {
+<span class="fc" id="L94">            throw new BadRequestException();</span>
+        }
+<span class="fc" id="L96">        int totalChar = strings.stream().mapToInt(String::length).sum();</span>
+
+        // return original string if it is more than MAX_LENGTH
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (totalChar &gt; MAX_LENGTH) {</span>
+<span class="fc" id="L100">            LOG.warn(&quot;Requested string length is more than &quot; + MAX_LENGTH);</span>
+<span class="fc" id="L101">            return strings;</span>
+        }
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (totalChar &gt; MAX_LENGTH_WARN) {</span>
+<span class="nc" id="L104">            LOG.warn(&quot;Requested string length is more than &quot; + MAX_LENGTH_WARN);</span>
+        }
+
+<span class="fc" id="L107">        List&lt;String&gt; results = new ArrayList&lt;&gt;(strings);</span>
+<span class="fc" id="L108">        Map&lt;String, Integer&gt; untranslatedIndexMap = Maps.newHashMap();</span>
+<span class="fc" id="L109">        Map&lt;Integer, TextFlow&gt; indexTextFlowMap = Maps.newHashMap();</span>
+
+        // search from database
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        for (int index = 0; index &lt; strings.size(); index++) {</span>
+<span class="fc" id="L113">            String string = strings.get(index);</span>
+<span class="fc" id="L114">            String hash = HashUtil.generateHash(string);</span>
+<span class="fc" id="L115">            TextFlow matchedHashTf =</span>
+<span class="fc" id="L116">                    textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            if (matchedHashTf != null) {</span>
+<span class="fc" id="L119">                Optional&lt;TextFlowTarget&gt; matchedTarget = getTargetByProvider(</span>
+<span class="fc" id="L120">                        matchedHashTf.getTargetsByLocaleId(</span>
+<span class="fc" id="L121">                                targetLocale.getLocaleId()), backendID);</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">                if (matchedTarget.isPresent()) {</span>
+<span class="fc" id="L124">                    TextFlowTarget matchedEntity = matchedTarget.get();</span>
+<span class="fc" id="L125">                    matchedEntity.incrementCount();</span>
+<span class="fc" id="L126">                    textFlowTargetDAO.persist(matchedEntity);</span>
+<span class="fc" id="L127">                    LOG.info(</span>
+<span class="fc" id="L128">                            &quot;Found matched, Source-&quot; + srcLocale.getLocaleId() + &quot;:&quot; +</span>
+<span class="fc" id="L129">                                    string + &quot;\nTranslation-&quot; + targetLocale.getLocaleId() +</span>
+<span class="fc" id="L130">                                    &quot;:&quot; + matchedEntity.getContent());</span>
+<span class="fc" id="L131">                    results.set(index, matchedEntity.getContent());</span>
+<span class="fc" id="L132">                } else {</span>
+<span class="nc" id="L133">                    untranslatedIndexMap.put(string, index);</span>
+<span class="nc" id="L134">                    indexTextFlowMap.put(index, matchedHashTf);</span>
+                }
+<span class="fc" id="L136">            } else {</span>
+<span class="fc" id="L137">                untranslatedIndexMap.put(string, index);</span>
+<span class="fc" id="L138">                indexTextFlowMap.put(index, null);</span>
+            }
+        }
+
+        // all translations got from database records
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (untranslatedIndexMap.isEmpty()) {</span>
+<span class="fc" id="L144">            return results;</span>
+        }
+
+        // trigger MT engine search
+<span class="fc" id="L148">        List&lt;String&gt; sources = Lists.newArrayList(untranslatedIndexMap.keySet());</span>
+<span class="fc" id="L149">        List&lt;AugmentedTranslation&gt; translations =</span>
+            microsoftTranslatorBackend
+<span class="fc" id="L151">                .translate(sources, srcLocale, targetLocale, mediaType);</span>
+
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (String source: sources) {</span>
+<span class="fc" id="L154">            int index = untranslatedIndexMap.get(source);</span>
+<span class="fc" id="L155">            AugmentedTranslation translation = translations.get(sources.indexOf(source));</span>
+<span class="fc" id="L156">            results.set(index, translation.getPlainTranslation());</span>
+
+<span class="fc" id="L158">            TextFlow tf = indexTextFlowMap.get(index);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">            if (tf == null) {</span>
+<span class="fc" id="L160">                tf = textFlowDAO.persist(new TextFlow(source, srcLocale));</span>
+            }
+<span class="fc" id="L162">            TextFlowTarget target =</span>
+<span class="fc" id="L163">                    new TextFlowTarget(translation.getPlainTranslation(),</span>
+<span class="fc" id="L164">                            translation.getRawTranslation(), tf,</span>
+                            targetLocale, backendID);
+<span class="fc" id="L166">            target = textFlowTargetDAO.persist(target);</span>
+<span class="fc" id="L167">            tf.getTargets().add(target);</span>
+<span class="fc" id="L168">        }</span>
+<span class="fc" id="L169">        return results;</span>
+    }
+
+    private Optional&lt;TextFlowTarget&gt; getTargetByProvider(
+            List&lt;TextFlowTarget&gt; targets, BackendID backendID) {
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">        for (TextFlowTarget target : targets) {</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">            if (target.getBackendId().equals(backendID)) {</span>
+<span class="fc" id="L176">                return Optional.of(target);</span>
+            }
+<span class="nc" id="L178">        }</span>
+<span class="nc" id="L179">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

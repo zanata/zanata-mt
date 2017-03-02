@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ZanataMTApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt</a> &gt; <span class="el_source">ZanataMTApplication.java</span></div><h1>ZanataMTApplication.java</h1><pre class="source lang-java linenums">package org.zanata.mt;
+
+import java.util.Set;
+import javax.ws.rs.ApplicationPath;
+
+import com.google.common.collect.ImmutableSet;
+import org.zanata.mt.api.service.impl.BackendResourceImpl;
+import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@ApplicationPath(&quot;api&quot;)
+<span class="fc" id="L14">public class ZanataMTApplication extends javax.ws.rs.core.Application {</span>
+<span class="fc" id="L15">    private Set&lt;Class&lt;?&gt;&gt; classes = buildClasses();</span>
+
+    private static Set&lt;Class&lt;?&gt;&gt; buildClasses() {
+<span class="fc" id="L18">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
+                // api classes
+<span class="fc" id="L20">                .add(DocumentContentTranslatorResourceImpl.class)</span>
+<span class="fc" id="L21">                .add(BackendResourceImpl.class)</span>
+                // providers
+<span class="fc" id="L23">                .build();</span>
+    }
+
+    @Override
+    public Set&lt;Class&lt;?&gt;&gt; getClasses() {
+<span class="fc" id="L28">        return classes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>APIErrorResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.dto</a> &gt; <span class="el_source">APIErrorResponse.java</span></div><h1>APIErrorResponse.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.dto;
+
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.Response;
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+/**
+ * JSON entity for API error response
+ *
+ * @author Alex Eng&lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@JsonSerialize(include = JsonSerialize.Inclusion.ALWAYS)
+public class APIErrorResponse implements Serializable {
+
+<span class="fc" id="L21">    private final static DateTimeFormatter DATE_FORMATTER =</span>
+<span class="fc" id="L22">        DateTimeFormatter.ofPattern(&quot;dd-MM-yyyy HH:mm:ssZ&quot;);</span>
+
+    private static final long serialVersionUID = 6040356482529107259L;
+
+    private int status;
+
+    private String title;
+
+    private String details;
+
+    private String timestamp;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L35">    protected APIErrorResponse() {</span>
+<span class="fc" id="L36">    }</span>
+
+    public APIErrorResponse(Response.Status status, String title) {
+<span class="fc" id="L39">        this(status, null, title);</span>
+<span class="fc" id="L40">    }</span>
+
+<span class="fc" id="L42">    public APIErrorResponse(Response.Status status, Exception e, String title) {</span>
+<span class="fc" id="L43">        this.status = status.getStatusCode();</span>
+<span class="fc" id="L44">        this.title = title;</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (e != null) {</span>
+<span class="fc" id="L46">            this.details = e.getMessage();</span>
+        }
+<span class="fc" id="L48">        this.timestamp = ZonedDateTime.now().format(DATE_FORMATTER);</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * The HTTP status code.
+     */
+    @JsonProperty(&quot;status&quot;)
+    @NotNull
+    public int getStatus() {
+<span class="fc" id="L57">        return status;</span>
+    }
+
+    public void setStatus(int status) {
+<span class="fc" id="L61">        this.status = status;</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Summary of the problem.
+     */
+    @JsonProperty(&quot;title&quot;)
+    @NotNull
+    public String getTitle() {
+<span class="fc" id="L70">        return title;</span>
+    }
+
+    public void setTitle(String title) {
+<span class="fc" id="L74">        this.title = title;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Detail explanation for this error.
+     */
+    @JsonProperty(&quot;details&quot;)
+    @Nullable
+    public String getDetails() {
+<span class="fc" id="L83">        return details;</span>
+    }
+
+    public void setDetails(String details) {
+<span class="fc" id="L87">        this.details = details;</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Timestamp of the response. Format: dd-MM-yyyy HH:mm:ssZ
+     */
+    @JsonProperty(&quot;timestamp&quot;)
+    @NotNull
+    public String getTimestamp() {
+<span class="fc" id="L96">        return timestamp;</span>
+    }
+
+    public void setTimestamp(String timestamp) {
+<span class="fc" id="L100">        this.timestamp = timestamp;</span>
+<span class="fc" id="L101">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

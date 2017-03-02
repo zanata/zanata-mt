@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TypeString.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.dto</a> &gt; <span class="el_source">TypeString.java</span></div><h1>TypeString.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.dto;
+
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.io.Serializable;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
+/**
+ * JSON entity for source and translation string with specified {@link #type}
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@JsonSerialize
+public class TypeString implements Serializable {
+    private String value;
+    private String type;
+    private String metadata;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L22">    public TypeString() {</span>
+<span class="fc" id="L23">    }</span>
+
+<span class="fc" id="L25">    public TypeString(String value, String type, String metadata) {</span>
+<span class="fc" id="L26">        this.value = value;</span>
+<span class="fc" id="L27">        this.type = type;</span>
+<span class="fc" id="L28">        this.metadata = metadata;</span>
+<span class="fc" id="L29">    }</span>
+
+    /**
+     * value of the string
+     */
+    @JsonProperty(&quot;value&quot;)
+    @NotNull
+    public String getValue() {
+<span class="fc" id="L37">        return value;</span>
+    }
+
+    public void setValue(String value) {
+<span class="fc" id="L41">        this.value = value;</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * 'text/plain' or 'text/html'
+     */
+    @JsonProperty(&quot;type&quot;)
+    @NotNull
+    public String getType() {
+<span class="fc" id="L50">        return type;</span>
+    }
+
+    public void setType(String type) {
+<span class="fc" id="L54">        this.type = type;</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * metadata of the entry
+     */
+    @JsonProperty(&quot;metadata&quot;)
+    @Nullable
+    public String getMetadata() {
+<span class="fc" id="L63">        return metadata;</span>
+    }
+
+    public void setMetadata(String metadata) {
+<span class="fc" id="L67">        this.metadata = metadata;</span>
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public String toString() {
+<span class="fc" id="L72">        return &quot;TypeString{&quot; +</span>
+                &quot;value='&quot; + value + '\'' +
+                &quot;, type='&quot; + type + '\'' +
+                &quot;, metadata='&quot; + metadata + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (!(o instanceof TypeString)) return false;</span>
+
+<span class="fc" id="L84">        TypeString that = (TypeString) o;</span>
+
+<span class="pc bpc" id="L86" title="1 of 4 branches missed.">        if (getValue() != null ? !getValue().equals(that.getValue()) :</span>
+<span class="pc bnc" id="L87" title="All 2 branches missed.">                that.getValue() != null) return false;</span>
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (getType() != null ? !getType().equals(that.getType()) :</span>
+<span class="pc bnc" id="L89" title="All 2 branches missed.">                that.getType() != null) return false;</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        return getMetadata() != null ?</span>
+<span class="pc" id="L91">                getMetadata().equals(that.getMetadata()) :</span>
+<span class="pc bnc" id="L92" title="All 2 branches missed.">                that.getMetadata() == null;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        int result = getValue() != null ? getValue().hashCode() : 0;</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        result = 31 * result + (getType() != null ? getType().hashCode() : 0);</span>
+<span class="fc" id="L99">        result =</span>
+                31 * result +
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                        (getMetadata() != null ? getMetadata().hashCode() : 0);</span>
+<span class="fc" id="L102">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

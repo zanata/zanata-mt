@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocumentContent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.dto</a> &gt; <span class="el_source">DocumentContent.java</span></div><h1>DocumentContent.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.dto;
+
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.zanata.mt.api.service.DocumentContentTranslatorResource;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
+
+/**
+ * JSON entity for a document translations request and response.
+ * This entity is used for generic translations by accepting array of strings with type.
+ *
+ * Used in
+ * {@link DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)}
+ *
+ * @author Alex Eng&lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@JsonSerialize
+public class DocumentContent implements Serializable {
+    private static final long serialVersionUID = 4123397809604573837L;
+
+    private String url;
+
+    private List&lt;TypeString&gt; contents;
+
+    private String locale;
+
+    private String backendId;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L35">    protected DocumentContent() {</span>
+<span class="fc" id="L36">    }</span>
+
+    public DocumentContent(List&lt;TypeString&gt; contents, String url, String locale) {
+<span class="fc" id="L39">        this(contents, url, locale, null);</span>
+<span class="fc" id="L40">    }</span>
+
+    public DocumentContent(List&lt;TypeString&gt; contents, String url, String locale,
+<span class="fc" id="L43">            String backendId) {</span>
+<span class="fc" id="L44">        this.contents = contents;</span>
+<span class="fc" id="L45">        this.url = url;</span>
+<span class="fc" id="L46">        this.locale = locale;</span>
+<span class="fc" id="L47">        this.backendId = backendId;</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Source url of this document
+     */
+    @JsonProperty(&quot;url&quot;)
+    @NotNull
+    public String getUrl() {
+<span class="fc" id="L56">        return url;</span>
+    }
+
+    public void setUrl(String url) {
+<span class="fc" id="L60">        this.url = url;</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Content of this document in array of {@link TypeString}
+     */
+    @JsonProperty(&quot;contents&quot;)
+    @NotNull
+    public List&lt;TypeString&gt; getContents() {
+<span class="fc" id="L69">        return contents;</span>
+    }
+
+    public void setContents(List&lt;TypeString&gt; contents) {
+<span class="fc" id="L73">        this.contents = contents;</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * locale of this DocumentContent
+     */
+    @JsonProperty(&quot;locale&quot;)
+    @NotNull
+    public String getLocale() {
+<span class="fc" id="L82">        return locale;</span>
+    }
+
+    public void setLocale(String locale) {
+<span class="fc" id="L86">        this.locale = locale;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * backendId of translated content for this DocumentContent
+     */
+    @JsonProperty(&quot;backendId&quot;)
+    @Nullable
+    public String getBackendId() {
+<span class="fc" id="L95">        return backendId;</span>
+    }
+
+    public void setBackendId(@Nullable String backendId) {
+<span class="fc" id="L99">        this.backendId = backendId;</span>
+<span class="fc" id="L100">    }</span>
+
+    @Override
+    public String toString() {
+<span class="fc" id="L104">        return &quot;DocumentContent{&quot; +</span>
+                &quot;url='&quot; + url + '\'' +
+                &quot;, contents=&quot; + contents +
+                &quot;, locale='&quot; + locale + '\'' +
+                &quot;, backendId='&quot; + backendId + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (!(o instanceof DocumentContent)) return false;</span>
+
+<span class="fc" id="L117">        DocumentContent docContent = (DocumentContent) o;</span>
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (!url.equals(docContent.url))</span>
+<span class="fc" id="L120">            return false;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (!contents.equals(docContent.contents))</span>
+<span class="fc" id="L122">            return false;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (!locale.equals(docContent.locale))</span>
+<span class="fc" id="L124">            return false;</span>
+<span class="pc bpc" id="L125" title="3 of 4 branches missed.">        return backendId != null ? backendId.equals(docContent.backendId) :</span>
+                docContent.backendId == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L132">        int result = url.hashCode();</span>
+<span class="fc" id="L133">        result = 31 * result + contents.hashCode();</span>
+<span class="fc" id="L134">        result = 31 * result + locale.hashCode();</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        result = 31 * result + (backendId != null ? backendId.hashCode() : 0);</span>
+<span class="fc" id="L136">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
