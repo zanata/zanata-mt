@@ -3,6 +3,7 @@ package org.zanata.mt.api.dto;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,13 +35,16 @@ public class DocumentContentTest {
     public void testConstructor2() {
         List<TypeString> lists = Lists.newArrayList(
                 new TypeString("test", "text/plain", "meta"));
+        List<APIResponse> warnings = Lists.newArrayList(
+                new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
         DocumentContent
-                docContent = new DocumentContent(lists, "http://localhost", "en", "backendId");
+                docContent = new DocumentContent(lists, "http://localhost", "en", "backendId", warnings);
 
         assertThat(docContent.getContents()).isEqualTo(lists);
         assertThat(docContent.getLocale()).isEqualTo("en");
         assertThat(docContent.getUrl()).isEqualTo("http://localhost");
         assertThat(docContent.getBackendId()).isEqualTo("backendId");
+        assertThat(docContent.getWarnings()).isEqualTo(warnings);
     }
 
     @Test
@@ -72,6 +76,15 @@ public class DocumentContentTest {
         DocumentContent docContent = new DocumentContent();
         docContent.setBackendId("backendId");
         assertThat(docContent.getBackendId()).isEqualTo("backendId");
+    }
+
+    @Test
+    public void testWarnings() {
+        DocumentContent docContent = new DocumentContent();
+        List<APIResponse> warnings = Lists.newArrayList(
+                new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
+        docContent.setWarnings(warnings);
+        assertThat(docContent.getWarnings()).isEqualTo(warnings);
     }
 
     @Test
@@ -115,9 +128,12 @@ public class DocumentContentTest {
     }
 
     private DocumentContent getDefaultDocContent() {
+        List<APIResponse> warnings = Lists.newArrayList(
+                new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
         List<TypeString> lists =
                 Lists.newArrayList(
                         new TypeString("test", "text/plain", "meta"));
-        return new DocumentContent(lists, "http://localhost", "en", "backendId");
+        return new DocumentContent(lists, "http://localhost", "en", "backendId",
+                warnings);
     }
 }

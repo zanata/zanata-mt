@@ -5,7 +5,7 @@ import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
-import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.dto.APIResponse;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -40,8 +40,8 @@ public interface BackendResource {
     @TypeHint(StreamingOutput.class)
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Attribution found for given id."),
-            @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIErrorResponse.class)),
-            @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIErrorResponse.class))
+            @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIResponse.class))
     })
     Response getAttribution(@NotNull @QueryParam("id") String id);
 }

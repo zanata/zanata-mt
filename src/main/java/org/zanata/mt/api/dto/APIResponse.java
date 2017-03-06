@@ -11,12 +11,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * JSON entity for API error response
+ * JSON entity for HTTP API response
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @JsonSerialize(include = JsonSerialize.Inclusion.ALWAYS)
-public class APIErrorResponse implements Serializable {
+public class APIResponse implements Serializable {
 
     private final static DateTimeFormatter DATE_FORMATTER =
         DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ssZ");
@@ -32,14 +32,14 @@ public class APIErrorResponse implements Serializable {
     private String timestamp;
 
     @SuppressWarnings("unused")
-    protected APIErrorResponse() {
+    protected APIResponse() {
     }
 
-    public APIErrorResponse(Response.Status status, String title) {
+    public APIResponse(Response.Status status, String title) {
         this(status, null, title);
     }
 
-    public APIErrorResponse(Response.Status status, Exception e, String title) {
+    public APIResponse(Response.Status status, Exception e, String title) {
         this.status = status.getStatusCode();
         this.title = title;
         if (e != null) {

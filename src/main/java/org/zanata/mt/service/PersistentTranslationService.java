@@ -8,7 +8,6 @@ import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
@@ -43,12 +42,6 @@ public class PersistentTranslationService {
 
     private MicrosoftTranslatorBackend microsoftTranslatorBackend;
 
-    // Max length for single string in Microsoft Engine
-    public static final int MAX_LENGTH = 6000;
-
-    // Max length before logging warning
-    public static final int MAX_LENGTH_WARN = 3000;
-
     @SuppressWarnings("unused")
     public PersistentTranslationService() {
     }
@@ -60,23 +53,6 @@ public class PersistentTranslationService {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
         this.microsoftTranslatorBackend = microsoftTranslatorBackend;
-    }
-
-    /**
-     * Translate single string in an api trigger
-     *
-     * Get from database if exists (hash), or from MT engine
-     */
-    @TransactionAttribute
-    public String translate(
-            @NotNull @Size(max = MAX_LENGTH) String string,
-            @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull BackendID backendID, @NotNull MediaType mediaType)
-            throws BadRequestException, ZanataMTException {
-        List<String> translations = translate(Lists.newArrayList(string),
-                srcLocale, targetLocale, backendID, mediaType);
-        assert translations.size() == 1;
-        return translations.get(0);
     }
 
     /**
@@ -92,16 +68,6 @@ public class PersistentTranslationService {
         if (strings == null || strings.isEmpty() || srcLocale == null
                 || targetLocale == null || backendID == null) {
             throw new BadRequestException();
-        }
-        int totalChar = strings.stream().mapToInt(String::length).sum();
-
-        // return original string if it is more than MAX_LENGTH
-        if (totalChar > MAX_LENGTH) {
-            LOG.warn("Requested string length is more than " + MAX_LENGTH);
-            return strings;
-        }
-        if (totalChar > MAX_LENGTH_WARN) {
-            LOG.warn("Requested string length is more than " + MAX_LENGTH_WARN);
         }
 
         List<String> results = new ArrayList<>(strings);

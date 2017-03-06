@@ -31,20 +31,23 @@ public class DocumentContent implements Serializable {
 
     private String backendId;
 
+    private List<APIResponse> warnings;
+
     @SuppressWarnings("unused")
     protected DocumentContent() {
     }
 
     public DocumentContent(List<TypeString> contents, String url, String locale) {
-        this(contents, url, locale, null);
+        this(contents, url, locale, null, null);
     }
 
     public DocumentContent(List<TypeString> contents, String url, String locale,
-            String backendId) {
+            String backendId, List<APIResponse> warnings) {
         this.contents = contents;
         this.url = url;
         this.locale = locale;
         this.backendId = backendId;
+        this.warnings = warnings;
     }
 
     /**
@@ -99,6 +102,19 @@ public class DocumentContent implements Serializable {
         this.backendId = backendId;
     }
 
+    /**
+     * warning messages {@link APIResponse}
+     */
+    @JsonProperty("warnings")
+    @Nullable
+    public List<APIResponse> getWarnings() {
+        return warnings;
+    }
+
+    public void setWarnings(List<APIResponse> warnings) {
+        this.warnings = warnings;
+    }
+
     @Override
     public String toString() {
         return "DocumentContent{" +
@@ -106,6 +122,7 @@ public class DocumentContent implements Serializable {
                 ", contents=" + contents +
                 ", locale='" + locale + '\'' +
                 ", backendId='" + backendId + '\'' +
+                ", warnings=" + warnings +
                 '}';
     }
 

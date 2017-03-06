@@ -11,6 +11,10 @@ import java.net.URL;
  */
 public final class UrlUtil {
 
+    @SuppressWarnings("unused")
+    private UrlUtil() {
+    }
+
     public static boolean isValidURL(String url) {
         if (StringUtils.isBlank(url)) {
             return false;

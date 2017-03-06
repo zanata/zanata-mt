@@ -1,5 +1,6 @@
 package org.zanata.mt.service;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +8,14 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.util.DomUtil;
+import org.zanata.mt.util.ArticleUtil;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
@@ -41,7 +44,51 @@ public class DocumentContentTranslatorService {
     }
 
     /**
-     * Translate a Document
+     * Replace code-section and private-notes section with placeholder.
+     * Append warning in the response.
+     */
+    private void processPrivateNotesAndCodeSection(TypeString typeString,
+            Map<String, String> nonTranslatePlaceholderMap,
+            List<APIResponse> warnings, int index) {
+
+        String indexStr = String.valueOf(index);
+        String html = typeString.getValue();
+
+        if (ArticleUtil.containsPrivateNotes(html)) {
+            // cache original html with index
+            nonTranslatePlaceholderMap.put(indexStr, html);
+            String nonTranslatableHTML =
+                    ArticleUtil.generateNonTranslatableHtml(indexStr);
+            // replace private-notes with placeholder
+            ArticleUtil.replacePrivateNotes(typeString,
+                    nonTranslatableHTML);
+            warnings.add(new APIResponse(Response.Status.OK,
+                    "String contains private notes section:" + html));
+        } else if (ArticleUtil.containsKCSCodeSection(html)) {
+            // cache original html with index
+            nonTranslatePlaceholderMap.put(indexStr, html);
+            String nonTranslatableHTML =
+                    ArticleUtil.generateNonTranslatableHtml(indexStr);
+            // replace code-section with placeholder
+            ArticleUtil.replaceKCSCodeSection(typeString,
+                    nonTranslatableHTML);
+            warnings.add(new APIResponse(Response.Status.OK,
+                    "String contains KCS code section:" + html));
+        }
+    }
+
+    /**
+     * Translate a Document and send in for machine translation request
+     * in batch group by media type.
+     *
+     * Any HTML node that is not translatable {@link ArticleUtil#isNonTranslatableNode(String)}
+     * will be excluded from translation request.
+     *
+     * For private-notes section {@link ArticleUtil#containsPrivateNotes(String)}
+     * and code-section {@link ArticleUtil#containsKCSCodeSection(String)},
+     * a placeholder will replace the section before sending out request.
+     * A warning message will be included in the response.
+     *
      * {@link DocumentContent}
      **/
     public DocumentContent translateDocument(DocumentContent documentContent,
@@ -51,17 +98,24 @@ public class DocumentContentTranslatorService {
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
 
-        //group by media type and send in batch for translation
+        Map<String, String> nonTranslatePlaceholderMap = new HashMap<>();
+        List<APIResponse> warnings = null;
+
         int index = 0;
         for (TypeString typeString: documentContent.getContents()) {
             MediaType mediaType = getMediaType(typeString.getType());
 
             if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
-                // filter out private notes, code, and non-translatable html
                 String html = typeString.getValue();
-                if (!DomUtil.isKCSPrivateNotes(html) &&
-                        !DomUtil.isKCSCodeSection(html) &&
-                        !DomUtil.isNonTranslatableNode(html)) {
+                // filter out non-translatable html
+                if (!ArticleUtil.isNonTranslatableNode(html)) {
+                    if (ArticleUtil.containsPrivateNotes(html) ||
+                            ArticleUtil.containsKCSCodeSection(html)) {
+                        //replace with placeholder in the html node
+                        warnings = Lists.newArrayList();
+                        processPrivateNotesAndCodeSection(typeString,
+                                nonTranslatePlaceholderMap, warnings, index);
+                    }
                     indexHTMLMap.put(index, typeString);
                 }
             } else if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
@@ -90,14 +144,27 @@ public class DocumentContentTranslatorService {
                     MediaType.TEXT_PLAIN);
         }
 
+        // replace placeholder with original content according to index
+        for (Map.Entry<String, String> entry : nonTranslatePlaceholderMap
+                .entrySet()) {
+            String indexStr = entry.getKey();
+            index = Integer.valueOf(indexStr);
+
+            String originalHtml = entry.getValue();
+            TypeString translatedTypeString = results.get(index);
+            ArticleUtil.replaceNodeById(indexStr, originalHtml, translatedTypeString);
+            results.set(index, translatedTypeString);
+        }
+
         return new DocumentContent(results, documentContent.getUrl(),
-                transLocale.getLocaleId().getId(), backendID.getId());
+                transLocale.getLocaleId().getId(), backendID.getId(), warnings);
     }
 
     // translate all string values in map with given mediaType
     private List<String> translateStrings(
             LinkedHashMap<Integer, TypeString> indexMap, Locale srcLocale,
-            Locale transLocale, BackendID backendID, MediaType mediaType) {
+            Locale transLocale, BackendID backendID, MediaType mediaType)
+            throws BadRequestException, ZanataMTException {
 
         List<String> stringsToTranslate =
                 indexMap.values().stream().map(TypeString::getValue)

@@ -3,7 +3,7 @@ package org.zanata.mt.service;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,10 +15,10 @@ import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
-import static org.zanata.mt.service.PersistentTranslationService.MAX_LENGTH;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -55,20 +55,8 @@ public class PersistentTranslationServiceTest {
     }
 
     @Test
-    public void testValidateLength() throws BadRequestException {
-        String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
-        String translations =
-                persistentTranslationService.translate(overLengthSource,
-                        sourceLocale, targetLocale, BackendID.MS,
-                        MediaType.TEXT_PLAIN_TYPE);
-        assertThat(translations).isEqualTo(overLengthSource);
-    }
-
-    @Test
     public void testValidateEmptySrcLocale() {
-        String source = "testing source";
+        List<String> source = Lists.newArrayList("testing source");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
@@ -79,7 +67,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testValidateEmptyTargetLocale() {
-        String source = "testing source";
+        List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
@@ -90,7 +78,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testValidateEmptyProvider() {
-        String source = "testing source";
+        List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 

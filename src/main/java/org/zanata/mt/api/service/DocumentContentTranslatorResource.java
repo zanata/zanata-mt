@@ -14,7 +14,7 @@ import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
-import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 
@@ -39,8 +39,8 @@ public interface DocumentContentTranslatorResource {
     @Path("/translate")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale.", type = @TypeHint(DocumentContent.class)),
-            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent", type = @TypeHint(APIErrorResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIErrorResponse.class))
+            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
     })
     Response translate(@TypeHint(DocumentContent.class) @NotNull
             DocumentContent docContent,

@@ -2,7 +2,7 @@ package org.zanata.mt.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.api.InputStreamStreamingOutput;
-import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.BackendResource;
 import org.zanata.mt.model.BackendID;
 
@@ -27,7 +27,7 @@ public class BackendResourceImpl implements BackendResource {
     }
 
     public Response getAttribution(@NotNull @QueryParam("id") String id) {
-        Optional<APIErrorResponse> response = validateId(id);
+        Optional<APIResponse> response = validateId(id);
         if (response.isPresent()) {
             return Response.status(response.get().getStatus())
                     .entity(response.get()).build();
@@ -53,15 +53,15 @@ public class BackendResourceImpl implements BackendResource {
         return "";
     }
 
-    private Optional<APIErrorResponse> validateId(String id) {
+    private Optional<APIResponse> validateId(String id) {
         if (StringUtils.isBlank(id)) {
-            APIErrorResponse response =
-                    new APIErrorResponse(Response.Status.BAD_REQUEST, "Invalid id");
+            APIResponse response =
+                    new APIResponse(Response.Status.BAD_REQUEST, "Invalid id");
             return Optional.of(response);
         }
         if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId())) {
-            APIErrorResponse response =
-                    new APIErrorResponse(Response.Status.NOT_FOUND, "Not supported id:" + id);
+            APIResponse response =
+                    new APIResponse(Response.Status.NOT_FOUND, "Not supported id:" + id);
             return Optional.of(response);
         }
         return Optional.empty();

@@ -5,6 +5,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.api.service.DocumentContentTranslatorResource;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
@@ -30,6 +30,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl.MAX_LENGTH;
+import static org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl.MAX_LENGTH_WARN;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -52,6 +54,8 @@ public class DocumentContentTranslatorResourceTest {
     public void beforeTest() {
         documentContentTranslatorResource =
                 new DocumentContentTranslatorResourceImpl(documentContentTranslatorService, localeDAO, documentDAO);
+        when(documentContentTranslatorService.isMediaTypeSupported("text/plain")).thenReturn(true);
+        when(documentContentTranslatorService.isMediaTypeSupported("text/html")).thenReturn(true);
     }
 
     @Test
@@ -139,6 +143,16 @@ public class DocumentContentTranslatorResourceTest {
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
+        // max length
+        String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
+        strings = Lists.newArrayList(
+                new TypeString(overLengthSource, "text/plain", "meta"));
+        documentContent =
+                new DocumentContent(strings, "http://localhost", "en");
+        response = documentContentTranslatorResource
+                .translate(documentContent, LocaleId.DE);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -167,8 +181,6 @@ public class DocumentContentTranslatorResourceTest {
                 .thenReturn(srcLocale);
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
-        when(documentContentTranslatorService.isMediaTypeSupported(any()))
-                .thenReturn(true);
 
         doThrow(expectedException).when(documentContentTranslatorService)
                 .translateDocument(documentContent, srcLocale,
@@ -232,8 +244,6 @@ public class DocumentContentTranslatorResourceTest {
         when(documentContentTranslatorService
                 .translateDocument(docContent, srcLocale,
                 transLocale, BackendID.MS)).thenReturn(translatedDocContent);
-        when(documentContentTranslatorService.isMediaTypeSupported(any()))
-                .thenReturn(true);
 
         Response response =
                 documentContentTranslatorResource

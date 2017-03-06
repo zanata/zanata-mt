@@ -69,13 +69,25 @@ public class DocumentContentTranslatorServiceTest {
         List<String> htmls =
                 Lists.newArrayList("<html><body>Entry 1</body></html>",
                         "<html><body>Entry 2</body></html>",
-                        "<html><body>Entry 5</body></html>");
+                        "<html><body>Entry 5</body></html>",
+                        "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
+                        "<div id=\"private-notes\"><span>private notes</span></div>");
+
+        List<String> postProcessedHTML =
+                Lists.newArrayList("<html><body>Entry 1</body></html>",
+                        "<html><body>Entry 2</body></html>",
+                        "<html><body>Entry 5</body></html>",
+                        "<span id=\"ZanataMT-wrapper5\" translate=\"no\"></span>",
+                        "<span id=\"ZanataMT-wrapper6\" translate=\"no\"></span>");
+
         List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
 
         List<String> translatedHtmls =
                 Lists.newArrayList("<html><body>MS: Entry 1</body></html>",
                         "<html><body>MS: Entry 2</body></html>",
-                        "<html><body>MS: Entry 5</body></html>");
+                        "<html><body>MS: Entry 5</body></html>",
+                        "<span id='ZanataMT-wrapper5' translate='no'></span>",
+                        "<span id='ZanataMT-wrapper6' translate='no'></span>");
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
 
         List<TypeString> contents = Lists.newArrayList(
@@ -83,19 +95,23 @@ public class DocumentContentTranslatorServiceTest {
                 new TypeString(htmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(text.get(0), MediaType.TEXT_PLAIN, "meta3"),
                 new TypeString(text.get(1), MediaType.TEXT_PLAIN, "meta4"),
-                new TypeString(htmls.get(2), MediaType.TEXT_HTML, "meta5"));
+                new TypeString(htmls.get(2), MediaType.TEXT_HTML, "meta5"),
+                new TypeString(htmls.get(3), MediaType.TEXT_HTML, "meta6"),
+                new TypeString(htmls.get(4), MediaType.TEXT_HTML, "meta7"));
 
         List<TypeString> translatedContents = Lists.newArrayList(
                 new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
                 new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN, "meta3"),
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
-                new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"));
+                new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"),
+                new TypeString(translatedHtmls.get(3), MediaType.TEXT_HTML, "meta6"),
+                new TypeString(translatedHtmls.get(4), MediaType.TEXT_HTML, "meta7"));
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost", "en");
 
-        when(persistentTranslationService.translate(htmls,
+        when(persistentTranslationService.translate(postProcessedHTML,
                 srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                 .thenReturn(translatedHtmls);
@@ -114,11 +130,32 @@ public class DocumentContentTranslatorServiceTest {
                 .isEqualTo(transLocale.getLocaleId().getId());
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());
-        assertThat(translatedDocContent.getContents())
-                .isEqualTo(translatedContents);
+
+        assertThat(translatedDocContent.getContents().get(0))
+                .isEqualTo(translatedContents.get(0));
+
+        assertThat(translatedDocContent.getContents().get(1))
+                .isEqualTo(translatedContents.get(1));
+
+        assertThat(translatedDocContent.getContents().get(2))
+                .isEqualTo(translatedContents.get(2));
+
+        assertThat(translatedDocContent.getContents().get(3))
+                .isEqualTo(translatedContents.get(3));
+
+        assertThat(translatedDocContent.getContents().get(4))
+                .isEqualTo(translatedContents.get(4));
+
+        assertThat(translatedDocContent.getContents().get(5).getValue().trim().replaceAll("\n", "")
+                .replaceAll(">\\s+<", "><"))
+                .isEqualTo(htmls.get(3));
+
+        assertThat(translatedDocContent.getContents().get(6).getValue().trim().replaceAll("\n", "")
+                .replaceAll(">\\s+<", "><"))
+                .isEqualTo(htmls.get(4));
 
         verify(persistentTranslationService)
-                .translate(htmls, srcLocale, transLocale, BackendID.MS,
+                .translate(postProcessedHTML, srcLocale, transLocale, BackendID.MS,
                         MediaType.TEXT_HTML_TYPE);
 
         verify(persistentTranslationService)

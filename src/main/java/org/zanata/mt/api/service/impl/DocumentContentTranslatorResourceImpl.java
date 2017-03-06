@@ -3,7 +3,7 @@ package org.zanata.mt.api.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.APIErrorResponse;
+import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
@@ -31,6 +31,12 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
+    // Max length for single string in Microsoft Engine
+    public static final int MAX_LENGTH = 6000;
+
+    // Max length before logging warning
+    public static final int MAX_LENGTH_WARN = 3000;
+
     private DocumentContentTranslatorService documentContentTranslatorService;
 
     private LocaleDAO localeDAO;
@@ -56,7 +62,7 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 
-        Optional<APIErrorResponse> errorResp =
+        Optional<APIResponse> errorResp =
                 validatePostRequest(docContent, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
@@ -84,15 +90,15 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
         } catch (BadRequestException e) {
             String title = "Error";
             LOG.error(title, e);
-            APIErrorResponse response =
-                    new APIErrorResponse(Response.Status.BAD_REQUEST, e, title);
+            APIResponse response =
+                    new APIResponse(Response.Status.BAD_REQUEST, e, title);
             return Response.status(Response.Status.BAD_REQUEST).entity(response)
                     .build();
         } catch (Exception e) {
             String title = "Error";
             LOG.error(title, e);
-            APIErrorResponse response =
-                    new APIErrorResponse(Response.Status.INTERNAL_SERVER_ERROR,
+            APIResponse response =
+                    new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
                             e, title);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(response)
@@ -100,39 +106,48 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
         }
     }
 
-    private Optional<APIErrorResponse> validatePostRequest(DocumentContent docContent,
+    private Optional<APIResponse> validatePostRequest(DocumentContent docContent,
             LocaleId targetLang) {
         if (targetLang == null) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Invalid query param: targetLang"));
         }
         if (docContent == null || docContent.getContents() == null ||
                 docContent.getContents().isEmpty()) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Empty content:" + docContent));
         }
         if (StringUtils.isBlank(docContent.getLocale())) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Empty locale"));
         }
         if (StringUtils.isBlank(docContent.getUrl()) ||
                 !UrlUtil.isValidURL(docContent.getUrl())) {
-            return Optional.of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Invalid url:" + docContent.getUrl()));
         }
+        int totalChar = 0;
         for (TypeString string : docContent.getContents()) {
             if (StringUtils.isBlank(string.getValue()) ||
                     StringUtils.isBlank(string.getType())) {
                 return Optional
-                        .of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                        .of(new APIResponse(Response.Status.BAD_REQUEST,
                                 "Empty content: " + string.toString()));
             }
             if (!documentContentTranslatorService
                     .isMediaTypeSupported(string.getType())) {
                 return Optional
-                        .of(new APIErrorResponse(Response.Status.BAD_REQUEST,
+                        .of(new APIResponse(Response.Status.BAD_REQUEST,
                                 "Invalid mediaType: " + string.getType()));
             }
+            totalChar += string.getValue().length();
+        }
+        if (totalChar > MAX_LENGTH) {
+            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
+                    "Requested string length is more than " + MAX_LENGTH));
+        }
+        if (totalChar > MAX_LENGTH_WARN) {
+            LOG.warn("Requested string length is more than " + MAX_LENGTH_WARN);
         }
         return Optional.empty();
     }

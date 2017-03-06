@@ -13,13 +13,13 @@ public class APIErrorResponseTest {
 
     @Test
     public void testEmptyConstructor() {
-        APIErrorResponse response = new APIErrorResponse();
+        APIResponse response = new APIResponse();
     }
 
     @Test
     public void testConstructor() {
-        APIErrorResponse response =
-                new APIErrorResponse(Response.Status.FORBIDDEN, "error");
+        APIResponse response =
+                new APIResponse(Response.Status.FORBIDDEN, "error");
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
         assertThat(response.getTitle()).isEqualTo("error");
@@ -28,8 +28,8 @@ public class APIErrorResponseTest {
     @Test
     public void testConstructor2() {
         Exception e = new Exception("test");
-        APIErrorResponse response =
-                new APIErrorResponse(Response.Status.FORBIDDEN, e,"error");
+        APIResponse response =
+                new APIResponse(Response.Status.FORBIDDEN, e,"error");
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
         assertThat(response.getTitle()).isEqualTo("error");
@@ -38,28 +38,28 @@ public class APIErrorResponseTest {
 
     @Test
     public void testStatus() {
-        APIErrorResponse response = new APIErrorResponse();
+        APIResponse response = new APIResponse();
         response.setStatus(100);
         assertThat(response.getStatus()).isEqualTo(100);
     }
 
     @Test
     public void testTitle() {
-        APIErrorResponse response = new APIErrorResponse();
+        APIResponse response = new APIResponse();
         response.setTitle("title");
         assertThat(response.getTitle()).isEqualTo("title");
     }
 
     @Test
     public void testTimestamp() {
-        APIErrorResponse response = new APIErrorResponse();
+        APIResponse response = new APIResponse();
         response.setTimestamp("18/18/2018");
         assertThat(response.getTimestamp()).isEqualTo("18/18/2018");
     }
 
     @Test
     public void testDetails() {
-        APIErrorResponse response = new APIErrorResponse();
+        APIResponse response = new APIResponse();
         response.setDetails("details");
         assertThat(response.getDetails()).isEqualTo("details");
     }

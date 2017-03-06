@@ -98,30 +98,30 @@ public class PersistentTranslationServiceJPATest {
 
     @Test
     public void testTranslationExists() throws BadRequestException {
-        String source = "string to translate";
-        String expectedTranslation = "translation of:" + source;
+        List<String> sources = Lists.newArrayList("string to translate");
+        String expectedTranslation = "translation of:" + sources.get(0);
         String expectedRawContent =
                 "<MSString>" + expectedTranslation + "</MSString>";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
-        TextFlow expectedTf = new TextFlow(source, sourceLocale);
+        TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
         TextFlowTarget expectedTft = new TextFlowTarget(expectedTranslation,
                 expectedRawContent, expectedTf, targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
 
-        String hash = HashUtil.generateHash(source);
+        String hash = HashUtil.generateHash(sources.get(0));
 
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
-        String translation =
+        List<String> translations =
                 persistentTranslationService
-                    .translate(source, sourceLocale, targetLocale,
+                    .translate(sources, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        assertThat(translation).isEqualTo(expectedTranslation);
+        assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }
 }
