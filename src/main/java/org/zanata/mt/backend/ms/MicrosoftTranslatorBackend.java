@@ -64,7 +64,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
         throws ZanataMTException {
         if (StringUtils.isBlank(clientSubscriptionKey)) {
             throw new ZanataMTException(
-                "Missing system properties of" + AZURE_KEY);
+                "Missing system properties of " + AZURE_KEY);
         }
         api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
     }
