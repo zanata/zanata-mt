@@ -43,7 +43,7 @@ public class APIResponseFilter implements Filter {
     private static ImmutableList<String> originWhitelist;
 
     static {
-        String whitelist = System.getProperty(ORIGIN_WHITELIST, "");
+        String whitelist = System.getenv(ORIGIN_WHITELIST);
         originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :
                 ImmutableList.copyOf(whitelist.split(" +"));
     }

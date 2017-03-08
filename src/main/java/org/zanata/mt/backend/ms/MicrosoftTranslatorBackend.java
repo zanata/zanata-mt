@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
-import org.zanata.mt.annotation.SystemProperty;
+import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -56,7 +56,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     @Inject
     public MicrosoftTranslatorBackend(
-        @SystemProperty(AZURE_KEY) String clientSubscriptionKey) {
+        @EnvVariable(AZURE_KEY) String clientSubscriptionKey) {
         this.clientSubscriptionKey = clientSubscriptionKey;
     }
 

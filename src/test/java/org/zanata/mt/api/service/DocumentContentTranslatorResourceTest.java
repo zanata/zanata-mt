@@ -26,12 +26,10 @@ import org.zanata.mt.service.DocumentContentTranslatorService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl.MAX_LENGTH;
-import static org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl.MAX_LENGTH_WARN;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

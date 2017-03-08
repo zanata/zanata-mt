@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.annotation.SystemProperty;
+import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.exception.ZanataMTException;
 
@@ -34,8 +34,8 @@ public class ZanataMTStartup {
     private final String apiKey;
 
     @Inject
-    public ZanataMTStartup(@SystemProperty(APIConstant.API_ID) String id,
-        @SystemProperty(APIConstant.API_KEY) String apiKey) {
+    public ZanataMTStartup(@EnvVariable(APIConstant.API_ID) String id,
+        @EnvVariable(APIConstant.API_KEY) String apiKey) {
         this.id = id;
         this.apiKey = apiKey;
     }

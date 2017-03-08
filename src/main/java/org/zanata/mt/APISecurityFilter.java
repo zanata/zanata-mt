@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,11 @@ public class APISecurityFilter implements Filter {
      * Nonnull value. Verified during startup
      * {@link org.zanata.mt.service.ZanataMTStartup#verifyCredentials
      */
-    private static final RestCredentials REST_CREDENTIALS;
+    private static RestCredentials REST_CREDENTIALS;
 
     static {
-        REST_CREDENTIALS = new RestCredentials(System.getProperty(API_ID),
-            System.getProperty(API_KEY));
+        REST_CREDENTIALS = new RestCredentials(System.getenv(API_ID),
+            System.getenv(API_KEY));
     }
 
     @Override
@@ -112,5 +113,10 @@ public class APISecurityFilter implements Filter {
             result = 31 * result + apiKey.hashCode();
             return result;
         }
+    }
+
+    @VisibleForTesting
+    static void setAPIIdAndKey(String id, String key) {
+        REST_CREDENTIALS = new RestCredentials(id, key);
     }
 }

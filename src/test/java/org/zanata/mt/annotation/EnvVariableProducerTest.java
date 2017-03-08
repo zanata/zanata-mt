@@ -9,40 +9,44 @@ import javax.enterprise.inject.spi.InjectionPoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class SystemPropertyProducerTest {
-    private SystemPropertyProducer producer;
+public class EnvVariableProducerTest {
+    private EnvVariableProducer producer;
     private InjectionPoint ip;
-    private SystemProperty systemProperty;
+    private EnvVariable envVariable;
 
     @Before
     public void beforeTest() {
         ip = Mockito.mock(InjectionPoint.class);
         Annotated annotated = Mockito.mock(Annotated.class);
-        systemProperty = Mockito.mock(SystemProperty.class);
+        envVariable = Mockito.mock(EnvVariable.class);
 
         when(ip.getAnnotated()).thenReturn(annotated);
-        when(annotated.getAnnotation(SystemProperty.class))
-                .thenReturn(systemProperty);
+        when(annotated.getAnnotation(EnvVariable.class))
+                .thenReturn(envVariable);
 
-        producer = new SystemPropertyProducer();
+        producer = new EnvVariableProducer();
     }
 
     @Test
     public void testFindPropertyNotFound() {
-        when(systemProperty.value()).thenReturn("value");
+        when(envVariable.value()).thenReturn("value");
         assertThatThrownBy(() -> producer.findProperty(ip))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    public void testFindProperty() {
-        System.setProperty("key", "value");
-        when(systemProperty.value()).thenReturn("key");
-        assertThat(producer.findProperty(ip)).isEqualTo("value");
+    public void testFindEnvVariable() {
+        String key = "key";
+        String value = "value";
+        EnvVariableProducer spy = spy(producer);
+        when(spy.getEnv(key)).thenReturn(value);
+        when(envVariable.value()).thenReturn(key);
+        assertThat(spy.findProperty(ip)).isEqualTo(value);
     }
 }

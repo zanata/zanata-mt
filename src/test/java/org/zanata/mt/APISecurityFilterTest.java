@@ -4,7 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.zanata.mt.api.APIConstant;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -30,9 +29,8 @@ public class APISecurityFilterTest {
 
     @Before
     public void beforeTest() throws ServletException {
-        System.setProperty(APIConstant.API_ID, id);
-        System.setProperty(APIConstant.API_KEY, key);
         filter = new APISecurityFilter();
+        filter.setAPIIdAndKey(id, key);
         filter.init(null);
     }
 

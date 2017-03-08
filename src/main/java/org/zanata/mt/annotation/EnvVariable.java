@@ -8,13 +8,13 @@ import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
 /**
- * Represents a property key to be injected
+ * Represents an environment variable to be injected
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-public @interface SystemProperty {
+public @interface EnvVariable {
     @Nonbinding String value() default "";
 }

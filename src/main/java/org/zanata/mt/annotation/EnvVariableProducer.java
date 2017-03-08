@@ -6,19 +6,23 @@ import javax.enterprise.inject.spi.InjectionPoint;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class SystemPropertyProducer {
+public class EnvVariableProducer {
     @Produces
-    @SystemProperty("")
+    @EnvVariable("")
     String findProperty(InjectionPoint ip) {
-        SystemProperty annotation = ip.getAnnotated()
-                .getAnnotation(SystemProperty.class);
+        EnvVariable annotation = ip.getAnnotated()
+                .getAnnotation(EnvVariable.class);
 
         String name = annotation.value();
-        String found = System.getProperty(name);
+        String found = getEnv(name);
         if (found == null) {
             throw new IllegalStateException(
-                    "System property '" + name + "' is not defined!");
+                    "Environment variable '" + name + "' is not defined!");
         }
         return found;
+    }
+
+    String getEnv(String name) {
+        return System.getenv(name);
     }
 }
