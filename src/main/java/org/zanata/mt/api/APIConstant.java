@@ -14,8 +14,8 @@ public final class APIConstant {
     // System properties
     // list of url to allow access to /api. White space separated
     public static final String ORIGIN_WHITELIST = "ZANATA_MT_ORIGIN_WHITELIST";
-    // ID to be used for API request
-    public static final String ID = "ZANATA_MT_ID";
+    // API_ID to be used for API request
+    public static final String API_ID = "ZANATA_MT_API_ID";
     // API Key to be used for API request
     public static final String API_KEY = "ZANATA_MT_API_KEY";
     // AZURE Subscription key for MS backend

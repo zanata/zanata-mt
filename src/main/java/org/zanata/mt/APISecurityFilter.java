@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
 import static org.zanata.mt.api.APIConstant.API_KEY;
 import static org.zanata.mt.api.APIConstant.HEADER_API_KEY;
 import static org.zanata.mt.api.APIConstant.HEADER_USERNAME;
-import static org.zanata.mt.api.APIConstant.ID;
+import static org.zanata.mt.api.APIConstant.API_ID;
 
 /**
  * Filter for handling auth in /api path.
  * Request header required to have a matching
- * {@link org.zanata.mt.api.APIConstant#ID} and {@link org.zanata.mt.api.APIConstant#API_KEY} with request header
+ * {@link org.zanata.mt.api.APIConstant#API_ID} and {@link org.zanata.mt.api.APIConstant#API_KEY} with request header
  * {@link org.zanata.mt.api.APIConstant#HEADER_USERNAME} and {@link org.zanata.mt.api.APIConstant#HEADER_API_KEY}
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -42,7 +42,7 @@ public class APISecurityFilter implements Filter {
     private static final RestCredentials REST_CREDENTIALS;
 
     static {
-        REST_CREDENTIALS = new RestCredentials(System.getProperty(ID),
+        REST_CREDENTIALS = new RestCredentials(System.getProperty(API_ID),
             System.getProperty(API_KEY));
     }
 

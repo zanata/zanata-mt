@@ -297,7 +297,7 @@
               <!-- System properties for Azure service. Set this in your maven settings.xml for DEV -->
               <!-- Require double quote around the value to escape special char which throws error in jboss-cli -->
               <ZANATA_MT_AZURE_KEY>"${ZANATA_MT_AZURE_KEY}"</ZANATA_MT_AZURE_KEY>
-              <ZANATA_MT_ID>devID</ZANATA_MT_ID>
+              <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
               <ZANATA_MT_API_KEY>devKey</ZANATA_MT_API_KEY>
             </systemProperties>
           </container>

@@ -46,9 +46,18 @@ public class DocumentContentTranslatorService {
     /**
      * Replace code-section and private-notes section with placeholder.
      * Append warning in the response.
+     *
+     * @param typeString
+     *      Original TypeString from request
+     * @param nonTranslatePlaceholderMap
+     *      Placeholder map that cache original html with index
+     * @param warnings
+     *      List of warnings to be return in the response
+     * @param index
+     *      The index position of TypeString in the list
      */
     private void processPrivateNotesAndCodeSection(TypeString typeString,
-            Map<String, String> nonTranslatePlaceholderMap,
+            Map<Integer, String> nonTranslatePlaceholderMap,
             List<APIResponse> warnings, int index) {
 
         String indexStr = String.valueOf(index);
@@ -56,7 +65,7 @@ public class DocumentContentTranslatorService {
 
         if (ArticleUtil.containsPrivateNotes(html)) {
             // cache original html with index
-            nonTranslatePlaceholderMap.put(indexStr, html);
+            nonTranslatePlaceholderMap.put(index, html);
             String nonTranslatableHTML =
                     ArticleUtil.generateNonTranslatableHtml(indexStr);
             // replace private-notes with placeholder
@@ -66,7 +75,7 @@ public class DocumentContentTranslatorService {
                     "String contains private notes section:" + html));
         } else if (ArticleUtil.containsKCSCodeSection(html)) {
             // cache original html with index
-            nonTranslatePlaceholderMap.put(indexStr, html);
+            nonTranslatePlaceholderMap.put(index, html);
             String nonTranslatableHTML =
                     ArticleUtil.generateNonTranslatableHtml(indexStr);
             // replace code-section with placeholder
@@ -98,7 +107,7 @@ public class DocumentContentTranslatorService {
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
 
-        Map<String, String> nonTranslatePlaceholderMap = new HashMap<>();
+        Map<Integer, String> nonTranslatePlaceholderMap = new HashMap<>();
         List<APIResponse> warnings = null;
 
         int index = 0;
@@ -145,14 +154,13 @@ public class DocumentContentTranslatorService {
         }
 
         // replace placeholder with original content according to index
-        for (Map.Entry<String, String> entry : nonTranslatePlaceholderMap
+        for (Map.Entry<Integer, String> entry : nonTranslatePlaceholderMap
                 .entrySet()) {
-            String indexStr = entry.getKey();
-            index = Integer.valueOf(indexStr);
+            index = entry.getKey();
 
             String originalHtml = entry.getValue();
             TypeString translatedTypeString = results.get(index);
-            ArticleUtil.replaceNodeById(indexStr, originalHtml, translatedTypeString);
+            ArticleUtil.replaceNodeById(String.valueOf(index), originalHtml, translatedTypeString);
             results.set(index, translatedTypeString);
         }
 

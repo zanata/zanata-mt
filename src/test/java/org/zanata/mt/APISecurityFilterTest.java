@@ -30,7 +30,7 @@ public class APISecurityFilterTest {
 
     @Before
     public void beforeTest() throws ServletException {
-        System.setProperty(APIConstant.ID, id);
+        System.setProperty(APIConstant.API_ID, id);
         System.setProperty(APIConstant.API_KEY, key);
         filter = new APISecurityFilter();
         filter.init(null);

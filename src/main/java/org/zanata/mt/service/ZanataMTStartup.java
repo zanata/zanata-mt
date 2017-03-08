@@ -34,7 +34,7 @@ public class ZanataMTStartup {
     private final String apiKey;
 
     @Inject
-    public ZanataMTStartup(@SystemProperty(APIConstant.ID) String id,
+    public ZanataMTStartup(@SystemProperty(APIConstant.API_ID) String id,
         @SystemProperty(APIConstant.API_KEY) String apiKey) {
         this.id = id;
         this.apiKey = apiKey;
@@ -69,7 +69,7 @@ public class ZanataMTStartup {
     public void verifyCredentials() {
         if (StringUtils.isBlank(id) || StringUtils.isBlank(apiKey)) {
             throw new ZanataMTException(
-                "Missing credentials of " + APIConstant.ID + " and " + APIConstant.API_KEY);
+                "Missing credentials of " + APIConstant.API_ID + " and " + APIConstant.API_KEY);
         }
     }
 }

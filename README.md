@@ -19,7 +19,7 @@ See [here](http://zanata.org/zanata-mt/apidocs) for more information.
 
 List of system properties that are used in the application.
 
-### `ZANATA_MT_ID` (required)
+### `ZANATA_MT_API_ID` (required)
 ID for /api request
 
 ### `ZANATA_MT_API_KEY` (required)
