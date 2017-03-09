@@ -240,118 +240,54 @@
                   <time>20000</time>
                 </wait>
                 <log>
+                  <date>default</date>
                   <prefix>DB</prefix>
                   <color>yellow</color>
                 </log>
                 <namingStrategy>alias</namingStrategy>
               </run>
             </image>
+            <image>
+              <name>zanata/zanata-mt:latest</name>
+              <alias>zanataMT</alias>
+              <build>
+                <dockerFileDir>${project.basedir}</dockerFileDir>
+                <ports>
+                  <port>8080:8080</port>
+                </ports>
+              </build>
+              <run>
+                <env>
+                  <POSTGRESQL_URL>zanataMTDB</POSTGRESQL_URL>
+                  <POSTGRESQL_PORT>${postgresql.port}</POSTGRESQL_PORT>
+                  <POSTGRESQL_DATABASE>${db.name}</POSTGRESQL_DATABASE>
+                  <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
+                  <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
+                  <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
+                  <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
+                  <ZANATA_MT_API_KEY>devKEY</ZANATA_MT_API_KEY>
+                </env>
+                <dependsOn>
+                  <container>zanataMTDB</container>
+                </dependsOn>
+                <ports>
+                  <port>8080:8080</port>
+                </ports>
+                <log>
+                  <date>default</date>
+                  <prefix>WF</prefix>
+                  <color>cyan</color>
+                </log>
+                <links>
+                  <link>zanataMTDB:db</link>
+                </links>
+                <namingStrategy>alias</namingStrategy>
+              </run>
+            </image>
           </images>
         </configuration>
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>start</id>-->
-            <!--<phase>pre-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>build</goal>-->
-              <!--<goal>start</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-          <!--<execution>-->
-            <!--<id>stop</id>-->
-            <!--<phase>post-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>stop</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
       </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
-        <version>1.6.0</version>
-        <configuration>
-          <container>
-            <containerId>${cargo.containerId}</containerId>
-            <type>installed</type>
-            <!--if install from url-->
-            <zipUrlInstaller>
-              <url>${cargo.installation}</url>
-              <downloadDir>${user.home}/Downloads</downloadDir>
-              <extractDir>${cargo.extract.dir}</extractDir>
-            </zipUrlInstaller>
-
-            <output>${project.build.directory}/container.log</output>
-            <append>false</append>
-            <log>${project.build.directory}/cargo.log</log>
-
-            <dependencies>
-              <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-              </dependency>
-            </dependencies>
-          </container>
-
-          <configuration>
-            <type>standalone</type>
-            <home>${cargo.container.home}</home>
-            <properties>
-              <cargo.start.jvmargs>
-                -Xdebug
-                -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
-                -Xnoagent
-                -Djava.compiler=NONE
-              </cargo.start.jvmargs>
-              <cargo.jboss.configuration>standalone</cargo.jboss.configuration>
-              <cargo.port.offset>${cargo.port.offset}</cargo.port.offset>
-              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.jboss.management-http.port>${cargo.jboss.management-http.port}</cargo.jboss.management-http.port>
-              <cargo.jboss.management-native.port>${cargo.jboss.management-native.port}</cargo.jboss.management-native.port>
-
-              <!-- maven variables does not work here -->
-              <cargo.datasource.datasource.postgres>
-                cargo.datasource.jndi=jboss/datasources/${db.name}|
-                cargo.datasource.driver=org.postgresql.Driver|
-                cargo.datasource.url=jdbc:postgresql://localhost:${postgresql.port}/${db.name}|
-                cargo.datasource.username=${postgresql.user}|
-                cargo.datasource.password=${postgresql.password}
-              </cargo.datasource.datasource.postgres>
-            </properties>
-          </configuration>
-
-          <deployables>
-            <deployable>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>${project.artifactId}</artifactId>
-              <type>war</type>
-              <pingURL>http://${cargo.host}:${cargo.servlet.port}/</pingURL>
-              <pingTimeout>30000</pingTimeout>
-              <properties>
-                <context>${context.path}</context>
-              </properties>
-            </deployable>
-          </deployables>
-        </configuration>
-
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>cargo-start</id>-->
-            <!--<phase>pre-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>start</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-          <!--<execution>-->
-            <!--<id>cargo-stop</id>-->
-            <!--<phase>post-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>stop</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
-      </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
@@ -359,15 +295,6 @@
           <outputDirectory>target/deployments</outputDirectory>
           <warName>ROOT</warName>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-          <webResources>
-            <resource>
-              <filtering>true</filtering>
-              <directory>src/main/webapp</directory>
-              <includes>
-                <include>script/*.js</include>
-              </includes>
-            </resource>
-          </webResources>
         </configuration>
       </plugin>
 
@@ -380,7 +307,7 @@
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <useReleaseProfile>false</useReleaseProfile>
           <localCheckout>true</localCheckout>
-          <pushChanges>true</pushChanges>
+          <pushChanges>false</pushChanges>
           <goals>verify</goals>
         </configuration>
       </plugin>
@@ -753,39 +680,4 @@
     </dependency>
 
   </dependencies>
-
-  <profiles>
-    <!-- default profile -->
-    <profile>
-      <id>dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <name>dev</name>
-      </properties>
-    </profile>
-
-    <!-- This profile is used for production build.. -->
-    <profile>
-      <id>production</id>
-      <properties>
-        <name>production</name>
-      </properties>
-      <build>
-        <finalName>ZanataMT</finalName>
-        <plugins>
-          <plugin>
-            <artifactId>maven-war-plugin</artifactId>
-            <version>${maven-war-plugin.version}</version>
-            <configuration>
-              <outputDirectory>target/deployments</outputDirectory>
-              <warName>ROOT</warName>
-              <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
