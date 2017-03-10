@@ -4,7 +4,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.zanata.mt.api.dto.TypeString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,17 +21,6 @@ public final class ArticleUtil {
     }
 
     /**
-     * Generate a non-translatable html {@link TypeString}
-     */
-    public static String generateNonTranslatableHtml(String id) {
-        return "<span id='" + generateNodeId(id) + "' translate='no'></span>";
-    }
-
-    public static String generateNodeId(String id) {
-        return WRAPPER_ID + id;
-    }
-
-    /**
      * Check if element is non-translatable node
      *
      * section with id 'private-notes...'
@@ -42,55 +30,6 @@ public final class ArticleUtil {
         Element content = getContentInWrapper(document);
         return content != null && content.hasAttr("translate") &&
                 content.attr("translate").equals("no");
-    }
-
-    public static void replaceNodeById(String id, String originalHtml,
-            TypeString translatedTypeString) {
-        String nodeId = generateNodeId(id);
-
-        Document document = Jsoup.parse(translatedTypeString.getValue());
-
-        Element element = document.select("#" + nodeId).first();
-        if (element != null) {
-            element.replaceWith(generateNode(originalHtml));
-        }
-        translatedTypeString.setValue(document.body().html());
-    }
-
-    public static void replacePrivateNotes(TypeString typeString,
-            String htmlToReplace) {
-        Document document = Jsoup.parse(typeString.getValue());
-        Element element = document.select("[id^='private-notes']").first();
-
-        if (element != null) {
-            Element replacingElement = generateNode(htmlToReplace);
-            if (replacingElement != null) {
-                element.replaceWith(replacingElement);
-            }
-        }
-        if (!document.body().children().isEmpty()) {
-            typeString.setValue(document.body().child(0).outerHtml());
-        }
-    }
-
-    public static void replaceKCSCodeSection(TypeString typeString,
-            String htmlToReplace) {
-        Document document = Jsoup.parse(typeString.getValue());
-        Element element = document.select("#code-raw").first();
-
-        if (element != null) {
-            Element replacingElement = generateNode(htmlToReplace);
-            if (replacingElement != null) {
-                element.replaceWith(replacingElement);
-            }
-        }
-        if (!document.body().children().isEmpty()) {
-            typeString.setValue(document.body().child(0).outerHtml());
-        }
-    }
-
-    private static Element generateNode(String html) {
-        return Jsoup.parse(html).body().child(0);
     }
 
     /**

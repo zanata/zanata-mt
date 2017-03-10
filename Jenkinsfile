@@ -29,7 +29,6 @@ try {
           sh "shopt -s globstar && rm -f $testReports"
           sh """./mvnw -e clean verify \
                      --batch-mode \
-                     --settings $JENKINS_HOME/.m2/settings.xml \
                      --update-snapshots \
                      -Dmaven.test.failure.ignore \
                      -DstaticAnalysis \

@@ -1,6 +1,5 @@
 package org.zanata.mt.service;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,8 @@ import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.TypeString;
@@ -30,6 +31,14 @@ import static java.util.stream.Collectors.toList;
  */
 @Stateless
 public class DocumentContentTranslatorService {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(DocumentContentTranslatorService.class);
+
+    // maximum length per string allowed before warning
+    public static final int MAX_LENGTH_SINGLE_WARN = 3000;
+
+    // maximum length per string allowed before skipping translation
+    public static final int MAX_LENGTH_SINGLE_ERROR = 6000;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -44,59 +53,25 @@ public class DocumentContentTranslatorService {
     }
 
     /**
-     * Replace code-section and private-notes section with placeholder.
-     * Append warning in the response.
-     *
-     * @param typeString
-     *      Original TypeString from request
-     * @param nonTranslatePlaceholderMap
-     *      Placeholder map that cache original html with index
-     * @param warnings
-     *      List of warnings to be return in the response
-     * @param index
-     *      The index position of TypeString in the list
-     */
-    private void processPrivateNotesAndCodeSection(TypeString typeString,
-            Map<Integer, String> nonTranslatePlaceholderMap,
-            List<APIResponse> warnings, int index) {
-
-        String indexStr = String.valueOf(index);
-        String html = typeString.getValue();
-
-        if (ArticleUtil.containsPrivateNotes(html)) {
-            // cache original html with index
-            nonTranslatePlaceholderMap.put(index, html);
-            String nonTranslatableHTML =
-                    ArticleUtil.generateNonTranslatableHtml(indexStr);
-            // replace private-notes with placeholder
-            ArticleUtil.replacePrivateNotes(typeString,
-                    nonTranslatableHTML);
-            warnings.add(new APIResponse(Response.Status.OK,
-                    "String contains private notes section:" + html));
-        } else if (ArticleUtil.containsKCSCodeSection(html)) {
-            // cache original html with index
-            nonTranslatePlaceholderMap.put(index, html);
-            String nonTranslatableHTML =
-                    ArticleUtil.generateNonTranslatableHtml(indexStr);
-            // replace code-section with placeholder
-            ArticleUtil.replaceKCSCodeSection(typeString,
-                    nonTranslatableHTML);
-            warnings.add(new APIResponse(Response.Status.OK,
-                    "String contains KCS code section:" + html));
-        }
-    }
-
-    /**
      * Translate a Document and send in for machine translation request
      * in batch group by media type.
      *
-     * Any HTML node that is not translatable {@link ArticleUtil#isNonTranslatableNode(String)}
-     * will be excluded from translation request.
+     * Non-translatable element:
+     * {@link ArticleUtil#isNonTranslatableNode(String)}
+     * String will be excluded from translation request, with warning in the
+     * response.
      *
-     * For private-notes section {@link ArticleUtil#containsPrivateNotes(String)}
-     * and code-section {@link ArticleUtil#containsKCSCodeSection(String)},
-     * a placeholder will replace the section before sending out request.
-     * A warning message will be included in the response.
+     * Element that contain private-notes:
+     * {@link ArticleUtil#containsPrivateNotes(String)}
+     * String will be excluded from translation request, with warning in the
+     * response.
+     *
+     * Element that contain code-section:
+     * {@link ArticleUtil#containsKCSCodeSection(String)}
+     * if length exceeds {@link #MAX_LENGTH_SINGLE_ERROR}, it will be excluded
+     * from translation request, with warning in the response.
+     * If length exceeds {@link #MAX_LENGTH_SINGLE_WARN}, it will be
+     * translated, but with warning in the response.
      *
      * {@link DocumentContent}
      **/
@@ -107,28 +82,49 @@ public class DocumentContentTranslatorService {
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
 
-        Map<Integer, String> nonTranslatePlaceholderMap = new HashMap<>();
-        List<APIResponse> warnings = null;
+        List<APIResponse> warnings = Lists.newArrayList();
 
         int index = 0;
         for (TypeString typeString: documentContent.getContents()) {
             MediaType mediaType = getMediaType(typeString.getType());
 
-            if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
+            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
+                indexTextMap.put(index, typeString);
+            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
                 String html = typeString.getValue();
-                // filter out non-translatable html
-                if (!ArticleUtil.isNonTranslatableNode(html)) {
-                    if (ArticleUtil.containsPrivateNotes(html) ||
-                            ArticleUtil.containsKCSCodeSection(html)) {
-                        //replace with placeholder in the html node
-                        warnings = Lists.newArrayList();
-                        processPrivateNotesAndCodeSection(typeString,
-                                nonTranslatePlaceholderMap, warnings, index);
+                if (ArticleUtil.isNonTranslatableNode(html)) {
+                    String warning =
+                            "Warning: translation skipped: elements with translate=no should be replaced with placeholders. - " +
+                                    html;
+                    LOG.warn(warning);
+                    warnings.add(new APIResponse(Response.Status.OK, warning));
+                } else if (ArticleUtil.containsPrivateNotes(html)) {
+                    String warning =
+                            "Warning: translation skipped: private-notes elements should be omitted or replaced with placeholders. - " +
+                                    html;
+                    LOG.warn(warning);
+                    warnings.add(new APIResponse(Response.Status.OK, warning));
+                } else if (ArticleUtil.containsKCSCodeSection(html)) {
+                    if (html.length() >= MAX_LENGTH_SINGLE_ERROR) {
+                        String warning =
+                                "Warning: translation skipped: code-raw elements should be replaced with placeholders. - " +
+                                        html;
+                        LOG.warn(warning);
+                        warnings.add(new APIResponse(Response.Status.OK, warning));
+                    } else {
+                        if (html.length() >= MAX_LENGTH_SINGLE_WARN) {
+                            String warning =
+                                    "Warning: pre elements should be replaced with placeholders. - " +
+                                            html;
+                            LOG.warn(warning);
+                            warnings.add(new APIResponse(Response.Status.OK,
+                                    warning));
+                        }
+                        indexHTMLMap.put(index, typeString);
                     }
+                } else {
                     indexHTMLMap.put(index, typeString);
                 }
-            } else if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
-                indexTextMap.put(index, typeString);
             }
             index++;
         }
@@ -151,17 +147,6 @@ public class DocumentContentTranslatorService {
 
             transferToResults(translatedStrings, indexTextMap, results,
                     MediaType.TEXT_PLAIN);
-        }
-
-        // replace placeholder with original content according to index
-        for (Map.Entry<Integer, String> entry : nonTranslatePlaceholderMap
-                .entrySet()) {
-            index = entry.getKey();
-
-            String originalHtml = entry.getValue();
-            TypeString translatedTypeString = results.get(index);
-            ArticleUtil.replaceNodeById(String.valueOf(index), originalHtml, translatedTypeString);
-            results.set(index, translatedTypeString);
         }
 
         return new DocumentContent(results, documentContent.getUrl(),
