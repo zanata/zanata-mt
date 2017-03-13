@@ -34,11 +34,9 @@ public class DocumentContentTranslatorService {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorService.class);
 
-    // maximum length for KCS code section before warning
-    public static final int KCS_CODE_MAX_LENGTH_WARN = 3000;
 
-    // maximum length for KCS code section before skipping translation
-    public static final int KCS_CODE_MAX_LENGTH_ERROR = 6000;
+    // threshold for maximum length allowed for placeholder element
+    public static final int PLACEHOLDER_THRESHOLD = 100;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -52,26 +50,39 @@ public class DocumentContentTranslatorService {
         this.persistentTranslationService = persistentTranslationService;
     }
 
+    private void processPlaceholderElement(TypeString typeString,
+            List<String> htmls, LinkedHashMap<Integer, TypeString> indexHTMLMap,
+            List<APIResponse> warnings, String msg, int index) {
+        int totalLength = htmls.stream().mapToInt(html -> html.length()).sum();
+        if (totalLength >= PLACEHOLDER_THRESHOLD) {
+            LOG.warn(msg + " - " + htmls);
+            warnings.add(new APIResponse(Response.Status.OK, msg + " - " + htmls));
+        } else {
+            indexHTMLMap.put(index, typeString);
+        }
+    }
+
     /**
      * Translate a Document and send in for machine translation request
      * in batch group by media type.
      *
      * Non-translatable element:
      * {@link ArticleUtil#containsNonTranslatableNode(String)}
-     * String will be excluded from translation request, with warning in the
+     * if it is more than {@link #PLACEHOLDER_THRESHOLD},
+     * string will be excluded from translation request, with warning in the
      * response.
      *
      * Element that contain private-notes:
      * {@link ArticleUtil#containsPrivateNotes(String)}
-     * String will be excluded from translation request, with warning in the
+     * if it is more than {@link #PLACEHOLDER_THRESHOLD},
+     * string will be excluded from translation request, with warning in the
      * response.
      *
      * Element that contain code-section:
      * {@link ArticleUtil#containsKCSCodeSection(String)}
-     * if length exceeds {@link #KCS_CODE_MAX_LENGTH_ERROR}, it will be excluded
-     * from translation request, with warning in the response.
-     * If length exceeds {@link #KCS_CODE_MAX_LENGTH_WARN}, it will be
-     * translated, but with warning in the response.
+     * if it is more than {@link #PLACEHOLDER_THRESHOLD},
+     * string will be excluded from translation request, with warning in the
+     * response.
      *
      * {@link DocumentContent}
      **/
@@ -93,39 +104,23 @@ public class DocumentContentTranslatorService {
             } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
                 String html = typeString.getValue();
                 if (ArticleUtil.containsNonTranslatableNode(html)) {
-                    List<String> codeHTMLs = ArticleUtil.getNonTranslatableHtml(html);
                     String warning =
-                            "Warning: translation skipped: elements with translate=no should be replaced with placeholders. - " +
-                                    codeHTMLs;
-                    LOG.warn(warning);
-                    warnings.add(new APIResponse(Response.Status.OK, warning));
+                            "Warning: translation skipped: elements with translate=no should be replaced with placeholders.";
+                    processPlaceholderElement(typeString,
+                            ArticleUtil.getNonTranslatableHtml(html),
+                            indexHTMLMap, warnings, warning, index);
                 } else if (ArticleUtil.containsPrivateNotes(html)) {
                     String warning =
-                            "Warning: translation skipped: private-notes elements should be omitted or replaced with placeholders. - " +
-                                    html;
-                    LOG.warn(warning);
-                    warnings.add(new APIResponse(Response.Status.OK, warning));
+                            "Warning: translation skipped: private-notes elements should be omitted or replaced with placeholders.";
+                    processPlaceholderElement(typeString,
+                            ArticleUtil.getPrivateNotesHtml(html),
+                            indexHTMLMap, warnings, warning, index);
                 } else if (ArticleUtil.containsKCSCodeSection(html)) {
-                    List<String> codeHTMLs = ArticleUtil.getKCSCodeHtml(html);
-                    int totalLength = codeHTMLs.stream()
-                            .mapToInt(codeHTML -> codeHTML.length()).sum();
-                    if (totalLength >= KCS_CODE_MAX_LENGTH_ERROR) {
-                        String warning =
-                                "Warning: translation skipped: code-raw elements should be replaced with placeholders. - " +
-                                        codeHTMLs;
-                        LOG.warn(warning);
-                        warnings.add(new APIResponse(Response.Status.OK, warning));
-                    } else {
-                        if (totalLength >= KCS_CODE_MAX_LENGTH_WARN) {
-                            String warning =
-                                    "Warning: pre elements should be replaced with placeholders. - " +
-                                            html;
-                            LOG.warn(warning);
-                            warnings.add(new APIResponse(Response.Status.OK,
-                                    warning));
-                        }
-                        indexHTMLMap.put(index, typeString);
-                    }
+                    String warning =
+                            "Warning: translation skipped: code-raw elements should be replaced with placeholders.";
+                    processPlaceholderElement(typeString,
+                            ArticleUtil.getKCSCodeHtml(html),
+                            indexHTMLMap, warnings, warning, index);
                 } else {
                     indexHTMLMap.put(index, typeString);
                 }

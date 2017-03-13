@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.service.DocumentContentTranslatorService.KCS_CODE_MAX_LENGTH_ERROR;
-import static org.zanata.mt.service.DocumentContentTranslatorService.KCS_CODE_MAX_LENGTH_WARN;
+import static org.zanata.mt.service.DocumentContentTranslatorService.PLACEHOLDER_THRESHOLD;
 
 import java.util.List;
 
@@ -69,9 +68,7 @@ public class DocumentContentTranslatorServiceTest {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
         String overMaxHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t",
-                KCS_CODE_MAX_LENGTH_ERROR) + "</pre></div>";
-        String warningHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t",
-                KCS_CODE_MAX_LENGTH_WARN) + "</pre></div>";
+                PLACEHOLDER_THRESHOLD) + "</pre></div>";
 
         List<String> htmls =
                 Lists.newArrayList("<html><body>Entry 1</body></html>",
@@ -80,15 +77,9 @@ public class DocumentContentTranslatorServiceTest {
                         "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
                         "<div translate=\"no\">non translatable node</div>",
                         "<div id=\"private-notes\"><span>private notes</span></div>",
-                        overMaxHTML,
-                        warningHTML);
+                        overMaxHTML);
 
-        List<String> postProcessedHTML =
-                Lists.newArrayList("<html><body>Entry 1</body></html>",
-                        "<html><body>Entry 2</body></html>",
-                        "<html><body>Entry 5</body></html>",
-                        "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
-                        warningHTML);
+        List<String> postProcessedHTML = htmls.subList(0, 6);
 
         List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
 
@@ -97,7 +88,8 @@ public class DocumentContentTranslatorServiceTest {
                         "<html><body>MS: Entry 2</body></html>",
                         "<html><body>MS: Entry 5</body></html>",
                         "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
-                        warningHTML);
+                        "<div translate=\"no\">non translatable node</div>",
+                        "<div id=\"private-notes\"><span>private notes</span></div>");
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
 
         List<TypeString> contents = Lists.newArrayList(
@@ -109,8 +101,7 @@ public class DocumentContentTranslatorServiceTest {
                 new TypeString(htmls.get(3), MediaType.TEXT_HTML, "meta6"),
                 new TypeString(htmls.get(4), MediaType.TEXT_HTML, "meta7"),
                 new TypeString(htmls.get(5), MediaType.TEXT_HTML, "meta8"),
-                new TypeString(htmls.get(6), MediaType.TEXT_HTML, "meta9"),
-                new TypeString(htmls.get(7), MediaType.TEXT_HTML, "meta10"));
+                new TypeString(htmls.get(6), MediaType.TEXT_HTML, "meta9"));
 
         List<TypeString> translatedContents = Lists.newArrayList(
                 new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
@@ -118,7 +109,9 @@ public class DocumentContentTranslatorServiceTest {
                 new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN, "meta3"),
                 new TypeString(translatedText.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(translatedHtmls.get(2), MediaType.TEXT_HTML, "meta5"),
-                new TypeString(translatedHtmls.get(3), MediaType.TEXT_HTML, "meta6"));
+                new TypeString(translatedHtmls.get(3), MediaType.TEXT_HTML, "meta6"),
+                new TypeString(translatedHtmls.get(4), MediaType.TEXT_HTML, "meta7"),
+                new TypeString(translatedHtmls.get(5), MediaType.TEXT_HTML, "meta8"));
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost", "en");
@@ -165,6 +158,8 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getContents().get(6).getValue().trim().replaceAll("\n", "")
                 .replaceAll(">\\s+<", "><"))
                 .isEqualTo(htmls.get(4));
+
+        assertThat(translatedDocContent.getWarnings()).hasSize(1);
 
         verify(persistentTranslationService)
                 .translate(postProcessedHTML, srcLocale, transLocale, BackendID.MS,

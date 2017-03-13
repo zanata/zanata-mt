@@ -18,8 +18,6 @@ import static java.util.stream.Collectors.toList;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public final class ArticleUtil {
-    static final String WRAPPER_ID = "ZanataMT-wrapper";
-
     @SuppressWarnings("unused")
     private ArticleUtil() {
     }
@@ -29,7 +27,7 @@ public final class ArticleUtil {
      */
     public static boolean containsNonTranslatableNode(String html) {
         Elements elements = getNonTranslatableElements(html);
-        return elements != null && !elements.isEmpty();
+        return !elements.isEmpty();
     }
 
     /**
@@ -47,7 +45,7 @@ public final class ArticleUtil {
     /**
      * Get all non-translatable elements
      */
-    public static Elements getNonTranslatableElements(String html) {
+    public static @Nonnull Elements getNonTranslatableElements(String html) {
         Document document = Jsoup.parse(html);
         return document.getElementsByAttributeValueContaining("translate",
                         "no");
@@ -55,13 +53,32 @@ public final class ArticleUtil {
 
     /**
      * Check if element contains KCS article private notes
-     *
-     * section with id 'private-notes...'
      */
     public static boolean containsPrivateNotes(String html) {
+        Elements elements = getPrivateNotesElements(html);
+        return !elements.isEmpty();
+    }
+
+    /**
+     * Get html string for all KCS article private notes
+     */
+    public static List<String> getPrivateNotesHtml(String html) {
+        Elements elements = getPrivateNotesElements(html);
+        List<String> results = Lists.newArrayList();
+        for (Element element: elements) {
+            results.add(element.html());
+        }
+        return results;
+    }
+
+    /**
+     * Get all private-notes element
+     *
+     * Element with id 'private-notes*'
+     */
+    public static @Nonnull Elements getPrivateNotesElements(String html) {
         Document document = Jsoup.parse(html);
-        Elements elements = document.select("[id^='private-notes']");
-        return elements != null && !elements.isEmpty();
+        return document.select("[id^='private-notes']");
     }
 
     /**
@@ -69,7 +86,7 @@ public final class ArticleUtil {
      */
     public static boolean containsKCSCodeSection(String html) {
         Elements elements = getKCSCodeElements(html);
-        return elements != null && !elements.isEmpty();
+        return !elements.isEmpty();
     }
 
     /**
@@ -87,8 +104,10 @@ public final class ArticleUtil {
 
     /**
      * Get all KCS code elements
+     *
+     * Element with class=code-raw
      */
-    public static Elements getKCSCodeElements(String html) {
+    public static @Nonnull Elements getKCSCodeElements(String html) {
         Document document = Jsoup.parse(html);
         return document.select("#code-raw");
     }
