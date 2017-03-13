@@ -25,20 +25,20 @@ public class ArticleUtilTest {
     }
 
     @Test
-    public void isNonTranslatableNodeRecognised() {
+    public void containsNonTranslatableNodeRecognised() {
         String html = "<div id='code-raw' translate='no'></div>";
-        assertThat(ArticleUtil.isNonTranslatableNode(html)).isTrue();
+        assertThat(ArticleUtil.containsNonTranslatableNode(html)).isTrue();
     }
 
     @Test
     public void translatableNodeRecognised() {
         String html = "<div id='code-raw' translate='yes'></div>";
-        assertThat(ArticleUtil.isNonTranslatableNode(html)).isFalse();
+        assertThat(ArticleUtil.containsNonTranslatableNode(html)).isFalse();
     }
 
     @Test
     public void translatableNodeRecognised2() {
         String html = "<div id='code-raw'></div>";
-        assertThat(ArticleUtil.isNonTranslatableNode(html)).isFalse();
+        assertThat(ArticleUtil.containsNonTranslatableNode(html)).isFalse();
     }
 }

@@ -1,5 +1,6 @@
 package org.zanata.mt.util;
 
+import com.google.common.collect.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,6 +8,9 @@ import org.jsoup.select.Elements;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Utility class for Article
@@ -21,15 +25,32 @@ public final class ArticleUtil {
     }
 
     /**
-     * Check if element is non-translatable node
-     *
-     * section with id 'private-notes...'
+     * Check if element contains non-translatable node
      */
-    public static boolean isNonTranslatableNode(String html) {
-        Document document = Jsoup.parse(appendWrapper(html));
-        Element content = getContentInWrapper(document);
-        return content != null && content.hasAttr("translate") &&
-                content.attr("translate").equals("no");
+    public static boolean containsNonTranslatableNode(String html) {
+        Elements elements = getNonTranslatableElements(html);
+        return elements != null && !elements.isEmpty();
+    }
+
+    /**
+     * Get html string for all non-translatable element
+     */
+    public static List<String> getNonTranslatableHtml(String html) {
+        Elements elements = getNonTranslatableElements(html);
+        List<String> results = Lists.newArrayList();
+        for (Element element: elements) {
+            results.add(element.html());
+        }
+        return results;
+    }
+
+    /**
+     * Get all non-translatable elements
+     */
+    public static Elements getNonTranslatableElements(String html) {
+        Document document = Jsoup.parse(html);
+        return document.getElementsByAttributeValueContaining("translate",
+                        "no");
     }
 
     /**
@@ -38,37 +59,37 @@ public final class ArticleUtil {
      * section with id 'private-notes...'
      */
     public static boolean containsPrivateNotes(String html) {
-        Document document = Jsoup.parse(appendWrapper(html));
+        Document document = Jsoup.parse(html);
         Elements elements = document.select("[id^='private-notes']");
         return elements != null && !elements.isEmpty();
     }
 
     /**
      * Check if element contains KCS article code-raw section
-     *
-     * section with id 'private-notes...'
      */
     public static boolean containsKCSCodeSection(String html) {
-        Document document = Jsoup.parse(appendWrapper(html));
-        Elements elements = document.select("#code-raw");
+        Elements elements = getKCSCodeElements(html);
         return elements != null && !elements.isEmpty();
     }
 
     /**
-     * Wrap the html with a ZanataMT-wrapper for easy search
+     * Get html string for all kcs code section
      */
-    public static String appendWrapper(String html) {
-        return "<div id='" + WRAPPER_ID + "'>" + html + "</div>";
+    public static List<String> getKCSCodeHtml(String html) {
+        Elements elements = getKCSCodeElements(html);
+
+        List<String> results = Lists.newArrayList();
+        for (Element element: elements) {
+            results.add(element.html());
+        }
+        return results;
     }
 
     /**
-     * Get content in a ZanataMT-wrapper
-     * @param element
+     * Get all KCS code elements
      */
-    public static
-    @Nullable
-    Element getContentInWrapper(@Nonnull Element element) {
-        Element wrapper = element.getElementById(WRAPPER_ID);
-        return wrapper.children().isEmpty() ? null : wrapper.children().first();
+    public static Elements getKCSCodeElements(String html) {
+        Document document = Jsoup.parse(html);
+        return document.select("#code-raw");
     }
 }

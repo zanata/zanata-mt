@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.service.DocumentContentTranslatorService.MAX_LENGTH_SINGLE_ERROR;
-import static org.zanata.mt.service.DocumentContentTranslatorService.MAX_LENGTH_SINGLE_WARN;
+import static org.zanata.mt.service.DocumentContentTranslatorService.KCS_CODE_MAX_LENGTH_ERROR;
+import static org.zanata.mt.service.DocumentContentTranslatorService.KCS_CODE_MAX_LENGTH_WARN;
 
 import java.util.List;
 
@@ -68,8 +68,10 @@ public class DocumentContentTranslatorServiceTest {
     public void testTranslateDocumentContent() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        String overMaxHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t", MAX_LENGTH_SINGLE_ERROR) + "</pre></div>";
-        String warningHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t", MAX_LENGTH_SINGLE_WARN) + "</pre></div>";
+        String overMaxHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t",
+                KCS_CODE_MAX_LENGTH_ERROR) + "</pre></div>";
+        String warningHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t",
+                KCS_CODE_MAX_LENGTH_WARN) + "</pre></div>";
 
         List<String> htmls =
                 Lists.newArrayList("<html><body>Entry 1</body></html>",

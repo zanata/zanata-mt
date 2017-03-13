@@ -34,11 +34,11 @@ public class DocumentContentTranslatorService {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorService.class);
 
-    // maximum length per string allowed before warning
-    public static final int MAX_LENGTH_SINGLE_WARN = 3000;
+    // maximum length for KCS code section before warning
+    public static final int KCS_CODE_MAX_LENGTH_WARN = 3000;
 
-    // maximum length per string allowed before skipping translation
-    public static final int MAX_LENGTH_SINGLE_ERROR = 6000;
+    // maximum length for KCS code section before skipping translation
+    public static final int KCS_CODE_MAX_LENGTH_ERROR = 6000;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -57,7 +57,7 @@ public class DocumentContentTranslatorService {
      * in batch group by media type.
      *
      * Non-translatable element:
-     * {@link ArticleUtil#isNonTranslatableNode(String)}
+     * {@link ArticleUtil#containsNonTranslatableNode(String)}
      * String will be excluded from translation request, with warning in the
      * response.
      *
@@ -68,9 +68,9 @@ public class DocumentContentTranslatorService {
      *
      * Element that contain code-section:
      * {@link ArticleUtil#containsKCSCodeSection(String)}
-     * if length exceeds {@link #MAX_LENGTH_SINGLE_ERROR}, it will be excluded
+     * if length exceeds {@link #KCS_CODE_MAX_LENGTH_ERROR}, it will be excluded
      * from translation request, with warning in the response.
-     * If length exceeds {@link #MAX_LENGTH_SINGLE_WARN}, it will be
+     * If length exceeds {@link #KCS_CODE_MAX_LENGTH_WARN}, it will be
      * translated, but with warning in the response.
      *
      * {@link DocumentContent}
@@ -92,10 +92,11 @@ public class DocumentContentTranslatorService {
                 indexTextMap.put(index, typeString);
             } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
                 String html = typeString.getValue();
-                if (ArticleUtil.isNonTranslatableNode(html)) {
+                if (ArticleUtil.containsNonTranslatableNode(html)) {
+                    List<String> codeHTMLs = ArticleUtil.getNonTranslatableHtml(html);
                     String warning =
                             "Warning: translation skipped: elements with translate=no should be replaced with placeholders. - " +
-                                    html;
+                                    codeHTMLs;
                     LOG.warn(warning);
                     warnings.add(new APIResponse(Response.Status.OK, warning));
                 } else if (ArticleUtil.containsPrivateNotes(html)) {
@@ -105,14 +106,17 @@ public class DocumentContentTranslatorService {
                     LOG.warn(warning);
                     warnings.add(new APIResponse(Response.Status.OK, warning));
                 } else if (ArticleUtil.containsKCSCodeSection(html)) {
-                    if (html.length() >= MAX_LENGTH_SINGLE_ERROR) {
+                    List<String> codeHTMLs = ArticleUtil.getKCSCodeHtml(html);
+                    int totalLength = codeHTMLs.stream()
+                            .mapToInt(codeHTML -> codeHTML.length()).sum();
+                    if (totalLength >= KCS_CODE_MAX_LENGTH_ERROR) {
                         String warning =
                                 "Warning: translation skipped: code-raw elements should be replaced with placeholders. - " +
-                                        html;
+                                        codeHTMLs;
                         LOG.warn(warning);
                         warnings.add(new APIResponse(Response.Status.OK, warning));
                     } else {
-                        if (html.length() >= MAX_LENGTH_SINGLE_WARN) {
+                        if (totalLength >= KCS_CODE_MAX_LENGTH_WARN) {
                             String warning =
                                     "Warning: pre elements should be replaced with placeholders. - " +
                                             html;
