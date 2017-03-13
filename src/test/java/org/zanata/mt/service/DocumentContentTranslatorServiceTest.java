@@ -67,14 +67,14 @@ public class DocumentContentTranslatorServiceTest {
     public void testTranslateDocumentContent() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        String overMaxHTML = "<div id=\"code-raw\"><pre>" + StringUtils.repeat("t",
+        String overMaxHTML = "<div class=\"code-raw\"><pre>" + StringUtils.repeat("t",
                 PLACEHOLDER_THRESHOLD) + "</pre></div>";
 
         List<String> htmls =
                 Lists.newArrayList("<html><body>Entry 1</body></html>",
                         "<html><body>Entry 2</body></html>",
                         "<html><body>Entry 5</body></html>",
-                        "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
+                        "<div class=\"code-raw\"><pre>KCS code section</pre></div>",
                         "<div translate=\"no\">non translatable node</div>",
                         "<div id=\"private-notes\"><span>private notes</span></div>",
                         overMaxHTML);
@@ -87,7 +87,7 @@ public class DocumentContentTranslatorServiceTest {
                 Lists.newArrayList("<html><body>MS: Entry 1</body></html>",
                         "<html><body>MS: Entry 2</body></html>",
                         "<html><body>MS: Entry 5</body></html>",
-                        "<div id=\"code-raw\"><pre>KCS code section</pre></div>",
+                        "<div class=\"code-raw\"><pre>KCS code section</pre></div>",
                         "<div translate=\"no\">non translatable node</div>",
                         "<div id=\"private-notes\"><span>private notes</span></div>");
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");

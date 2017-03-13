@@ -109,6 +109,6 @@ public final class ArticleUtil {
      */
     public static @Nonnull Elements getKCSCodeElements(String html) {
         Document document = Jsoup.parse(html);
-        return document.select("#code-raw");
+        return document.select(".code-raw");
     }
 }
