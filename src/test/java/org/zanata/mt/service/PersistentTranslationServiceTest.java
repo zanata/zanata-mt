@@ -3,12 +3,10 @@ package org.zanata.mt.service;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jglue.cdiunit.CdiRunner;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
@@ -17,16 +15,14 @@ import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.zanata.mt.service.PersistentTranslationService.MAX_LENGTH;
-import static org.zanata.mt.backend.ms.MicrosoftTranslatorBackend.AZURE_ID;
-import static org.zanata.mt.backend.ms.MicrosoftTranslatorBackend.AZURE_SECRET;
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@RunWith(CdiRunner.class)
 public class PersistentTranslationServiceTest {
 
     @Mock
@@ -42,10 +38,8 @@ public class PersistentTranslationServiceTest {
 
     @BeforeClass
     public static void beforeClass() {
-        String id = "id";
-        String secret = "secret";
-        System.setProperty(AZURE_ID, id);
-        System.setProperty(AZURE_SECRET, secret);
+        String secret = "subscriptionKey";
+        System.setProperty(AZURE_KEY, secret);
     }
 
     @Before
@@ -56,43 +50,35 @@ public class PersistentTranslationServiceTest {
     }
 
     @Test
-    public void testValidateLength() throws BadRequestException {
-        String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
-        String translations = persistentTranslationService.translate(overLengthSource,
-                sourceLocale, targetLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE);
-        assertThat(translations).isEqualTo(overLengthSource);
+    public void testEmptyConstructor() {
+        persistentTranslationService = new PersistentTranslationService();
     }
 
     @Test
     public void testValidateEmptySrcLocale() {
-        String source = "testing source";
-        Locale sourceLocale = null;
+        List<String> source = Lists.newArrayList("testing source");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                sourceLocale, targetLocale,
+                null, targetLocale,
                 BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
 
     @Test
     public void testValidateEmptyTargetLocale() {
-        String source = "testing source";
+        List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = null;
 
         assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                sourceLocale, targetLocale,
+                sourceLocale, null,
                 BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
     }
 
     @Test
     public void testValidateEmptyProvider() {
-        String source = "testing source";
+        List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 

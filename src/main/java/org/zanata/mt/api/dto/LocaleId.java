@@ -5,6 +5,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
+ * Wrapper for LocaleId for language entity
+ *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class LocaleId implements Serializable {
@@ -22,9 +24,6 @@ public class LocaleId implements Serializable {
     public static final LocaleId RU = new LocaleId("ru");
     public static final LocaleId ZH_CN = new LocaleId("zh-cn");
 
-
-    @Size(max = 255)
-    @NotNull
     private String id;
 
     public LocaleId() {
@@ -51,6 +50,8 @@ public class LocaleId implements Serializable {
         return id;
     }
 
+    @Size(max = 255)
+    @NotNull
     public String getId() {
         return id;
     }

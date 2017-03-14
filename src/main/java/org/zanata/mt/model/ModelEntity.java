@@ -32,12 +32,27 @@ public abstract class ModelEntity implements Serializable {
     @Column(nullable = false)
     private Date lastChanged;
 
+    /**
+     * Child classes should implement business key equality (eg check NaturalId fields).
+     * @param obj
+     * @return
+     */
+    @Override
+    public abstract boolean equals(Object obj);
+
+    /**
+     * Child classes should implement business key hashcode (eg check NaturalId fields).
+     * @return
+     */
+    @Override
+    public abstract int hashCode();
+
     public Date getCreationDate() {
-        return new Date(creationDate.getTime());
+        return creationDate != null ? new Date(creationDate.getTime()) : null;
     }
 
     public Date getLastChanged() {
-        return new Date(lastChanged.getTime());
+        return lastChanged != null ? new Date(lastChanged.getTime()) : null;
     }
 
     public Long getId() {

@@ -2,8 +2,6 @@ package org.zanata.mt.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -14,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NaturalId;
@@ -32,11 +31,12 @@ public class TextFlow extends ModelEntity {
     @NotEmpty
     @Size(max = 255)
     @NaturalId
-    private String hash;
+    private String contentHash;
 
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "localeId", nullable = false, updatable = false)
+    @NotNull
     private Locale locale;
 
     @NotEmpty
@@ -60,14 +60,12 @@ public class TextFlow extends ModelEntity {
         updateContentHash();
     }
 
-    @Transient
     private void updateContentHash() {
-        this.setHash(
-                HashUtil.generateHash(content, locale.getLocaleId()));
+        this.contentHash = HashUtil.generateHash(content);
     }
 
-    public String getHash() {
-        return hash;
+    public String getContentHash() {
+        return contentHash;
     }
 
     public Locale getLocale() {
@@ -82,22 +80,12 @@ public class TextFlow extends ModelEntity {
         return targets;
     }
 
-    protected void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
     @Transient
     public List<TextFlowTarget> getTargetsByLocaleId(LocaleId localeId) {
-        return getTargets().stream().filter(new Predicate<TextFlowTarget>() {
-            @Override
-            public boolean test(TextFlowTarget target) {
-                return target.getLocale().getLocaleId().equals(localeId);
-            }
-        }).collect(Collectors.toList());
+        return getTargets().stream()
+                .filter(textFlowTarget -> textFlowTarget.getLocale()
+                        .getLocaleId().equals(localeId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -107,16 +95,22 @@ public class TextFlow extends ModelEntity {
 
         TextFlow textFlow = (TextFlow) o;
 
-        if (hash != null ? !hash.equals(textFlow.hash) : textFlow.hash != null)
-            return false;
-        return locale != null ? locale.equals(textFlow.locale) :
-                textFlow.locale == null;
+        if (getContentHash() != null ? !getContentHash().equals(textFlow.getContentHash()) :
+                textFlow.getContentHash() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
+                textFlow.getLocale() != null) return false;
+        return getTargets() != null ?
+                getTargets().equals(textFlow.getTargets()) :
+                textFlow.getTargets() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = hash != null ? hash.hashCode() : 0;
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        int result = getContentHash() != null ? getContentHash().hashCode() : 0;
+        result = 31 * result +
+                (getLocale() != null ? getLocale().hashCode() : 0);
+        result = 31 * result +
+                (getTargets() != null ? getTargets().hashCode() : 0);
         return result;
     }
 }

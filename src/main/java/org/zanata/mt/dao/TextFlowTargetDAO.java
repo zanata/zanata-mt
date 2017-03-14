@@ -19,7 +19,7 @@ public class TextFlowTargetDAO extends AbstractDAO<TextFlowTarget> {
     }
 
     @VisibleForTesting
-    public TextFlowTargetDAO(EntityManager entityManager) {
+    TextFlowTargetDAO(EntityManager entityManager) {
         setEntityManager(entityManager);
     }
 }

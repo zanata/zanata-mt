@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.zanata.mt</groupId>
   <artifactId>zanata-mt</artifactId>
@@ -11,15 +9,18 @@
   <url>http://zanata.org</url>
   <scm>
     <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
+    <developerConnection>scm:git:git@github.com:zanata/zanata-mt.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
   <properties>
+    <github.global.server>github</github.global.server>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <maven-war-plugin.version>2.1.1</maven-war-plugin.version>
+    <maven-war-plugin.version>2.6</maven-war-plugin.version>
     <resteasy.version>3.1.0.Final</resteasy.version>
     <javamelody.version>1.62.0</javamelody.version>
     <guava.version>20.0</guava.version>
@@ -34,8 +35,8 @@
     <!-- database -->
     <postgresql.version>9.4.1212</postgresql.version>
     <postgresql.port>5432</postgresql.port>
-    <postgressql.user>root</postgressql.user>
-    <postgressql.password>root</postgressql.password>
+    <postgresql.user>root</postgresql.user>
+    <postgresql.password>root</postgresql.password>
     <db.name>zanataMT</db.name>
     <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
@@ -44,8 +45,8 @@
     <!-- cargo settings -->
     <cargo.host>localhost</cargo.host>
     <cargo.port.offset>0</cargo.port.offset>
-    <cargo.installation>http://download.jboss.org/wildfly/8.2.1.Final/wildfly-8.2.1.Final.tar.gz</cargo.installation>
-    <cargo.containerId>wildfly8x</cargo.containerId>
+    <cargo.installation>http://download.jboss.org/wildfly/10.1.0.Final/wildfly-10.1.0.Final.tar.gz</cargo.installation>
+    <cargo.containerId>wildfly10x</cargo.containerId>
     <cargo.extract.dir>${project.build.directory}/cargo/installs</cargo.extract.dir>
     <cargo.container.home>${project.build.directory}/jboss/container</cargo.container.home>
     <cargo.servlet.port>8080</cargo.servlet.port>
@@ -60,6 +61,10 @@
     <checkstyle.config.location>src/main/resources/checkstyle.xml</checkstyle.config.location>
     <checkstyle.suppressions.location>src/main/resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+
+
+    <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
+    <enunciate.version>2.8.0</enunciate.version>
 
     <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
@@ -77,7 +82,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.8</version>
+        <version>${jacoco-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>default-prepare-agent</id>
@@ -105,7 +110,12 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.20</minimum>
+                      <minimum>0.70</minimum>
+                    </limit>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.90</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -113,6 +123,48 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+        <version>${enunciate.version}</version>
+        <configuration>
+          <enunciateArtifactId>zanataMT</enunciateArtifactId>
+          <docsDir>${project.build.directory}/site</docsDir>
+          <!-- The subdirectory of the site where the documentation will be put. -->
+          <!-- Note that if this isn't set, the documentation will overwrite the site. -->
+          <docsSubdir>api-docs</docsSubdir>
+          <indexPageName>index.html</indexPageName>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-docs</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jackson1</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jaxb</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.webcohesion.enunciate</groupId>
+            <artifactId>enunciate-jaxrs</artifactId>
+            <version>${enunciate.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -177,8 +229,8 @@
               <run>
                 <env>
                   <POSTGRES_DB>${db.name}</POSTGRES_DB>
-                  <POSTGRES_USER>${postgressql.user}</POSTGRES_USER>
-                  <POSTGRES_PASSWORD>${postgressql.password}</POSTGRES_PASSWORD>
+                  <POSTGRES_USER>${postgresql.user}</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>${postgresql.password}</POSTGRES_PASSWORD>
                 </env>
                 <ports>
                   <port>${postgresql.port}:${postgresql.port}</port>
@@ -188,145 +240,121 @@
                   <time>20000</time>
                 </wait>
                 <log>
+                  <date>default</date>
                   <prefix>DB</prefix>
                   <color>yellow</color>
                 </log>
                 <namingStrategy>alias</namingStrategy>
               </run>
             </image>
+            <image>
+              <name>zanata/zanata-mt:latest</name>
+              <alias>zanataMT</alias>
+              <build>
+                <dockerFileDir>${project.basedir}</dockerFileDir>
+                <ports>
+                  <port>8080:8080</port>
+                </ports>
+              </build>
+              <run>
+                <env>
+                  <POSTGRESQL_URL>zanataMTDB</POSTGRESQL_URL>
+                  <POSTGRESQL_PORT>${postgresql.port}</POSTGRESQL_PORT>
+                  <POSTGRESQL_DATABASE>${db.name}</POSTGRESQL_DATABASE>
+                  <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
+                  <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
+                  <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
+                  <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
+                  <ZANATA_MT_API_KEY>devKEY</ZANATA_MT_API_KEY>
+                </env>
+                <dependsOn>
+                  <container>zanataMTDB</container>
+                </dependsOn>
+                <ports>
+                  <port>8080:8080</port>
+                </ports>
+                <log>
+                  <date>default</date>
+                  <prefix>WF</prefix>
+                  <color>cyan</color>
+                </log>
+                <links>
+                  <link>zanataMTDB:db</link>
+                </links>
+                <namingStrategy>alias</namingStrategy>
+              </run>
+            </image>
           </images>
         </configuration>
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>start</id>-->
-            <!--<phase>pre-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>build</goal>-->
-              <!--<goal>start</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-          <!--<execution>-->
-            <!--<id>stop</id>-->
-            <!--<phase>post-integration-test</phase>-->
-            <!--<goals>-->
-              <!--<goal>stop</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
       </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
-        <version>1.6.0</version>
-        <configuration>
-          <container>
-            <containerId>${cargo.containerId}</containerId>
-            <type>installed</type>
-            <!--if install from url-->
-            <zipUrlInstaller>
-              <url>${cargo.installation}</url>
-              <downloadDir>${user.home}/Downloads</downloadDir>
-              <extractDir>${cargo.extract.dir}</extractDir>
-            </zipUrlInstaller>
-
-            <output>${project.build.directory}/container.log</output>
-            <append>false</append>
-            <log>${project.build.directory}/cargo.log</log>
-
-            <dependencies>
-              <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-              </dependency>
-            </dependencies>
-
-            <systemProperties>
-              <!-- System properties for Azure service. Set this in your maven settings.xml for DEV -->
-              <AZURE_ID>${AZURE_ID}</AZURE_ID>
-              <AZURE_SECRET>${AZURE_SECRET}</AZURE_SECRET>
-            </systemProperties>
-          </container>
-
-          <configuration>
-            <type>standalone</type>
-            <home>${cargo.container.home}</home>
-            <properties>
-              <cargo.start.jvmargs>
-                -Xdebug
-                -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
-                -Xnoagent
-                -Djava.compiler=NONE
-              </cargo.start.jvmargs>
-              <cargo.jboss.configuration>standalone</cargo.jboss.configuration>
-              <cargo.port.offset>${cargo.port.offset}</cargo.port.offset>
-              <cargo.servlet.port>${cargo.servlet.port}</cargo.servlet.port>
-              <cargo.jboss.management-http.port>${cargo.jboss.management-http.port}</cargo.jboss.management-http.port>
-              <cargo.jboss.management-native.port>${cargo.jboss.management-native.port}</cargo.jboss.management-native.port>
-
-              <!-- maven variables does not work here -->
-              <cargo.datasource.datasource.postgres>
-                cargo.datasource.jndi=jboss/datasources/${db.name}|
-                cargo.datasource.driver=org.postgresql.Driver|
-                cargo.datasource.url=jdbc:postgresql://localhost:${postgresql.port}/${db.name}|
-                cargo.datasource.username=${postgressql.user}|
-                cargo.datasource.password=${postgressql.password}
-              </cargo.datasource.datasource.postgres>
-            </properties>
-          </configuration>
-
-          <deployables>
-            <deployable>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>${project.artifactId}</artifactId>
-              <type>war</type>
-              <pingURL>http://${cargo.host}:${cargo.servlet.port}/</pingURL>
-              <pingTimeout>30000</pingTimeout>
-              <properties>
-                <context>${context.path}</context>
-              </properties>
-            </deployable>
-          </deployables>
-        </configuration>
-
-        <executions>
-          <execution>
-            <id>cargo-start</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>cargo-stop</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
         <configuration>
           <outputDirectory>target/deployments</outputDirectory>
           <warName>ROOT</warName>
-          <webResources>
-            <resource>
-              <filtering>true</filtering>
-              <directory>src/main/webapp</directory>
-              <includes>
-                <include>script/*.js</include>
-              </includes>
-            </resource>
-          </webResources>
+          <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+        <configuration>
+          <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <localCheckout>true</localCheckout>
+          <pushChanges>false</pushChanges>
+          <goals>verify</goals>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+        <version>0.12</version>
+        <configuration>
+          <message>Creating site for ${project.version}</message>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>site</goal>
+            </goals>
+            <phase>site</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
 
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <dependencies>
+
+    <!-- enunciate -->
+    <dependency>
+      <groupId>com.webcohesion.enunciate</groupId>
+      <artifactId>enunciate-core-annotations</artifactId>
+      <version>${enunciate.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.annotation</groupId>
+          <artifactId>jsr250-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <!-- CDI -->
     <dependency>
@@ -611,6 +639,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jglue.cdi-unit</groupId>
+      <artifactId>cdi-unit</artifactId>
+      <version>3.1.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.6.1</version>
@@ -618,28 +653,22 @@
     </dependency>
 
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.7.9</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.jglue.cdi-unit</groupId>
-      <artifactId>cdi-unit</artifactId>
-      <version>3.1.4</version>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.6.5</version>
       <scope>test</scope>
     </dependency>
 
@@ -651,53 +680,4 @@
     </dependency>
 
   </dependencies>
-
-  <profiles>
-    <!-- default profile -->
-    <profile>
-      <id>dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <name>dev</name>
-        <!--
-        This should be the base url of where this service is hosted.
-        It is used as base-url for script.js to download article-script.js in bookmarklet.
-        -->
-        <service.url>http://${cargo.host}:${cargo.servlet.port}</service.url>
-      </properties>
-    </profile>
-
-    <!-- This profile is used for production build.. -->
-    <profile>
-      <id>production</id>
-      <properties>
-        <name>production</name>
-        <service.url>https://server-zanata-mt.int.open.paas.redhat.com</service.url>
-      </properties>
-      <build>
-        <finalName>ZanataMT</finalName>
-        <plugins>
-          <plugin>
-            <artifactId>maven-war-plugin</artifactId>
-            <version>${maven-war-plugin.version}</version>
-            <configuration>
-              <outputDirectory>target/deployments</outputDirectory>
-              <warName>ROOT</warName>
-              <webResources>
-                <resource>
-                  <filtering>true</filtering>
-                  <directory>src/main/webapp</directory>
-                  <includes>
-                    <include>script/*.js</include>
-                  </includes>
-                </resource>
-              </webResources>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -28,11 +29,13 @@ public class TextFlowTarget extends ModelEntity {
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "textFlowId", nullable = false, updatable = false)
+    @NotNull
     private TextFlow textFlow;
 
     @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "localeId", nullable = false, updatable = false)
+    @NotNull
     private Locale locale;
 
     @NotEmpty
@@ -43,8 +46,10 @@ public class TextFlowTarget extends ModelEntity {
 
     private int usedCount;
 
+    // TODO add BackendID to NaturalId (and equals/hashCode)
     @Type(type = "backendIdType")
     @Column(nullable = false)
+    @NotNull
     private BackendID backendId;
 
     public TextFlowTarget() {
@@ -54,9 +59,9 @@ public class TextFlowTarget extends ModelEntity {
             Locale locale, BackendID backendID) {
         this.content = content;
         this.rawContent = rawContent;
-        this.textFlow = textFlow;
         this.locale = locale;
         this.backendId = backendID;
+        this.textFlow = textFlow;
     }
 
     public void incrementCount() {
@@ -94,16 +99,24 @@ public class TextFlowTarget extends ModelEntity {
 
         TextFlowTarget that = (TextFlowTarget) o;
 
-        if (textFlow != null ? !textFlow.equals(that.textFlow) :
-                that.textFlow != null) return false;
-        return locale != null ? locale.equals(that.locale) :
-                that.locale == null;
+        if (getTextFlow() != null ? !getTextFlow().equals(that.getTextFlow()) :
+                that.getTextFlow() != null) return false;
+        if (getLocale() != null ? !getLocale().equals(that.getLocale()) :
+                that.getLocale() != null) return false;
+        return getBackendId() != null ?
+                getBackendId().equals(that.getBackendId()) :
+                that.getBackendId() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = textFlow != null ? textFlow.hashCode() : 0;
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        int result = getTextFlow() != null ? getTextFlow().hashCode() : 0;
+        result = 31 * result +
+                (getLocale() != null ? getLocale().hashCode() : 0);
+        result =
+                31 * result +
+                        (getBackendId() != null ? getBackendId().hashCode() :
+                                0);
         return result;
     }
 }

@@ -48,7 +48,7 @@ public class BackendIdType extends AbstractSingleColumnStandardBasicType<Backend
 
     @Override
     public String getName() {
-        return "entityType";
+        return "backendID";
     }
 
     @Override
@@ -58,9 +58,9 @@ public class BackendIdType extends AbstractSingleColumnStandardBasicType<Backend
     }
 
     public BackendID stringToObject(String xml) throws Exception {
-        if (xml.length() < 1) {
+        if (xml == null || xml.length() < 1) {
             throw new MappingException(
-                "multiple or zero characters found parsing string");
+                "empty string found when parsing");
         }
         return new BackendID(xml);
     }

@@ -25,6 +25,11 @@ public class BackendID implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return id;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BackendID)) return false;
@@ -32,7 +37,6 @@ public class BackendID implements Serializable {
         BackendID backendID = (BackendID) o;
 
         return id.equals(backendID.id);
-
     }
 
     @Override

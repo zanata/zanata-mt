@@ -8,7 +8,6 @@ import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
@@ -43,12 +42,6 @@ public class PersistentTranslationService {
 
     private MicrosoftTranslatorBackend microsoftTranslatorBackend;
 
-    // Max length for single string in Microsoft Engine
-    public static final int MAX_LENGTH = 6000;
-
-    // Max length before logging warning
-    public static final int MAX_LENGTH_WARN = 3000;
-
     @SuppressWarnings("unused")
     public PersistentTranslationService() {
     }
@@ -60,21 +53,6 @@ public class PersistentTranslationService {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
         this.microsoftTranslatorBackend = microsoftTranslatorBackend;
-    }
-
-    /**
-     * Translate single string in an api trigger
-     *
-     * Get from database if exists (hash), or from MT engine
-     */
-    @TransactionAttribute
-    public String translate(@NotNull @Size(max = MAX_LENGTH) String string,
-            @NotNull Locale srcLocale, @NotNull Locale targetLocale,
-            @NotNull BackendID backendID, @NotNull MediaType mediaType)
-            throws BadRequestException, ZanataMTException {
-        List<String> translations = translate(Lists.newArrayList(string),
-                srcLocale, targetLocale, backendID, mediaType);
-        return translations.get(0);
     }
 
     /**
@@ -91,31 +69,17 @@ public class PersistentTranslationService {
                 || targetLocale == null || backendID == null) {
             throw new BadRequestException();
         }
-        int totalChar = strings.stream().mapToInt(String::length).sum();
-
-        /**
-         * return original string if it is more than MAX_LENGTH
-         */
-        if (totalChar > MAX_LENGTH) {
-            LOG.warn("Requested string length is more than " + MAX_LENGTH);
-            return strings;
-        }
-        if (totalChar > MAX_LENGTH_WARN) {
-            LOG.warn("Requested string length is more than " + MAX_LENGTH_WARN);
-        }
 
         List<String> results = new ArrayList<>(strings);
         Map<String, Integer> untranslatedIndexMap = Maps.newHashMap();
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
         // search from database
-        for (String string: strings) {
-            String hash =
-                    HashUtil.generateHash(string, srcLocale.getLocaleId());
+        for (int index = 0; index < strings.size(); index++) {
+            String string = strings.get(index);
+            String hash = HashUtil.generateHash(string);
             TextFlow matchedHashTf =
                     textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);
-
-            int index = strings.indexOf(string);
 
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
@@ -127,9 +91,9 @@ public class PersistentTranslationService {
                     matchedEntity.incrementCount();
                     textFlowTargetDAO.persist(matchedEntity);
                     LOG.info(
-                        "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
-                            string + "\nTranslation-" + targetLocale.getLocaleId() +
-                            ":" + matchedEntity.getContent());
+                            "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
+                                    string + "\nTranslation-" + targetLocale.getLocaleId() +
+                                    ":" + matchedEntity.getContent());
                     results.set(index, matchedEntity.getContent());
                 } else {
                     untranslatedIndexMap.put(string, index);
@@ -141,7 +105,7 @@ public class PersistentTranslationService {
             }
         }
 
-        // no need of machine translations
+        // all translations got from database records
         if (untranslatedIndexMap.isEmpty()) {
             return results;
         }

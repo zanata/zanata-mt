@@ -8,9 +8,11 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
-import org.zanata.mt.annotation.SystemProperty;
+import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -23,9 +25,11 @@ import org.zanata.mt.util.DTOUtil;
 
 import com.google.common.collect.Lists;
 
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
+
 /**
- * Service for Microsoft translator. Checks for {@link #AZURE_ID} and
- * {@link #AZURE_SECRET} during startup.
+ * Service for Microsoft translator.
+ * {@link org.zanata.mt.api.APIConstant#AZURE_KEY} during startup.
  *
  *
  * See
@@ -39,33 +43,30 @@ import com.google.common.collect.Lists;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    public static final String AZURE_ID = "AZURE_ID";
-    public static final String AZURE_SECRET = "AZURE_SECRET";
-
-    private String clientId;
-
-    private String clientSecret;
+    private String clientSubscriptionKey;
 
     private MicrosoftTranslatorClient api;
+
+    private final MicrosoftRestEasyClient
+            restClient = new MicrosoftRestEasyClient();
 
     @SuppressWarnings("unused")
     public MicrosoftTranslatorBackend() {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(@SystemProperty(AZURE_ID) String clientId,
-        @SystemProperty(AZURE_SECRET) String clientSecret) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    public MicrosoftTranslatorBackend(
+        @EnvVariable(AZURE_KEY) String clientSubscriptionKey) {
+        this.clientSubscriptionKey = clientSubscriptionKey;
     }
 
     public void onInit(@Observes @Initialized(ApplicationScoped.class) Object init)
         throws ZanataMTException {
-        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+        if (StringUtils.isBlank(clientSubscriptionKey)) {
             throw new ZanataMTException(
-                "Missing environment variables of AZURE_ID and AZURE_SECRET");
+                "Missing system properties of " + AZURE_KEY);
         }
-        api = new MicrosoftTranslatorClient(clientId, clientSecret);
+        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
     }
 
     @Override
@@ -96,16 +97,17 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                     res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
                             DTOUtil.toXML(res)))
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (JAXBException e) {
             throw new ZanataMTException("Unable to get translations from MS API", e);
         }
     }
 
-    public String getClientId() {
-        return clientId;
+    public String getClientSubscriptionKey() {
+        return clientSubscriptionKey;
     }
 
-    public String getClientSecret() {
-        return clientSecret;
+    @VisibleForTesting
+    protected void setApi(MicrosoftTranslatorClient api) {
+        this.api = api;
     }
 }

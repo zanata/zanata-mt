@@ -16,6 +16,13 @@ public class UrlUtilTest {
     }
 
     @Test
+    public void testEmptyUrl() {
+        String url = "";
+        assertThat(UrlUtil.isValidURL(url)).isFalse();
+    }
+
+
+    @Test
     public void testIsInvalidUrl() {
         String url = "localhost:8080";
         assertThat(UrlUtil.isValidURL(url)).isFalse();

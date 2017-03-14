@@ -1,11 +1,8 @@
 package org.zanata.mt.backend.ms;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
-import org.apache.commons.lang3.text.StrSubstitutor;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
@@ -16,11 +13,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  *
@@ -34,43 +26,38 @@ class MicrosoftTranslatorClient {
     private static final Logger LOG =
         LoggerFactory.getLogger(MicrosoftTranslatorClient.class);
 
+    // properties
     private static final String TRANSLATIONS_BASE_URL = "https://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
-    private static final String DATA_MARKET_ACCESS_URI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
-
+    private static final String DATA_MARKET_ACCESS_URI = "https://api.cognitive.microsoft.com/sts/v1.0/issueToken";
+    private static final String OCP_APIM_SUBSCRIPTION_KEY_HEADER = "Ocp-Apim-Subscription-Key";
     private static final String ENCODING = CharEncoding.UTF_8;
 
-    private static final String TEMPLATE_TOKEN_PARAM =
-        "grant_type=client_credentials&scope=http://api.microsofttranslator.com&client_id=${clientId}&client_secret=${clientSecret}";
+    // Cache token for 5 minutes
+    private static final long TOKEN_CACHE_EXPIRATION = 5 * 60 * 1000;
 
-    // The access token is valid for 10 minutes
     private long tokenExpiration = 0;
     private String token;
 
-    private final String clientId;
+    private final String clientSubscriptionKey;
 
-    private final String clientSecret;
+    private final MicrosoftRestEasyClient restClient;
 
-    protected MicrosoftTranslatorClient(String clientId, String clientSecret) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    protected MicrosoftTranslatorClient(String clientSubscriptionKey,
+            MicrosoftRestEasyClient restClient) {
+        this.clientSubscriptionKey = clientSubscriptionKey;
+        this.restClient = restClient;
     }
 
     /**
      * Get access token from MS API if token is expired.
      * 10 minutes by default
-     *
-     * @throws Exception
      */
     protected void getTokenIfNeeded() {
         if (System.currentTimeMillis() > tokenExpiration) {
-            String tokenJson = getToken();
-            Integer expiresIn = Integer.parseInt(
-                (String) ((JSONObject) JSONValue.parse(tokenJson))
-                    .get("expires_in"));
-            tokenExpiration =
-                System.currentTimeMillis() + ((expiresIn * 1000) - 1);
-            token = "Bearer " + ((JSONObject) JSONValue.parse(tokenJson))
-                .get("access_token");
+            String tokenKey = getToken();
+            tokenExpiration = System.currentTimeMillis() +
+                    TOKEN_CACHE_EXPIRATION;
+            token = "Bearer " + tokenKey;
             if (LOG.isDebugEnabled()) {
                 LOG.debug("New token:" + token);
             }
@@ -85,8 +72,7 @@ class MicrosoftTranslatorClient {
         getTokenIfNeeded();
 
         ResteasyWebTarget webTarget =
-                new ResteasyClientBuilder().build()
-                        .target(TRANSLATIONS_BASE_URL);
+                restClient.getWebTarget(TRANSLATIONS_BASE_URL);
         Response response = webTarget.request(MediaType.TEXT_XML)
                 .header("Content-Type",
                         MediaType.TEXT_XML + "; charset=" + ENCODING)
@@ -112,11 +98,12 @@ class MicrosoftTranslatorClient {
         try {
             LOG.info("Getting token for Microsoft Engine");
 
-            Invocation.Builder builder = getBuilder();
-            final String params = getTokenParam();
+            Invocation.Builder builder =
+                    restClient.getBuilder(DATA_MARKET_ACCESS_URI, ENCODING);
+            builder.header(OCP_APIM_SUBSCRIPTION_KEY_HEADER,
+                    clientSubscriptionKey);
 
-            response = builder.post(Entity
-                .entity(params, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+            response = builder.build("POST").invoke();
 
             if (response.getStatusInfo() != Response.Status.OK) {
                 throw new ZanataMTException(
@@ -124,8 +111,6 @@ class MicrosoftTranslatorClient {
                                 + response.getStatusInfo().toString());
             }
             return response.readEntity(String.class);
-        } catch (UnsupportedEncodingException e) {
-            throw new ZanataMTException("Unable to get system properties", e);
         } finally {
             if (response != null) {
                 response.close();
@@ -133,24 +118,13 @@ class MicrosoftTranslatorClient {
         }
     }
 
-    protected Invocation.Builder getBuilder() {
-        return new ResteasyClientBuilder()
-            .build()
-            .target(DATA_MARKET_ACCESS_URI)
-            .request()
-            .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
-            .header("Accept-Charset", ENCODING);
+    @VisibleForTesting
+    protected String getCurrentToken() {
+        return token;
     }
 
-    protected String getTokenParam()
-        throws UnsupportedEncodingException {
-        Map<String, String> valuesMap = Maps.newHashMap();
-        valuesMap.put("clientId",
-            URLEncoder.encode(clientId, ENCODING));
-        valuesMap.put("clientSecret",
-            URLEncoder.encode(clientSecret, ENCODING));
-
-        StrSubstitutor sub = new StrSubstitutor(valuesMap);
-        return sub.replace(TEMPLATE_TOKEN_PARAM);
+    @VisibleForTesting
+    protected Long getTokenExpiration() {
+        return tokenExpiration;
     }
 }

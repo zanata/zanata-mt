@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -24,9 +24,8 @@ import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,7 +41,7 @@ public class PersistentTranslationServiceJPATest {
     private TextFlowTargetDAO textFlowTargetDAO;
 
     @Mock
-    private MicrosoftTranslatorBackend msProvider;
+    private MicrosoftTranslatorBackend msBackend;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -50,7 +49,7 @@ public class PersistentTranslationServiceJPATest {
     public void setup() {
         persistentTranslationService =
                 new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                    msProvider);
+                    msBackend);
     }
 
     @Test
@@ -58,10 +57,10 @@ public class PersistentTranslationServiceJPATest {
             throws BadRequestException {
         List<String> sources = Lists.newArrayList("string to translate");
         List<AugmentedTranslation> expectedTranslations =
-                Lists.newArrayList(new AugmentedTranslation(
+            Lists.newArrayList(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
-       
+
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
         TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
@@ -71,15 +70,14 @@ public class PersistentTranslationServiceJPATest {
                         expectedTranslations.get(0).getRawTranslation(),
                         expectedTf, targetLocale, BackendID.MS);
 
-        String hash = HashUtil.generateHash(sources.get(0),
-                sourceLocale.getLocaleId());
+        String hash = HashUtil.generateHash(sources.get(0));
 
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        when(msProvider.translate(sources, sourceLocale, targetLocale,
+        when(msBackend.translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE))
                         .thenReturn(expectedTranslations);
 
@@ -87,7 +85,7 @@ public class PersistentTranslationServiceJPATest {
                 persistentTranslationService.translate(sources, sourceLocale,
                         targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(msProvider).translate(sources, sourceLocale, targetLocale,
+        verify(msBackend).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -100,32 +98,30 @@ public class PersistentTranslationServiceJPATest {
 
     @Test
     public void testTranslationExists() throws BadRequestException {
-        String source = "string to translate";
-        String expectedTranslation = "translation of:" + source;
+        List<String> sources = Lists.newArrayList("string to translate");
+        String expectedTranslation = "translation of:" + sources.get(0);
         String expectedRawContent =
                 "<MSString>" + expectedTranslation + "</MSString>";
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
-        TextFlow expectedTf = new TextFlow(source, sourceLocale);
+        TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
         TextFlowTarget expectedTft = new TextFlowTarget(expectedTranslation,
                 expectedRawContent, expectedTf, targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
 
-        String hash = HashUtil.generateHash(source,
-                sourceLocale.getLocaleId());
+        String hash = HashUtil.generateHash(sources.get(0));
 
         when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
-        String translation =
+        List<String> translations =
                 persistentTranslationService
-                    .translate(source, sourceLocale, targetLocale,
+                    .translate(sources, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
-        verifyZeroInteractions(msProvider);
-        assertThat(translation).isEqualTo(expectedTranslation);
+        assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }
 }
