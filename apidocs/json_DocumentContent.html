@@ -131,6 +131,18 @@ DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)</p>
           <td>  <span class="property-description">backendId of translated content for this DocumentContent</span>
 </td>
         </tr>
+        <tr>
+          <td>  <span class="property-name">warnings</span>
+</td>
+          <td>  <span class="datatype-reference">array of <a href="json_APIResponse.html">APIResponse</a>
+</span>
+</td>
+          <td>  <span class="property-constraints">&nbsp;
+</span>
+</td>
+          <td>  <span class="property-description">warning messages APIResponse</span>
+</td>
+        </tr>
         </tbody>
       </table>
 
@@ -148,7 +160,18 @@ DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)</p>
     &quot;metadata&quot; : &quot;...&quot;
   } ],
   &quot;locale&quot; : &quot;...&quot;,
-  &quot;backendId&quot; : &quot;...&quot;
+  &quot;backendId&quot; : &quot;...&quot;,
+  &quot;warnings&quot; : [ {
+    &quot;status&quot; : 12345,
+    &quot;title&quot; : &quot;...&quot;,
+    &quot;details&quot; : &quot;...&quot;,
+    &quot;timestamp&quot; : &quot;...&quot;
+  }, {
+    &quot;status&quot; : 12345,
+    &quot;title&quot; : &quot;...&quot;,
+    &quot;details&quot; : &quot;...&quot;,
+    &quot;timestamp&quot; : &quot;...&quot;
+  } ]
 }</pre>
 
         <footer class="footer">

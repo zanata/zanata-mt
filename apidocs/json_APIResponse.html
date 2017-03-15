@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>Zanata MT: Data Types</title>
+  <title>Zanata MT: APIResponse</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">Zanata MT: Data Types</a>
+        <a class="navbar-brand" href="index.html">Zanata MT: APIResponse</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -50,8 +50,6 @@
     <div class="row">
       <div class="col-sm-3 col-md-2 sidebar" id="apinav">
         <ul class="nav nav-sidebar">
-          <li><a href="#syntax_json">JSON</a></li>
-          <li class="divider"></li>
           <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
         </ul>
       </div>
@@ -59,45 +57,87 @@
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
-          <li class="dropdown"><a href="data.html">Data Types</a></li>
+          <li class="active dropdown"><a href="syntax_json.html">JSON</a></li>
+          <li class="dropdown"><a href="json_APIResponse.html">APIResponse</a></li>
         </ol>
 
-  <h1 class="page-header" id="data">Data Types</h1>
+      <h1 class="page-header">APIResponse <small>Data Type</small></h1>
 
-  <h3 id="syntax_json">JSON</h3>
+      <p>JSON entity for HTTP API response</p>
 
-  <table class="table table-hover data-types">
-  <thead>
-    <tr>
-      <th align="center">type</th>
-      <th align="center">description</th>
-    </tr>
-  </thead>
-  <tbody data-link="row" class="rowlink">
-    <tr class="clickable-row" data-href="json_APIErrorResponse.html">
-      <td>  <span class="datatype-name">APIErrorResponse</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for API error response</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_DocumentContent.html">
-      <td>  <span class="datatype-name">DocumentContent</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for a document translations request and response.
-This entity is used for generic translations by accepting array of strings with type.
+      <dl class="dl-horizontal">
+      </dl>
 
-Used in
-DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)</span>
+      <table class="table datatype-properties">
+        <caption>Properties</caption>
+        <thead>
+        <tr>
+          <th>name</th>
+          <th>data type</th>
+          <th>constraints</th>
+          <th>description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>  <span class="property-name">status</span>
 </td>
-    </tr>
-    <tr class="clickable-row" data-href="json_TypeString.html">
-      <td>  <span class="datatype-name">TypeString</span>
+          <td>  <span class="datatype-reference">number
+</span>
 </td>
-      <td>  <span class="datatype-description">JSON entity for source and translation string with specified #type</span>
+          <td>  <span class="property-constraints">required
+</span>
 </td>
-    </tr>
-  </tbody>
-  </table>
+          <td>  <span class="property-description">The HTTP status code.</span>
+</td>
+        </tr>
+        <tr>
+          <td>  <span class="property-name">title</span>
+</td>
+          <td>  <span class="datatype-reference">string
+</span>
+</td>
+          <td>  <span class="property-constraints">required
+</span>
+</td>
+          <td>  <span class="property-description">Summary of the problem.</span>
+</td>
+        </tr>
+        <tr>
+          <td>  <span class="property-name">details</span>
+</td>
+          <td>  <span class="datatype-reference">string
+</span>
+</td>
+          <td>  <span class="property-constraints">&nbsp;
+</span>
+</td>
+          <td>  <span class="property-description">Detail explanation for this error.</span>
+</td>
+        </tr>
+        <tr>
+          <td>  <span class="property-name">timestamp</span>
+</td>
+          <td>  <span class="datatype-reference">string
+</span>
+</td>
+          <td>  <span class="property-constraints">required
+</span>
+</td>
+          <td>  <span class="property-description">Timestamp of the response. Format: dd-MM-yyyy HH:mm:ssZ</span>
+</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="lead">Example</p>
+      
+      <pre class="prettyprint language-js example">{
+  &quot;status&quot; : 12345,
+  &quot;title&quot; : &quot;...&quot;,
+  &quot;details&quot; : &quot;...&quot;,
+  &quot;timestamp&quot; : &quot;...&quot;
+}</pre>
 
         <footer class="footer">
           <div class="container">
