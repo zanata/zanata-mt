@@ -1,6 +1,5 @@
 package org.zanata.mt.api.service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -42,7 +41,7 @@ public interface DocumentContentTranslatorResource {
             @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
     })
-    Response translate(@TypeHint(DocumentContent.class) @NotNull
-            DocumentContent docContent,
-            @NotNull @QueryParam("targetLang") LocaleId targetLang);
+    Response translate(
+            @TypeHint(DocumentContent.class) DocumentContent docContent,
+            @QueryParam("targetLang") LocaleId targetLang);
 }

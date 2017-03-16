@@ -57,8 +57,9 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
         this.documentDAO = documentDAO;
     }
 
-    public Response translate(@NotNull DocumentContent docContent,
-            @NotNull @QueryParam("targetLang") LocaleId targetLang) {
+    @Override
+    public Response translate(DocumentContent docContent,
+            @QueryParam("targetLang") LocaleId targetLang) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 

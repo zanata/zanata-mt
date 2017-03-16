@@ -7,7 +7,6 @@ import org.zanata.mt.api.service.BackendResource;
 import org.zanata.mt.model.BackendID;
 
 import javax.enterprise.context.RequestScoped;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -26,7 +25,8 @@ public class BackendResourceImpl implements BackendResource {
     public BackendResourceImpl() {
     }
 
-    public Response getAttribution(@NotNull @QueryParam("id") String id) {
+    @Override
+    public Response getAttribution(@QueryParam("id") String id) {
         Optional<APIResponse> response = validateId(id);
         if (response.isPresent()) {
             return Response.status(response.get().getStatus())
