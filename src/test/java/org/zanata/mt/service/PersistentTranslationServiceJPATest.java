@@ -72,7 +72,7 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
@@ -87,7 +87,7 @@ public class PersistentTranslationServiceJPATest {
 
         verify(msBackend).translate(sources, sourceLocale, targetLocale,
                 MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations
@@ -112,7 +112,7 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByHash(sourceLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(sourceLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
         List<String> translations =
@@ -120,7 +120,7 @@ public class PersistentTranslationServiceJPATest {
                     .translate(sources, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(textFlowDAO).getByHash(sourceLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }

@@ -9,13 +9,14 @@ CREATE TABLE IF NOT EXISTS Locale (
 
 CREATE TABLE IF NOT EXISTS Document (
     id            SERIAL PRIMARY KEY,
-    url           TEXT              NOT NULL,
+    url           TEXT          NOT NULL,
     srcLocaleId      BIGINT         NOT NULL REFERENCES Locale (id),
     targetLocaleId   BIGINT         NOT NULL REFERENCES Locale (id),
     usedCount     INTEGER     DEFAULT 0,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
-    UNIQUE (url, srcLocaleId, targetLocaleId)
+    urlHash       VARCHAR(255)      NOT NULL,
+    UNIQUE (urlHash, srcLocaleId, targetLocaleId)
 );
 
 CREATE TABLE IF NOT EXISTS TextFlow (
