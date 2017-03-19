@@ -79,7 +79,7 @@ public class PersistentTranslationService {
             String string = strings.get(index);
             String hash = HashUtil.generateHash(string);
             TextFlow matchedHashTf =
-                    textFlowDAO.getByHash(srcLocale.getLocaleId(), hash);
+                    textFlowDAO.getByContentHash(srcLocale.getLocaleId(), hash);
 
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(

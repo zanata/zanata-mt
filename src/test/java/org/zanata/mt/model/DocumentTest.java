@@ -24,6 +24,7 @@ public class DocumentTest {
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
         assertThat(doc.getSrcLocale()).isEqualTo(srcLocale);
         assertThat(doc.getTargetLocale()).isEqualTo(targetLocale);
+        assertThat(doc.getUrlHash()).isNotEmpty();
     }
 
     @Test

@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.zanata.mt.util.HashUtil;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -27,9 +28,10 @@ public class DocumentDAO extends AbstractDAO<Document> {
     }
 
     public Document getByUrl(String url, Locale srcLocale, Locale targetLocale) {
+        String urlHash = HashUtil.generateHash(url);
         List<Document> documents = getEntityManager()
-            .createQuery("from Document where url = :url and srcLocale = :srcLocale and targetLocale = :targetLocale")
-            .setParameter("url", url)
+            .createQuery("from Document where urlHash = :urlHash and srcLocale = :srcLocale and targetLocale = :targetLocale")
+            .setParameter("urlHash", urlHash)
             .setParameter("srcLocale", srcLocale)
             .setParameter("targetLocale", targetLocale)
             .getResultList();

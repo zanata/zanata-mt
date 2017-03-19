@@ -32,13 +32,13 @@ public class TextFlowDAOTest extends JPATest {
 
     @Test
     public void testGetByHashNull() {
-        TextFlow tf = dao.getByHash(LocaleId.EN_US, "hash");
+        TextFlow tf = dao.getByContentHash(LocaleId.EN_US, "hash");
         assertThat(tf).isNull();
     }
 
     @Test
     public void testGetByHash() {
-        TextFlow tf = dao.getByHash(LocaleId.EN_US, hash);
+        TextFlow tf = dao.getByContentHash(LocaleId.EN_US, hash);
         assertThat(tf).isNotNull();
         assertThat(tf.getContent()).isEqualTo("content");
         assertThat(tf.getContentHash()).isEqualTo(hash);

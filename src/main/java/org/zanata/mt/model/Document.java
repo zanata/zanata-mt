@@ -1,7 +1,9 @@
 package org.zanata.mt.model;
 
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
+import org.zanata.mt.util.HashUtil;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -9,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -21,7 +24,6 @@ public class Document extends ModelEntity {
 
     @URL
     @NotNull
-    @NaturalId
     private String url;
 
     @NotNull
@@ -38,14 +40,23 @@ public class Document extends ModelEntity {
 
     private int usedCount;
 
+    @NotEmpty
+    @Size(max = 255)
+    @NaturalId
+    private String urlHash;
+
     public Document() {
-        this(null, null, null);
     }
 
     public Document(String url, Locale srcLocale, Locale targetLocale) {
         this.url = url;
         this.srcLocale = srcLocale;
         this.targetLocale = targetLocale;
+        updateUrlHash();
+    }
+
+    private void updateUrlHash() {
+        this.urlHash = HashUtil.generateHash(url);
     }
 
     public String getUrl() {
@@ -64,6 +75,10 @@ public class Document extends ModelEntity {
         return usedCount;
     }
 
+    public String getUrlHash() {
+        return urlHash;
+    }
+
     public void incrementUsedCount() {
         this.usedCount += 1;
     }
@@ -75,8 +90,8 @@ public class Document extends ModelEntity {
 
         Document document = (Document) o;
 
-        if (getUrl() != null ? !getUrl().equals(document.getUrl()) :
-                document.getUrl() != null) return false;
+        if (getUrlHash() != null ? !getUrlHash().equals(document.getUrlHash()) :
+                document.getUrlHash() != null) return false;
         if (getSrcLocale() != null ?
                 !getSrcLocale().equals(document.getSrcLocale()) :
                 document.getSrcLocale() != null) return false;
@@ -87,7 +102,7 @@ public class Document extends ModelEntity {
 
     @Override
     public int hashCode() {
-        int result = getUrl() != null ? getUrl().hashCode() : 0;
+        int result = getUrlHash() != null ? getUrlHash().hashCode() : 0;
         result =
                 31 * result +
                         (getSrcLocale() != null ? getSrcLocale().hashCode() :
