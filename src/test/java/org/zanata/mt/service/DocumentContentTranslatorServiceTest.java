@@ -64,6 +64,15 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
+    public void testGetMappedLocale() {
+        LocaleId from = LocaleId.PT;
+        LocaleId to = LocaleId.DE;
+        when(persistentTranslationService.getMappedLocale(from)).thenReturn(to);
+        assertThat(documentContentTranslatorService.getMappedLocale(from))
+                .isEqualTo(to);
+    }
+
+    @Test
     public void testTranslateDocumentContent() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");

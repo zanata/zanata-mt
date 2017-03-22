@@ -175,10 +175,17 @@ public class DocumentContentTranslatorResourceTest {
                 documentContent = new DocumentContent(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
 
+        when(documentContentTranslatorService
+                .getMappedLocale(srcLocale.getLocaleId()))
+                .thenReturn(srcLocale.getLocaleId());
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
+        when(documentContentTranslatorService
+                .getMappedLocale(transLocale.getLocaleId()))
+                .thenReturn(transLocale.getLocaleId());
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
+
 
         doThrow(expectedException).when(documentContentTranslatorService)
                 .translateDocument(documentContent, srcLocale,
@@ -232,8 +239,14 @@ public class DocumentContentTranslatorResourceTest {
         org.zanata.mt.model.Document
                 doc = Mockito.mock(org.zanata.mt.model.Document.class);
 
+        when(documentContentTranslatorService
+                .getMappedLocale(srcLocale.getLocaleId()))
+                .thenReturn(srcLocale.getLocaleId());
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
+        when(documentContentTranslatorService
+                .getMappedLocale(transLocale.getLocaleId()))
+                .thenReturn(transLocale.getLocaleId());
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
         when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,

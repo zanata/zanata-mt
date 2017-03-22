@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -143,5 +145,9 @@ public class PersistentTranslationService {
             }
         }
         return Optional.empty();
+    }
+
+    public LocaleId getMappedLocale(@Nonnull LocaleId localeId) {
+        return microsoftTranslatorBackend.getMappedLocale(localeId);
     }
 }

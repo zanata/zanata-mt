@@ -27,7 +27,8 @@ import java.util.Optional;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RequestScoped
-public class DocumentContentTranslatorResourceImpl implements DocumentContentTranslatorResource {
+public class DocumentContentTranslatorResourceImpl
+        implements DocumentContentTranslatorResource {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
@@ -154,6 +155,8 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
     }
 
     private Locale getLocale(@NotNull LocaleId localeId) {
-        return localeDAO.getOrCreateByLocaleId(localeId);
+        LocaleId mappedLocale =
+                documentContentTranslatorService.getMappedLocale(localeId);
+        return localeDAO.getOrCreateByLocaleId(mappedLocale);
     }
 }

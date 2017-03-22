@@ -53,6 +53,18 @@ public class MicrosoftTranslatorBackendTest {
     }
 
     @Test
+    public void testMappedLocale() {
+        LocaleId from = LocaleId.ZH_HANS;
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
+        LocaleId to = msBackend.getMappedLocale(from);
+        assertThat(to).isNotEqualTo(from);
+
+        from = LocaleId.PT;
+        to = msBackend.getMappedLocale(from);
+        assertThat(to).isEqualTo(from);
+    }
+
+    @Test
     public void testTranslate() {
         String content = "content";
         Locale srcLocale = new Locale(LocaleId.EN, "English");
