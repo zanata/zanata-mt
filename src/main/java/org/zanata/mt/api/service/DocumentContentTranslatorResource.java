@@ -28,7 +28,16 @@ import org.zanata.mt.api.dto.LocaleId;
         @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
 })
 public interface DocumentContentTranslatorResource {
+
+    // Max length per request for MS
+    public static final int MAX_LENGTH = 6000;
+
+    // Max length before logging warning
+    public static final int MAX_LENGTH_WARN = 3000;
+
     /**
+     * Maximum accepted characters in a request is 6000: {@link #MAX_LENGTH}
+     *
      * @param targetLang
      *      target language to translate
      */
@@ -38,7 +47,7 @@ public interface DocumentContentTranslatorResource {
     @Path("/translate")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale.", type = @TypeHint(DocumentContent.class)),
-            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent, exceed 6000 characters in request", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
     })
     Response translate(

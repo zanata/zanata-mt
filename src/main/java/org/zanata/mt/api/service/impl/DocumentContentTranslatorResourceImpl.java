@@ -33,12 +33,6 @@ public class DocumentContentTranslatorResourceImpl
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
-    // Max length for single string in Microsoft Engine
-    public static final int MAX_LENGTH = 6000;
-
-    // Max length before logging warning
-    public static final int MAX_LENGTH_WARN = 3000;
-
     private DocumentContentTranslatorService documentContentTranslatorService;
 
     private LocaleDAO localeDAO;
@@ -66,7 +60,7 @@ public class DocumentContentTranslatorResourceImpl
         BackendID backendID = BackendID.MS;
 
         Optional<APIResponse> errorResp =
-                validatePostRequest(docContent, targetLang);
+                validateTranslateRequest(docContent, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
@@ -109,7 +103,7 @@ public class DocumentContentTranslatorResourceImpl
         }
     }
 
-    private Optional<APIResponse> validatePostRequest(DocumentContent docContent,
+    private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,
             LocaleId targetLang) {
         if (targetLang == null) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
