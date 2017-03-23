@@ -3,6 +3,7 @@ package org.zanata.mt.service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -15,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
+import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.util.ArticleUtil;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
@@ -205,5 +208,12 @@ public class DocumentContentTranslatorService {
     public boolean isMediaTypeSupported(String mediaType) {
         return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,
                 MediaType.TEXT_PLAIN);
+    }
+
+    public BackendLocaleCode getMappedLocale(@Nonnull LocaleId localeId) {
+        if (localeId == null) {
+            return null;
+        }
+        return persistentTranslationService.getMappedLocale(localeId);
     }
 }

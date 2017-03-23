@@ -16,6 +16,8 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
+import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -175,10 +177,20 @@ public class DocumentContentTranslatorResourceTest {
                 documentContent = new DocumentContent(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
 
+        MSLocaleCode srcLocaleCode = new MSLocaleCode(srcLocale.getLocaleId());
+        MSLocaleCode transLocaleCode = new MSLocaleCode(transLocale.getLocaleId());
+
+        when(documentContentTranslatorService
+                .getMappedLocale(srcLocale.getLocaleId()))
+                .thenReturn(srcLocaleCode);
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
+        when(documentContentTranslatorService
+                .getMappedLocale(transLocale.getLocaleId()))
+                .thenReturn(transLocaleCode);
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
+
 
         doThrow(expectedException).when(documentContentTranslatorService)
                 .translateDocument(documentContent, srcLocale,
@@ -232,8 +244,17 @@ public class DocumentContentTranslatorResourceTest {
         org.zanata.mt.model.Document
                 doc = Mockito.mock(org.zanata.mt.model.Document.class);
 
+        MSLocaleCode srcLocaleCode = new MSLocaleCode(srcLocale.getLocaleId());
+        MSLocaleCode transLocaleCode = new MSLocaleCode(transLocale.getLocaleId());
+
+        when(documentContentTranslatorService
+                .getMappedLocale(srcLocale.getLocaleId()))
+                .thenReturn(srcLocaleCode);
         when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
+        when(documentContentTranslatorService
+                .getMappedLocale(transLocale.getLocaleId()))
+                .thenReturn(transLocaleCode);
         when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
         when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,

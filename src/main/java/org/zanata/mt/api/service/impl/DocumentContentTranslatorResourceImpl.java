@@ -8,6 +8,7 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentContentTranslatorResource;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
@@ -27,7 +28,8 @@ import java.util.Optional;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RequestScoped
-public class DocumentContentTranslatorResourceImpl implements DocumentContentTranslatorResource {
+public class DocumentContentTranslatorResourceImpl
+        implements DocumentContentTranslatorResource {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
@@ -154,6 +156,9 @@ public class DocumentContentTranslatorResourceImpl implements DocumentContentTra
     }
 
     private Locale getLocale(@NotNull LocaleId localeId) {
-        return localeDAO.getOrCreateByLocaleId(localeId);
+        BackendLocaleCode mappedLocaleCode =
+                documentContentTranslatorService.getMappedLocale(localeId);
+        return localeDAO.getOrCreateByLocaleId(
+                new LocaleId(mappedLocaleCode.getLocaleCode()));
     }
 }

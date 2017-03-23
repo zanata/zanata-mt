@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * JSON entity for a document translations request and response.
@@ -81,6 +82,7 @@ public class DocumentContent implements Serializable {
      */
     @JsonProperty("locale")
     @NotNull
+    @Size(max = 128)
     public String getLocale() {
         return locale;
     }
@@ -94,6 +96,7 @@ public class DocumentContent implements Serializable {
      */
     @JsonProperty("backendId")
     @Nullable
+    @Size(max = 20)
     public String getBackendId() {
         return backendId;
     }

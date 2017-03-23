@@ -1,4 +1,4 @@
-package org.zanata.mt;
+package org.zanata.mt.servlet;
 
 import java.io.IOException;
 import java.net.URLEncoder;

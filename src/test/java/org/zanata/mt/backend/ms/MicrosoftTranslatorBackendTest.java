@@ -3,6 +3,7 @@ package org.zanata.mt.backend.ms;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResponse;
@@ -50,6 +51,18 @@ public class MicrosoftTranslatorBackendTest {
         String key = "subscriptionKey";
         msBackend = new MicrosoftTranslatorBackend(key);
         assertThat(msBackend.getClientSubscriptionKey()).isEqualTo(key);
+    }
+
+    @Test
+    public void testMappedLocale() {
+        LocaleId from = LocaleId.ZH_HANS;
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
+        BackendLocaleCode to = msBackend.getMappedLocale(from);
+        assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
+
+        from = LocaleId.PT;
+        to = msBackend.getMappedLocale(from);
+        assertThat(to.getLocaleCode()).isEqualTo(from.getId());
     }
 
     @Test

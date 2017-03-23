@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS Locale (
     id            SERIAL PRIMARY KEY,
-    localeId      VARCHAR(255)      NOT NULL,
-    name          VARCHAR(255),
+    localeId      VARCHAR(128)      NOT NULL,
+    name          VARCHAR(191),
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
     UNIQUE (localeId)
@@ -15,13 +15,13 @@ CREATE TABLE IF NOT EXISTS Document (
     usedCount     INTEGER     DEFAULT 0,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
-    urlHash       VARCHAR(255)      NOT NULL,
+    urlHash       VARCHAR(128)      NOT NULL,
     UNIQUE (urlHash, srcLocaleId, targetLocaleId)
 );
 
 CREATE TABLE IF NOT EXISTS TextFlow (
     id            SERIAL PRIMARY KEY,
-    contentHash          VARCHAR(255)      NOT NULL,
+    contentHash   VARCHAR(128)      NOT NULL,
     localeId      BIGINT            NOT NULL REFERENCES Locale (id),
     content       TEXT              NOT NULL,
     creationDate  DATE              NOT NULL,

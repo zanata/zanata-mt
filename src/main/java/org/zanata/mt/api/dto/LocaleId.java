@@ -22,7 +22,8 @@ public class LocaleId implements Serializable {
     public static final LocaleId KO = new LocaleId("ko");
     public static final LocaleId PT = new LocaleId("pt");
     public static final LocaleId RU = new LocaleId("ru");
-    public static final LocaleId ZH_CN = new LocaleId("zh-cn");
+    public static final LocaleId ZH_HANS = new LocaleId("zh-hans");
+    public static final LocaleId ZH_HANT = new LocaleId("zh-hant");
 
     private String id;
 

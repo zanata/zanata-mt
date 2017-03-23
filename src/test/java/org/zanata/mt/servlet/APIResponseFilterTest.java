@@ -1,4 +1,4 @@
-package org.zanata.mt;
+package org.zanata.mt.servlet;
 
 import org.junit.After;
 import org.junit.Before;
@@ -7,6 +7,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.zanata.mt.servlet.APIResponseFilter;
+import org.zanata.mt.servlet.APISecurityFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
