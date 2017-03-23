@@ -1,6 +1,7 @@
 package org.zanata.mt.backend.ms.internal.dto;
 
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.BackendLocaleCode;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -10,7 +11,7 @@ import java.io.Serializable;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class MSLocaleCode implements Serializable {
+public class MSLocaleCode implements BackendLocaleCode {
     private String localeCode;
 
     public MSLocaleCode(@NotNull LocaleId localeId) {
@@ -21,6 +22,7 @@ public class MSLocaleCode implements Serializable {
         this.localeCode = localeCode;
     }
 
+    @Override
     public String getLocaleCode() {
         return localeCode;
     }
