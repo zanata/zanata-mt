@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -50,10 +51,10 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
      *
      * https://msdn.microsoft.com/en-us/library/hh456380.aspx
      */
-    private final ImmutableMap<LocaleId, LocaleId> LOCALE_MAP =
+    private final ImmutableMap<MSLocaleCode, LocaleId> LOCALE_MAP =
             ImmutableMap.of(
-                    LocaleId.ZH_HANS, new LocaleId("zh-CHS"),
-                    LocaleId.ZH_HANT, new LocaleId("zh-CHT")
+                    new MSLocaleCode(LocaleId.ZH_HANS), new LocaleId("zh-CHS"),
+                    new MSLocaleCode(LocaleId.ZH_HANT), new LocaleId("zh-CHT")
             );
 
     private String clientSubscriptionKey;
@@ -120,7 +121,8 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     public LocaleId getMappedLocale(LocaleId localeId) {
-        return LOCALE_MAP.getOrDefault(localeId, localeId);
+        MSLocaleCode from = new MSLocaleCode(localeId);
+        return LOCALE_MAP.getOrDefault(from, localeId);
     }
 
     @VisibleForTesting
