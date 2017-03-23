@@ -33,13 +33,14 @@
     <powermock.version>1.6.6</powermock.version>
 
     <!-- database -->
-    <mariadb.port>3306</mariadb.port>
-    <mariadb.user>root</mariadb.user>
-    <mariadb.password>root</mariadb.password>
     <db.name>zanataMT</db.name>
     <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
     <icu4j.version>58.2</icu4j.version>
+    <postgresql.version>9.4.1212</postgresql.version>
+    <postgresql.port>5432</postgresql.port>
+    <postgresql.user>root</postgresql.user>
+    <postgresql.password>root</postgresql.password>
 
     <!-- cargo settings -->
     <cargo.host>localhost</cargo.host>
@@ -221,24 +222,23 @@
           <logDate>default</logDate>
           <autoPull>true</autoPull>
           <images>
-            <!-- Mariadb Image is used 'as-is' and is linked into the service image -->
+            <!-- Postgres image is used 'as-is' and is linked into the service image -->
             <image>
               <alias>zanataMTDB</alias>
-              <name>mariadb:10.1.22</name>
+              <name>postgres:9.5</name>
               <run>
                 <env>
-                  <MYSQL_ROOT_PASSWORD>${mariadb.password}</MYSQL_ROOT_PASSWORD>
-                  <MYSQL_DATABASE>${db.name}</MYSQL_DATABASE>
-                  <!--&#45;&#45;character-set-server=utf8 &#45;&#45;collation-server=utf8_general_ci-->
+                  <POSTGRES_DB>${db.name}</POSTGRES_DB>
+                  <POSTGRES_USER>${postgresql.user}</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>${postgresql.password}</POSTGRES_PASSWORD>
                 </env>
                 <ports>
-                  <!-- map from 3306 to 3305 in host-->
-                  <port>3305:${mariadb.port}</port>
+                  <port>${postgresql.port}:${postgresql.port}</port>
                 </ports>
                 <wait>
                   <tcp>
                     <ports>
-                      <port>3306</port>
+                      <port>5432</port>
                     </ports>
                   </tcp>
                   <time>60000</time>
@@ -262,11 +262,11 @@
               </build>
               <run>
                 <env>
-                  <MARIADB_URL>zanataMTDB</MARIADB_URL>
-                  <MARIADB_PORT>${mariadb.port}</MARIADB_PORT>
-                  <MARIADB_DATABASE>${db.name}</MARIADB_DATABASE>
-                  <MARIADB_USER>${mariadb.user}</MARIADB_USER>
-                  <MARIADB_PASSWORD>${mariadb.password}</MARIADB_PASSWORD>
+                  <POSTGRESQL_URL>zanataMTDB</POSTGRESQL_URL>
+                  <POSTGRESQL_PORT>${postgresql.port}</POSTGRESQL_PORT>
+                  <POSTGRESQL_DATABASE>${db.name}</POSTGRESQL_DATABASE>
+                  <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
+                  <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
                   <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
                   <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
                   <ZANATA_MT_API_KEY>devKEY</ZANATA_MT_API_KEY>
@@ -587,9 +587,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mariadb.jdbc</groupId>
-      <artifactId>mariadb-java-client</artifactId>
-      <version>1.5.9</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
       <scope>provided</scope>
     </dependency>
 
