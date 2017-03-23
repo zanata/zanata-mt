@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -147,7 +148,7 @@ public class PersistentTranslationService {
         return Optional.empty();
     }
 
-    public LocaleId getMappedLocale(@Nonnull LocaleId localeId) {
+    public BackendLocaleCode getMappedLocale(@Nonnull LocaleId localeId) {
         return microsoftTranslatorBackend.getMappedLocale(localeId);
     }
 }

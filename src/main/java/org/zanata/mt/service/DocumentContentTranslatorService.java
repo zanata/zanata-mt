@@ -18,6 +18,7 @@ import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.util.ArticleUtil;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
@@ -209,9 +210,9 @@ public class DocumentContentTranslatorService {
                 MediaType.TEXT_PLAIN);
     }
 
-    public LocaleId getMappedLocale(@Nonnull LocaleId localeId) {
+    public BackendLocaleCode getMappedLocale(@Nonnull LocaleId localeId) {
         if (localeId == null) {
-            return localeId;
+            return null;
         }
         return persistentTranslationService.getMappedLocale(localeId);
     }
