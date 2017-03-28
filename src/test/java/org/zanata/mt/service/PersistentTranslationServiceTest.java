@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
@@ -59,10 +60,11 @@ public class PersistentTranslationServiceTest {
         List<String> source = Lists.newArrayList("testing source");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
-        assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                null, targetLocale,
-                BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
-                        .isInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> persistentTranslationService
+                .translate(new Document(), source,
+                        null, targetLocale,
+                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+                .isInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -70,7 +72,8 @@ public class PersistentTranslationServiceTest {
         List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
 
-        assertThatThrownBy(() -> persistentTranslationService.translate(source,
+        assertThatThrownBy(() -> persistentTranslationService.translate(new Document(),
+                source,
                 sourceLocale, null,
                 BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                         .isInstanceOf(BadRequestException.class);
@@ -82,8 +85,10 @@ public class PersistentTranslationServiceTest {
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
-        assertThatThrownBy(() -> persistentTranslationService.translate(source,
-                sourceLocale, targetLocale, null, MediaType.TEXT_PLAIN_TYPE))
-                        .isInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> persistentTranslationService
+                .translate(new Document(), source,
+                        sourceLocale, targetLocale, null,
+                        MediaType.TEXT_PLAIN_TYPE))
+                .isInstanceOf(BadRequestException.class);
     }
 }
