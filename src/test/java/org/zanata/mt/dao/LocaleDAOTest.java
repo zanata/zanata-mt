@@ -42,15 +42,8 @@ public class LocaleDAOTest extends JPATest {
     }
 
     @Test
-    public void testGetOrCreateByLocaleIdNew() {
-        Locale locale = dao.getOrCreateByLocaleId(LocaleId.FR);
-        assertThat(locale).isNotNull().extracting("localeId")
-                .contains(LocaleId.FR);
-    }
-
-    @Test
     public void testGetOrCreateByLocaleId() {
-        Locale locale = dao.getOrCreateByLocaleId(LocaleId.EN_US);
+        Locale locale = dao.generateLocale(LocaleId.EN_US);
         assertThat(locale).isNotNull().extracting("localeId")
                 .contains(LocaleId.EN_US);
     }

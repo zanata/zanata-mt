@@ -41,3 +41,10 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     lastChanged  DATE         NOT NULL,
     UNIQUE (localeId, textFlowId, backendId)
 );
+
+CREATE TABLE IF NOT EXISTS Document_TextFlow (
+    id            SERIAL PRIMARY KEY,
+    documentId    BIGINT      NOT NULL REFERENCES Document (id),
+    textFlowId    BIGINT      NOT NULL REFERENCES TextFlow (id),
+    UNIQUE (documentId, textFlowId)
+)

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.zanata.mt.JPATest;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.TextFlow;
 
@@ -49,7 +50,7 @@ public class TextFlowDAOTest extends JPATest {
         Locale locale = new Locale(LocaleId.EN_US, "English US");
         getEm().persist(locale);
 
-        TextFlow tf = new TextFlow("content", locale);
+        TextFlow tf = new TextFlow(new Document(), "content", locale);
         getEm().persist(tf);
         hash = tf.getContentHash();
     }

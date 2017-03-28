@@ -33,12 +33,6 @@ public class DocumentContentTranslatorResourceImpl
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
 
-    // Max length for single string in Microsoft Engine
-    public static final int MAX_LENGTH = 6000;
-
-    // Max length before logging warning
-    public static final int MAX_LENGTH_WARN = 3000;
-
     private DocumentContentTranslatorService documentContentTranslatorService;
 
     private LocaleDAO localeDAO;
@@ -66,7 +60,7 @@ public class DocumentContentTranslatorResourceImpl
         BackendID backendID = BackendID.MS;
 
         Optional<APIResponse> errorResp =
-                validatePostRequest(docContent, targetLang);
+                validateTranslateRequest(docContent, targetLang);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
@@ -85,7 +79,7 @@ public class DocumentContentTranslatorResourceImpl
 
         try {
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(docContent, srcLocale, transLocale,
+                    .translateDocument(doc, docContent, srcLocale, transLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
@@ -109,7 +103,7 @@ public class DocumentContentTranslatorResourceImpl
         }
     }
 
-    private Optional<APIResponse> validatePostRequest(DocumentContent docContent,
+    private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,
             LocaleId targetLang) {
         if (targetLang == null) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
@@ -158,7 +152,13 @@ public class DocumentContentTranslatorResourceImpl
     private Locale getLocale(@NotNull LocaleId localeId) {
         BackendLocaleCode mappedLocaleCode =
                 documentContentTranslatorService.getMappedLocale(localeId);
-        return localeDAO.getOrCreateByLocaleId(
-                new LocaleId(mappedLocaleCode.getLocaleCode()));
+        LocaleId mappedLocaleId = new LocaleId(mappedLocaleCode.getLocaleCode());
+        Locale locale = localeDAO.getByLocaleId(mappedLocaleId);
+        if (locale == null) {
+            locale = localeDAO.generateLocale(mappedLocaleId);
+            localeDAO.persist(locale);
+            localeDAO.flush();
+        }
+        return locale;
     }
 }

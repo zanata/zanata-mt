@@ -45,7 +45,7 @@ public class TextFlowTargetTest {
     public void testEqualsAndHashcode() {
         Locale srcLang = new Locale(LocaleId.EN_US, "English US");
         Locale transLang = new Locale(LocaleId.DE, "German");
-        TextFlow textFlow = new TextFlow("content", srcLang);
+        TextFlow textFlow = new TextFlow(new Document(), "content", srcLang);
 
         TextFlowTarget target1 =
                 new TextFlowTarget("content", "raw content", textFlow, transLang,
@@ -59,7 +59,7 @@ public class TextFlowTargetTest {
         assertThat(target1.equals(target2)).isTrue();
 
         // diff text flow
-        TextFlow newTextFlow = new TextFlow("new content", srcLang);
+        TextFlow newTextFlow = new TextFlow(new Document(), "new content", srcLang);
         target2 =
                 new TextFlowTarget("content", "raw content", newTextFlow, transLang,
                         BackendID.MS);

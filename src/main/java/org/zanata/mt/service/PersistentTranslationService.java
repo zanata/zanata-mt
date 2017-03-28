@@ -22,6 +22,7 @@ import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
@@ -65,7 +66,8 @@ public class PersistentTranslationService {
      * Get from database if exists (hash), or from MT engine
      */
     @TransactionAttribute
-    public List<String> translate(@NotNull List<String> strings,
+    public List<String> translate(@NotNull Document document,
+            @NotNull List<String> strings,
             @NotNull Locale srcLocale, @NotNull Locale targetLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
@@ -127,7 +129,8 @@ public class PersistentTranslationService {
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
-                tf = createOrFetchTextFlow(new TextFlow(source, srcLocale));
+                tf = createOrFetchTextFlow(
+                        new TextFlow(document, source, srcLocale));
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),

@@ -21,6 +21,7 @@ import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.DocumentContentTranslatorService;
@@ -176,24 +177,26 @@ public class DocumentContentTranslatorResourceTest {
         DocumentContent
                 documentContent = new DocumentContent(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
+        Document doc = new Document();
 
         MSLocaleCode srcLocaleCode = new MSLocaleCode(srcLocale.getLocaleId());
         MSLocaleCode transLocaleCode = new MSLocaleCode(transLocale.getLocaleId());
-
+        when(documentDAO.getOrCreateByUrl(documentContent.getUrl(), srcLocale,
+                transLocale)).thenReturn(doc);
         when(documentContentTranslatorService
                 .getMappedLocale(srcLocale.getLocaleId()))
                 .thenReturn(srcLocaleCode);
-        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
+        when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
         when(documentContentTranslatorService
                 .getMappedLocale(transLocale.getLocaleId()))
                 .thenReturn(transLocaleCode);
-        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
+        when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
 
 
         doThrow(expectedException).when(documentContentTranslatorService)
-                .translateDocument(documentContent, srcLocale,
+                .translateDocument(doc, documentContent, srcLocale,
                         transLocale, BackendID.MS);
 
         Response response =
@@ -250,18 +253,18 @@ public class DocumentContentTranslatorResourceTest {
         when(documentContentTranslatorService
                 .getMappedLocale(srcLocale.getLocaleId()))
                 .thenReturn(srcLocaleCode);
-        when(localeDAO.getOrCreateByLocaleId(srcLocale.getLocaleId()))
+        when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
         when(documentContentTranslatorService
                 .getMappedLocale(transLocale.getLocaleId()))
                 .thenReturn(transLocaleCode);
-        when(localeDAO.getOrCreateByLocaleId(transLocale.getLocaleId()))
+        when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
         when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,
                 transLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(docContent, srcLocale,
+                .translateDocument(new Document(), docContent, srcLocale,
                 transLocale, BackendID.MS)).thenReturn(translatedDocContent);
 
         Response response =
