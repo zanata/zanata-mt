@@ -4,12 +4,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResponse;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
-import org.zanata.mt.model.Locale;
 import org.zanata.mt.util.DTOUtil;
 
 import javax.ws.rs.core.MediaType;
@@ -68,8 +68,8 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testTranslate() {
         String content = "content";
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
+        MSLocaleCode srcLocale = new MSLocaleCode(LocaleId.EN);
+        MSLocaleCode transLocale = new MSLocaleCode(LocaleId.DE);
         MSTranslateArrayResp resp = new MSTranslateArrayResp();
         List<MSTranslateArrayResponse> respList = new ArrayList<>();
         respList.add(buildMSResponse("translation1"));

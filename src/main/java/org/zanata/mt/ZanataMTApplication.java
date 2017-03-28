@@ -6,6 +6,7 @@ import javax.ws.rs.ApplicationPath;
 import com.google.common.collect.ImmutableSet;
 import org.zanata.mt.api.service.impl.BackendResourceImpl;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
+import org.zanata.mt.api.service.impl.LanguagesResourceImpl;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -19,6 +20,7 @@ public class ZanataMTApplication extends javax.ws.rs.core.Application {
                 // api classes
                 .add(DocumentContentTranslatorResourceImpl.class)
                 .add(BackendResourceImpl.class)
+                .add(LanguagesResourceImpl.class)
                 // providers
                 .build();
     }

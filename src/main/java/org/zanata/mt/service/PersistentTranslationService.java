@@ -118,9 +118,15 @@ public class PersistentTranslationService {
 
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
+
+        BackendLocaleCode mappedSrcLang =
+                getMappedLocale(srcLocale.getLocaleId());
+        BackendLocaleCode mappedTransLang =
+                getMappedLocale(targetLocale.getLocaleId());
+
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, srcLocale, targetLocale, mediaType);
+                .translate(sources, mappedSrcLang, mappedTransLang, mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);

@@ -27,7 +27,7 @@ public class Locale extends ModelEntity {
     @NotNull
     private LocaleId localeId;
 
-    @Size(max = 255)
+    @Size(max = 191)
     private String name;
 
     public Locale() {

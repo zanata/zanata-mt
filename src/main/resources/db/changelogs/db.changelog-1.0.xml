@@ -5,8 +5,98 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-  <changeSet author="aeng@redhat.com" id="db_baseline">
+  <property name="now" value="now()" dbms="postgresql"/>
+  
+  <changeSet author="aeng@redhat.com" id="1">
     <comment>baseline schema</comment>
     <sqlFile path="db/baseline.sql" stripComments="true" />
   </changeSet>
+
+  <changeSet author="aeng@redhat.com" id="2">
+    <comment>Insert default locale list</comment>
+    <insert tableName="locale">
+      <column name="localeid" value="en-us" />
+      <column name="name" value="English (United States)"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="de" />
+      <column name="name" value="German"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="es" />
+      <column name="name" value="Spanish"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="fr" />
+      <column name="name" value="French"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="it" />
+      <column name="name" value="Italian"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="ja" />
+      <column name="name" value="Japanese"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="ko" />
+      <column name="name" value="Korean"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="pt" />
+      <column name="name" value="Portuguese"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="ru" />
+      <column name="name" value="Russian"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="zh-hans" />
+      <column name="name" value="Chinese (Simplified)"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="zh-hant" />
+      <column name="name" value="Chinese (Traditional)"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+
+    <insert tableName="locale">
+      <column name="localeid" value="hi" />
+      <column name="name" value="Hindi"/>
+      <column name="creationdate" value ="${now}"/>
+      <column name="lastchanged" value="${now}"/>
+    </insert>
+  </changeSet>
+
 </databaseChangeLog>
