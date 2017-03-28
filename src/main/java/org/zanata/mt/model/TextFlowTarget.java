@@ -13,6 +13,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -23,6 +25,12 @@ import javax.validation.constraints.NotNull;
 @TypeDefs({
     @TypeDef(name = "backendIdType", typeClass = BackendIdType.class)
 })
+@Table(
+        name = "TextFlowTarget",
+        uniqueConstraints =
+        @UniqueConstraint(columnNames = { "textFlowId", "localeId",
+                "backendId" })
+)
 public class TextFlowTarget extends ModelEntity {
     private static final long serialVersionUID = -64231181018123191L;
 

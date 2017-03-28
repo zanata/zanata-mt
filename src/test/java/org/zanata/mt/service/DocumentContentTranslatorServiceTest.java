@@ -20,7 +20,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
@@ -63,16 +62,6 @@ public class DocumentContentTranslatorServiceTest {
         mediaType = "text/html";
         assertThat(documentContentTranslatorService.getMediaType(mediaType)).isNotNull()
                 .isEqualTo(MediaType.TEXT_HTML_TYPE);
-    }
-
-    @Test
-    public void testGetMappedLocale() {
-        LocaleId from = LocaleId.PT;
-        MSLocaleCode localeCode = new MSLocaleCode(LocaleId.DE);
-        when(persistentTranslationService.getMappedLocale(from))
-                .thenReturn(localeCode);
-        assertThat(documentContentTranslatorService.getMappedLocale(from))
-                .isEqualTo(localeCode);
     }
 
     @Test

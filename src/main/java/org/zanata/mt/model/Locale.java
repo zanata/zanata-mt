@@ -2,6 +2,7 @@ package org.zanata.mt.model;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,9 +26,10 @@ public class Locale extends ModelEntity {
     @Type(type = "localeId")
     @NaturalId
     @NotNull
+    @Column(unique = true)
     private LocaleId localeId;
 
-    @Size(max = 255)
+    @Size(max = 191)
     private String name;
 
     public Locale() {

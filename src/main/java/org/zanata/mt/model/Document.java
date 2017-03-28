@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -21,6 +23,12 @@ import java.util.Set;
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Entity
+@Table(
+        name = "Document",
+        uniqueConstraints =
+        @UniqueConstraint(columnNames = { "url", "srcLocaleId",
+                "targetLocaleId" })
+)
 @Access(AccessType.FIELD)
 public class Document extends ModelEntity {
 

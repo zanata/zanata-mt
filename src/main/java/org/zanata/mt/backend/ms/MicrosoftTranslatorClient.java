@@ -107,7 +107,7 @@ class MicrosoftTranslatorClient {
 
             if (response.getStatusInfo() != Response.Status.OK) {
                 throw new ZanataMTException(
-                        "Error getting token"
+                        "Error getting token: "
                                 + response.getStatusInfo().toString());
             }
             return response.readEntity(String.class);

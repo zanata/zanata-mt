@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.Document;
@@ -78,15 +79,22 @@ public class PersistentTranslationServiceJPATest {
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        when(msBackend.translate(sources, sourceLocale, targetLocale,
-                MediaType.TEXT_PLAIN_TYPE))
-                        .thenReturn(expectedTranslations);
+        MSLocaleCode srcLang = new MSLocaleCode(sourceLocale.getLocaleId());
+        MSLocaleCode transLang = new MSLocaleCode(targetLocale.getLocaleId());
+
+        when(msBackend.getMappedLocale(sourceLocale.getLocaleId()))
+                .thenReturn(srcLang);
+        when(msBackend.getMappedLocale(targetLocale.getLocaleId()))
+                .thenReturn(transLang);
+
+        when(msBackend.translate(sources, srcLang, transLang,
+                MediaType.TEXT_PLAIN_TYPE)).thenReturn(expectedTranslations);
 
         List<String> translations =
                 persistentTranslationService.translate(doc, sources, sourceLocale,
                         targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(msBackend).translate(sources, sourceLocale, targetLocale,
+        verify(msBackend).translate(sources, srcLang, transLang,
                 MediaType.TEXT_PLAIN_TYPE);
         verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);

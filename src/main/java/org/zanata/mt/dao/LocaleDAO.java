@@ -4,14 +4,12 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 
-import org.hibernate.exception.ConstraintViolationException;
+import com.ibm.icu.util.ULocale;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Locale;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.ibm.icu.util.ULocale;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -37,8 +35,21 @@ public class LocaleDAO extends AbstractDAO<Locale> {
         return locales.isEmpty() ? null : locales.get(0);
     }
 
-    public Locale generateLocale(LocaleId localeId) {
-        ULocale uLocale = new ULocale(localeId.getId());
-        return new Locale(localeId, uLocale.getDisplayName());
+    @TransactionAttribute
+    public Locale getOrCreateByLocaleId(LocaleId localeId) {
+        Locale locale = getByLocaleId(localeId);
+
+        if (locale == null) {
+            ULocale uLocale = new ULocale(localeId.getId());
+            locale = new Locale(localeId, uLocale.getDisplayName());
+            locale = persist(locale);
+            flush();
+        }
+        return locale;
+    }
+
+    public List<Locale> getSupportedLocales() {
+        return getEntityManager()
+                .createQuery("from Locale").getResultList();
     }
 }

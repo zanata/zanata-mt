@@ -15,7 +15,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -29,6 +31,11 @@ import org.zanata.mt.util.HashUtil;
  */
 @Entity
 @Access(AccessType.FIELD)
+@Table(
+        name = "TextFlow",
+        uniqueConstraints =
+        @UniqueConstraint(columnNames = { "localeId", "contentHash" })
+)
 public class TextFlow extends ModelEntity {
     private static final long serialVersionUID = -4550040877568062431L;
 

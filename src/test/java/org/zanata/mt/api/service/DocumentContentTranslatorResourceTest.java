@@ -16,8 +16,6 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
-import org.zanata.mt.backend.BackendLocaleCode;
-import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -30,6 +28,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl.MAX_LENGTH;
@@ -177,23 +176,14 @@ public class DocumentContentTranslatorResourceTest {
         DocumentContent
                 documentContent = new DocumentContent(contents, "http://localhost",
                 srcLocale.getLocaleId().getId());
-        Document doc = new Document();
+        Document doc = new Document(documentContent.getUrl(), srcLocale,
+                transLocale);
 
-        MSLocaleCode srcLocaleCode = new MSLocaleCode(srcLocale.getLocaleId());
-        MSLocaleCode transLocaleCode = new MSLocaleCode(transLocale.getLocaleId());
-        when(documentDAO.getOrCreateByUrl(documentContent.getUrl(), srcLocale,
-                transLocale)).thenReturn(doc);
-        when(documentContentTranslatorService
-                .getMappedLocale(srcLocale.getLocaleId()))
-                .thenReturn(srcLocaleCode);
+        when(documentDAO.persist(doc)).thenReturn(doc);
         when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
-        when(documentContentTranslatorService
-                .getMappedLocale(transLocale.getLocaleId()))
-                .thenReturn(transLocaleCode);
         when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
-
 
         doThrow(expectedException).when(documentContentTranslatorService)
                 .translateDocument(doc, documentContent, srcLocale,
@@ -244,27 +234,16 @@ public class DocumentContentTranslatorResourceTest {
                 new DocumentContent(translatedContents, "http://localhost",
                         transLocale.getLocaleId().getId());
 
-        org.zanata.mt.model.Document
-                doc = Mockito.mock(org.zanata.mt.model.Document.class);
-
-        MSLocaleCode srcLocaleCode = new MSLocaleCode(srcLocale.getLocaleId());
-        MSLocaleCode transLocaleCode = new MSLocaleCode(transLocale.getLocaleId());
-
-        when(documentContentTranslatorService
-                .getMappedLocale(srcLocale.getLocaleId()))
-                .thenReturn(srcLocaleCode);
+        Document doc =
+                new Document(docContent.getUrl(), srcLocale, transLocale);
         when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
                 .thenReturn(srcLocale);
-        when(documentContentTranslatorService
-                .getMappedLocale(transLocale.getLocaleId()))
-                .thenReturn(transLocaleCode);
         when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
                 .thenReturn(transLocale);
-        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,
-                transLocale)).thenReturn(doc);
+        when(documentDAO.persist(doc)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(new Document(), docContent, srcLocale,
+                .translateDocument(doc, docContent, srcLocale,
                 transLocale, BackendID.MS)).thenReturn(translatedDocContent);
 
         Response response =
@@ -278,7 +257,7 @@ public class DocumentContentTranslatorResourceTest {
         assertThat(returnedDocContent.getContents()).isEqualTo(translatedContents);
         assertThat(returnedDocContent.getLocale())
                 .isEqualTo(transLocale.getLocaleId().getId());
-        verify(doc).incrementUsedCount();
-        verify(documentDAO).persist(doc);
+        assertThat(doc.getUsedCount()).isEqualTo(1);
+        verify(documentDAO, times(2)).persist(doc);
     }
 }

@@ -8,12 +8,13 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentContentTranslatorResource;
-import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.service.DocumentContentTranslatorService;
+import org.zanata.mt.util.ExceptionUtil;
 import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
@@ -74,8 +75,7 @@ public class DocumentContentTranslatorResourceImpl
         Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
         Locale transLocale = getLocale(targetLang);
 
-        org.zanata.mt.model.Document doc = documentDAO
-                .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
+        Document doc = fetchOrCreateDocument(docContent.getUrl(), srcLocale, transLocale);
 
         try {
             DocumentContent newDocContent = documentContentTranslatorService
@@ -149,15 +149,34 @@ public class DocumentContentTranslatorResourceImpl
         return Optional.empty();
     }
 
+    /**
+     * This is to handle concurrent db request for 2 same Document is being
+     * persisted at the same time.
+     */
+    private Document fetchOrCreateDocument(String url, Locale srcLocale,
+            Locale transLocale) {
+        Document doc =
+                documentDAO.getByUrl(url, srcLocale, transLocale);
+        try {
+            if (doc == null) {
+                doc = documentDAO
+                        .persist(new Document(url, srcLocale, transLocale));
+                documentDAO.flush();
+            }
+        } catch (Exception e) {
+            if (ExceptionUtil.isConstraintViolationException(e)) {
+                doc = documentDAO.getByUrl(url, srcLocale, transLocale);
+            }
+        } finally {
+            return doc;
+        }
+    }
+
+
     private Locale getLocale(@NotNull LocaleId localeId) {
-        BackendLocaleCode mappedLocaleCode =
-                documentContentTranslatorService.getMappedLocale(localeId);
-        LocaleId mappedLocaleId = new LocaleId(mappedLocaleCode.getLocaleCode());
-        Locale locale = localeDAO.getByLocaleId(mappedLocaleId);
+        Locale locale = localeDAO.getByLocaleId(localeId);
         if (locale == null) {
-            locale = localeDAO.generateLocale(mappedLocaleId);
-            localeDAO.persist(locale);
-            localeDAO.flush();
+            throw new BadRequestException("Not supported locale:" + localeId);
         }
         return locale;
     }

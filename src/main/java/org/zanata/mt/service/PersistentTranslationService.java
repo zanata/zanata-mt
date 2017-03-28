@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
@@ -14,7 +14,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.common.collect.Maps;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.LocaleId;
@@ -29,6 +28,7 @@ import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
+import org.zanata.mt.util.ExceptionUtil;
 import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@ApplicationScoped
+@Stateless
 public class PersistentTranslationService {
     private static final Logger LOG =
         LoggerFactory.getLogger(PersistentTranslationService.class);
@@ -118,9 +118,15 @@ public class PersistentTranslationService {
 
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
+
+        BackendLocaleCode mappedSrcLang =
+                getMappedLocale(srcLocale.getLocaleId());
+        BackendLocaleCode mappedTransLang =
+                getMappedLocale(targetLocale.getLocaleId());
+
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, srcLocale, targetLocale, mediaType);
+                .translate(sources, mappedSrcLang, mappedTransLang, mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
@@ -129,8 +135,7 @@ public class PersistentTranslationService {
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
-                tf = createOrFetchTextFlow(
-                        new TextFlow(document, source, srcLocale));
+                tf = createOrFetchTextFlow(document, source, srcLocale);
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),
@@ -145,13 +150,19 @@ public class PersistentTranslationService {
      * This is to handle concurrent db request for 2 same text flow is being
      * persisted at the same time.
      */
-    private TextFlow createOrFetchTextFlow(TextFlow tf) {
+    private TextFlow createOrFetchTextFlow(Document document, String source,
+            Locale locale) {
+        TextFlow tf = new TextFlow(document, source, locale);
         try {
-            return textFlowDAO.persist(tf);
-        } catch (ConstraintViolationException e) {
-            return textFlowDAO
-                    .getByContentHash(tf.getLocale().getLocaleId(),
-                            tf.getContentHash());
+            tf = textFlowDAO.persist(tf);
+        } catch (Exception e) {
+            if (ExceptionUtil.isConstraintViolationException(e)) {
+                tf = textFlowDAO
+                        .getByContentHash(locale.getLocaleId(),
+                                tf.getContentHash());
+            }
+        } finally {
+            return tf;
         }
     }
 
