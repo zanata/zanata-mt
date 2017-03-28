@@ -9,9 +9,13 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -45,6 +49,12 @@ public class Document extends ModelEntity {
     @NaturalId
     private String urlHash;
 
+    @ManyToMany
+    @JoinTable(name = "Document_TextFlow",
+            joinColumns = @JoinColumn(name = "documentId"),
+            inverseJoinColumns = @JoinColumn(name = "textFlowId"))
+    private Set<TextFlow> textFlows = new HashSet<>();
+
     public Document() {
     }
 
@@ -53,6 +63,12 @@ public class Document extends ModelEntity {
         this.srcLocale = srcLocale;
         this.targetLocale = targetLocale;
         updateUrlHash();
+    }
+
+    public Document(String url, Locale srcLocale, Locale targetLocale,
+            Set<TextFlow> textFlows) {
+        this(url, srcLocale, targetLocale);
+        this.textFlows = textFlows;
     }
 
     private void updateUrlHash() {
@@ -77,6 +93,10 @@ public class Document extends ModelEntity {
 
     public String getUrlHash() {
         return urlHash;
+    }
+
+    public Set<TextFlow> getTextFlows() {
+        return textFlows;
     }
 
     public void incrementUsedCount() {

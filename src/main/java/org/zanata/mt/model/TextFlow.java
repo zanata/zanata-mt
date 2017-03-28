@@ -1,7 +1,9 @@
 package org.zanata.mt.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -9,6 +11,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -27,6 +31,12 @@ import org.zanata.mt.util.HashUtil;
 @Access(AccessType.FIELD)
 public class TextFlow extends ModelEntity {
     private static final long serialVersionUID = -4550040877568062431L;
+
+    @ManyToMany
+    @JoinTable(name = "Document_TextFlow",
+            joinColumns = @JoinColumn(name = "textFlowId"),
+            inverseJoinColumns = @JoinColumn(name = "documentId"))
+    private Set<Document> documents = new HashSet<>();
 
     @NotEmpty
     @Size(max = 255)
@@ -49,9 +59,10 @@ public class TextFlow extends ModelEntity {
     public TextFlow() {
     }
 
-    public TextFlow(String content, Locale locale) {
+    public TextFlow(Document document, String content, Locale locale) {
         this.content = content;
         this.locale = locale;
+        documents.add(document);
         updateContentHash();
     }
 
@@ -78,6 +89,10 @@ public class TextFlow extends ModelEntity {
 
     public List<TextFlowTarget> getTargets() {
         return targets;
+    }
+
+    public Set<Document> getDocuments() {
+        return documents;
     }
 
     @Transient

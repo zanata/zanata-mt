@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
@@ -60,10 +61,10 @@ public class PersistentTranslationServiceJPATest {
             Lists.newArrayList(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
-
+        Document doc = new Document();
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
+        TextFlow expectedTf = new TextFlow(doc, sources.get(0), sourceLocale);
         TextFlowTarget expectedTft =
                 new TextFlowTarget(
                         expectedTranslations.get(0).getPlainTranslation(),
@@ -82,7 +83,7 @@ public class PersistentTranslationServiceJPATest {
                         .thenReturn(expectedTranslations);
 
         List<String> translations =
-                persistentTranslationService.translate(sources, sourceLocale,
+                persistentTranslationService.translate(doc, sources, sourceLocale,
                         targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(msBackend).translate(sources, sourceLocale, targetLocale,
@@ -105,7 +106,9 @@ public class PersistentTranslationServiceJPATest {
         Locale sourceLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
 
-        TextFlow expectedTf = new TextFlow(sources.get(0), sourceLocale);
+        Document doc = new Document();
+
+        TextFlow expectedTf = new TextFlow(doc, sources.get(0), sourceLocale);
         TextFlowTarget expectedTft = new TextFlowTarget(expectedTranslation,
                 expectedRawContent, expectedTf, targetLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
@@ -117,7 +120,7 @@ public class PersistentTranslationServiceJPATest {
 
         List<String> translations =
                 persistentTranslationService
-                    .translate(sources, sourceLocale, targetLocale,
+                    .translate(doc, sources, sourceLocale, targetLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
         verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);

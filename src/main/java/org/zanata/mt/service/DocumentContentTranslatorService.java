@@ -19,6 +19,7 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.util.ArticleUtil;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
@@ -89,7 +90,8 @@ public class DocumentContentTranslatorService {
      *
      * {@link DocumentContent}
      **/
-    public DocumentContent translateDocument(DocumentContent documentContent,
+    public DocumentContent translateDocument(Document doc,
+            DocumentContent documentContent,
             Locale srcLocale, Locale transLocale, BackendID backendID)
             throws BadRequestException, ZanataMTException {
 
@@ -135,7 +137,7 @@ public class DocumentContentTranslatorService {
 
         if (!indexHTMLMap.isEmpty()) {
             List<String> translatedHtmls =
-                    translateStrings(indexHTMLMap, srcLocale, transLocale,
+                    translateStrings(doc, indexHTMLMap, srcLocale, transLocale,
                             backendID, MediaType.TEXT_HTML_TYPE);
 
             transferToResults(translatedHtmls, indexHTMLMap, results,
@@ -144,7 +146,7 @@ public class DocumentContentTranslatorService {
 
         if (!indexTextMap.isEmpty()) {
             List<String> translatedStrings =
-                    translateStrings(indexTextMap, srcLocale, transLocale,
+                    translateStrings(doc, indexTextMap, srcLocale, transLocale,
                             backendID, MediaType.TEXT_PLAIN_TYPE);
 
             transferToResults(translatedStrings, indexTextMap, results,
@@ -156,7 +158,7 @@ public class DocumentContentTranslatorService {
     }
 
     // translate all string values in map with given mediaType
-    private List<String> translateStrings(
+    private List<String> translateStrings(Document doc,
             LinkedHashMap<Integer, TypeString> indexMap, Locale srcLocale,
             Locale transLocale, BackendID backendID, MediaType mediaType)
             throws BadRequestException, ZanataMTException {
@@ -166,7 +168,7 @@ public class DocumentContentTranslatorService {
                         .collect(toList());
 
         List<String> translatedStrings = persistentTranslationService
-                .translate(stringsToTranslate, srcLocale, transLocale,
+                .translate(doc, stringsToTranslate, srcLocale, transLocale,
                         backendID, mediaType);
 
         assert stringsToTranslate.size() == translatedStrings.size();

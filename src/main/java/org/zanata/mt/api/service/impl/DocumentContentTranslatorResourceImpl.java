@@ -79,7 +79,7 @@ public class DocumentContentTranslatorResourceImpl
 
         try {
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(docContent, srcLocale, transLocale,
+                    .translateDocument(doc, docContent, srcLocale, transLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);

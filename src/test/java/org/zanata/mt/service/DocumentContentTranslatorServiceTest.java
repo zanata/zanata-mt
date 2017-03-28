@@ -22,6 +22,7 @@ import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 
 import com.google.common.collect.Lists;
@@ -126,20 +127,21 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost", "en");
+        Document document = new Document();
 
-        when(persistentTranslationService.translate(postProcessedHTML,
+        when(persistentTranslationService.translate(document, postProcessedHTML,
                 srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                 .thenReturn(translatedHtmls);
 
-        when(persistentTranslationService.translate(text,
+        when(persistentTranslationService.translate(document, text,
                 srcLocale,
                 transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                 .thenReturn(translatedText);
 
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(docContent, srcLocale, transLocale,
+                .translateDocument(document, docContent, srcLocale, transLocale,
                         BackendID.MS);
 
         assertThat(translatedDocContent.getLocale())
@@ -173,11 +175,11 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getWarnings()).hasSize(1);
 
         verify(persistentTranslationService)
-                .translate(postProcessedHTML, srcLocale, transLocale, BackendID.MS,
+                .translate(document, postProcessedHTML, srcLocale, transLocale, BackendID.MS,
                         MediaType.TEXT_HTML_TYPE);
 
         verify(persistentTranslationService)
-                .translate(text, srcLocale, transLocale, BackendID.MS,
+                .translate(document, text, srcLocale, transLocale, BackendID.MS,
                         MediaType.TEXT_PLAIN_TYPE);
     }
 }
