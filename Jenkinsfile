@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('github.com/zanata/zanata-pipeline-library@master')
+@Library('github.com/zanata/zanata-pipeline-library@0.1')
 
 /* Only keep the 10 most recent builds. */
 def projectProperties = [
