@@ -42,10 +42,10 @@ public class MSTranslateArrayReq implements Serializable {
     private static final long serialVersionUID = 3821282850166291221L;
 
     private String appId;
-    private LocaleId srcLanguage;
+    private String srcLanguage;
     private MSTranslateArrayReqOptions options;
     private List<MSString> texts = new ArrayList<>();
-    private LocaleId transLanguage;
+    private String transLanguage;
 
     public MSTranslateArrayReq() {
     }
@@ -60,12 +60,11 @@ public class MSTranslateArrayReq implements Serializable {
     }
 
     @XmlElement(name = "From", required = true)
-    @XmlJavaTypeAdapter(type = LocaleId.class, value = LocaleIdAdapter.class)
-    public LocaleId getSrcLanguage() {
+    public String getSrcLanguage() {
         return srcLanguage;
     }
 
-    public void setSrcLanguage(LocaleId srcLanguage) {
+    public void setSrcLanguage(String srcLanguage) {
         this.srcLanguage = srcLanguage;
     }
 
@@ -89,12 +88,11 @@ public class MSTranslateArrayReq implements Serializable {
     }
 
     @XmlElement(name = "To", required = true)
-    @XmlJavaTypeAdapter(type = LocaleId.class, value = LocaleIdAdapter.class)
-    public LocaleId getTransLanguage() {
+    public String getTransLanguage() {
         return transLanguage;
     }
 
-    public void setTransLanguage(LocaleId transLanguage) {
+    public void setTransLanguage(String transLanguage) {
         this.transLanguage = transLanguage;
     }
 

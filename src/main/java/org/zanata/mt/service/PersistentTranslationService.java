@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.common.collect.Maps;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.LocaleId;
@@ -117,9 +118,15 @@ public class PersistentTranslationService {
 
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
+
+        BackendLocaleCode mappedSrcLang =
+                getMappedLocale(srcLocale.getLocaleId());
+        BackendLocaleCode mappedTransLang =
+                getMappedLocale(targetLocale.getLocaleId());
+
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, srcLocale, targetLocale, mediaType);
+                .translate(sources, mappedSrcLang, mappedTransLang, mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
@@ -128,17 +135,52 @@ public class PersistentTranslationService {
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
-                tf = textFlowDAO
-                        .persist(new TextFlow(document, source, srcLocale));
+                tf = createOrFetchTextFlow(
+                        new TextFlow(document, source, srcLocale));
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),
                             translation.getRawTranslation(), tf,
                             targetLocale, backendID);
-            target = textFlowTargetDAO.persist(target);
-            tf.getTargets().add(target);
+            createOrUpdateTextFlowTarget(target);
         }
         return results;
+    }
+
+    /**
+     * This is to handle concurrent db request for 2 same text flow is being
+     * persisted at the same time.
+     */
+    private TextFlow createOrFetchTextFlow(TextFlow tf) {
+        try {
+            return textFlowDAO.persist(tf);
+        } catch (ConstraintViolationException e) {
+            return textFlowDAO
+                    .getByContentHash(tf.getLocale().getLocaleId(),
+                            tf.getContentHash());
+        }
+    }
+
+    /**
+     * If found matching TextFlowTarget (locale + backendId),
+     * update the content and rawContent, else create new TextFlowTarget
+     */
+    private void createOrUpdateTextFlowTarget(TextFlowTarget tft) {
+        TextFlow tf = tft.getTextFlow();
+        List<TextFlowTarget> existingTfts =
+                tf.getTargetsByLocaleId(tft.getLocale().getLocaleId());
+        if (existingTfts.isEmpty()) {
+            textFlowTargetDAO.persist(tft);
+            tf.getTargets().add(tft);
+        } else {
+            Optional<TextFlowTarget> existingTft =
+                    getTargetByProvider(existingTfts, tft.getBackendId());
+            if (existingTft.isPresent()) {
+                existingTft.get()
+                        .updateContent(tft.getContent(), tft.getRawContent());
+                textFlowTargetDAO.persist(existingTft.get());
+            }
+        }
     }
 
     private Optional<TextFlowTarget> getTargetByProvider(

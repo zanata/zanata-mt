@@ -46,7 +46,7 @@ public class TextFlowTarget extends ModelEntity {
 
     private int usedCount;
 
-    // TODO add BackendID to NaturalId (and equals/hashCode)
+    @NaturalId
     @Type(type = "backendIdType")
     @Column(nullable = false)
     @NotNull
@@ -66,6 +66,11 @@ public class TextFlowTarget extends ModelEntity {
 
     public void incrementCount() {
         this.usedCount += 1;
+    }
+
+    public void updateContent(String content, String rawContent) {
+        this.content = content;
+        this.rawContent = rawContent;
     }
 
     public TextFlow getTextFlow() {

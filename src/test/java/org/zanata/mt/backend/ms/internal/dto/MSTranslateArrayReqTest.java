@@ -31,15 +31,15 @@ public class MSTranslateArrayReqTest {
     @Test
     public void testSrcLanguage() {
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        req.setSrcLanguage(LocaleId.DE);
-        assertThat(req.getSrcLanguage()).isEqualTo(LocaleId.DE);
+        req.setSrcLanguage(LocaleId.DE.getId());
+        assertThat(req.getSrcLanguage()).isEqualTo(LocaleId.DE.getId());
     }
 
     @Test
     public void testTransLanguage() {
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        req.setTransLanguage(LocaleId.DE);
-        assertThat(req.getTransLanguage()).isEqualTo(LocaleId.DE);
+        req.setTransLanguage(LocaleId.DE.getId());
+        assertThat(req.getTransLanguage()).isEqualTo(LocaleId.DE.getId());
     }
 
     @Test
@@ -61,8 +61,8 @@ public class MSTranslateArrayReqTest {
     @Test
     public void testRoundTrip() throws JAXBException {
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        req.setSrcLanguage(LocaleId.EN_US);
-        req.setTransLanguage(LocaleId.FR);
+        req.setSrcLanguage(LocaleId.EN_US.getId());
+        req.setTransLanguage(LocaleId.FR.getId());
         req.getTexts().add(new MSString("test"));
         req.getTexts().add(new MSString("test1"));
         MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
@@ -90,14 +90,14 @@ public class MSTranslateArrayReqTest {
 
         // change src lang
         req2 = getDefaultRequest();
-        req2.setSrcLanguage(LocaleId.EN);
+        req2.setSrcLanguage(LocaleId.EN.getId());
 
         assertThat(req1.hashCode()).isNotEqualTo(req2.hashCode());
         assertThat(req1.equals(req2)).isFalse();
 
         // change trans lang
         req2 = getDefaultRequest();
-        req2.setTransLanguage(LocaleId.DE);
+        req2.setTransLanguage(LocaleId.DE.getId());
 
         assertThat(req1.hashCode()).isNotEqualTo(req2.hashCode());
         assertThat(req1.equals(req2)).isFalse();
@@ -125,8 +125,8 @@ public class MSTranslateArrayReqTest {
     private MSTranslateArrayReq getDefaultRequest() {
         MSTranslateArrayReq req = new MSTranslateArrayReq();
         req.setAppId("appId");
-        req.setSrcLanguage(LocaleId.EN_US);
-        req.setTransLanguage(LocaleId.FR);
+        req.setSrcLanguage(LocaleId.EN_US.getId());
+        req.setTransLanguage(LocaleId.FR.getId());
         req.getTexts().add(new MSString("test"));
         req.getTexts().add(new MSString("test1"));
         MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();

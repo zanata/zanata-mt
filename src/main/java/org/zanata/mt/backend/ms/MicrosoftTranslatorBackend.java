@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
@@ -85,19 +86,23 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public AugmentedTranslation translate(String content, Locale srcLocale,
-            Locale targetLocale, MediaType mediaType) throws ZanataMTException {
+    public AugmentedTranslation translate(String content,
+            BackendLocaleCode srcLocale,
+            BackendLocaleCode targetLocale, MediaType mediaType)
+            throws ZanataMTException {
         return translate(Lists.newArrayList(content), srcLocale, targetLocale,
                 mediaType).get(0);
     }
 
     @Override
-    public List<AugmentedTranslation> translate(List<String> contents, Locale srcLocale,
-        Locale targetLocale, MediaType mediaType) throws ZanataMTException {
+    public List<AugmentedTranslation> translate(List<String> contents,
+            BackendLocaleCode srcLocale,
+            BackendLocaleCode targetLocale, MediaType mediaType)
+            throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
-            req.setSrcLanguage(srcLocale.getLocaleId());
-            req.setTransLanguage(targetLocale.getLocaleId());
+            req.setSrcLanguage(srcLocale.getLocaleCode());
+            req.setTransLanguage(targetLocale.getLocaleCode());
             for (String content: contents) {
                 req.getTexts().add(new MSString(content));
             }
@@ -121,7 +126,8 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
         return clientSubscriptionKey;
     }
 
-    public BackendLocaleCode getMappedLocale(LocaleId localeId) {
+    @Override
+    public BackendLocaleCode getMappedLocale(@NotNull LocaleId localeId) {
         MSLocaleCode from = new MSLocaleCode(localeId);
         return LOCALE_MAP.getOrDefault(localeId, from);
     }

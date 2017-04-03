@@ -36,6 +36,12 @@ public interface DocumentContentTranslatorResource {
     public static final int MAX_LENGTH_WARN = 3000;
 
     /**
+     * Perform machine translation on {@link DocumentContent#contents} to given
+     * locale code.
+     * This is a paid service which charge based on character count.
+     *
+     * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
+     *
      * Maximum accepted characters in a request is 6000: {@link #MAX_LENGTH}
      *
      * @param targetLang

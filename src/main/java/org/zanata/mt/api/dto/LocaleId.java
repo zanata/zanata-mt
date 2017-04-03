@@ -51,7 +51,7 @@ public class LocaleId implements Serializable {
         return id;
     }
 
-    @Size(max = 255)
+    @Size(max = 128)
     @NotNull
     public String getId() {
         return id;

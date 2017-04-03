@@ -71,13 +71,13 @@ public class DocumentContentTranslatorResourceImpl
                     + targetLang + " backendId:" + backendID.getId());
         }
 
-        Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
-        Locale transLocale = getLocale(targetLang);
-
-        org.zanata.mt.model.Document doc = documentDAO
-                .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
-
         try {
+            Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
+            Locale transLocale = getLocale(targetLang);
+
+            org.zanata.mt.model.Document doc = documentDAO
+                    .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
+
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, srcLocale, transLocale,
                             backendID);
@@ -150,9 +150,10 @@ public class DocumentContentTranslatorResourceImpl
     }
 
     private Locale getLocale(@NotNull LocaleId localeId) {
-        BackendLocaleCode mappedLocaleCode =
-                documentContentTranslatorService.getMappedLocale(localeId);
-        return localeDAO.getOrCreateByLocaleId(
-                new LocaleId(mappedLocaleCode.getLocaleCode()));
+        Locale locale = localeDAO.getByLocaleId(localeId);
+        if (locale == null) {
+            throw new BadRequestException("Not supported locale:" + localeId);
+        }
+        return locale;
     }
 }

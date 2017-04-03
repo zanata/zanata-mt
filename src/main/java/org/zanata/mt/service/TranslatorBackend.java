@@ -2,8 +2,11 @@ package org.zanata.mt.service;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
+import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.AugmentedTranslation;
@@ -19,13 +22,22 @@ public interface TranslatorBackend {
      * Return translation from MT provider
      * @throws ZanataMTException
      */
-    AugmentedTranslation translate(String content, Locale srcLocale,
-            Locale targetLocale, MediaType mediaType) throws ZanataMTException;
+    AugmentedTranslation translate(String content, BackendLocaleCode srcLocale,
+            BackendLocaleCode targetLocale, MediaType mediaType)
+            throws ZanataMTException;
 
     /**
      * Return translations (same index as request) from MT provider
      * @throws ZanataMTException
      */
-    List<AugmentedTranslation> translate(List<String> contents, Locale srcLocale,
-        Locale targetLocale, MediaType mediaType) throws ZanataMTException;
+    List<AugmentedTranslation> translate(List<String> contents,
+            BackendLocaleCode srcLocale,
+            BackendLocaleCode targetLocale, MediaType mediaType)
+            throws ZanataMTException;
+
+    /**
+     * Return mapped locale for the backend
+     * @param localeId
+     */
+    BackendLocaleCode getMappedLocale(@NotNull LocaleId localeId);
 }

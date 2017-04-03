@@ -5,11 +5,11 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.persistence.EntityManager;
 
+import com.ibm.icu.util.ULocale;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Locale;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.ibm.icu.util.ULocale;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -46,5 +46,10 @@ public class LocaleDAO extends AbstractDAO<Locale> {
             flush();
         }
         return locale;
+    }
+
+    public List<Locale> getSupportedLocales() {
+        return getEntityManager()
+                .createQuery("from Locale").getResultList();
     }
 }
