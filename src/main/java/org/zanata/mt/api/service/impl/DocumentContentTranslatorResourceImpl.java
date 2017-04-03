@@ -55,25 +55,32 @@ public class DocumentContentTranslatorResourceImpl
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("targetLang") LocaleId targetLang) {
+            @QueryParam("targetLang") LocaleId targetLocaleId) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 
         Optional<APIResponse> errorResp =
-                validateTranslateRequest(docContent, targetLang);
+                validateTranslateRequest(docContent, targetLocaleId);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
         }
 
+        // if source locale == target locale, return docContent
+        LocaleId srcLocaleId = new LocaleId(docContent.getLocale());
+        if (srcLocaleId.equals(targetLocaleId)) {
+            LOG.info("Returning request as source and target locale are the same:" + srcLocaleId);
+            return Response.ok().entity(docContent).build();
+        }
+
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " target_lang"
-                    + targetLang + " backendId:" + backendID.getId());
+            LOG.debug("Request translations:" + docContent + " targetLang"
+                    + targetLocaleId + " backendId:" + backendID.getId());
         }
 
         try {
             Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
-            Locale transLocale = getLocale(targetLang);
+            Locale transLocale = getLocale(targetLocaleId);
 
             org.zanata.mt.model.Document doc = documentDAO
                     .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
