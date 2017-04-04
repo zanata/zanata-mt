@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>Zanata MT: BackendResource</title>
+  <title>Zanata MT: LanguagesResource</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">Zanata MT: BackendResource</a>
+        <a class="navbar-brand" href="index.html">Zanata MT: LanguagesResource</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -50,7 +50,7 @@
     <div class="row">
       <div class="col-sm-3 col-md-2 sidebar" id="apinav">
         <ul class="nav nav-sidebar">
-          <li><a href="#resource_BackendResource_getAttribution_GET">GET /backend/attribution</a></li>
+          <li><a href="#resource_LanguagesResource_getSupportedLanguages_GET">GET /languages</a></li>
           <li class="divider"></li>
           <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
         </ul>
@@ -60,17 +60,17 @@
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
           <li class="active dropdown"><a href="resources.html">Resources</a></li>
-          <li class="dropdown"><a href="resource_BackendResource.html">BackendResource</a></li>
+          <li class="dropdown"><a href="resource_LanguagesResource.html">LanguagesResource</a></li>
         </ol>
 
-      <h1 class="page-header">BackendResource <small>Resource</small></h1>
+      <h1 class="page-header">LanguagesResource <small>Resource</small></h1>
 
-      <p>API entry point for machine translations backend</p>
+      <p>API entry point for languages</p>
 
-      <div id="resource_BackendResource_getAttribution_GET">
-        <h3><span class="label label-default resource-method">GET</span> <span class="resource-path">/backend/attribution <a href="../api/backend/attribution" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
+      <div id="resource_LanguagesResource_getSupportedLanguages_GET">
+        <h3><span class="label label-default resource-method">GET</span> <span class="resource-path">/languages <a href="../api/languages" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
 
-        <p>Retrieve backend attribution (image) based on given id</p>
+        <p></p>
 
         <table class="table resource-parameters">
           <caption>Request Parameters</caption>
@@ -79,6 +79,7 @@
             <th>name</th>
             <th>type</th>
             <th>description</th>
+            <th>multivalued</th>
           </tr>
           </thead>
           <tbody>
@@ -86,16 +87,13 @@
             <td><span class="parameter-name">X-Auth-Token</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication token.</span></td>
+            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">X-Auth-User</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication user.</span></td>
-          </tr>
-          <tr>
-            <td><span class="parameter-name">id</span></td>
-            <td>query</td>
-            <td><span class="parameter-description">id for machine translations backend</span></td>
+            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           </tbody>
         </table>
@@ -112,18 +110,12 @@
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
-            <td><span class="response-condition">Attribution found for given id.</span></td>
+            <td><span class="response-condition">List of supported languages</span></td>
             <td><ul class="list-unstyled"></ul></td>
           </tr>
           <tr>
-            <td><span class="label label-warning response-code">400</span></td>
-            <td><span class="response-condition">id is missing.</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
- (JSON)</span></li></ul></td>
-          </tr>
-          <tr>
-            <td><span class="label label-warning response-code">404</span></td>
-            <td><span class="response-condition">id not found.</span></td>
+            <td><span class="label label-danger response-code">500</span></td>
+            <td><span class="response-condition">Unexpected error.</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
  (JSON)</span></li></ul></td>
           </tr>
@@ -136,18 +128,29 @@
           <tr>
             <th>media type</th>
             <th>data type</th>
+            <th>description</th>
           </tr>
           </thead>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">object
+            <td><span class="datatype-reference">array of <a href="json_Locale.html">Locale</a>
  (JSON)</span></td>
-          </tr>
-          <tr>
-            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: image/png&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">image/png</span></abbr></td>
-            <td><span class="datatype-reference">(custom)
-</span></td>
+            <td><span class="response-description">all supported languages
+
+Supported locales:
+
+- en-us (English)
+- de (German)
+- es (Spanish)
+- fr (French)
+- it (Italian)
+- ja (Japanese)
+- ko (Korean)
+- pt (Portuguese)
+- ru (Russian)
+- zh-hans (Chinese (Simplified))
+- zh-hant (Chinese (Traditional))</span></td>
           </tr>
           </tbody>
         </table>
@@ -158,7 +161,7 @@
             <div class="col-md-6">
               <h5>Request</h5>
               <pre>
-GET /backend/attribution
+GET /languages
 Accept: application/json
 X-Auth-Token: ...
 X-Auth-User: ...
@@ -171,8 +174,11 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-txt">
-...
+                <code class="prettyprint language-js">
+[ {
+  &quot;localeCode&quot; : &quot;...&quot;,
+  &quot;name&quot; : &quot;...&quot;
+} ]
                 </code>
               </pre>
             </div>

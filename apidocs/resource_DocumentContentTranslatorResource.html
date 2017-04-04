@@ -70,7 +70,13 @@
       <div id="resource_DocumentContentTranslatorResource_translate_POST">
         <h3><span class="label label-default resource-method">POST</span> <span class="resource-path">/document/translate <a href="../api/document/translate" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
 
-        <p>Maximum accepted characters in a request is 6000: #MAX_LENGTH</p>
+        <p>Perform machine translation on DocumentContent#contents to given
+locale code.
+This is a paid service which charge based on character count.
+
+See LanguagesResource#getSupportedLanguages() for supported locales.
+
+Maximum accepted characters in a request is 6000: #MAX_LENGTH</p>
 
         <table class="table resource-parameters">
           <caption>Request Parameters</caption>

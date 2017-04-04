@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>Zanata MT: JSON</title>
+  <title>Zanata MT: Locale</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">Zanata MT: JSON</a>
+        <a class="navbar-brand" href="index.html">Zanata MT: Locale</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -57,49 +57,61 @@
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
-          <li class="dropdown"><a href="syntax_json.html">JSON</a></li>
+          <li class="active dropdown"><a href="syntax_json.html">JSON</a></li>
+          <li class="dropdown"><a href="json_Locale.html">Locale</a></li>
         </ol>
 
-  <h1 class="page-header">JSON</h1>
+      <h1 class="page-header">Locale <small>Data Type</small></h1>
 
-  <table class="table table-hover datatypes">
-  <thead>
-    <tr>
-      <th align="center">type</th>
-      <th align="center">description</th>
-    </tr>
-  </thead>
-  <tbody data-link="row" class="rowlink">
-    <tr class="clickable-row" data-href="json_APIResponse.html">
-      <td>  <span class="datatype-name">APIResponse</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for HTTP API response</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_DocumentContent.html">
-      <td>  <span class="datatype-name">DocumentContent</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for a document translations request and response.
-This entity is used for generic translations by accepting array of strings with type.
+      <p></p>
 
-Used in
-DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)</span>
+      <dl class="dl-horizontal">
+      </dl>
+
+      <table class="table datatype-properties">
+        <caption>Properties</caption>
+        <thead>
+        <tr>
+          <th>name</th>
+          <th>data type</th>
+          <th>constraints</th>
+          <th>description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>  <span class="property-name">localeCode</span>
 </td>
-    </tr>
-    <tr class="clickable-row" data-href="json_Locale.html">
-      <td>  <span class="datatype-name">Locale</span>
+          <td>  <span class="datatype-reference">string
+</span>
 </td>
-      <td>  <span class="datatype-description"></span>
+          <td>  <span class="property-constraints">required, max size: 128, min size: 0
+</span>
 </td>
-    </tr>
-    <tr class="clickable-row" data-href="json_TypeString.html">
-      <td>  <span class="datatype-name">TypeString</span>
+          <td>  <span class="property-description"></span>
 </td>
-      <td>  <span class="datatype-description">JSON entity for source and translation string with specified #type</span>
+        </tr>
+        <tr>
+          <td>  <span class="property-name">name</span>
 </td>
-    </tr>
-  </tbody>
-  </table>
+          <td>  <span class="datatype-reference">string
+</span>
+</td>
+          <td>  <span class="property-constraints">required, max size: 191, min size: 0
+</span>
+</td>
+          <td>  <span class="property-description"></span>
+</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="lead">Example</p>
+      
+      <pre class="prettyprint language-js example">{
+  &quot;localeCode&quot; : &quot;...&quot;,
+  &quot;name&quot; : &quot;...&quot;
+}</pre>
 
         <footer class="footer">
           <div class="container">
