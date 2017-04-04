@@ -39,7 +39,7 @@ public interface BackendResource {
     @Produces({"image/png", "application/json"})
     @TypeHint(StreamingOutput.class)
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Attribution found for given id."),
+            @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
             @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIResponse.class))
     })
