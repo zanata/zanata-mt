@@ -8,7 +8,6 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentContentTranslatorResource;
-import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;

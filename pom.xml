@@ -31,6 +31,7 @@
     <hibernate.version>5.2.5.Final</hibernate.version>
     <hibernate.commons.version>5.0.1.Final</hibernate.commons.version>
     <powermock.version>1.6.6</powermock.version>
+    <infinispan.version>8.1.2.Final</infinispan.version>
 
     <!-- database -->
     <db.name>zanataMT</db.name>
@@ -386,6 +387,13 @@
       <groupId>org.jboss.spec.javax.servlet</groupId>
       <artifactId>jboss-servlet-api_3.0_spec</artifactId>
       <version>1.0.2.Final</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-core</artifactId>
+      <version>${infinispan.version}</version>
       <scope>provided</scope>
     </dependency>
 

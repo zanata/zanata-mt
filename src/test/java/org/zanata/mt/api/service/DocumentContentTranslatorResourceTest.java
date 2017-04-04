@@ -16,6 +16,7 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
+import org.zanata.mt.cache.CacheProvider;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -49,10 +50,15 @@ public class DocumentContentTranslatorResourceTest {
     @Mock
     private DocumentDAO documentDAO;
 
+    @Mock
+    private CacheProvider cacheProvider;
+
     @Before
     public void beforeTest() {
         documentContentTranslatorResource =
-                new DocumentContentTranslatorResourceImpl(documentContentTranslatorService, localeDAO, documentDAO);
+                new DocumentContentTranslatorResourceImpl(
+                        documentContentTranslatorService, localeDAO,
+                        documentDAO, cacheProvider);
         when(documentContentTranslatorService.isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html")).thenReturn(true);
     }
