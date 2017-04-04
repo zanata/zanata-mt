@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.zanata.mt.api.service.DocumentContentTranslatorResource.MAX_LENGTH;
-import static org.zanata.mt.api.service.DocumentContentTranslatorResource.MAX_LENGTH_WARN;
 
 import java.util.List;
 
