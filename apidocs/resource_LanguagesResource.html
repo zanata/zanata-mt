@@ -79,7 +79,6 @@
             <th>name</th>
             <th>type</th>
             <th>description</th>
-            <th>multivalued</th>
           </tr>
           </thead>
           <tbody>
@@ -87,13 +86,11 @@
             <td><span class="parameter-name">X-Auth-Token</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication token.</span></td>
-            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">X-Auth-User</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication user.</span></td>
-            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           </tbody>
         </table>
@@ -111,7 +108,8 @@
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">List of supported languages</span></td>
-            <td><ul class="list-unstyled"></ul></td>
+            <td><ul class="list-unstyled"><li><span class="datatype-reference">array of <a href="json_Locale.html">Locale</a>
+ (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">500</span></td>
@@ -134,7 +132,7 @@
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">array of <a href="json_Locale.html">Locale</a>
+            <td><span class="datatype-reference">object
  (JSON)</span></td>
             <td><span class="response-description">all supported languages
 
@@ -174,11 +172,8 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-[ {
-  &quot;localeCode&quot; : &quot;...&quot;,
-  &quot;name&quot; : &quot;...&quot;
-} ]
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>
