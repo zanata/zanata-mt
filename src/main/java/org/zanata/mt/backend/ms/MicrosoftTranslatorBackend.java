@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.EnvVariable;
@@ -58,6 +59,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                     LocaleId.ZH_HANS, new MSLocaleCode("zh-CHS"),
                     LocaleId.ZH_HANT, new MSLocaleCode("zh-CHT")
             );
+
+    // http://stackoverflow.com/questions/19652272/cant-find-microsoft-translators-categories/24825467#24825467
+    private final static String CATEGORY = "Technology";
 
     private String clientSubscriptionKey;
 
@@ -108,6 +112,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
             options.setContentType(mediaType.toString());
+            options.setCategory(CATEGORY);
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);
