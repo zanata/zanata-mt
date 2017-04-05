@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,15 +38,25 @@ public class ArticleUtilTest {
 
     @Test
     public void wrapUnWrapHTML() {
-        String html = "<div>test</div>";
+        assertWrapAndUnwrapHTML("<html><body>test</body></html>");
+        assertWrapAndUnwrapHTML("<body>test</body>");
+        assertWrapAndUnwrapHTML("<div>test</div>");
+        assertWrapAndUnwrapHTML("<div>test</div><div>test2</div>");
+        assertWrapAndUnwrapHTML("test");
+    }
+
+    private void assertWrapAndUnwrapHTML(String html) {
         Element wrappedElement = ArticleUtil.wrapHTML(html);
         assertThat(wrappedElement.outerHtml()).isNotEqualTo(html);
         assertThat(wrappedElement.outerHtml().length())
                 .isGreaterThan(html.length());
 
-        Element unwrappedElement = ArticleUtil.unwrapHTML(wrappedElement);
-        assertThat(unwrappedElement).isNotEqualTo(wrappedElement);
-        assertThat(unwrappedElement.outerHtml().replaceAll("\n", "")
+        List<Node> unwrappedNode = ArticleUtil.unwrapHTML(wrappedElement);
+        assertThat(unwrappedNode).isNotEqualTo(wrappedElement);
+        String unwrappedHTML = unwrappedNode.stream().map(Node::outerHtml)
+                .collect(Collectors.joining(""));
+
+        assertThat(unwrappedHTML.replaceAll("\n", "")
                 .replaceAll(" ", "")).isEqualTo(html);
     }
 
@@ -73,7 +85,7 @@ public class ArticleUtilTest {
 
     @Test
     public void replacePlaceholderWithNode() {
-        Map<String, Element> nodeIdMap = new HashMap<>();
+        Map<String, Node> nodeIdMap = new HashMap<>();
         String html = "<div>";
         for (int i = 0; i < 5; i++) {
             Attributes attrs = new Attributes();
@@ -89,7 +101,7 @@ public class ArticleUtilTest {
         html += "</div>";
 
         String results = ArticleUtil.replacePlaceholderWithNode(nodeIdMap, html);
-        for (Element originalNode: nodeIdMap.values()) {
+        for (Node originalNode: nodeIdMap.values()) {
             assertThat(results).contains(originalNode.outerHtml());
         }
     }

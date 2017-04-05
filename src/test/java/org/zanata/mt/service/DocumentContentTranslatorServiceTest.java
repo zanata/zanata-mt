@@ -81,9 +81,9 @@ public class DocumentContentTranslatorServiceTest {
                         overMaxHTML);
 
         List<String> processedHtmls =
-                Lists.newArrayList("<div>\n Entry 1\n</div>",
-                        "<div>\n Entry 2\n</div>",
-                        "<div>\n Entry 5\n</div>",
+                Lists.newArrayList("<div>Entry 1</div>",
+                        "<div>Entry 2</div>",
+                        "<div>Entry 5</div>",
                         "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",
@@ -92,9 +92,9 @@ public class DocumentContentTranslatorServiceTest {
         List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
 
         List<String> translatedHtmls =
-                Lists.newArrayList("<div>\n  MS: Entry 1 \n</div>",
-                        "<div>\n  MS: Entry 2 \n</div>",
-                        "<div>\n  MS: Entry 5 \n</div>",
+                Lists.newArrayList("<div>MS: Entry 1</div>",
+                        "<div>MS: Entry 2</div>",
+                        "<div>MS: Entry 5</div>",
                         "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",

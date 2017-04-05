@@ -81,7 +81,7 @@ public class DocumentContentTranslatorResourceImpl
         }
 
         try {
-            Locale srcLocale = getLocale(new LocaleId(docContent.getLocale()));
+            Locale srcLocale = getLocale(srcLocaleId);
             Locale transLocale = getLocale(targetLocaleId);
 
             org.zanata.mt.model.Document doc = documentDAO

@@ -1,7 +1,9 @@
 package org.zanata.mt.model;
 
+import com.google.common.collect.Lists;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.junit.Test;
 
@@ -17,9 +19,10 @@ public class TranslatableHTMLNodeTest {
 
     @Test
     public void testConstructor() {
-        Map<String, Element> map = new HashMap<>();
+        Map<String, Node> map = new HashMap<>();
         Element doc = new Element(Tag.valueOf("span"), "", new Attributes());
-        TranslatableHTMLNode node = new TranslatableHTMLNode(doc, map);
+        TranslatableHTMLNode node = new TranslatableHTMLNode(
+                Lists.newArrayList(doc), map);
         assertThat(node.getPlaceholderIdMap()).isEqualTo(map);
         assertThat(node.getHtml()).isEqualTo(doc.outerHtml());
     }

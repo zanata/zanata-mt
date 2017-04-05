@@ -4,14 +4,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Article
@@ -47,7 +52,7 @@ public final class ArticleUtil {
     public static TranslatableHTMLNode replaceNonTranslatableNode(int index,
             String html) {
         Element document = wrapHTML(html);
-        Map<String, Element> placeholderIdMap = new HashMap<>();
+        Map<String, Node> placeholderIdMap = new HashMap<>();
 
         int counter = 0;
         for (Map.Entry<String, String> entry : NON_TRANSLATABLE_ATTRIBUTE
@@ -82,8 +87,7 @@ public final class ArticleUtil {
                 counter++;
             }
         }
-        document = unwrapHTML(document);
-        return new TranslatableHTMLNode(document, placeholderIdMap);
+        return new TranslatableHTMLNode(unwrapHTML(document), placeholderIdMap);
     }
 
     /**
@@ -108,27 +112,34 @@ public final class ArticleUtil {
      */
     public static Element wrapHTML(String html) {
         String wrapHTML = "<div id='" + getWrapperId() + "'>" + html + "</div>";
-        return Jsoup.parse(wrapHTML);
+        Document doc = Jsoup.parse(wrapHTML, "", Parser.xmlParser());
+        doc.outputSettings().indentAmount(0).prettyPrint(false);
+        return doc;
     }
 
-    public static @Nullable
-    Element unwrapHTML(Element element) {
+    public static List<Node> unwrapHTML(Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
-        return wrapper != null ? wrapper.children().first() : null;
+        if (wrapper != null) {
+            if (!wrapper.childNodes().isEmpty()) {
+                return wrapper.childNodes();
+            }
+        }
+        return Collections.emptyList();
     }
 
     /**
      * Replace node in given html with id and element from nodeIdMap
      */
     public static String replacePlaceholderWithNode(
-            Map<String, Element> nodeIdMap, String html) {
+            Map<String, Node> nodeIdMap, String html) {
         Element element = wrapHTML(html);
-        for (Map.Entry<String, Element> entry : nodeIdMap.entrySet()) {
+        for (Map.Entry<String, Node> entry : nodeIdMap.entrySet()) {
             String id = entry.getKey();
-            Element replacementElement = entry.getValue();
-            element.select("#" + id).first().replaceWith(replacementElement);
+            Node replacementNode = entry.getValue();
+            element.select("#" + id).first().replaceWith(replacementNode);
         }
-        return unwrapHTML(element).outerHtml();
+        return unwrapHTML(element).stream().map(Node::outerHtml)
+                .collect(Collectors.joining(""));
     }
 
     private static String getWrapperId() {
@@ -136,7 +147,7 @@ public final class ArticleUtil {
     }
 
     private static void replaceNodeWithPlaceholder(
-            Map<String, Element> placeholderIdMap, int index,
+            Map<String, Node> placeholderIdMap, int index,
             int counter, Element element) {
         String id = generatePlaceholderId(index, counter);
         placeholderIdMap.put(id, element.clone());
