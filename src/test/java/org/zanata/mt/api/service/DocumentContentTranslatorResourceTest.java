@@ -16,13 +16,14 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentContentTranslatorResourceImpl;
-import org.zanata.mt.cache.CacheProvider;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.process.DocumentProcessKey;
+import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 
 import java.util.List;
@@ -51,14 +52,14 @@ public class DocumentContentTranslatorResourceTest {
     private DocumentDAO documentDAO;
 
     @Mock
-    private CacheProvider cacheProvider;
+    private DocumentProcessManager docProcessLock;
 
     @Before
     public void beforeTest() {
         documentContentTranslatorResource =
                 new DocumentContentTranslatorResourceImpl(
                         documentContentTranslatorService, localeDAO,
-                        documentDAO, cacheProvider);
+                        documentDAO, docProcessLock);
         when(documentContentTranslatorService.isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html")).thenReturn(true);
     }
@@ -254,6 +255,11 @@ public class DocumentContentTranslatorResourceTest {
         assertThat(returnedDocContent.getContents()).isEqualTo(translatedContents);
         assertThat(returnedDocContent.getLocale())
                 .isEqualTo(transLocale.getLocaleId().getId());
+
+        DocumentProcessKey key =
+                new DocumentProcessKey(docContent.getUrl(),
+                        srcLocale.getLocaleId(), transLocale.getLocaleId());
+        verify(docProcessLock).lock(key);
         verify(doc).incrementUsedCount();
         verify(documentDAO).persist(doc);
     }
@@ -288,6 +294,10 @@ public class DocumentContentTranslatorResourceTest {
 
         assertThat(response.getStatus())
                 .isEqualTo(expectedStatus.getStatusCode());
+        DocumentProcessKey key =
+                new DocumentProcessKey(documentContent.getUrl(),
+                        srcLocale.getLocaleId(), transLocale.getLocaleId());
+        verify(docProcessLock).lock(key);
     }
 
 }
