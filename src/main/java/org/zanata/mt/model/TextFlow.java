@@ -59,15 +59,15 @@ public class TextFlow extends ModelEntity {
     public TextFlow() {
     }
 
+    public void setContent(String content) {
+        this.content = content;
+        updateContentHash();
+    }
+
     public TextFlow(Document document, String content, Locale locale) {
         this.content = content;
         this.locale = locale;
         documents.add(document);
-        updateContentHash();
-    }
-
-    public void setContent(String content) {
-        this.content = content;
         updateContentHash();
     }
 

@@ -1,6 +1,8 @@
 package org.zanata.mt.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.InputStreamStreamingOutput;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.BackendResource;
@@ -19,6 +21,9 @@ import java.util.Optional;
 @RequestScoped
 public class BackendResourceImpl implements BackendResource {
 
+    private static final Logger LOG =
+            LoggerFactory.getLogger(BackendResourceImpl.class);
+
     private static final String MS_ATTRIBUTION_IMAGE = "/images/MS_attribution.png";
 
     @SuppressWarnings("unused")
@@ -27,23 +32,33 @@ public class BackendResourceImpl implements BackendResource {
 
     @Override
     public Response getAttribution(@QueryParam("id") String id) {
-        Optional<APIResponse> response = validateId(id);
-        if (response.isPresent()) {
-            return Response.status(response.get().getStatus())
-                    .entity(response.get()).build();
+        try {
+            Optional<APIResponse> response = validateId(id);
+            if (response.isPresent()) {
+                return Response.status(response.get().getStatus())
+                        .entity(response.get()).build();
+            }
+
+            BackendID backendID = new BackendID(id.toUpperCase());
+            String imageResource = getAttributionImageResource(backendID);
+            String docName = id + "-attribution.png";
+
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            InputStream is = classLoader.getResourceAsStream(imageResource);
+            StreamingOutput output =
+                    new InputStreamStreamingOutput(is);
+            return Response.ok().header("Content-Disposition",
+                    "attachment; filename=\"" + docName + "\"")
+                    .entity(output).build();
+        } catch (Exception e) {
+            String title = "Error";
+            LOG.error(title, e);
+            APIResponse response =
+                    new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
+                            e, title);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(response).build();
         }
-
-        BackendID backendID = new BackendID(id.toUpperCase());
-        String imageResource = getAttributionImageResource(backendID);
-        String docName = id + "-attribution.png";
-
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        InputStream is = classLoader.getResourceAsStream(imageResource);
-        StreamingOutput output =
-                new InputStreamStreamingOutput(is);
-        return Response.ok().header("Content-Disposition",
-                "attachment; filename=\"" + docName + "\"")
-                .entity(output).build();
     }
 
     private String getAttributionImageResource(BackendID backendID) {

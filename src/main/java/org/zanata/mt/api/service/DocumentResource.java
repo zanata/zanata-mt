@@ -1,6 +1,7 @@
 package org.zanata.mt.api.service;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -15,6 +16,7 @@ import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
+import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleId;
 
 /**
@@ -27,13 +29,33 @@ import org.zanata.mt.api.dto.LocaleId;
         @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
         @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
 })
-public interface DocumentContentTranslatorResource {
+public interface DocumentResource {
 
     // Max length per request for MS
     int MAX_LENGTH = 10000;
 
     // Max length before logging warning
     int MAX_LENGTH_WARN = 8000;
+
+    /**
+     * Get request count for a document with given url
+     *
+     * @param url - url of the document, mandatory field
+     * @param fromLocaleCode - localeCode of the document, optional
+     * @param toLocaleCode - translation localeCode of the document, optional
+     */
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/getStatistics")
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Return getStatistics for given document ", type = @TypeHint(DocumentStatistics.class)),
+            @ResponseCode(code = 400, condition = "Missing url", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
+    })
+    Response getStatistics(@QueryParam("url") String url,
+            @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
 
     /**
      * Perform machine translation on {@link DocumentContent#contents} to given
@@ -44,8 +66,8 @@ public interface DocumentContentTranslatorResource {
      *
      * Maximum accepted characters in a request is 10000 {@link #MAX_LENGTH}
      *
-     * @param targetLang
-     *      target language to translate
+     * @param toLocaleId
+     *      language code to translate to
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -53,10 +75,10 @@ public interface DocumentContentTranslatorResource {
     @Path("/translate")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale.", type = @TypeHint(DocumentContent.class)),
-            @ResponseCode(code = 400, condition = "Missing targetLang, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,
-            @QueryParam("targetLang") LocaleId targetLang);
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
 }

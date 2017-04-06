@@ -22,16 +22,16 @@ public class TextFlowTest {
 
     @Test
     public void testConstructor() {
-        Locale srcLang = new Locale(LocaleId.EN_US, "English US");
-        TextFlow tf = new TextFlow(new Document(), "content", srcLang);
+        Locale fromLang = new Locale(LocaleId.EN_US, "English US");
+        TextFlow tf = new TextFlow(new Document(), "content", fromLang);
         assertThat(tf.getContent()).isEqualTo("content");
-        assertThat(tf.getLocale()).isEqualTo(srcLang);
+        assertThat(tf.getLocale()).isEqualTo(fromLang);
     }
 
     @Test
     public void testContent() {
-        Locale srcLang = new Locale(LocaleId.EN_US, "English US");
-        TextFlow tf = new TextFlow(new Document(), "old content", srcLang);
+        Locale fromLocale = new Locale(LocaleId.EN_US, "English US");
+        TextFlow tf = new TextFlow(new Document(), "old content", fromLocale);
         String oldHash = tf.getContentHash();
         tf.setContent("content");
         assertThat(tf.getContent()).isEqualTo("content");
@@ -40,33 +40,33 @@ public class TextFlowTest {
 
     @Test
     public void testDocuments() {
-        Locale srcLang = new Locale(LocaleId.EN_US, "English US");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleId.EN_US, "English US");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
 
         Document doc = new Document("http://localhost",
-                srcLang, targetLocale);
+                fromLocale, toLocale);
 
-        TextFlow tf = new TextFlow(doc, "old content", srcLang);
+        TextFlow tf = new TextFlow(doc, "old content", fromLocale);
         assertThat(tf.getDocuments()).isNotEmpty().contains(doc);
     }
 
     @Test
     public void testEqualsAndHashcode() {
-        Locale srcLang = new Locale(LocaleId.EN_US, "English US");
-        TextFlow tf1 = new TextFlow(new Document(),"content", srcLang);
-        TextFlow tf2 = new TextFlow(new Document(),"content", srcLang);
+        Locale fromLocale = new Locale(LocaleId.EN_US, "English US");
+        TextFlow tf1 = new TextFlow(new Document(),"content", fromLocale);
+        TextFlow tf2 = new TextFlow(new Document(),"content", fromLocale);
 
         assertThat(tf1.hashCode()).isEqualTo(tf2.hashCode());
         assertThat(tf1.equals(tf2)).isTrue();
 
         // diff locale
-        Locale newSrcLang = new Locale(LocaleId.EN, "English");
-        tf2 = new TextFlow(new Document(), "content", newSrcLang);
+        Locale newfromLocale = new Locale(LocaleId.EN, "English");
+        tf2 = new TextFlow(new Document(), "content", newfromLocale);
         assertThat(tf1.hashCode()).isNotEqualTo(tf2);
         assertThat(tf1.equals(tf2)).isFalse();
 
         // diff content
-        tf2 = new TextFlow(new Document(), "new content", srcLang);
+        tf2 = new TextFlow(new Document(), "new content", fromLocale);
         assertThat(tf1.hashCode()).isNotEqualTo(tf2);
         assertThat(tf1.equals(tf2)).isFalse();
 

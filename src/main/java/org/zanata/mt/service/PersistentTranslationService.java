@@ -68,11 +68,11 @@ public class PersistentTranslationService {
     @TransactionAttribute
     public List<String> translate(@NotNull Document document,
             @NotNull List<String> strings,
-            @NotNull Locale srcLocale, @NotNull Locale targetLocale,
+            @NotNull Locale fromLocale, @NotNull Locale toLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType)
             throws BadRequestException, ZanataMTException {
-        if (strings == null || strings.isEmpty() || srcLocale == null
-                || targetLocale == null || backendID == null) {
+        if (strings == null || strings.isEmpty() || fromLocale == null
+                || toLocale == null || backendID == null) {
             throw new BadRequestException();
         }
 
@@ -85,20 +85,20 @@ public class PersistentTranslationService {
             String string = strings.get(index);
             String hash = HashUtil.generateHash(string);
             TextFlow matchedHashTf =
-                    textFlowDAO.getByContentHash(srcLocale.getLocaleId(), hash);
+                    textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash);
 
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
                         matchedHashTf.getTargetsByLocaleId(
-                                targetLocale.getLocaleId()), backendID);
+                                toLocale.getLocaleId()), backendID);
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
                     matchedEntity.incrementCount();
                     textFlowTargetDAO.persist(matchedEntity);
                     LOG.info(
-                            "Found matched, Source-" + srcLocale.getLocaleId() + ":" +
-                                    string + "\nTranslation-" + targetLocale.getLocaleId() +
+                            "Found matched, Source-" + fromLocale.getLocaleId() + ":" +
+                                    string + "\nTranslation-" + toLocale.getLocaleId() +
                                     ":" + matchedEntity.getContent());
                     results.set(index, matchedEntity.getContent());
                 } else {
@@ -119,14 +119,14 @@ public class PersistentTranslationService {
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
-        BackendLocaleCode mappedSrcLang =
-                getMappedLocale(srcLocale.getLocaleId());
+        BackendLocaleCode mappedfromLocaleCode =
+                getMappedLocale(fromLocale.getLocaleId());
         BackendLocaleCode mappedTransLang =
-                getMappedLocale(targetLocale.getLocaleId());
+                getMappedLocale(toLocale.getLocaleId());
 
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, mappedSrcLang, mappedTransLang, mediaType);
+                .translate(sources, mappedfromLocaleCode, mappedTransLang, mediaType);
 
         for (String source: sources) {
             int index = untranslatedIndexMap.get(source);
@@ -136,12 +136,12 @@ public class PersistentTranslationService {
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
                 tf = createOrFetchTextFlow(
-                        new TextFlow(document, source, srcLocale));
+                        new TextFlow(document, source, fromLocale));
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),
                             translation.getRawTranslation(), tf,
-                            targetLocale, backendID);
+                            toLocale, backendID);
             createOrUpdateTextFlowTarget(target);
         }
         return results;

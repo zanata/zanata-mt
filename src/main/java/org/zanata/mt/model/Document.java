@@ -59,7 +59,7 @@ public class Document extends ModelEntity {
     }
 
     public Document(String url, Locale srcLocale, Locale targetLocale) {
-        this.url = url;
+        this.url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
         this.srcLocale = srcLocale;
         this.targetLocale = targetLocale;
         updateUrlHash();

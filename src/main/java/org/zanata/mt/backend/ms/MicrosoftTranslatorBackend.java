@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.EnvVariable;
@@ -100,13 +99,13 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
-            BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType)
+            BackendLocaleCode fromLocale,
+            BackendLocaleCode toLocale, MediaType mediaType)
             throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
-            req.setSrcLanguage(srcLocale.getLocaleCode());
-            req.setTransLanguage(targetLocale.getLocaleCode());
+            req.setSrcLanguage(fromLocale.getLocaleCode());
+            req.setTransLanguage(toLocale.getLocaleCode());
             for (String content: contents) {
                 req.getTexts().add(new MSString(content));
             }

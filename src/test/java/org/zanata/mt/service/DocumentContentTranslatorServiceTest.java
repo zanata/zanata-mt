@@ -133,7 +133,7 @@ public class DocumentContentTranslatorServiceTest {
                 .translateDocument(document, docContent, srcLocale, transLocale,
                         BackendID.MS);
 
-        assertThat(translatedDocContent.getLocale())
+        assertThat(translatedDocContent.getLocaleCode())
                 .isEqualTo(transLocale.getLocaleId().getId());
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());

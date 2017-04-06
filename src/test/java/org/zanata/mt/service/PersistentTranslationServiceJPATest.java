@@ -63,40 +63,40 @@ public class PersistentTranslationServiceJPATest {
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
         Document doc = new Document();
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
-        TextFlow expectedTf = new TextFlow(doc, sources.get(0), sourceLocale);
+        Locale fromLocale = new Locale(LocaleId.EN, "English");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
+        TextFlow expectedTf = new TextFlow(doc, sources.get(0), fromLocale);
         TextFlowTarget expectedTft =
                 new TextFlowTarget(
                         expectedTranslations.get(0).getPlainTranslation(),
                         expectedTranslations.get(0).getRawTranslation(),
-                        expectedTf, targetLocale, BackendID.MS);
+                        expectedTf, toLocale, BackendID.MS);
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(sourceLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash))
                 .thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        MSLocaleCode srcLang = new MSLocaleCode(sourceLocale.getLocaleId());
-        MSLocaleCode transLang = new MSLocaleCode(targetLocale.getLocaleId());
+        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleId());
+        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleId());
 
-        when(msBackend.getMappedLocale(sourceLocale.getLocaleId()))
-                .thenReturn(srcLang);
-        when(msBackend.getMappedLocale(targetLocale.getLocaleId()))
-                .thenReturn(transLang);
+        when(msBackend.getMappedLocale(fromLocale.getLocaleId()))
+                .thenReturn(fromLocaleCode);
+        when(msBackend.getMappedLocale(toLocale.getLocaleId()))
+                .thenReturn(toLocaleCode);
 
-        when(msBackend.translate(sources, srcLang, transLang,
+        when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE)).thenReturn(expectedTranslations);
 
         List<String> translations =
-                persistentTranslationService.translate(doc, sources, sourceLocale,
-                        targetLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+                persistentTranslationService.translate(doc, sources, fromLocale,
+                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(msBackend).translate(sources, srcLang, transLang,
+        verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations
@@ -111,27 +111,27 @@ public class PersistentTranslationServiceJPATest {
         String expectedTranslation = "translation of:" + sources.get(0);
         String expectedRawContent =
                 "<MSString>" + expectedTranslation + "</MSString>";
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleId.EN, "English");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
 
         Document doc = new Document();
 
-        TextFlow expectedTf = new TextFlow(doc, sources.get(0), sourceLocale);
+        TextFlow expectedTf = new TextFlow(doc, sources.get(0), fromLocale);
         TextFlowTarget expectedTft = new TextFlowTarget(expectedTranslation,
-                expectedRawContent, expectedTf, targetLocale, BackendID.MS);
+                expectedRawContent, expectedTf, toLocale, BackendID.MS);
         expectedTf.getTargets().add(expectedTft);
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(sourceLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash))
                 .thenReturn(expectedTf);
 
         List<String> translations =
                 persistentTranslationService
-                    .translate(doc, sources, sourceLocale, targetLocale,
+                    .translate(doc, sources, fromLocale, toLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(textFlowDAO).getByContentHash(sourceLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleId(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }

@@ -22,7 +22,7 @@ public class DocumentTest {
     public void testConstructor() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        Document doc = new Document("http://localhost",
+        Document doc = new Document("http://localhost/",
                 srcLocale, targetLocale);
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
         assertThat(doc.getSrcLocale()).isEqualTo(srcLocale);

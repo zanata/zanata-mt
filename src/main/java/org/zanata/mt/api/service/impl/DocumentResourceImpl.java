@@ -5,13 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
+import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
-import org.zanata.mt.api.service.DocumentContentTranslatorResource;
-import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.api.service.DocumentResource;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.util.UrlUtil;
@@ -22,16 +23,16 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @RequestScoped
-public class DocumentContentTranslatorResourceImpl
-        implements DocumentContentTranslatorResource {
+public class DocumentResourceImpl implements DocumentResource {
     private static final Logger LOG =
-            LoggerFactory.getLogger(DocumentContentTranslatorResourceImpl.class);
+            LoggerFactory.getLogger(DocumentResourceImpl.class);
 
     private DocumentContentTranslatorService documentContentTranslatorService;
 
@@ -40,11 +41,11 @@ public class DocumentContentTranslatorResourceImpl
     private DocumentDAO documentDAO;
 
     @SuppressWarnings("unused")
-    public DocumentContentTranslatorResourceImpl() {
+    public DocumentResourceImpl() {
     }
 
     @Inject
-    public DocumentContentTranslatorResourceImpl(
+    public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentDAO documentDAO) {
         this.documentContentTranslatorService =
@@ -54,76 +55,100 @@ public class DocumentContentTranslatorResourceImpl
     }
 
     @Override
+    public Response getStatistics(@QueryParam("url") String url,
+            @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode) {
+        if (StringUtils.isBlank(url)) {
+            APIResponse response =
+                    new APIResponse(Response.Status.BAD_REQUEST, "Empty url");
+            return Response.status(response.getStatus()).entity(response)
+                    .build();
+        }
+        try {
+            List<Document> documents = documentDAO
+                    .getByUrl(url, Optional.ofNullable(fromLocaleCode),
+                            Optional.ofNullable(toLocaleCode));
+
+            DocumentStatistics statistics = new DocumentStatistics(url);
+            for (Document document: documents) {
+                statistics.addRequestCount(
+                        document.getSrcLocale().getLocaleId().getId(),
+                        document.getTargetLocale().getLocaleId().getId(),
+                        document.getUsedCount());
+            }
+            return Response.ok().entity(statistics).build();
+        } catch (Exception e) {
+            return getUnexpectedError(e);
+        }
+    }
+
+    @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("targetLang") LocaleId targetLocaleId) {
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 
         Optional<APIResponse> errorResp =
-                validateTranslateRequest(docContent, targetLocaleId);
+                validateTranslateRequest(docContent, toLocaleCode);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
         }
 
         // if source locale == target locale, return docContent
-        LocaleId srcLocaleId = new LocaleId(docContent.getLocale());
-        if (srcLocaleId.equals(targetLocaleId)) {
-            LOG.info("Returning request as source and target locale are the same:" + srcLocaleId);
+        LocaleId fromLocaleCode = new LocaleId(docContent.getLocaleCode());
+        if (fromLocaleCode.equals(toLocaleCode)) {
+            LOG.info("Returning request as FROM and TO localeCode are the same:" + fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " targetLang"
-                    + targetLocaleId + " backendId:" + backendID.getId());
+            LOG.debug("Request translations:" + docContent + " toLocaleCode"
+                    + toLocaleCode + " backendId:" + backendID.getId());
         }
 
         try {
-            Locale srcLocale = getLocale(srcLocaleId);
-            Locale transLocale = getLocale(targetLocaleId);
+            Locale fromLocale = getLocale(fromLocaleCode);
+            Locale toLocale = getLocale(toLocaleCode);
 
-            org.zanata.mt.model.Document doc = documentDAO
-                    .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
+            Document doc = documentDAO
+                    .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, srcLocale, transLocale,
+                    .translateDocument(doc, docContent, fromLocale, toLocale,
                             backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
         } catch (BadRequestException e) {
-            String title = "Error";
-            LOG.error(title, e);
-            APIResponse response =
-                    new APIResponse(Response.Status.BAD_REQUEST, e, title);
-            return Response.status(Response.Status.BAD_REQUEST).entity(response)
-                    .build();
+            return getUnexpectedError(e);
         } catch (Exception e) {
-            String title = "Error";
-            LOG.error(title, e);
-            APIResponse response =
-                    new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
-                            e, title);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(response)
-                    .build();
+            return getUnexpectedError(e);
         }
     }
 
+    private Locale getLocale(@NotNull LocaleId localeId) {
+        Locale locale = localeDAO.getByLocaleId(localeId);
+        if (locale == null) {
+            throw new BadRequestException("Not supported locale:" + localeId);
+        }
+        return locale;
+    }
+
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,
-            LocaleId targetLang) {
-        if (targetLang == null) {
+            LocaleId toLocaleId) {
+        if (toLocaleId == null) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: targetLang"));
+                    "Invalid query param: toLocaleCode"));
         }
         if (docContent == null || docContent.getContents() == null ||
                 docContent.getContents().isEmpty()) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Empty content:" + docContent));
         }
-        if (StringUtils.isBlank(docContent.getLocale())) {
+        if (StringUtils.isBlank(docContent.getLocaleCode())) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Empty locale"));
+                    "Empty localeCode"));
         }
         if (StringUtils.isBlank(docContent.getUrl()) ||
                 !UrlUtil.isValidURL(docContent.getUrl())) {
@@ -156,11 +181,14 @@ public class DocumentContentTranslatorResourceImpl
         return Optional.empty();
     }
 
-    private Locale getLocale(@NotNull LocaleId localeId) {
-        Locale locale = localeDAO.getByLocaleId(localeId);
-        if (locale == null) {
-            throw new BadRequestException("Not supported locale:" + localeId);
-        }
-        return locale;
+    private Response getUnexpectedError(Exception e) {
+        String title = "Error";
+        LOG.error(title, e);
+        Response.Status status =
+                e instanceof BadRequestException ? Response.Status.BAD_REQUEST :
+                        Response.Status.INTERNAL_SERVER_ERROR;
+
+        APIResponse response = new APIResponse(status, e, title);
+        return Response.status(status).entity(response).build();
     }
 }
