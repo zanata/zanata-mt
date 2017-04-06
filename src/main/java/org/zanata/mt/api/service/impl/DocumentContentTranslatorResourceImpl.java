@@ -82,10 +82,8 @@ public class DocumentContentTranslatorResourceImpl
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(
-                    "Request translations:" + docContent + " targetLang"
-                            + targetLocaleId + " backendId:" +
-                            backendID.getId());
+            LOG.debug("Request translations:{}, targetLang:{}, backendId:{}",
+                    docContent, targetLocaleId, backendID.getId());
         }
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), srcLocaleId,

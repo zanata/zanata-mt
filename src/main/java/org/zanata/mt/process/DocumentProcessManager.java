@@ -33,15 +33,14 @@ public class DocumentProcessManager {
 
     public void lock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Locking document translation request." +
-                    key.toString());
+            LOG.debug("Locking document translation request:{}", key.toString());
         }
         lock.lock();
     }
 
     public void unlock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("release document translation lock." + key.toString());
+            LOG.debug("release document translation lock:{}", key.toString());
         }
         lock.unlock();
     }
