@@ -8,12 +8,14 @@ import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentContentTranslatorResource;
-import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
+import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.service.DocumentContentTranslatorService;
+import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
@@ -39,6 +41,8 @@ public class DocumentContentTranslatorResourceImpl
 
     private DocumentDAO documentDAO;
 
+    private DocumentProcessManager docProcessLock;
+
     @SuppressWarnings("unused")
     public DocumentContentTranslatorResourceImpl() {
     }
@@ -46,11 +50,13 @@ public class DocumentContentTranslatorResourceImpl
     @Inject
     public DocumentContentTranslatorResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentDAO documentDAO) {
+            LocaleDAO localeDAO, DocumentDAO documentDAO,
+            DocumentProcessManager docProcessLock) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentDAO = documentDAO;
+        this.docProcessLock = docProcessLock;
     }
 
     @Override
@@ -76,16 +82,21 @@ public class DocumentContentTranslatorResourceImpl
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " target_lang"
-                    + targetLocaleId + " backendId:" + backendID.getId());
+            LOG.debug("Request translations:{}, targetLang:{}, backendId:{}",
+                    docContent, targetLocaleId, backendID.getId());
         }
-
+        DocumentProcessKey key =
+                new DocumentProcessKey(docContent.getUrl(), srcLocaleId,
+                        targetLocaleId);
         try {
+            docProcessLock.lock(key);
+
             Locale srcLocale = getLocale(srcLocaleId);
             Locale transLocale = getLocale(targetLocaleId);
 
-            org.zanata.mt.model.Document doc = documentDAO
-                    .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
+            Document doc = documentDAO
+                    .getOrCreateByUrl(docContent.getUrl(), srcLocale,
+                            transLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID);
@@ -95,19 +106,20 @@ public class DocumentContentTranslatorResourceImpl
         } catch (BadRequestException e) {
             String title = "Error";
             LOG.error(title, e);
-            APIResponse response =
+            APIResponse apiResponse =
                     new APIResponse(Response.Status.BAD_REQUEST, e, title);
-            return Response.status(Response.Status.BAD_REQUEST).entity(response)
+            return Response.status(apiResponse.getStatus()).entity(apiResponse)
                     .build();
         } catch (Exception e) {
             String title = "Error";
             LOG.error(title, e);
-            APIResponse response =
+            APIResponse apiResponse =
                     new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
                             e, title);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(response)
+            return Response.status(apiResponse.getStatus()).entity(apiResponse)
                     .build();
+        } finally {
+            docProcessLock.unlock(key);
         }
     }
 
