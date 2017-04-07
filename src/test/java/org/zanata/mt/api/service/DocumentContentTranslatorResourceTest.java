@@ -234,8 +234,8 @@ public class DocumentContentTranslatorResourceTest {
                 transLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(new Document(), docContent, srcLocale,
-                transLocale, BackendID.MS)).thenReturn(translatedDocContent);
+                .translateDocument(doc, docContent, BackendID.MS))
+                .thenReturn(translatedDocContent);
 
         Response response =
                 documentContentTranslatorResource
@@ -273,8 +273,7 @@ public class DocumentContentTranslatorResourceTest {
                 .thenReturn(transLocale);
 
         doThrow(expectedException).when(documentContentTranslatorService)
-                .translateDocument(doc, documentContent, srcLocale,
-                        transLocale, BackendID.MS);
+                .translateDocument(doc, documentContent, BackendID.MS);
 
         Response response =
                 documentContentTranslatorResource

@@ -69,12 +69,14 @@ public class DocumentContentTranslatorResourceImpl
         // if source locale == target locale, return docContent
         LocaleId srcLocaleId = new LocaleId(docContent.getLocale());
         if (srcLocaleId.equals(targetLocaleId)) {
-            LOG.info("Returning request as source and target locale are the same:" + srcLocaleId);
+            LOG.info(
+                    "Returning request as source and target locale are the same:" +
+                            srcLocaleId);
             return Response.ok().entity(docContent).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " targetLang"
+            LOG.debug("Request translations:" + docContent + " target_lang"
                     + targetLocaleId + " backendId:" + backendID.getId());
         }
 
@@ -86,8 +88,7 @@ public class DocumentContentTranslatorResourceImpl
                     .getOrCreateByUrl(docContent.getUrl(), srcLocale, transLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, srcLocale, transLocale,
-                            backendID);
+                    .translateDocument(doc, docContent, backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
