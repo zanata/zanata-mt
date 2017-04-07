@@ -82,7 +82,7 @@ class MicrosoftTranslatorClient {
         if (response.getStatusInfo() != Response.Status.OK) {
             throw new ZanataMTException(
                     "Error from Microsoft Translator API:"
-                            + response.getStatusInfo().toString());
+                            + response.getStatusInfo().getReasonPhrase());
         }
         String xml = response.readEntity(String.class);
         response.close();
@@ -107,8 +107,7 @@ class MicrosoftTranslatorClient {
 
             if (response.getStatusInfo() != Response.Status.OK) {
                 throw new ZanataMTException(
-                        "Error getting token"
-                                + response.getStatusInfo().toString());
+                        "Error getting token:" + response.getStatusInfo().getReasonPhrase());
             }
             return response.readEntity(String.class);
         } finally {

@@ -29,6 +29,7 @@ import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
+import org.zanata.mt.util.ExceptionUtil;
 import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
@@ -135,8 +136,7 @@ public class PersistentTranslationService {
 
             TextFlow tf = indexTextFlowMap.get(index);
             if (tf == null) {
-                tf = createOrFetchTextFlow(
-                        new TextFlow(document, source, srcLocale));
+                tf = createOrFetchTextFlow(document, source, srcLocale);
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),
@@ -151,13 +151,19 @@ public class PersistentTranslationService {
      * This is to handle concurrent db request for 2 same text flow is being
      * persisted at the same time.
      */
-    private TextFlow createOrFetchTextFlow(TextFlow tf) {
+    private TextFlow createOrFetchTextFlow(Document document, String source,
+            Locale locale) {
+        TextFlow tf = new TextFlow(document, source, locale);
         try {
-            return textFlowDAO.persist(tf);
-        } catch (ConstraintViolationException e) {
-            return textFlowDAO
-                    .getByContentHash(tf.getLocale().getLocaleId(),
-                            tf.getContentHash());
+            tf = textFlowDAO.persist(tf);
+        } catch (Exception e) {
+            if (ExceptionUtil.isConstraintViolationException(e)) {
+                tf = textFlowDAO
+                        .getByContentHash(locale.getLocaleId(),
+                                tf.getContentHash());
+            }
+        } finally {
+            return tf;
         }
     }
 
@@ -193,7 +199,7 @@ public class PersistentTranslationService {
         return Optional.empty();
     }
 
-    public BackendLocaleCode getMappedLocale(@Nonnull LocaleId localeId) {
+    public BackendLocaleCode getMappedLocale(@NotNull LocaleId localeId) {
         return microsoftTranslatorBackend.getMappedLocale(localeId);
     }
 }

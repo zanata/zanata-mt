@@ -37,7 +37,6 @@ public interface BackendResource {
     @Path("/attribution")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"image/png", "application/json"})
-    @TypeHint(StreamingOutput.class)
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
             @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIResponse.class)),

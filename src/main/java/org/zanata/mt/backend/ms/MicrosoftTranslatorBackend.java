@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.EnvVariable;

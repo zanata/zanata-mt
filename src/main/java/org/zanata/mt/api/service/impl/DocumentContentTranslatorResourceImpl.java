@@ -99,9 +99,7 @@ public class DocumentContentTranslatorResourceImpl
                             transLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, srcLocale,
-                            transLocale,
-                            backendID);
+                    .translateDocument(doc, docContent, backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
