@@ -14,6 +14,8 @@ import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
+import org.zanata.mt.process.DocumentProcessKey;
+import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.util.UrlUtil;
 
@@ -40,6 +42,8 @@ public class DocumentResourceImpl implements DocumentResource {
 
     private DocumentDAO documentDAO;
 
+    private DocumentProcessManager docProcessManager;
+
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
     }
@@ -47,11 +51,13 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentDAO documentDAO) {
+            LocaleDAO localeDAO, DocumentDAO documentDAO,
+            DocumentProcessManager docProcessManager) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentDAO = documentDAO;
+        this.docProcessManager = docProcessManager;
     }
 
     @Override
@@ -107,7 +113,12 @@ public class DocumentResourceImpl implements DocumentResource {
                     + toLocaleCode + " backendId:" + backendID.getId());
         }
 
+        DocumentProcessKey key =
+                new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
+                        toLocaleCode);
         try {
+            docProcessManager.lock(key);
+
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
@@ -115,24 +126,15 @@ public class DocumentResourceImpl implements DocumentResource {
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, fromLocale, toLocale,
-                            backendID);
+                    .translateDocument(doc, docContent, backendID);
             doc.incrementUsedCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
-        } catch (BadRequestException e) {
-            return getUnexpectedError(e);
         } catch (Exception e) {
             return getUnexpectedError(e);
+        } finally {
+            docProcessManager.unlock(key);
         }
-    }
-
-    private Locale getLocale(@NotNull LocaleId localeId) {
-        Locale locale = localeDAO.getByLocaleId(localeId);
-        if (locale == null) {
-            throw new BadRequestException("Not supported locale:" + localeId);
-        }
-        return locale;
     }
 
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,
@@ -190,5 +192,13 @@ public class DocumentResourceImpl implements DocumentResource {
 
         APIResponse response = new APIResponse(status, e, title);
         return Response.status(status).entity(response).build();
+    }
+
+    private Locale getLocale(@NotNull LocaleId localeCode) {
+        Locale locale = localeDAO.getByLocaleId(localeCode);
+        if (locale == null) {
+            throw new BadRequestException("Not supported locale:" + localeCode);
+        }
+        return locale;
     }
 }

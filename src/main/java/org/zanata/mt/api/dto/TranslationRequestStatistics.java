@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 /**
- * Statistics entry for single a single request with unique key
+ * Statistics entry for a single request with unique key
  * fromLocaleCode, toLocaleCode, count
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

@@ -59,9 +59,6 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                     LocaleId.ZH_HANT, new MSLocaleCode("zh-CHT")
             );
 
-    // http://stackoverflow.com/questions/19652272/cant-find-microsoft-translators-categories/24825467#24825467
-    private final static String CATEGORY = "Technology";
-
     private String clientSubscriptionKey;
 
     private MicrosoftTranslatorClient api;
@@ -111,7 +108,6 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
             options.setContentType(mediaType.toString());
-            options.setCategory(CATEGORY);
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);
