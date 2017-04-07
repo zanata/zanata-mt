@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.service.DocumentContentTranslatorService.PLACEHOLDER_THRESHOLD;
+import static org.zanata.mt.api.service.DocumentResource.MAX_LENGTH;
 
 import java.util.List;
 
@@ -68,29 +68,38 @@ public class DocumentContentTranslatorServiceTest {
     public void testTranslateDocumentContent() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        String overMaxHTML = "<div class=\"code-raw\"><pre>" + StringUtils.repeat("t",
-                PLACEHOLDER_THRESHOLD) + "</pre></div>";
+        String overMaxHTML = "<pre>" + StringUtils.repeat("t",
+                MAX_LENGTH) + "</pre>";
 
         List<String> htmls =
-                Lists.newArrayList("<html><body>Entry 1</body></html>",
-                        "<html><body>Entry 2</body></html>",
-                        "<html><body>Entry 5</body></html>",
-                        "<div class=\"code-raw\"><pre>KCS code section</pre></div>",
+                Lists.newArrayList("<div>Entry 1</div>",
+                        "<div>Entry 2</div>",
+                        "<div>Entry 5</div>",
+                        "<pre>KCS code section</pre>",
                         "<div translate=\"no\">non translatable node</div>",
                         "<div id=\"private-notes\"><span>private notes</span></div>",
                         overMaxHTML);
 
-        List<String> postProcessedHTML = htmls.subList(0, 6);
+        List<String> processedHtmls =
+                Lists.newArrayList("<div>Entry 1</div>",
+                        "<div>Entry 2</div>",
+                        "<div>Entry 5</div>",
+                        "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-8-0\" translate=\"no\"></span>");
 
         List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
 
         List<String> translatedHtmls =
-                Lists.newArrayList("<html><body>MS: Entry 1</body></html>",
-                        "<html><body>MS: Entry 2</body></html>",
-                        "<html><body>MS: Entry 5</body></html>",
-                        "<div class=\"code-raw\"><pre>KCS code section</pre></div>",
-                        "<div translate=\"no\">non translatable node</div>",
-                        "<div id=\"private-notes\"><span>private notes</span></div>");
+                Lists.newArrayList("<div>MS: Entry 1</div>",
+                        "<div>MS: Entry 2</div>",
+                        "<div>MS: Entry 5</div>",
+                        "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",
+                        "<span id=\"ZNTA-8-0\" translate=\"no\"></span>");
+
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
 
         List<TypeString> contents = Lists.newArrayList(
@@ -116,22 +125,19 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost", "en");
-        Document document = new Document();
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
 
-        when(persistentTranslationService.translate(document, postProcessedHTML,
-                srcLocale,
-                transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
+        when(persistentTranslationService.translate(document, processedHtmls,
+                srcLocale, transLocale, BackendID.MS, MediaType.TEXT_HTML_TYPE))
                 .thenReturn(translatedHtmls);
 
         when(persistentTranslationService.translate(document, text,
-                srcLocale,
-                transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+                srcLocale, transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
                 .thenReturn(translatedText);
 
-
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, srcLocale, transLocale,
-                        BackendID.MS);
+                .translateDocument(document, docContent, BackendID.MS);
 
         assertThat(translatedDocContent.getLocaleCode())
                 .isEqualTo(transLocale.getLocaleId().getId());
@@ -153,18 +159,16 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getContents().get(4))
                 .isEqualTo(translatedContents.get(4));
 
-        assertThat(translatedDocContent.getContents().get(5).getValue().trim().replaceAll("\n", "")
-                .replaceAll(">\\s+<", "><"))
+        assertThat(translatedDocContent.getContents().get(5).getValue().trim()
+                .replaceAll(">\\s+", ">").replaceAll("\\s+<", "<"))
                 .isEqualTo(htmls.get(3));
 
-        assertThat(translatedDocContent.getContents().get(6).getValue().trim().replaceAll("\n", "")
-                .replaceAll(">\\s+<", "><"))
+        assertThat(translatedDocContent.getContents().get(6).getValue().trim()
+                .replaceAll(">\\s+", ">").replaceAll("\\s+<", "<"))
                 .isEqualTo(htmls.get(4));
 
-        assertThat(translatedDocContent.getWarnings()).hasSize(1);
-
         verify(persistentTranslationService)
-                .translate(document, postProcessedHTML, srcLocale, transLocale, BackendID.MS,
+                .translate(document, processedHtmls, srcLocale, transLocale, BackendID.MS,
                         MediaType.TEXT_HTML_TYPE);
 
         verify(persistentTranslationService)

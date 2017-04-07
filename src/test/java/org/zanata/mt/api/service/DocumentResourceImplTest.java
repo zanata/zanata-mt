@@ -23,6 +23,8 @@ import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.process.DocumentProcessKey;
+import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 
 import java.util.List;
@@ -51,12 +53,18 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentDAO documentDAO;
 
+    @Mock
+    private DocumentProcessManager docProcessLock;
+
     @Before
     public void beforeTest() {
         documentResource =
-                new DocumentResourceImpl(documentContentTranslatorService, localeDAO, documentDAO);
-        when(documentContentTranslatorService.isMediaTypeSupported("text/plain")).thenReturn(true);
-        when(documentContentTranslatorService.isMediaTypeSupported("text/html")).thenReturn(true);
+                new DocumentResourceImpl(documentContentTranslatorService,
+                        localeDAO, documentDAO, docProcessLock);
+        when(documentContentTranslatorService
+                .isMediaTypeSupported("text/plain")).thenReturn(true);
+        when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
+                .thenReturn(true);
     }
 
     @Test
@@ -258,7 +266,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateSameLocale() {
+    public void testSameLocale() {
         Locale locale = new Locale(LocaleId.EN, "English");
 
         DocumentContent
@@ -291,8 +299,8 @@ public class DocumentResourceImplTest {
 
     @Test
     public void testTranslateDocumentContent() {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleId.EN, "English");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
 
         List<String> htmls =
                 Lists.newArrayList("<html><body>Entry 1</body></html>",
@@ -324,25 +332,25 @@ public class DocumentResourceImplTest {
                 docContent = new DocumentContent(contents, "http://localhost", "en");
         DocumentContent translatedDocContent =
                 new DocumentContent(translatedContents, "http://localhost",
-                        transLocale.getLocaleId().getId());
+                        toLocale.getLocaleId().getId());
 
         org.zanata.mt.model.Document
                 doc = Mockito.mock(org.zanata.mt.model.Document.class);
 
-        when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
-                .thenReturn(srcLocale);
-        when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
-                .thenReturn(transLocale);
-        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), srcLocale,
-                transLocale)).thenReturn(doc);
+        when(localeDAO.getByLocaleId(fromLocale.getLocaleId()))
+                .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleId(toLocale.getLocaleId()))
+                .thenReturn(toLocale);
+        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(new Document(), docContent, srcLocale,
-                transLocale, BackendID.MS)).thenReturn(translatedDocContent);
+                .translateDocument(doc, docContent, BackendID.MS))
+                .thenReturn(translatedDocContent);
 
         Response response =
                 documentResource
-                        .translate(docContent, transLocale.getLocaleId());
+                        .translate(docContent, toLocale.getLocaleId());
 
         assertThat(response.getStatus())
                     .isEqualTo(Response.Status.OK.getStatusCode());
@@ -350,7 +358,12 @@ public class DocumentResourceImplTest {
 
         assertThat(returnedDocContent.getContents()).isEqualTo(translatedContents);
         assertThat(returnedDocContent.getLocaleCode())
-                .isEqualTo(transLocale.getLocaleId().getId());
+                .isEqualTo(toLocale.getLocaleId().getId());
+
+        DocumentProcessKey key =
+                new DocumentProcessKey(docContent.getUrl(),
+                        fromLocale.getLocaleId(), toLocale.getLocaleId());
+        verify(docProcessLock).lock(key);
         verify(doc).incrementUsedCount();
         verify(documentDAO).persist(doc);
     }
@@ -376,8 +389,7 @@ public class DocumentResourceImplTest {
                 .thenReturn(transLocale);
 
         doThrow(expectedException).when(documentContentTranslatorService)
-                .translateDocument(doc, documentContent, srcLocale,
-                        transLocale, BackendID.MS);
+                .translateDocument(doc, documentContent, BackendID.MS);
 
         Response response =
                 documentResource
@@ -385,6 +397,10 @@ public class DocumentResourceImplTest {
 
         assertThat(response.getStatus())
                 .isEqualTo(expectedStatus.getStatusCode());
+        DocumentProcessKey key =
+                new DocumentProcessKey(documentContent.getUrl(),
+                        srcLocale.getLocaleId(), transLocale.getLocaleId());
+        verify(docProcessLock).lock(key);
     }
 
 }
