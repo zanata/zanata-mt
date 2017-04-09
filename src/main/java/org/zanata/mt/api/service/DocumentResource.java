@@ -47,7 +47,7 @@ public interface DocumentResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/getStatistics")
+    @Path("/statistics")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Return getStatistics for given document ", type = @TypeHint(DocumentStatistics.class)),
             @ResponseCode(code = 400, condition = "Missing url", type = @TypeHint(APIResponse.class)),

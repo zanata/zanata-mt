@@ -63,7 +63,8 @@ public class DocumentDAOTest extends JPATest {
     @Test
     public void testGetListByUrlWithSourceLocale() {
         List<Document> docs =
-                dao.getByUrl("http://localhost", Optional.of(fromLocale.getLocaleId()),
+                dao.getByUrl("http://localhost",
+                        Optional.of(fromLocale.getLocaleId()),
                         Optional.empty());
         assertThat(docs).hasSize(2);
     }
@@ -71,7 +72,8 @@ public class DocumentDAOTest extends JPATest {
     @Test
     public void testGetListByUrlWithSourceAndTargetLocale() {
         List<Document> docs =
-                dao.getByUrl("http://localhost", Optional.of(fromLocale.getLocaleId()),
+                dao.getByUrl("http://localhost",
+                        Optional.of(fromLocale.getLocaleId()),
                         Optional.of(toLocale.getLocaleId()));
         assertThat(docs).hasSize(1);
     }
@@ -107,12 +109,13 @@ public class DocumentDAOTest extends JPATest {
     public void testPreUpdate() {
         Document doc = dao.getByUrl("http://localhost", fromLocale, toLocale);
         Date lastChanged = doc.getLastChanged();
-        doc.incrementUsedCount();
+        doc.incrementCount();
         dao.persist(doc);
         dao.flush();
         doc = dao.getByUrl("http://localhost", fromLocale, toLocale);
         assertThat(doc.getLastChanged()).isNotNull()
                 .isNotEqualTo(lastChanged);
+        assertThat(doc.getCount()).isEqualTo(1);
     }
 
     @Override

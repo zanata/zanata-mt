@@ -32,33 +32,23 @@ public class BackendResourceImpl implements BackendResource {
 
     @Override
     public Response getAttribution(@QueryParam("id") String id) {
-        try {
-            Optional<APIResponse> response = validateId(id);
-            if (response.isPresent()) {
-                return Response.status(response.get().getStatus())
-                        .entity(response.get()).build();
-            }
-
-            BackendID backendID = new BackendID(id.toUpperCase());
-            String imageResource = getAttributionImageResource(backendID);
-            String docName = id + "-attribution.png";
-
-            ClassLoader classLoader = this.getClass().getClassLoader();
-            InputStream is = classLoader.getResourceAsStream(imageResource);
-            StreamingOutput output =
-                    new InputStreamStreamingOutput(is);
-            return Response.ok().header("Content-Disposition",
-                    "attachment; filename=\"" + docName + "\"")
-                    .entity(output).build();
-        } catch (Exception e) {
-            String title = "Error";
-            LOG.error(title, e);
-            APIResponse response =
-                    new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
-                            e, title);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(response).build();
+        Optional<APIResponse> response = validateId(id);
+        if (response.isPresent()) {
+            return Response.status(response.get().getStatus())
+                    .entity(response.get()).build();
         }
+
+        BackendID backendID = new BackendID(id.toUpperCase());
+        String imageResource = getAttributionImageResource(backendID);
+        String docName = id + "-attribution.png";
+
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        InputStream is = classLoader.getResourceAsStream(imageResource);
+        StreamingOutput output =
+                new InputStreamStreamingOutput(is);
+        return Response.ok().header("Content-Disposition",
+                "attachment; filename=\"" + docName + "\"")
+                .entity(output).build();
     }
 
     private String getAttributionImageResource(BackendID backendID) {

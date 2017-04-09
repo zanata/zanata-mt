@@ -32,8 +32,7 @@ public class DocumentDAO extends AbstractDAO<Document> {
     }
 
     public List<Document> getByUrl(@NotNull String url,
-            Optional<LocaleId> fromLocaleCode,
-            Optional<LocaleId> toLocaleCode) {
+            Optional<LocaleId> fromLocaleCode, Optional<LocaleId> toLocaleCode) {
         String urlHash = HashUtil.generateHash(url);
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("from Document where urlHash =:urlHash");

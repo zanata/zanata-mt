@@ -2,7 +2,6 @@ package org.zanata.mt.api.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.DocumentsResource;
 import org.zanata.mt.dao.DocumentDAO;
 
@@ -31,17 +30,7 @@ public class DocumentsResourceImpl implements DocumentsResource {
 
     @Override
     public Response getDocumentUrls() {
-        try {
-            List<String> urls = documentDAO.getUrlList();
-            return Response.ok().entity(urls).build();
-        } catch (Exception e) {
-            String title = "Error";
-            LOG.error(title, e);
-            APIResponse response =
-                    new APIResponse(Response.Status.INTERNAL_SERVER_ERROR,
-                            e, title);
-            return Response.status(response.getStatus()).entity(response)
-                    .build();
-        }
+        List<String> urls = documentDAO.getUrlList();
+        return Response.ok().entity(urls).build();
     }
 }

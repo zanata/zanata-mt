@@ -42,7 +42,7 @@ public class Document extends ModelEntity {
     @JoinColumn(name = "targetLocaleId", nullable = false, updatable = false)
     private Locale targetLocale;
 
-    private int usedCount;
+    private int count;
 
     @NotEmpty
     @Size(max = 255)
@@ -87,8 +87,8 @@ public class Document extends ModelEntity {
         return targetLocale;
     }
 
-    public int getUsedCount() {
-        return usedCount;
+    public int getCount() {
+        return count;
     }
 
     public String getUrlHash() {
@@ -99,8 +99,8 @@ public class Document extends ModelEntity {
         return textFlows;
     }
 
-    public void incrementUsedCount() {
-        this.usedCount += 1;
+    public void incrementCount() {
+        this.count += 1;
     }
 
     @Override
