@@ -31,14 +31,14 @@ public interface BackendResource {
      * Retrieve backend attribution (image) based on given id
      *
      * @param id
-     *      id for machine translations backend
+     *      ID for machine translations backend
      */
     @GET
     @Path("/attribution")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"image/png", "application/json"})
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
+            @ResponseCode(code = 200, condition = "Attribution found for given id", type = @TypeHint(StreamingOutput.class)),
             @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIResponse.class))
     })

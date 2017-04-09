@@ -94,9 +94,9 @@ public class DocumentResourceImplTest {
 
         List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
-        document1.incrementUsedCount();
+        document1.incrementCount();
         Document document2 = new Document(url, toLocale, fromLocale);
-        document2.incrementUsedCount();
+        document2.incrementCount();
         expectedDocList.add(document1);
         expectedDocList.add(document2);
 
@@ -125,7 +125,7 @@ public class DocumentResourceImplTest {
 
         List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
-        document1.incrementUsedCount();
+        document1.incrementCount();
         expectedDocList.add(document1);
 
         when(documentDAO
@@ -145,7 +145,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testStatisticsWithToLocale() {
+    public void testStatisticsWithToLocale () {
         String url = "http://localhost";
 
         LocaleId fromLocaleCode = LocaleId.EN_US;
@@ -155,7 +155,7 @@ public class DocumentResourceImplTest {
 
         List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
-        document1.incrementUsedCount();
+        document1.incrementCount();
         expectedDocList.add(document1);
 
         when(documentDAO
@@ -288,16 +288,6 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateDocumentContentBackendFailed() {
-        testDocumentContentFailed(new BadRequestException(), Response.Status.BAD_REQUEST);
-    }
-
-    @Test
-    public void testTranslateDocumentContentInternalError() {
-        testDocumentContentFailed(new ZanataMTException("error"), Response.Status.INTERNAL_SERVER_ERROR);
-    }
-
-    @Test
     public void testTranslateDocumentContent() {
         Locale fromLocale = new Locale(LocaleId.EN, "English");
         Locale toLocale = new Locale(LocaleId.DE, "German");
@@ -364,43 +354,7 @@ public class DocumentResourceImplTest {
                 new DocumentProcessKey(docContent.getUrl(),
                         fromLocale.getLocaleId(), toLocale.getLocaleId());
         verify(docProcessLock).lock(key);
-        verify(doc).incrementUsedCount();
+        verify(doc).incrementCount();
         verify(documentDAO).persist(doc);
     }
-
-    private void testDocumentContentFailed(Exception expectedException,
-            Response.Status expectedStatus) {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
-
-        List<TypeString> contents = Lists.newArrayList(
-                new TypeString("<html>test</html>", MediaType.TEXT_HTML,
-                        "meta"));
-        DocumentContent
-                documentContent = new DocumentContent(contents, "http://localhost",
-                srcLocale.getLocaleId().getId());
-        Document doc = new Document();
-
-        when(documentDAO.getOrCreateByUrl(documentContent.getUrl(), srcLocale,
-                transLocale)).thenReturn(doc);
-        when(localeDAO.getByLocaleId(srcLocale.getLocaleId()))
-                .thenReturn(srcLocale);
-        when(localeDAO.getByLocaleId(transLocale.getLocaleId()))
-                .thenReturn(transLocale);
-
-        doThrow(expectedException).when(documentContentTranslatorService)
-                .translateDocument(doc, documentContent, BackendID.MS);
-
-        Response response =
-                documentResource
-                        .translate(documentContent, transLocale.getLocaleId());
-
-        assertThat(response.getStatus())
-                .isEqualTo(expectedStatus.getStatusCode());
-        DocumentProcessKey key =
-                new DocumentProcessKey(documentContent.getUrl(),
-                        srcLocale.getLocaleId(), transLocale.getLocaleId());
-        verify(docProcessLock).lock(key);
-    }
-
 }

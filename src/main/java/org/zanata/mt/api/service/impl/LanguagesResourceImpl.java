@@ -1,6 +1,5 @@
 package org.zanata.mt.api.service.impl;
 
-import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.LanguagesResource;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Locale;
@@ -30,18 +29,11 @@ public class LanguagesResourceImpl implements LanguagesResource {
 
     @Override
     public Response getSupportedLanguages() {
-        try {
-            List<Locale> locales = localeDAO.getSupportedLocales();
-            List<org.zanata.mt.api.dto.Locale> dtos = locales.stream()
-                    .map(locale -> new org.zanata.mt.api.dto.Locale(
-                            locale.getLocaleId().getId(), locale.getName()))
-                    .collect(Collectors.toList());
-            return Response.ok().entity(dtos).build();
-        } catch (Exception e) {
-            APIResponse response = new APIResponse(Response.Status.BAD_REQUEST,
-                    e, "Unexpected error");
-            return Response.status(response.getStatus())
-                    .entity(response).build();
-        }
+        List<Locale> locales = localeDAO.getSupportedLocales();
+        List<org.zanata.mt.api.dto.Locale> dtos = locales.stream()
+                .map(locale -> new org.zanata.mt.api.dto.Locale(
+                        locale.getLocaleId().getId(), locale.getName()))
+                .collect(Collectors.toList());
+        return Response.ok().entity(dtos).build();
     }
 }

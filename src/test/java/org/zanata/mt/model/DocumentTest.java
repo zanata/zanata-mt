@@ -50,10 +50,10 @@ public class DocumentTest {
     @Test
     public void testIncrementUsedCount() {
         Document doc = new Document();
-        int useCount = doc.getUsedCount();
+        int useCount = doc.getCount();
         assertThat(useCount).isEqualTo(0);
-        doc.incrementUsedCount();
-        int newUseCount = doc.getUsedCount();
+        doc.incrementCount();
+        int newUseCount = doc.getCount();
         assertThat(newUseCount).isNotEqualTo(useCount).isEqualTo(useCount + 1);
     }
 

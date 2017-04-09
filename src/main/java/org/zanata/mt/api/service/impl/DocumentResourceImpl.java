@@ -21,7 +21,6 @@ import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
@@ -70,22 +69,18 @@ public class DocumentResourceImpl implements DocumentResource {
             return Response.status(response.getStatus()).entity(response)
                     .build();
         }
-        try {
-            List<Document> documents = documentDAO
-                    .getByUrl(url, Optional.ofNullable(fromLocaleCode),
-                            Optional.ofNullable(toLocaleCode));
+        List<Document> documents = documentDAO
+                .getByUrl(url, Optional.ofNullable(fromLocaleCode),
+                        Optional.ofNullable(toLocaleCode));
 
-            DocumentStatistics statistics = new DocumentStatistics(url);
-            for (Document document: documents) {
-                statistics.addRequestCount(
-                        document.getSrcLocale().getLocaleId().getId(),
-                        document.getTargetLocale().getLocaleId().getId(),
-                        document.getUsedCount());
-            }
-            return Response.ok().entity(statistics).build();
-        } catch (Exception e) {
-            return getUnexpectedError(e);
+        DocumentStatistics statistics = new DocumentStatistics(url);
+        for (Document document: documents) {
+            statistics.addRequestCount(
+                    document.getSrcLocale().getLocaleId().getId(),
+                    document.getTargetLocale().getLocaleId().getId(),
+                    document.getCount());
         }
+        return Response.ok().entity(statistics).build();
     }
 
     @Override
@@ -127,11 +122,9 @@ public class DocumentResourceImpl implements DocumentResource {
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID);
-            doc.incrementUsedCount();
+            doc.incrementCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
-        } catch (Exception e) {
-            return getUnexpectedError(e);
         } finally {
             docProcessManager.unlock(key);
         }
@@ -183,18 +176,10 @@ public class DocumentResourceImpl implements DocumentResource {
         return Optional.empty();
     }
 
-    private Response getUnexpectedError(Exception e) {
-        String title = "Error";
-        LOG.error(title, e);
-        Response.Status status =
-                e instanceof BadRequestException ? Response.Status.BAD_REQUEST :
-                        Response.Status.INTERNAL_SERVER_ERROR;
-
-        APIResponse response = new APIResponse(status, e, title);
-        return Response.status(status).entity(response).build();
-    }
-
-    private Locale getLocale(@NotNull LocaleId localeCode) {
+    private Locale getLocale(LocaleId localeCode) throws BadRequestException {
+        if (localeCode == null) {
+            return null;
+        }
         Locale locale = localeDAO.getByLocaleId(localeCode);
         if (locale == null) {
             throw new BadRequestException("Not supported locale:" + localeCode);

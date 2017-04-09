@@ -40,18 +40,21 @@ public interface DocumentResource {
     /**
      * Get request count for a document with given url
      *
-     * @param url - url of the document, mandatory field
-     * @param fromLocaleCode - localeCode of the document, optional
-     * @param toLocaleCode - translation localeCode of the document, optional
+     * @param url
+     *      URL of the document, mandatory field
+     * @param fromLocaleCode
+     *      Language code of the document, optional
+     * @param toLocaleCode
+     *      Language code of translation for the document, optional
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/getStatistics")
+    @Path("/statistics")
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Return getStatistics for given document ", type = @TypeHint(DocumentStatistics.class)),
+            @ResponseCode(code = 200, condition = "Return statistics for given document", type = @TypeHint(DocumentStatistics.class)),
             @ResponseCode(code = 400, condition = "Missing url", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error", type = @TypeHint(APIResponse.class))
     })
     Response getStatistics(@QueryParam("url") String url,
             @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
@@ -66,17 +69,17 @@ public interface DocumentResource {
      *
      * Maximum accepted characters in a request is 10000 {@link #MAX_LENGTH}
      *
-     * @param toLocaleId
-     *      language code to translate to
+     * @param toLocaleCode
+     *      Language code to translate to
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/translate")
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Document is translated with given locale.", type = @TypeHint(DocumentContent.class)),
+            @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
             @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation.", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error during translation", type = @TypeHint(APIResponse.class))
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,

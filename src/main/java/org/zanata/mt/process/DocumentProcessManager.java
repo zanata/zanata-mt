@@ -49,7 +49,7 @@ public class DocumentProcessManager {
         return lock.isLocked();
     }
 
-    public ReentrantLock getLock() {
+    public ReentrantLock getLock(@NotNull DocumentProcessKey key) {
         return lock;
     }
 }
