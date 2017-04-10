@@ -8,6 +8,7 @@ import org.zanata.mt.JPATest;
 import org.zanata.mt.api.dto.LocaleId;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
+import org.zanata.mt.service.DateRange;
 
 import java.util.Date;
 import java.util.List;
@@ -53,11 +54,22 @@ public class DocumentDAOTest extends JPATest {
     }
 
     @Test
-    public void testGetListByUrl() {
+    public void testGetListByUrlAll() {
         List<Document> docs =
                 dao.getByUrl("http://localhost", Optional.empty(),
-                        Optional.empty());
+                        Optional.empty(), Optional.empty());
         assertThat(docs).hasSize(3);
+    }
+
+    @Test
+    public void testGetListByUrlOldRecord() {
+        Optional<DateRange> dateRange =
+                Optional.of(DateRange.from("2000-01-01..2000-01-01"));
+
+        List<Document> docs =
+                dao.getByUrl("http://localhost", Optional.empty(),
+                        Optional.empty(), dateRange);
+        assertThat(docs).isEmpty();
     }
 
     @Test
@@ -65,7 +77,7 @@ public class DocumentDAOTest extends JPATest {
         List<Document> docs =
                 dao.getByUrl("http://localhost",
                         Optional.of(fromLocale.getLocaleId()),
-                        Optional.empty());
+                        Optional.empty(), Optional.empty());
         assertThat(docs).hasSize(2);
     }
 
@@ -74,7 +86,7 @@ public class DocumentDAOTest extends JPATest {
         List<Document> docs =
                 dao.getByUrl("http://localhost",
                         Optional.of(fromLocale.getLocaleId()),
-                        Optional.of(toLocale.getLocaleId()));
+                        Optional.of(toLocale.getLocaleId()), Optional.empty());
         assertThat(docs).hasSize(1);
     }
 
@@ -86,9 +98,19 @@ public class DocumentDAOTest extends JPATest {
     }
 
     @Test
-    public void testGetUrlList() throws Exception {
-        List<String> urls = dao.getUrlList();
+    public void testGetUrlListAll() throws Exception {
+        List<String> urls = dao.getUrlList(Optional.empty());
         assertThat(urls).hasSize(2);
+    }
+
+    @Test
+    public void testGetUrlListOldRecord() throws Exception {
+        String dateRangeParam = "2000-01-01..2000-01-01";
+        Optional<DateRange> dateParam =
+                Optional.ofNullable(DateRange.from(dateRangeParam));
+
+        List<String> urls = dao.getUrlList(dateParam);
+        assertThat(urls).isEmpty();
     }
 
     @Test

@@ -78,7 +78,7 @@ public class DocumentResourceImplTest {
         LocaleId fromLocaleCode = LocaleId.EN_US;
         LocaleId toLocaleCode = LocaleId.DE;
         Response response = documentResource
-                .getStatistics(null, fromLocaleCode, toLocaleCode);
+                .getStatistics(null, fromLocaleCode, toLocaleCode, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -100,18 +100,20 @@ public class DocumentResourceImplTest {
         expectedDocList.add(document1);
         expectedDocList.add(document2);
 
-        when(documentDAO.getByUrl(url, Optional.empty(), Optional.empty()))
+        when(documentDAO.getByUrl(url, Optional.empty(), Optional.empty(),
+                Optional.empty()))
                 .thenReturn(expectedDocList);
 
         Response response = documentResource
-                .getStatistics(url, null, null);
+                .getStatistics(url, null, null, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
         DocumentStatistics docStats = (DocumentStatistics)response.getEntity();
         assertThat(docStats.getUrl()).isEqualTo(url);
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
-        verify(documentDAO).getByUrl(url, Optional.empty(), Optional.empty());
+        verify(documentDAO).getByUrl(url, Optional.empty(), Optional.empty(),
+                Optional.empty());
     }
 
     @Test
@@ -129,11 +131,12 @@ public class DocumentResourceImplTest {
         expectedDocList.add(document1);
 
         when(documentDAO
-                .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty()))
+                .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty(),
+                        Optional.empty()))
                 .thenReturn(expectedDocList);
 
         Response response = documentResource
-                .getStatistics(url, fromLocaleCode, null);
+                .getStatistics(url, fromLocaleCode, null, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
         DocumentStatistics docStats = (DocumentStatistics)response.getEntity();
@@ -141,7 +144,7 @@ public class DocumentResourceImplTest {
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
         verify(documentDAO)
-                .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty());
+                .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty(), Optional.empty());
     }
 
     @Test
@@ -159,11 +162,12 @@ public class DocumentResourceImplTest {
         expectedDocList.add(document1);
 
         when(documentDAO
-                .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode)))
+                .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode),
+                        Optional.empty()))
                 .thenReturn(expectedDocList);
 
         Response response = documentResource
-                .getStatistics(url, null, toLocaleCode);
+                .getStatistics(url, null, toLocaleCode, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
         DocumentStatistics docStats = (DocumentStatistics)response.getEntity();
@@ -171,7 +175,8 @@ public class DocumentResourceImplTest {
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
         verify(documentDAO)
-                .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode));
+                .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode),
+                        Optional.empty());
     }
 
     @Test
