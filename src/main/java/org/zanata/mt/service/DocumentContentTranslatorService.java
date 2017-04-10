@@ -64,7 +64,7 @@ public class DocumentContentTranslatorService {
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
 
-        Map<Integer, TranslatableHTMLNode> ignoredIndexNode = new HashMap<>();
+        Map<Integer, TranslatableHTMLNode> indexHTMLNodeMap = new HashMap<>();
 
         List<APIResponse> warnings = Lists.newArrayList();
 
@@ -89,7 +89,7 @@ public class DocumentContentTranslatorService {
                 // replace all non-translatable node with placeholder
                 TranslatableHTMLNode translatableHTMLNode =
                         ArticleUtil.replaceNonTranslatableNode(index, html);
-                ignoredIndexNode.put(index, translatableHTMLNode);
+                indexHTMLNodeMap.put(index, translatableHTMLNode);
                 html = translatableHTMLNode.getHtml();
                 typeString.setValue(html);
                 indexHTMLMap.put(index, typeString);
@@ -105,7 +105,7 @@ public class DocumentContentTranslatorService {
                             MediaType.TEXT_HTML_TYPE);
 
             replacePlaceholderAndMergeResults(translatedHtmls, indexHTMLMap,
-                    ignoredIndexNode, results, MediaType.TEXT_HTML);
+                    indexHTMLNodeMap, results, MediaType.TEXT_HTML);
         }
 
         if (!indexTextMap.isEmpty()) {
@@ -114,7 +114,7 @@ public class DocumentContentTranslatorService {
                             MediaType.TEXT_PLAIN_TYPE);
 
             replacePlaceholderAndMergeResults(translatedStrings, indexTextMap,
-                    ignoredIndexNode, results, MediaType.TEXT_PLAIN);
+                    indexHTMLNodeMap, results, MediaType.TEXT_PLAIN);
         }
 
         return new DocumentContent(results, documentContent.getUrl(),
@@ -154,14 +154,14 @@ public class DocumentContentTranslatorService {
      */
     private void replacePlaceholderAndMergeResults(List<String> translatedStrings,
             LinkedHashMap<Integer, TypeString> indexStringMap,
-            Map<Integer, TranslatableHTMLNode> ignoredIndexNode,
+            Map<Integer, TranslatableHTMLNode> indexHTMLNodeMap,
             List<TypeString> results, String mediaType) {
         int index = 0;
         for (String translatedString : translatedStrings) {
             Map.Entry<Integer, TypeString>
                     entry = Iterables.get(indexStringMap.entrySet(), index);
-            if (ignoredIndexNode.containsKey(entry.getKey())) {
-                TranslatableHTMLNode node = ignoredIndexNode.get(entry.getKey());
+            if (indexHTMLNodeMap.containsKey(entry.getKey())) {
+                TranslatableHTMLNode node = indexHTMLNodeMap.get(entry.getKey());
                 translatedString = ArticleUtil
                         .replacePlaceholderWithNode(node.getPlaceholderIdMap(),
                                 translatedString);
