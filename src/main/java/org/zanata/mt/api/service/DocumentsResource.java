@@ -10,6 +10,7 @@ import org.zanata.mt.api.dto.APIResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -30,6 +31,9 @@ public interface DocumentsResource {
      *
      * This can be use with {@link DocumentResource#getStatistics}
      * to retrieve detailed getStatistics of a document
+     *
+     * @param dateRange
+     *      date range of last updated request document(Optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -37,5 +41,5 @@ public interface DocumentsResource {
             @ResponseCode(code = 200, condition = "List of document url", type = @TypeHint(String[].class)),
             @ResponseCode(code = 500, condition = "Unexpected error", type = @TypeHint(APIResponse.class))
     })
-    Response getDocumentUrls();
+    Response getDocumentUrls(@QueryParam("dateRange") String dateRange);
 }
