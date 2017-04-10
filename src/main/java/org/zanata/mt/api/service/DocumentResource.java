@@ -46,6 +46,8 @@ public interface DocumentResource {
      *      Language code of the document, optional
      * @param toLocaleCode
      *      Language code of translation for the document, optional
+     * @param dateRange
+     *      date range of last updated request document(Optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -54,11 +56,12 @@ public interface DocumentResource {
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Return statistics for given document", type = @TypeHint(DocumentStatistics.class)),
             @ResponseCode(code = 400, condition = "Missing url", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getStatistics(@QueryParam("url") String url,
             @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("dateRange") String dateRange);
 
     /**
      * Perform machine translation on {@link DocumentContent#contents} to given
@@ -79,7 +82,7 @@ public interface DocumentResource {
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
             @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error during translation")
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,

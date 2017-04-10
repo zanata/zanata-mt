@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.zanata.mt.service.DateRange;
 import org.zanata.mt.util.HashUtil;
 
 /**
@@ -32,7 +33,8 @@ public class DocumentDAO extends AbstractDAO<Document> {
     }
 
     public List<Document> getByUrl(@NotNull String url,
-            Optional<LocaleId> fromLocaleCode, Optional<LocaleId> toLocaleCode) {
+            Optional<LocaleId> fromLocaleCode, Optional<LocaleId> toLocaleCode,
+            Optional<DateRange> dateParam) {
         String urlHash = HashUtil.generateHash(url);
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("from Document where urlHash =:urlHash");
@@ -42,6 +44,9 @@ public class DocumentDAO extends AbstractDAO<Document> {
         if (toLocaleCode.isPresent()) {
             queryBuilder.append(" and targetLocale.localeId =:toLocaleCode");
         }
+        if (dateParam.isPresent()) {
+            queryBuilder.append(" and lastChanged between :fromDate and :toDate");
+        }
         Query query = getEntityManager().createQuery(queryBuilder.toString())
                 .setParameter("urlHash", urlHash);
         if (fromLocaleCode.isPresent()) {
@@ -50,6 +55,10 @@ public class DocumentDAO extends AbstractDAO<Document> {
         if (toLocaleCode.isPresent()) {
             query.setParameter("toLocaleCode", toLocaleCode.get());
         }
+        if (dateParam.isPresent()) {
+            query.setParameter("fromDate", dateParam.get().getFromDate());
+            query.setParameter("toDate", dateParam.get().getToDate());
+        }
         List<Document> documents = query.getResultList();
         return documents;
     }
@@ -57,7 +66,7 @@ public class DocumentDAO extends AbstractDAO<Document> {
     public Document getByUrl(@NotNull String url, @NotNull Locale fromLocale,
             @NotNull Locale toLocale) {
         List<Document> documents = getByUrl(url, Optional.of(fromLocale.getLocaleId()),
-                Optional.of(toLocale.getLocaleId()));
+                Optional.of(toLocale.getLocaleId()), Optional.empty());
         return documents.isEmpty() ? null : documents.get(0);
     }
 
@@ -73,9 +82,19 @@ public class DocumentDAO extends AbstractDAO<Document> {
         return doc;
     }
 
-    public List<String> getUrlList() {
-        return getEntityManager()
-                .createQuery("SELECT DISTINCT url FROM Document")
-                .getResultList();
+    public List<String> getUrlList(Optional<DateRange> dateParam) {
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT DISTINCT url FROM Document");
+
+        if (dateParam.isPresent()) {
+            queryBuilder.append(" where lastChanged between :fromDate and :toDate");
+        }
+
+        Query query = getEntityManager().createQuery(queryBuilder.toString());
+        if (dateParam.isPresent()) {
+            query.setParameter("fromDate", dateParam.get().getFromDate());
+            query.setParameter("toDate", dateParam.get().getToDate());
+        }
+        return query.getResultList();
     }
 }

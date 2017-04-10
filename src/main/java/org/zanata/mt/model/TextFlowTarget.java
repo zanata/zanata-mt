@@ -44,7 +44,7 @@ public class TextFlowTarget extends ModelEntity {
     @NotEmpty
     private String rawContent;
 
-    private int usedCount;
+    private int count;
 
     @NaturalId
     @Type(type = "backendIdType")
@@ -65,7 +65,7 @@ public class TextFlowTarget extends ModelEntity {
     }
 
     public void incrementCount() {
-        this.usedCount += 1;
+        this.count += 1;
     }
 
     public void updateContent(String content, String rawContent) {
@@ -89,8 +89,8 @@ public class TextFlowTarget extends ModelEntity {
         return rawContent;
     }
 
-    public int getUsedCount() {
-        return usedCount;
+    public int getCount() {
+        return count;
     }
 
     public BackendID getBackendId() {

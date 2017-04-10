@@ -10,7 +10,6 @@ import org.zanata.mt.api.service.impl.DocumentResourceImpl;
 import org.zanata.mt.api.service.impl.DocumentsResourceImpl;
 import org.zanata.mt.api.service.impl.LanguagesResourceImpl;
 import org.zanata.mt.exception.BadRequestExceptionMapper;
-import org.zanata.mt.exception.InternalExceptionMapper;
 import org.zanata.mt.exception.ZanataMTExceptionMapper;
 
 /**
@@ -40,7 +39,6 @@ public class ZanataMTApplication extends Application {
     // build exception mapper class
     private static Set<Class<?>> buildExceptionMapperResource() {
         return ImmutableSet.<Class<?>>builder()
-                .add(InternalExceptionMapper.class)
                 .add(BadRequestExceptionMapper.class)
                 .add(ZanataMTExceptionMapper.class)
                 .build();
