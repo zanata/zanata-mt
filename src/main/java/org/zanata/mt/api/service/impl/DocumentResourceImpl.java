@@ -16,6 +16,7 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
+import org.zanata.mt.service.DateRange;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.util.UrlUtil;
 
@@ -62,16 +63,22 @@ public class DocumentResourceImpl implements DocumentResource {
     @Override
     public Response getStatistics(@QueryParam("url") String url,
             @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode) {
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("dateRange") String dateRangeParam) {
         if (StringUtils.isBlank(url)) {
             APIResponse response =
                     new APIResponse(Response.Status.BAD_REQUEST, "Empty url");
             return Response.status(response.getStatus()).entity(response)
                     .build();
         }
+
+        Optional<DateRange> dateParam =
+                StringUtils.isBlank(dateRangeParam) ? Optional.empty() :
+                        Optional.of(DateRange.from(dateRangeParam));
+
         List<Document> documents = documentDAO
                 .getByUrl(url, Optional.ofNullable(fromLocaleCode),
-                        Optional.ofNullable(toLocaleCode));
+                        Optional.ofNullable(toLocaleCode), dateParam);
 
         DocumentStatistics statistics = new DocumentStatistics(url);
         for (Document document: documents) {

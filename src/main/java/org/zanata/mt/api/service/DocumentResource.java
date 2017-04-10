@@ -46,6 +46,8 @@ public interface DocumentResource {
      *      Language code of the document, optional
      * @param toLocaleCode
      *      Language code of translation for the document, optional
+     * @param dateRange
+     *      date range of last updated request document(Optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
@@ -58,7 +60,8 @@ public interface DocumentResource {
     })
     Response getStatistics(@QueryParam("url") String url,
             @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
+            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("dateRange") String dateRange);
 
     /**
      * Perform machine translation on {@link DocumentContent#contents} to given

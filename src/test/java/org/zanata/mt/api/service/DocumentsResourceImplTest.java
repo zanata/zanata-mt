@@ -8,10 +8,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.service.impl.DocumentsResourceImpl;
 import org.zanata.mt.dao.DocumentDAO;
+import org.zanata.mt.service.DateRange;
 
 import javax.ws.rs.core.Response;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -41,11 +43,13 @@ public class DocumentsResourceImplTest {
 
     @Test
     public void testGetDocumentUrls() {
+        Optional<DateRange> dateParam = Optional.empty();
+
         List<String> urls =
                 Lists.newArrayList("http://locale", "http://locale2",
                         "http://locale3");
-        when(documentDAO.getUrlList()).thenReturn(urls);
-        Response response = documentsResource.getDocumentUrls();
+        when(documentDAO.getUrlList(dateParam)).thenReturn(urls);
+        Response response = documentsResource.getDocumentUrls(null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
         List<String> returnedUrl = (List<String>)response.getEntity();
