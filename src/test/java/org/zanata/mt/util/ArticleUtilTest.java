@@ -8,9 +8,7 @@ import org.junit.Test;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,8 +39,15 @@ public class ArticleUtilTest {
         assertWrapAndUnwrapHTML("<html><body>test</body></html>");
         assertWrapAndUnwrapHTML("<body>test</body>");
         assertWrapAndUnwrapHTML("<div>test</div>");
-        assertWrapAndUnwrapHTML("<div>test</div><div>test2</div>");
         assertWrapAndUnwrapHTML("test");
+    }
+
+    @Test
+    public void asElement() {
+        String html = "<html><body>test</body></html>";
+        Node node = ArticleUtil.asElement(html);
+        assertThat(node).isNotNull().extracting(Node::outerHtml)
+                .contains(html);
     }
 
     private void assertWrapAndUnwrapHTML(String html) {
@@ -51,10 +56,9 @@ public class ArticleUtilTest {
         assertThat(wrappedElement.outerHtml().length())
                 .isGreaterThan(html.length());
 
-        List<Node> unwrappedNode = ArticleUtil.unwrapHTML(wrappedElement);
+        Node unwrappedNode = ArticleUtil.unwrapAsNode(wrappedElement);
         assertThat(unwrappedNode).isNotEqualTo(wrappedElement);
-        String unwrappedHTML = unwrappedNode.stream().map(Node::outerHtml)
-                .collect(Collectors.joining(""));
+        String unwrappedHTML = unwrappedNode.outerHtml();
 
         assertThat(unwrappedHTML.replaceAll("\n", "")
                 .replaceAll(" ", "")).isEqualTo(html);

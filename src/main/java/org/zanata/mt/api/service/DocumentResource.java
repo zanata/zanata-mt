@@ -31,6 +31,9 @@ import org.zanata.mt.api.dto.LocaleId;
 })
 public interface DocumentResource {
 
+    // Max length per request
+    public static int MAX_LENGTH = 10000;
+
     /**
      * Get request count for a document with given url
      *
@@ -81,7 +84,7 @@ public interface DocumentResource {
     @Path("/translate")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
-            @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 500, condition = "Unexpected error during translation", type = @TypeHint(APIResponse.class))
     })
     Response translate(

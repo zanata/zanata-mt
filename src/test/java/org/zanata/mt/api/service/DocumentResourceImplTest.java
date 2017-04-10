@@ -325,7 +325,8 @@ public class DocumentResourceImplTest {
                 toLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(doc, docContent, BackendID.MS))
+                .translateDocument(doc, docContent, BackendID.MS,
+                        DocumentResource.MAX_LENGTH))
                 .thenReturn(translatedDocContent);
 
         Response response =

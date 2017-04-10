@@ -11,12 +11,10 @@ import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for Article
@@ -49,6 +47,12 @@ public final class ArticleUtil {
     private ArticleUtil() {
     }
 
+    /**
+     * Replace non-translatable node with placeholder
+     *
+     * @param index - index of the node, used to generate unique id for placeholder
+     * @param html - html string
+     */
     public static TranslatableHTMLNode replaceNonTranslatableNode(int index,
             String html) {
         Element document = wrapHTML(html);
@@ -87,7 +91,8 @@ public final class ArticleUtil {
                 counter++;
             }
         }
-        return new TranslatableHTMLNode(unwrapHTML(document), placeholderIdMap);
+        return new TranslatableHTMLNode(unwrapAsElement(document),
+                placeholderIdMap);
     }
 
     /**
@@ -104,11 +109,13 @@ public final class ArticleUtil {
         Attributes attrs = new Attributes();
         attrs.put("id", id);
         attrs.put("translate", "no");
-        return new Element(Tag.valueOf("span"), "", attrs);
+        return new Element(Tag.valueOf("var"), "", attrs);
     }
 
     /**
      * Wrap given html around ZANATA-MT wrapper for easy extraction
+     *
+     * IMPORTANT: This is assume the html is wrap in single html node
      */
     public static Element wrapHTML(String html) {
         String wrapHTML = "<div id='" + getWrapperId() + "'>" + html + "</div>";
@@ -117,14 +124,39 @@ public final class ArticleUtil {
         return doc;
     }
 
-    public static List<Node> unwrapHTML(Element element) {
+    /**
+     * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
+     * first child in the wrapper.
+     *
+     * IMPORTANT: This is assume the html is wrap in single html node
+     */
+    public static @Nullable Node unwrapAsNode(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
             if (!wrapper.childNodes().isEmpty()) {
-                return wrapper.childNodes();
+                return wrapper.childNodes().get(0);
             }
         }
-        return Collections.emptyList();
+        return null;
+    }
+
+    /**
+     * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
+     * first child in the wrapper.
+     *
+     * IMPORTANT: This is assume the html is wrap in single html node
+     */
+    public static @Nullable Element unwrapAsElement(@NotNull Element element) {
+        Element wrapper = element.select("#" + getWrapperId()).first();
+        if (wrapper != null && !wrapper.children().isEmpty()) {
+            return wrapper.children().first();
+        }
+        return null;
+    }
+
+    // parse html string into element
+    public static Element asElement(String html) {
+        return unwrapAsElement(wrapHTML(html));
     }
 
     /**
@@ -138,8 +170,7 @@ public final class ArticleUtil {
             Node replacementNode = entry.getValue();
             element.select("#" + id).first().replaceWith(replacementNode);
         }
-        return unwrapHTML(element).stream().map(Node::outerHtml)
-                .collect(Collectors.joining(""));
+        return unwrapAsNode(element).outerHtml();
     }
 
     private static String getWrapperId() {

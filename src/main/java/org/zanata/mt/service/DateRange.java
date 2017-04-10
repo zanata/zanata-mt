@@ -8,6 +8,7 @@ import org.zanata.mt.util.DateUtil;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 /**
@@ -41,7 +42,7 @@ public class DateRange {
             LocalDate fromDate = LocalDate.parse(dateRange[0], formatter);
             LocalDate toDate = LocalDate.parse(dateRange[1], formatter);
             return new DateRange(fromDate, toDate);
-        } catch (IllegalArgumentException e) {
+        } catch (DateTimeParseException e) {
             throw new InvalidDateParamException(
                     "Invalid data range: " + dateRangeParam);
         }
