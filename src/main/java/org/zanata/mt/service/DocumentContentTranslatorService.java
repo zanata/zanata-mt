@@ -12,6 +12,8 @@ import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
@@ -51,6 +53,66 @@ public class DocumentContentTranslatorService {
         this.persistentTranslationService = persistentTranslationService;
     }
 
+    private String translateString(Document doc, String source,
+            BackendID backendID, MediaType mediaType) {
+        List<String> toTranslate = Lists.newArrayList(source);
+        List<String> translated =
+                persistentTranslationService
+                        .translate(doc, toTranslate,
+                                doc.getSrcLocale(),
+                                doc.getTargetLocale(), backendID,
+                                mediaType);
+        assert toTranslate.size() == translated.size();
+        return translated.get(0);
+    }
+
+    /**
+     * Translate a Document and send in for machine translation request
+     * in batch group by media type.
+     *
+     * {@link DocumentContent}
+     **/
+    public DocumentContent translateDocument2(Document doc,
+            DocumentContent documentContent, BackendID backendID)
+            throws BadRequestException, ZanataMTException {
+
+        List<APIResponse> warnings = Lists.newArrayList();
+        List<TypeString> results =
+                Lists.newArrayList(documentContent.getContents());
+
+        for (TypeString typeString: results) {
+            MediaType mediaType = getMediaType(typeString.getType());
+            String source = typeString.getValue();
+            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
+                if (source.length() <= MAX_LENGTH) {
+                    String translated = translateString(doc, source, backendID, mediaType);
+                    typeString.setValue(translated);
+                } else {
+                    // ignore plain text when it is more than max length
+                    String warning =
+                            "Warning: translation skipped: String length is over " +
+                                    MAX_LENGTH;
+                    LOG.warn(warning + " - " + source);
+                    warnings.add(new APIResponse(
+                            Response.Status.OK, warning + " - " + source));
+                }
+            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
+                if (source.length() <= MAX_LENGTH) {
+                    String translated = translateString(doc, source, backendID, mediaType);
+                    typeString.setValue(translated);
+                } else {
+                    // split into node <= MAX_LENGTH
+                    // TODO:
+                    Node node = ArticleUtil.unwrapHTML(ArticleUtil.wrapHTML(source)).get(0);
+                    if (node.childNodes())
+                }
+            }
+        }
+        return new DocumentContent(results, documentContent.getUrl(),
+                doc.getTargetLocale().getLocaleId().getId(), backendID.getId(),
+                warnings);
+    }
+
     /**
      * Translate a Document and send in for machine translation request
      * in batch group by media type.
@@ -76,7 +138,7 @@ public class DocumentContentTranslatorService {
                 // ignore string when it is more than max length
                 if (typeString.getValue().length() > MAX_LENGTH) {
                     String warning =
-                            "Warning: translation skipped: String is over " + MAX_LENGTH;
+                            "Warning: translation skipped: String length is over " + MAX_LENGTH;
                     LOG.warn(warning + " - " + typeString.getValue());
                     warnings.add(new APIResponse(
                             Response.Status.OK, warning + " - " + typeString.getValue()));
@@ -92,12 +154,18 @@ public class DocumentContentTranslatorService {
                 indexHTMLNodeMap.put(index, translatableHTMLNode);
                 html = translatableHTMLNode.getHtml();
                 typeString.setValue(html);
-                indexHTMLMap.put(index, typeString);
+
+                if (html.length() > MAX_LENGTH) {
+
+                } else {
+                    indexHTMLMap.put(index, typeString);
+                }
             }
             index++;
         }
 
-        List<TypeString> results = Lists.newArrayList(documentContent.getContents());
+        List<TypeString> results =
+                Lists.newArrayList(documentContent.getContents());
 
         if (!indexHTMLMap.isEmpty()) {
             List<String> translatedHtmls =
