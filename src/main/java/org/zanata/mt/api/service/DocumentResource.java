@@ -31,12 +31,6 @@ import org.zanata.mt.api.dto.LocaleId;
 })
 public interface DocumentResource {
 
-    // Max length per request for MS
-    int MAX_LENGTH = 10000;
-
-    // Max length before logging warning
-    int MAX_LENGTH_WARN = 8000;
-
     /**
      * Get request count for a document with given url
      *
@@ -64,14 +58,20 @@ public interface DocumentResource {
             @QueryParam("dateRange") String dateRange);
 
     /**
+     * This is a paid service which cost is based on character count.
+     *
      * Perform machine translation on {@link DocumentContent#contents} to given
      * locale code.
-     * This is a paid service which charge based on character count.
+     *
+     * Plain text - String will be ignore if it is more than 10,000 characters.
+     *
+     * HTML - Service will try to split string that is more more 10,000
+     * characters. String will be ignore if it cannot be split.
      *
      * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
      *
-     * Maximum accepted characters in a request is 10000 {@link #MAX_LENGTH}
-     *
+     * @param docContent
+     *      Content to be translated
      * @param toLocaleCode
      *      Language code to translate to
      */

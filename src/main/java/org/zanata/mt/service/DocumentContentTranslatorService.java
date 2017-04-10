@@ -8,9 +8,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.TypeString;
@@ -30,6 +33,11 @@ import static java.util.stream.Collectors.toList;
  */
 @Stateless
 public class DocumentContentTranslatorService {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(DocumentContentTranslatorService.class);
+
+    // Max length per request
+    int MAX_LENGTH = 10000;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -65,7 +73,16 @@ public class DocumentContentTranslatorService {
             MediaType mediaType = getMediaType(typeString.getType());
 
             if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
-                indexTextMap.put(index, typeString);
+                // ignore string when it is more than max length
+                if (typeString.getValue().length() > MAX_LENGTH) {
+                    String warning =
+                            "Warning: translation skipped: String is over " + MAX_LENGTH;
+                    LOG.warn(warning + " - " + typeString.getValue());
+                    warnings.add(new APIResponse(
+                            Response.Status.OK, warning + " - " + typeString.getValue()));
+                } else {
+                    indexTextMap.put(index, typeString);
+                }
             } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
                 String html = typeString.getValue();
 

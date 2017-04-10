@@ -4,14 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.api.service.DocumentResource.MAX_LENGTH;
 
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,8 +66,6 @@ public class DocumentContentTranslatorServiceTest {
     public void testTranslateDocumentContent() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale transLocale = new Locale(LocaleId.DE, "German");
-        String overMaxHTML = "<pre>" + StringUtils.repeat("t",
-                MAX_LENGTH) + "</pre>";
 
         List<String> htmls =
                 Lists.newArrayList("<div>Entry 1</div>",
@@ -77,8 +73,7 @@ public class DocumentContentTranslatorServiceTest {
                         "<div>Entry 5</div>",
                         "<pre>KCS code section</pre>",
                         "<div translate=\"no\">non translatable node</div>",
-                        "<div id=\"private-notes\"><span>private notes</span></div>",
-                        overMaxHTML);
+                        "<div id=\"private-notes\"><span>private notes</span></div>");
 
         List<String> processedHtmls =
                 Lists.newArrayList("<div>Entry 1</div>",
@@ -86,8 +81,7 @@ public class DocumentContentTranslatorServiceTest {
                         "<div>Entry 5</div>",
                         "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
-                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",
-                        "<span id=\"ZNTA-8-0\" translate=\"no\"></span>");
+                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>");
 
         List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
 
@@ -97,8 +91,7 @@ public class DocumentContentTranslatorServiceTest {
                         "<div>MS: Entry 5</div>",
                         "<span id=\"ZNTA-5-0\" translate=\"no\"></span>",
                         "<span id=\"ZNTA-6-0\" translate=\"no\"></span>",
-                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>",
-                        "<span id=\"ZNTA-8-0\" translate=\"no\"></span>");
+                        "<span id=\"ZNTA-7-0\" translate=\"no\"></span>");
 
         List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
 
@@ -110,8 +103,7 @@ public class DocumentContentTranslatorServiceTest {
                 new TypeString(htmls.get(2), MediaType.TEXT_HTML, "meta5"),
                 new TypeString(htmls.get(3), MediaType.TEXT_HTML, "meta6"),
                 new TypeString(htmls.get(4), MediaType.TEXT_HTML, "meta7"),
-                new TypeString(htmls.get(5), MediaType.TEXT_HTML, "meta8"),
-                new TypeString(htmls.get(6), MediaType.TEXT_HTML, "meta9"));
+                new TypeString(htmls.get(5), MediaType.TEXT_HTML, "meta8"));
 
         List<TypeString> translatedContents = Lists.newArrayList(
                 new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
