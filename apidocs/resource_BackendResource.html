@@ -95,7 +95,7 @@
           <tr>
             <td><span class="parameter-name">id</span></td>
             <td>query</td>
-            <td><span class="parameter-description">id for machine translations backend</span></td>
+            <td><span class="parameter-description">ID for machine translations backend</span></td>
           </tr>
           </tbody>
         </table>
@@ -112,7 +112,7 @@
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
-            <td><span class="response-condition">Attribution found for given id.</span></td>
+            <td><span class="response-condition">Attribution found for given id</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference">object
  (JSON)</span></li></ul></td>
           </tr>
@@ -127,6 +127,11 @@
             <td><span class="response-condition">id not found.</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
  (JSON)</span></li></ul></td>
+          </tr>
+          <tr>
+            <td><span class="label label-danger response-code">500</span></td>
+            <td><span class="response-condition">Unexpected error during translation</span></td>
+            <td><ul class="list-unstyled"></ul></td>
           </tr>
           </tbody>
         </table>
