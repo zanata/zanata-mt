@@ -25,7 +25,9 @@ public class DocumentProcessManagerTest {
                 new DocumentProcessKey(url, LocaleId.EN, LocaleId.DE);
         lock.lock(key);
         assertThat(lock.isLocked(key)).isTrue();
+        assertThat(lock.getLock(key).getHoldCount()).isEqualTo(1);
         lock.unlock(key);
         assertThat(lock.isLocked(key)).isFalse();
+        assertThat(lock.getLock(key).getHoldCount()).isEqualTo(0);
     }
 }

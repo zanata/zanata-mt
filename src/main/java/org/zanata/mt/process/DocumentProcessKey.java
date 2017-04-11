@@ -2,6 +2,7 @@ package org.zanata.mt.process;
 
 import org.zanata.mt.api.dto.LocaleId;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -12,14 +13,14 @@ import java.io.Serializable;
 public class DocumentProcessKey implements Serializable {
 
     private final String url;
-    private final LocaleId srcLocaleId;
-    private final LocaleId transLocaleId;
+    private final LocaleId fromLocaleCode;
+    private final LocaleId toLocaleCode;
 
-    public DocumentProcessKey(String url,
-            LocaleId srcLocaleId, LocaleId transLocaleId) {
+    public DocumentProcessKey(@NotNull String url,
+            @NotNull LocaleId fromLocaleCode, @NotNull LocaleId toLocaleCode) {
         this.url = url;
-        this.srcLocaleId = srcLocaleId;
-        this.transLocaleId = transLocaleId;
+        this.fromLocaleCode = fromLocaleCode;
+        this.toLocaleCode = toLocaleCode;
     }
 
     @Override
@@ -29,23 +30,16 @@ public class DocumentProcessKey implements Serializable {
 
         DocumentProcessKey that = (DocumentProcessKey) o;
 
-        if (url != null ? !url.equals(that.url) : that.url != null)
-            return false;
-        if (srcLocaleId != null ? !srcLocaleId.equals(that.srcLocaleId) :
-                that.srcLocaleId != null) return false;
-        return transLocaleId != null ?
-                transLocaleId.equals(that.transLocaleId) :
-                that.transLocaleId == null;
+        if (!url.equals(that.url)) return false;
+        if (!fromLocaleCode.equals(that.fromLocaleCode)) return false;
+        return toLocaleCode.equals(that.toLocaleCode);
     }
 
     @Override
     public int hashCode() {
-        int result = url != null ? url.hashCode() : 0;
-        result = 31 * result +
-                (srcLocaleId != null ? srcLocaleId.hashCode() : 0);
-        result =
-                31 * result +
-                        (transLocaleId != null ? transLocaleId.hashCode() : 0);
+        int result = url.hashCode();
+        result = 31 * result + fromLocaleCode.hashCode();
+        result = 31 * result + toLocaleCode.hashCode();
         return result;
     }
 
@@ -53,8 +47,8 @@ public class DocumentProcessKey implements Serializable {
     public String toString() {
         return "DocumentProcessKey{" +
                 "url='" + url + '\'' +
-                ", srcLocaleId=" + srcLocaleId +
-                ", transLocaleId=" + transLocaleId +
+                ", fromLocaleCode=" + fromLocaleCode +
+                ", toLocaleCode=" + toLocaleCode +
                 '}';
     }
 }

@@ -1,6 +1,8 @@
 package org.zanata.mt.api.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.InputStreamStreamingOutput;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.BackendResource;
@@ -18,6 +20,9 @@ import java.util.Optional;
  */
 @RequestScoped
 public class BackendResourceImpl implements BackendResource {
+
+    private static final Logger LOG =
+            LoggerFactory.getLogger(BackendResourceImpl.class);
 
     private static final String MS_ATTRIBUTION_IMAGE = "/images/MS_attribution.png";
 

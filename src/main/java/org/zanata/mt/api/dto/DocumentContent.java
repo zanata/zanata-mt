@@ -2,7 +2,7 @@ package org.zanata.mt.api.dto;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.zanata.mt.api.service.DocumentContentTranslatorResource;
+import org.zanata.mt.api.service.DocumentResource;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
  * This entity is used for generic translations by accepting array of strings with type.
  *
  * Used in
- * {@link DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)}
+ * {@link DocumentResource#translate(DocumentContent, LocaleId)}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -28,7 +28,7 @@ public class DocumentContent implements Serializable {
 
     private List<TypeString> contents;
 
-    private String locale;
+    private String localeCode;
 
     private String backendId;
 
@@ -38,15 +38,15 @@ public class DocumentContent implements Serializable {
     protected DocumentContent() {
     }
 
-    public DocumentContent(List<TypeString> contents, String url, String locale) {
-        this(contents, url, locale, null, null);
+    public DocumentContent(List<TypeString> contents, String url, String localeCode) {
+        this(contents, url, localeCode, null, null);
     }
 
-    public DocumentContent(List<TypeString> contents, String url, String locale,
+    public DocumentContent(List<TypeString> contents, String url, String localeCode,
             String backendId, List<APIResponse> warnings) {
         this.contents = contents;
         this.url = url;
-        this.locale = locale;
+        this.localeCode = localeCode;
         this.backendId = backendId;
         this.warnings = warnings;
     }
@@ -78,17 +78,17 @@ public class DocumentContent implements Serializable {
     }
 
     /**
-     * locale of this DocumentContent
+     * locale code of this DocumentContent
      */
-    @JsonProperty("locale")
+    @JsonProperty("localeCode")
     @NotNull
     @Size(max = 128)
-    public String getLocale() {
-        return locale;
+    public String getLocaleCode() {
+        return localeCode;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setLocaleCode(String localeCode) {
+        this.localeCode = localeCode;
     }
 
     /**
@@ -123,7 +123,7 @@ public class DocumentContent implements Serializable {
         return "DocumentContent{" +
                 "url='" + url + '\'' +
                 ", contents=" + contents +
-                ", locale='" + locale + '\'' +
+                ", localeCode='" + localeCode + '\'' +
                 ", backendId='" + backendId + '\'' +
                 ", warnings=" + warnings +
                 '}';
@@ -140,7 +140,7 @@ public class DocumentContent implements Serializable {
             return false;
         if (!contents.equals(docContent.contents))
             return false;
-        if (!locale.equals(docContent.locale))
+        if (!localeCode.equals(docContent.localeCode))
             return false;
         return backendId != null ? backendId.equals(docContent.backendId) :
                 docContent.backendId == null;
@@ -151,7 +151,7 @@ public class DocumentContent implements Serializable {
     public int hashCode() {
         int result = url.hashCode();
         result = 31 * result + contents.hashCode();
-        result = 31 * result + locale.hashCode();
+        result = 31 * result + localeCode.hashCode();
         result = 31 * result + (backendId != null ? backendId.hashCode() : 0);
         return result;
     }

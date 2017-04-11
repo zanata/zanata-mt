@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.api.service.DocumentContentTranslatorResource.MAX_LENGTH;
+import static org.zanata.mt.api.service.DocumentResource.MAX_LENGTH;
 
 import java.util.List;
 
@@ -139,7 +139,7 @@ public class DocumentContentTranslatorServiceTest {
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
 
-        assertThat(translatedDocContent.getLocale())
+        assertThat(translatedDocContent.getLocaleCode())
                 .isEqualTo(transLocale.getLocaleId().getId());
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());

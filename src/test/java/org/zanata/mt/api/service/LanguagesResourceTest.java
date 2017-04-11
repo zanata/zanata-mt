@@ -33,6 +33,12 @@ public class LanguagesResourceTest {
     }
 
     @Test
+    public void testConstructor() {
+        LanguagesResource
+                resource = new LanguagesResourceImpl();
+    }
+
+    @Test
     public void testGetSupportedLocales() {
         List<Locale> locales =
                 Lists.newArrayList(new Locale(LocaleId.EN_US, "English"),

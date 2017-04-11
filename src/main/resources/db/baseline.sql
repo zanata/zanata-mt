@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Document (
     url           TEXT          NOT NULL,
     srcLocaleId      BIGINT         NOT NULL REFERENCES Locale (id),
     targetLocaleId   BIGINT         NOT NULL REFERENCES Locale (id),
-    usedCount     INTEGER     DEFAULT 0,
+    count     INTEGER     DEFAULT 0,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
     urlHash       VARCHAR(128)      NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     content       TEXT        NOT NULL,
     rawContent    TEXT        NOT NULL,
     backendId      VARCHAR(20) NOT NULL,
-    usedCount     INTEGER     DEFAULT 0,
+    count     INTEGER     DEFAULT 0,
     creationDate  DATE        NOT NULL,
     lastChanged  DATE         NOT NULL,
     UNIQUE (localeId, textFlowId, backendId)

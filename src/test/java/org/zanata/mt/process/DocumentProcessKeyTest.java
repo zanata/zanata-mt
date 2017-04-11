@@ -9,6 +9,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class DocumentProcessKeyTest {
+
+    @Test
+    public void testToString() {
+        DocumentProcessKey key =
+                new DocumentProcessKey("url1", LocaleId.EN, LocaleId.DE);
+        assertThat(key.toString())
+                .contains("url1", LocaleId.EN.getId(), LocaleId.DE.getId());
+    }
+
     @Test
     public void testEqualsAndHashCode() {
         DocumentProcessKey key =

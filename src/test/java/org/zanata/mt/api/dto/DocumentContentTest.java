@@ -27,7 +27,7 @@ public class DocumentContentTest {
 
         assertThat(docContent.getBackendId()).isNull();
         assertThat(docContent.getContents()).isEqualTo(lists);
-        assertThat(docContent.getLocale()).isEqualTo("en");
+        assertThat(docContent.getLocaleCode()).isEqualTo("en");
         assertThat(docContent.getUrl()).isEqualTo("http://localhost");
     }
 
@@ -41,7 +41,7 @@ public class DocumentContentTest {
                 docContent = new DocumentContent(lists, "http://localhost", "en", "backendId", warnings);
 
         assertThat(docContent.getContents()).isEqualTo(lists);
-        assertThat(docContent.getLocale()).isEqualTo("en");
+        assertThat(docContent.getLocaleCode()).isEqualTo("en");
         assertThat(docContent.getUrl()).isEqualTo("http://localhost");
         assertThat(docContent.getBackendId()).isEqualTo("backendId");
         assertThat(docContent.getWarnings()).isEqualTo(warnings);
@@ -67,8 +67,8 @@ public class DocumentContentTest {
     @Test
     public void testLocale() {
         DocumentContent docContent = new DocumentContent();
-        docContent.setLocale("en");
-        assertThat(docContent.getLocale()).isEqualTo("en");
+        docContent.setLocaleCode("en");
+        assertThat(docContent.getLocaleCode()).isEqualTo("en");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DocumentContentTest {
 
         // change locale
         docContent2 = getDefaultDocContent();
-        docContent2.setLocale("fr");
+        docContent2.setLocaleCode("fr");
 
         assertThat(docContent1.equals(docContent2)).isFalse();
         assertThat(docContent1.hashCode()).isNotEqualTo(docContent2.hashCode());

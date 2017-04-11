@@ -22,7 +22,7 @@ public class DocumentTest {
     public void testConstructor() {
         Locale srcLocale = new Locale(LocaleId.EN, "English");
         Locale targetLocale = new Locale(LocaleId.DE, "German");
-        Document doc = new Document("http://localhost",
+        Document doc = new Document("http://localhost/",
                 srcLocale, targetLocale);
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
         assertThat(doc.getSrcLocale()).isEqualTo(srcLocale);
@@ -50,10 +50,10 @@ public class DocumentTest {
     @Test
     public void testIncrementUsedCount() {
         Document doc = new Document();
-        int useCount = doc.getUsedCount();
+        int useCount = doc.getCount();
         assertThat(useCount).isEqualTo(0);
-        doc.incrementUsedCount();
-        int newUseCount = doc.getUsedCount();
+        doc.incrementCount();
+        int newUseCount = doc.getCount();
         assertThat(newUseCount).isNotEqualTo(useCount).isEqualTo(useCount + 1);
     }
 

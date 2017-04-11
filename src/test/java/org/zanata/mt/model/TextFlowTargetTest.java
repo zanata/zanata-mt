@@ -30,47 +30,47 @@ public class TextFlowTargetTest {
         assertThat(target.getTextFlow()).isEqualTo(textFlow);
         assertThat(target.getLocale()).isEqualTo(locale);
         assertThat(target.getBackendId()).isEqualTo(BackendID.MS);
-        assertThat(target.getUsedCount()).isEqualTo(0);
+        assertThat(target.getCount()).isEqualTo(0);
     }
 
     @Test
     public void testIncrementCount() {
         TextFlowTarget target = new TextFlowTarget();
-        assertThat(target.getUsedCount()).isEqualTo(0);
+        assertThat(target.getCount()).isEqualTo(0);
         target.incrementCount();
-        assertThat(target.getUsedCount()).isEqualTo(1);
+        assertThat(target.getCount()).isEqualTo(1);
     }
 
     @Test
     public void testEqualsAndHashcode() {
-        Locale srcLang = new Locale(LocaleId.EN_US, "English US");
-        Locale transLang = new Locale(LocaleId.DE, "German");
-        TextFlow textFlow = new TextFlow(new Document(), "content", srcLang);
+        Locale fromLocale = new Locale(LocaleId.EN_US, "English US");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
+        TextFlow textFlow = new TextFlow(new Document(), "content", fromLocale);
 
         TextFlowTarget target1 =
-                new TextFlowTarget("content", "raw content", textFlow, transLang,
+                new TextFlowTarget("content", "raw content", textFlow, toLocale,
                         BackendID.MS);
 
         TextFlowTarget target2 =
-                new TextFlowTarget("content", "raw content", textFlow, transLang,
+                new TextFlowTarget("content", "raw content", textFlow, toLocale,
                         BackendID.MS);
 
         assertThat(target1.hashCode()).isEqualTo(target2.hashCode());
         assertThat(target1.equals(target2)).isTrue();
 
         // diff text flow
-        TextFlow newTextFlow = new TextFlow(new Document(), "new content", srcLang);
+        TextFlow newTextFlow = new TextFlow(new Document(), "new content", fromLocale);
         target2 =
-                new TextFlowTarget("content", "raw content", newTextFlow, transLang,
+                new TextFlowTarget("content", "raw content", newTextFlow, toLocale,
                         BackendID.MS);
         assertThat(target1.hashCode()).isNotEqualTo(target2.hashCode());
         assertThat(target1.equals(target2)).isFalse();
 
 
         // diff locale
-        Locale newTransLang = new Locale(LocaleId.FR, "French");
+        Locale newToLocale = new Locale(LocaleId.FR, "French");
         target2 =
-                new TextFlowTarget("content", "raw content", textFlow, newTransLang,
+                new TextFlowTarget("content", "raw content", textFlow, newToLocale,
                         BackendID.MS);
         assertThat(target1.hashCode()).isNotEqualTo(target2.hashCode());
         assertThat(target1.equals(target2)).isFalse();
