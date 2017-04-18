@@ -1,6 +1,5 @@
 package org.zanata.mt.service;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.exception.InvalidDateParamException;
 import org.zanata.mt.util.DateUtil;

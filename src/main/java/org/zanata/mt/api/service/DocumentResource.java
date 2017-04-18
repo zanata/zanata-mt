@@ -32,7 +32,7 @@ import org.zanata.mt.api.dto.LocaleId;
 public interface DocumentResource {
 
     // Max length per request
-    public static int MAX_LENGTH = 10000;
+    int MAX_LENGTH = 10000;
 
     /**
      * Get request count for a document with given url
@@ -53,7 +53,7 @@ public interface DocumentResource {
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Return statistics for given document", type = @TypeHint(DocumentStatistics.class)),
             @ResponseCode(code = 400, condition = "Missing url", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getStatistics(@QueryParam("url") String url,
             @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
@@ -85,7 +85,7 @@ public interface DocumentResource {
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
             @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error during translation")
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,

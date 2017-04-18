@@ -1,5 +1,6 @@
 package org.zanata.mt.service;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +59,7 @@ public class DocumentContentTranslatorService {
             throws BadRequestException, ZanataMTException {
 
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
+        LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
 
         List<APIResponse> warnings = Lists.newArrayList();
         List<TypeString> results =
@@ -79,24 +81,22 @@ public class DocumentContentTranslatorService {
                 TranslatableHTMLNode translatableHTMLNode =
                         ArticleUtil.replaceNonTranslatableNode(index, source);
                 String html = translatableHTMLNode.getHtml();
-                String translatedString;
 
                 if (html.length() <= maxLength) {
-                    translatedString = translateString(doc, html, backendID, mediaType);
+                    indexHTMLMap.put(index, typeString);
                 } else {
                     Element root = ArticleUtil.wrapHTML(html).children().first();
                     Element content = root.children().first();
                     translateHTMLElement(doc, backendID, mediaType, maxLength,
                             content, warnings);
-                    translatedString = root.children().first().outerHtml();
+                    String translatedString = root.children().first().outerHtml();
+                    // replace placeholder with original node
+                    translatedString = ArticleUtil
+                            .replacePlaceholderWithNode(
+                                    translatableHTMLNode.getPlaceholderIdMap(),
+                                    translatedString);
+                    typeString.setValue(translatedString);
                 }
-                // replace placeholder with original node
-                translatedString = ArticleUtil
-                        .replacePlaceholderWithNode(
-                                translatableHTMLNode.getPlaceholderIdMap(),
-                                translatedString);
-
-                typeString.setValue(translatedString);
             }
             index++;
         }
@@ -104,6 +104,11 @@ public class DocumentContentTranslatorService {
         if (!indexTextMap.isEmpty()) {
             translateStringsInBatch(doc, backendID, MediaType.TEXT_PLAIN_TYPE,
                     maxLength, indexTextMap, results);
+        }
+
+        if (!indexHTMLMap.isEmpty()) {
+            translateStringsInBatch(doc, backendID, MediaType.TEXT_HTML_TYPE,
+                    maxLength, indexHTMLMap, results);
         }
 
         return new DocumentContent(results, documentContent.getUrl(),
@@ -116,17 +121,27 @@ public class DocumentContentTranslatorService {
      */
     private void translateStringsInBatch(Document doc, BackendID backendID,
             MediaType mediaType, int maxLength,
-            LinkedHashMap<Integer, TypeString> indexTextMap,
+            LinkedHashMap<Integer, TypeString> indexTypeStringMap,
             List<TypeString> results) {
         List<String> batchedStrings = Lists.newArrayList();
         List<Integer> indexOrderList = Lists.newArrayList();
+        Map<Integer, TranslatableHTMLNode> htmlNodeCache = new HashMap<>();
 
         int charCount = 0;
-        Iterator iter = indexTextMap.entrySet().iterator();
+        Iterator iter = indexTypeStringMap.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry<Integer, TypeString> entry =
                     (Map.Entry<Integer, TypeString>) iter.next();
             String stringToTranslate = entry.getValue().getValue();
+            if (mediaType == MediaType.TEXT_HTML_TYPE) {
+                int index = entry.getKey();
+                TranslatableHTMLNode translatableHTMLNode =
+                        ArticleUtil.replaceNonTranslatableNode(index,
+                                stringToTranslate);
+                htmlNodeCache.put(index, translatableHTMLNode);
+                stringToTranslate = translatableHTMLNode.getHtml();
+            }
+
             if (charCount + stringToTranslate.length() > maxLength) {
                 translateStrings(doc, backendID, mediaType, batchedStrings,
                         indexOrderList, results);
@@ -140,9 +155,23 @@ public class DocumentContentTranslatorService {
         }
         translateStrings(doc, backendID, mediaType, batchedStrings,
                 indexOrderList, results);
+
+        // restore placeholder into html
+        if (!htmlNodeCache.isEmpty()) {
+            for (Map.Entry<Integer, TranslatableHTMLNode> entry: htmlNodeCache.entrySet()) {
+                int index = entry.getKey();
+                TypeString typeString = results.get(index);
+                String translatedString = ArticleUtil
+                        .replacePlaceholderWithNode(
+                                entry.getValue().getPlaceholderIdMap(),
+                                typeString.getValue());
+                typeString.setValue(translatedString);
+                results.set(index, typeString);
+            }
+        }
     }
 
-    // perform strings translation
+    // perform translation on list of string
     private void translateStrings(Document doc, BackendID backendID,
             MediaType mediaType, List<String> strings,
             List<Integer> indexOrderList, List<TypeString> results) {
@@ -158,8 +187,7 @@ public class DocumentContentTranslatorService {
         }
     }
 
-
-    // perform single string translation
+    // perform translation on single string
     private String translateString(Document doc, String source,
             BackendID backendID, MediaType mediaType) {
         List<String> sources = Lists.newArrayList(source);

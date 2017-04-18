@@ -47,7 +47,7 @@ public interface LanguagesResource {
     @Produces(MediaType.APPLICATION_JSON)
     @StatusCodes({
             @ResponseCode(code = 200, condition = "List of supported languages", type = @TypeHint(Locale[].class)),
-            @ResponseCode(code = 500, condition = "Unexpected error.", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getSupportedLanguages();
 }

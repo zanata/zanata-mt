@@ -39,7 +39,7 @@ public interface DocumentsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @StatusCodes({
             @ResponseCode(code = 200, condition = "List of document url", type = @TypeHint(String[].class)),
-            @ResponseCode(code = 500, condition = "Unexpected error", type = @TypeHint(APIResponse.class))
+            @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getDocumentUrls(@QueryParam("dateRange") String dateRange);
 }

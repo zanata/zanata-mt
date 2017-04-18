@@ -187,13 +187,9 @@ public class DocumentContentTranslatorServiceTest {
         Document document =
                 new Document("http://localhost", srcLocale, transLocale);
 
-        for (int i = 0; i < processedHtmls.size(); i++) {
-            when(persistentTranslationService.translate(document,
-                    Lists.newArrayList(processedHtmls.get(i)),
-                    srcLocale, transLocale, BackendID.MS,
-                    MediaType.TEXT_HTML_TYPE))
-                    .thenReturn(Lists.newArrayList(translatedHtmls.get(i)));
-        }
+        when(persistentTranslationService.translate(document, processedHtmls,
+                srcLocale, transLocale, BackendID.MS,
+                MediaType.TEXT_HTML_TYPE)).thenReturn(translatedHtmls);
 
         when(persistentTranslationService.translate(document, text.subList(0, 2),
                 srcLocale, transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
@@ -220,7 +216,7 @@ public class DocumentContentTranslatorServiceTest {
                     .isEqualTo(translatedContents.get(i));
         }
 
-        int requestsCount = processedHtmls.size() + text.size() - 1;
+        int requestsCount = text.size();
         verify(persistentTranslationService,
                 times(requestsCount))
                 .translate(any(), anyList(), any(Locale.class),
