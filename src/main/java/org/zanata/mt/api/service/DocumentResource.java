@@ -61,15 +61,21 @@ public interface DocumentResource {
             @QueryParam("dateRange") String dateRange);
 
     /**
-     * This is a paid service which cost is based on character count.
      *
      * Perform machine translation on {@link DocumentContent#contents} to given
      * locale code.
      *
-     * Plain text - String will be ignore if it is more than 10,000 characters.
+     * This is a paid service which cost is based on character count.
      *
-     * HTML - Service will try to split string that is more more 10,000
-     * characters. String will be ignore if it cannot be split.
+     * 'text/plain' - String will be ignore if it is more than 10,000 characters.
+     *
+     * 'text/html' - Service will try to split string that is more than 10,000
+     * characters by running down to child element that has less than maximum chars.
+     * String will be ignored if html element cannot be break down further.
+     *
+     * The content in parent element of the translated child element will not be
+     * translated.
+     *
      *
      * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
      *

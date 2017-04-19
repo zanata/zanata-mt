@@ -74,7 +74,7 @@ public class DocumentContentTranslatorService {
                     indexTextMap.put(index, typeString);
                 } else {
                     // ignore plain text when it is more than max length
-                    addWarnings(source, warnings, maxLength);
+                    addMaxLengthWarnings(source, warnings, maxLength);
                 }
             } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
                 // put placeholder on all non-translatable html
@@ -221,7 +221,7 @@ public class DocumentContentTranslatorService {
                         translateString(doc, html, backendID, mediaType);
                 child.replaceWith(ArticleUtil.asElement(translated));
             } else if (child.children().isEmpty()) {
-                addWarnings(html, warnings, maxLength);
+                addMaxLengthWarnings(html, warnings, maxLength);
             }
             // size changes if child node is being translated
             size = root.getAllElements().size();
@@ -229,14 +229,14 @@ public class DocumentContentTranslatorService {
         }
     }
 
-    private void addWarnings(String source, List<APIResponse> warnings,
+    private void addMaxLengthWarnings(String source, List<APIResponse> warnings,
             int maxLength) {
         String warning =
                 "Warning: translation skipped: String length is over " +
                         maxLength;
         LOG.warn(warning + " - " + source);
         warnings.add(new APIResponse(
-                Response.Status.OK, new Exception(source), warning));
+                Response.Status.BAD_REQUEST, new Exception(source), warning));
     }
 
     public MediaType getMediaType(String mediaType) throws BadRequestException {

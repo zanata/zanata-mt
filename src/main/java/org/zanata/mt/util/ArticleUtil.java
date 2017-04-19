@@ -115,7 +115,7 @@ public final class ArticleUtil {
     /**
      * Wrap given html around ZANATA-MT wrapper for easy extraction
      *
-     * IMPORTANT: This is assume the html is wrap in single html node
+     * IMPORTANT: This assumes the html is wrap in single html node
      */
     public static Element wrapHTML(String html) {
         String wrapHTML = "<div id='" + getWrapperId() + "'>" + html + "</div>";
@@ -128,7 +128,7 @@ public final class ArticleUtil {
      * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
      * first child in the wrapper.
      *
-     * IMPORTANT: This is assume the html is wrap in single html node
+     * IMPORTANT: This assumes the html is wrap in single html node
      */
     public static @Nullable Node unwrapAsNode(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
@@ -144,7 +144,7 @@ public final class ArticleUtil {
      * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
      * first child in the wrapper.
      *
-     * IMPORTANT: This is assume the html is wrap in single html node
+     * IMPORTANT: This assumes the html is wrap in single html node
      */
     public static @Nullable Element unwrapAsElement(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
