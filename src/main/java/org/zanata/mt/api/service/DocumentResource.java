@@ -71,7 +71,7 @@ public interface DocumentResource {
      *
      * 'text/html' - Service will try to split string that is more than 10,000
      * characters by running down to child element that has less than maximum chars.
-     * String will be ignored if html element cannot be break down further.
+     * String will be ignored if html element cannot be broken down further.
      *
      * The content in parent element of the translated child element will not be
      * translated.

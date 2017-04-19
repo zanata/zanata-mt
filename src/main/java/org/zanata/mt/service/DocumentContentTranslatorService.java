@@ -25,6 +25,7 @@ import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.BackendID;
 
 import com.google.common.collect.Lists;
+import org.zanata.mt.util.ShortString;
 
 /**
  *
@@ -74,6 +75,7 @@ public class DocumentContentTranslatorService {
                     indexTextMap.put(index, typeString);
                 } else {
                     // ignore plain text when it is more than max length
+                    // TODO: support long text by segmenting
                     addMaxLengthWarnings(source, warnings, maxLength);
                 }
             } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
@@ -110,7 +112,6 @@ public class DocumentContentTranslatorService {
             translateStringsInBatch(doc, backendID, MediaType.TEXT_HTML_TYPE,
                     maxLength, indexHTMLMap, results);
         }
-
         return new DocumentContent(results, documentContent.getUrl(),
                 doc.getTargetLocale().getLocaleId().getId(), backendID.getId(),
                 warnings);
@@ -202,8 +203,9 @@ public class DocumentContentTranslatorService {
     }
 
     /**
-     * Translate all html tree nodes from top to bottom in recursive call.
-     * If parent node is being translated, child node will be skip.
+     * Translate all html tree nodes from top to bottom.
+     * If parent node is being translated,
+     * its child nodes will not be translated again.
      *
      * root.getAllElements().size() changes once root is being translated.
      */
@@ -220,23 +222,26 @@ public class DocumentContentTranslatorService {
                 String translated =
                         translateString(doc, html, backendID, mediaType);
                 child.replaceWith(ArticleUtil.asElement(translated));
-            } else if (child.children().isEmpty()) {
+            } else {
+                // show warning if there is no more children under this node
                 addMaxLengthWarnings(html, warnings, maxLength);
             }
             // size changes if child node is being translated
             size = root.getAllElements().size();
-            index ++;
+            index++;
         }
     }
 
     private void addMaxLengthWarnings(String source, List<APIResponse> warnings,
             int maxLength) {
-        String warning =
+        String title =
                 "Warning: translation skipped: String length is over " +
                         maxLength;
-        LOG.warn(warning + " - " + source);
+        String shortenString = ShortString.shorten(source);
+        LOG.warn(title + " - " + shortenString);
         warnings.add(new APIResponse(
-                Response.Status.BAD_REQUEST, new Exception(source), warning));
+                Response.Status.BAD_REQUEST, new Exception(shortenString),
+                title));
     }
 
     public MediaType getMediaType(String mediaType) throws BadRequestException {

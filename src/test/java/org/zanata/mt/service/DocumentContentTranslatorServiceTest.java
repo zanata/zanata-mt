@@ -28,6 +28,7 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 
 import com.google.common.collect.Lists;
+import org.zanata.mt.util.ShortString;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -118,7 +119,7 @@ public class DocumentContentTranslatorServiceTest {
                 .translateDocument(document, docContent, BackendID.MS, maxLength);
         assertThat(translatedDocContent.getContents().get(0).getValue())
                 .isEqualTo(expectedHtml);
-        assertThat(translatedDocContent.getWarnings()).hasSize(1);
+        assertThat(translatedDocContent.getWarnings()).hasSize(2);
     }
 
     @Test
@@ -209,7 +210,7 @@ public class DocumentContentTranslatorServiceTest {
 
         assertThat(translatedDocContent.getWarnings()).hasSize(1);
         assertThat(translatedDocContent.getWarnings().get(0).getDetails())
-                .contains(maxString);
+                .contains(ShortString.shorten(maxString));
 
         for (int i = 0; i < translatedDocContent.getContents().size() - 1; i++) {
             assertThat(translatedDocContent.getContents().get(i))
