@@ -128,7 +128,7 @@ public class DocumentResourceImpl implements DocumentResource {
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, backendID);
+                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);
             doc.incrementCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
@@ -157,7 +157,6 @@ public class DocumentResourceImpl implements DocumentResource {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Invalid url:" + docContent.getUrl()));
         }
-        int totalChar = 0;
         for (TypeString string : docContent.getContents()) {
             if (StringUtils.isBlank(string.getValue()) ||
                     StringUtils.isBlank(string.getType())) {
@@ -171,14 +170,6 @@ public class DocumentResourceImpl implements DocumentResource {
                         .of(new APIResponse(Response.Status.BAD_REQUEST,
                                 "Invalid mediaType: " + string.getType()));
             }
-            totalChar += string.getValue().length();
-        }
-        if (totalChar > MAX_LENGTH) {
-            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Requested string length is more than " + MAX_LENGTH));
-        }
-        if (totalChar > MAX_LENGTH_WARN) {
-            LOG.warn("Requested string length is more than " + MAX_LENGTH_WARN);
         }
         return Optional.empty();
     }

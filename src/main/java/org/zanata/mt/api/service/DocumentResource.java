@@ -31,11 +31,8 @@ import org.zanata.mt.api.dto.LocaleId;
 })
 public interface DocumentResource {
 
-    // Max length per request for MS
+    // Max length per request
     int MAX_LENGTH = 10000;
-
-    // Max length before logging warning
-    int MAX_LENGTH_WARN = 8000;
 
     /**
      * Get request count for a document with given url
@@ -64,14 +61,26 @@ public interface DocumentResource {
             @QueryParam("dateRange") String dateRange);
 
     /**
+     *
      * Perform machine translation on {@link DocumentContent#contents} to given
      * locale code.
-     * This is a paid service which charge based on character count.
+     *
+     * This is a paid service which cost is based on character count.
+     *
+     * 'text/plain' - String will be ignore if it is more than 10,000 characters.
+     *
+     * 'text/html' - Service will try to split string that is more than 10,000
+     * characters by running down to child element that has less than maximum chars.
+     * String will be ignored if html element cannot be broken down further.
+     *
+     * The content in parent element of the translated child element will not be
+     * translated.
+     *
      *
      * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
      *
-     * Maximum accepted characters in a request is 10000 {@link #MAX_LENGTH}
-     *
+     * @param docContent
+     *      Content to be translated
      * @param toLocaleCode
      *      Language code to translate to
      */
@@ -81,7 +90,7 @@ public interface DocumentResource {
     @Path("/translate")
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
-            @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 500, condition = "Unexpected error during translation")
     })
     Response translate(

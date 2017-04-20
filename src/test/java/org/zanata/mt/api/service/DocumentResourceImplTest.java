@@ -1,11 +1,9 @@
 package org.zanata.mt.api.service;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +17,6 @@ import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentResourceImpl;
 import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
-import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
@@ -34,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.api.service.impl.DocumentResourceImpl.MAX_LENGTH;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -257,17 +253,6 @@ public class DocumentResourceImplTest {
                 .translate(documentContent, LocaleId.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
-        // max length
-        String overLengthSource = StringUtils.repeat("t", MAX_LENGTH + 1);
-        strings = Lists.newArrayList(
-                new TypeString(overLengthSource, "text/plain", "meta"));
-        documentContent =
-                new DocumentContent(strings, "http://localhost", "en");
-        response = documentResource
-                .translate(documentContent, LocaleId.DE);
-        assertThat(response.getStatus())
-                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -340,7 +325,8 @@ public class DocumentResourceImplTest {
                 toLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(doc, docContent, BackendID.MS))
+                .translateDocument(doc, docContent, BackendID.MS,
+                        DocumentResource.MAX_LENGTH))
                 .thenReturn(translatedDocContent);
 
         Response response =
