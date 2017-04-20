@@ -196,11 +196,20 @@ Content-Type: application/json
 
         <p>Perform machine translation on DocumentContent#contents to given
 locale code.
-This is a paid service which charge based on character count.
 
-See LanguagesResource#getSupportedLanguages() for supported locales.
+This is a paid service which cost is based on character count.
 
-Maximum accepted characters in a request is 10000 #MAX_LENGTH</p>
+'text/plain' - String will be ignore if it is more than 10,000 characters.
+
+'text/html' - Service will try to split string that is more than 10,000
+characters by running down to child element that has less than maximum chars.
+String will be ignored if html element cannot be broken down further.
+
+The content in parent element of the translated child element will not be
+translated.
+
+
+See LanguagesResource#getSupportedLanguages() for supported locales.</p>
 
         <table class="table resource-parameters">
           <caption>Request Parameters</caption>
@@ -236,6 +245,7 @@ Maximum accepted characters in a request is 10000 #MAX_LENGTH</p>
           <tr>
             <th>media type</th>
             <th>data type</th>
+            <th>description</th>
           </tr>
           </thead>
           <tbody>
@@ -243,6 +253,7 @@ Maximum accepted characters in a request is 10000 #MAX_LENGTH</p>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Content-Type: application/json&quot; HTTP header to specify this media type to the server."><span class="request-type">application/json</span></abbr></td>
             <td><span class="datatype-reference"><a href="json_DocumentContent.html">DocumentContent</a>
  (JSON)</span></td>
+            <td><span class="request-description">Content to be translated</span></td>
           </tr>
           </tbody>
         </table>
@@ -265,7 +276,7 @@ Maximum accepted characters in a request is 10000 #MAX_LENGTH</p>
           </tr>
           <tr>
             <td><span class="label label-warning response-code">400</span></td>
-            <td><span class="response-condition">Missing toLocaleCode, invalid DocumentContent, exceed 10000 characters in request</span></td>
+            <td><span class="response-condition">Missing toLocaleCode, invalid DocumentContent</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
  (JSON)</span></li></ul></td>
           </tr>
