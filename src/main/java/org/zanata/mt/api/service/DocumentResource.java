@@ -20,7 +20,7 @@ import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleId;
 
 /**
- * API entry point for {@link DocumentContent} translation
+ * API entry point for Document services.
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -61,21 +61,20 @@ public interface DocumentResource {
             @QueryParam("dateRange") String dateRange);
 
     /**
-     *
      * Perform machine translation on {@link DocumentContent#contents} to given
-     * locale code.
+     * locale code.<br/>
      *
-     * This is a paid service which cost is based on character count.
+     * <b>This is a paid service which cost is based on character count.</b><br/>
      *
-     * 'text/plain' - String will be ignore if it is more than 10,000 characters.
+     * <p>'text/plain' - Service will try to segment string that is more than 10,000
+     * characters. String will be ignore if it is unable to be segmented.</p>
      *
-     * 'text/html' - Service will try to split string that is more than 10,000
+     * <p>'text/html' - Service will try to split string that is more than 10,000
      * characters by running down to child element that has less than maximum chars.
      * String will be ignored if html element cannot be broken down further.
      *
      * The content in parent element of the translated child element will not be
-     * translated.
-     *
+     * translated.</p>
      *
      * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
      *

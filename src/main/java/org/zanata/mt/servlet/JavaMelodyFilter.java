@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -22,7 +21,6 @@ public class JavaMelodyFilter extends MonitoringFilter {
             final ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
-        final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (httpRequest.getRequestURI().equals(getMonitoringUrl(httpRequest))) {
             // TODO: add authentication for user and password
