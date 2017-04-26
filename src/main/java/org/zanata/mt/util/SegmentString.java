@@ -2,7 +2,7 @@ package org.zanata.mt.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import javax.validation.constraints.NotNull;
 import java.text.BreakIterator;
@@ -19,7 +19,7 @@ public final class SegmentString {
      * Segment a paragraph into sentences
      */
     public static List<String> segmentString(@NotNull String text,
-            Optional<LocaleId> localeCode) {
+            Optional<LocaleCode> localeCode) {
         if (StringUtils.isBlank(text)) {
             return Lists.newArrayList();
         }

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.Document;
@@ -58,7 +58,7 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testValidateEmptySrcLocale() {
         List<String> source = Lists.newArrayList("testing source");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
@@ -70,7 +70,7 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testValidateEmptyTargetLocale() {
         List<String> source = Lists.newArrayList("testing source");
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
+        Locale sourceLocale = new Locale(LocaleCode.EN, "English");
 
         assertThatThrownBy(() -> persistentTranslationService.translate(new Document(),
                 source,
@@ -82,8 +82,8 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testValidateEmptyProvider() {
         List<String> source = Lists.newArrayList("testing source");
-        Locale sourceLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale sourceLocale = new Locale(LocaleCode.EN, "English");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,

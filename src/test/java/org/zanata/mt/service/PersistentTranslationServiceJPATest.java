@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -63,8 +63,8 @@ public class PersistentTranslationServiceJPATest {
                         "translation of:" + sources.get(0), "<MSString>"
                                 + "translation of:" + sources.get(0) + "</MSString>"));
         Document doc = new Document();
-        Locale fromLocale = new Locale(LocaleId.EN, "English");
-        Locale toLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
         TextFlow expectedTf = new TextFlow(doc, sources.get(0), fromLocale);
         TextFlowTarget expectedTft =
                 new TextFlowTarget(
@@ -74,17 +74,17 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(null);
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleId());
-        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleId());
+        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleCode());
+        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
 
-        when(msBackend.getMappedLocale(fromLocale.getLocaleId()))
+        when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
                 .thenReturn(fromLocaleCode);
-        when(msBackend.getMappedLocale(toLocale.getLocaleId()))
+        when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
                 .thenReturn(toLocaleCode);
 
         when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
@@ -96,7 +96,7 @@ public class PersistentTranslationServiceJPATest {
 
         verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations
@@ -111,8 +111,8 @@ public class PersistentTranslationServiceJPATest {
         String expectedTranslation = "translation of:" + sources.get(0);
         String expectedRawContent =
                 "<MSString>" + expectedTranslation + "</MSString>";
-        Locale fromLocale = new Locale(LocaleId.EN, "English");
-        Locale toLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
 
         Document doc = new Document();
 
@@ -123,7 +123,7 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash))
+        when(textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(expectedTf);
 
         List<String> translations =
@@ -131,7 +131,7 @@ public class PersistentTranslationServiceJPATest {
                     .translate(doc, sources, fromLocale, toLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleId(), hash);
+        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }

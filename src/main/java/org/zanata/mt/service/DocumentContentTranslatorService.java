@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -125,7 +124,7 @@ public class DocumentContentTranslatorService {
                     maxLength, indexHTMLMap, results);
         }
         return new DocumentContent(results, documentContent.getUrl(),
-                doc.getTargetLocale().getLocaleId().getId(), backendID.getId(),
+                doc.getToLocale().getLocaleCode().getId(), backendID.getId(),
                 warnings);
     }
 
@@ -137,7 +136,7 @@ public class DocumentContentTranslatorService {
             List<APIResponse> warnings) {
         List<String> segmentedStrings =
                 SegmentString.segmentString(source,
-                        Optional.of(doc.getSrcLocale().getLocaleId()));
+                        Optional.of(doc.getFromLocale().getLocaleCode()));
         List<String> results = new ArrayList<>(segmentedStrings);
 
         List<String> batchedStrings = Lists.newArrayList();
@@ -153,8 +152,8 @@ public class DocumentContentTranslatorService {
             }
             if (charCount + string.length() > maxLength) {
                 translatedStrings.addAll(persistentTranslationService
-                        .translate(doc, batchedStrings, doc.getSrcLocale(),
-                                doc.getTargetLocale(), backendID, mediaType));
+                        .translate(doc, batchedStrings, doc.getFromLocale(),
+                                doc.getToLocale(), backendID, mediaType));
                 charCount = 0;
                 batchedStrings.clear();
             }
@@ -164,8 +163,8 @@ public class DocumentContentTranslatorService {
         }
         if (!batchedStrings.isEmpty()) {
             translatedStrings.addAll(persistentTranslationService
-                    .translate(doc, batchedStrings, doc.getSrcLocale(),
-                            doc.getTargetLocale(), backendID, mediaType));
+                    .translate(doc, batchedStrings, doc.getFromLocale(),
+                            doc.getToLocale(), backendID, mediaType));
         }
 
         for (int index = 0; index < translatedStrings.size(); index++) {
@@ -235,8 +234,8 @@ public class DocumentContentTranslatorService {
             List<Integer> indexOrderList, List<TypeString> results) {
 
         List<String> translatedStrings = persistentTranslationService
-                .translate(doc, strings, doc.getSrcLocale(),
-                        doc.getTargetLocale(), backendID, mediaType);
+                .translate(doc, strings, doc.getFromLocale(),
+                        doc.getToLocale(), backendID, mediaType);
         assert translatedStrings.size() == strings.size();
 
         for (int index = 0; index < translatedStrings.size(); index++) {
@@ -268,8 +267,8 @@ public class DocumentContentTranslatorService {
                 List<String> translated =
                         persistentTranslationService
                                 .translate(doc, Lists.newArrayList(html),
-                                        doc.getSrcLocale(),
-                                        doc.getTargetLocale(), backendID,
+                                        doc.getFromLocale(),
+                                        doc.getToLocale(), backendID,
                                         mediaType);
                 assert translated.size() == 1;
                 child.replaceWith(ArticleUtil.asElement(translated.get(0)));

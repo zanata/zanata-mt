@@ -1,6 +1,6 @@
 package org.zanata.mt.dao;
 
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 
@@ -33,16 +33,16 @@ public class DocumentDAO extends AbstractDAO<Document> {
     }
 
     public List<Document> getByUrl(@NotNull String url,
-            Optional<LocaleId> fromLocaleCode, Optional<LocaleId> toLocaleCode,
+            Optional<LocaleCode> fromLocaleCode, Optional<LocaleCode> toLocaleCode,
             Optional<DateRange> dateParam) {
         String urlHash = HashUtil.generateHash(url);
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("from Document where urlHash =:urlHash");
         if (fromLocaleCode.isPresent()) {
-            queryBuilder.append(" and srcLocale.localeId =:fromLocaleCode");
+            queryBuilder.append(" and fromLocale.localeCode =:fromLocaleCode");
         }
         if (toLocaleCode.isPresent()) {
-            queryBuilder.append(" and targetLocale.localeId =:toLocaleCode");
+            queryBuilder.append(" and toLocale.localeCode =:toLocaleCode");
         }
         if (dateParam.isPresent()) {
             queryBuilder.append(" and lastChanged between :fromDate and :toDate");
@@ -65,8 +65,8 @@ public class DocumentDAO extends AbstractDAO<Document> {
 
     public Document getByUrl(@NotNull String url, @NotNull Locale fromLocale,
             @NotNull Locale toLocale) {
-        List<Document> documents = getByUrl(url, Optional.of(fromLocale.getLocaleId()),
-                Optional.of(toLocale.getLocaleId()), Optional.empty());
+        List<Document> documents = getByUrl(url, Optional.of(fromLocale.getLocaleCode()),
+                Optional.of(toLocale.getLocaleCode()), Optional.empty());
         return documents.isEmpty() ? null : documents.get(0);
     }
 

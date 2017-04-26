@@ -2,7 +2,7 @@ package org.zanata.mt.model.type;
 
 import org.hibernate.HibernateException;
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,42 +14,42 @@ public class LocaleTypeDescriptorTest {
 
     @Test
     public void testConstructor() {
-        LocaleIdTypeDescriptor descriptor = new LocaleIdTypeDescriptor();
-        assertThat(descriptor.getJavaTypeClass()).isEqualTo(LocaleId.class);
+        LocaleCodeTypeDescriptor descriptor = new LocaleCodeTypeDescriptor();
+        assertThat(descriptor.getJavaTypeClass()).isEqualTo(LocaleCode.class);
     }
 
     @Test
     public void testFromString() {
-        LocaleIdTypeDescriptor descriptor = new LocaleIdTypeDescriptor();
+        LocaleCodeTypeDescriptor descriptor = new LocaleCodeTypeDescriptor();
         assertThat(descriptor.fromString(null)).isNull();
-        assertThat(descriptor.fromString("en")).isEqualTo(LocaleId.EN);
+        assertThat(descriptor.fromString("en")).isEqualTo(LocaleCode.EN);
     }
 
     @Test
     public void testToString() {
-        LocaleIdTypeDescriptor descriptor = new LocaleIdTypeDescriptor();
-        assertThat(descriptor.toString(LocaleId.DE)).isEqualTo("de");
+        LocaleCodeTypeDescriptor descriptor = new LocaleCodeTypeDescriptor();
+        assertThat(descriptor.toString(LocaleCode.DE)).isEqualTo("de");
     }
 
     @Test
     public void testUnwrap() {
-        LocaleIdTypeDescriptor descriptor = new LocaleIdTypeDescriptor();
-        assertThat(descriptor.unwrap(null, LocaleId.class, null)).isNull();
+        LocaleCodeTypeDescriptor descriptor = new LocaleCodeTypeDescriptor();
+        assertThat(descriptor.unwrap(null, LocaleCode.class, null)).isNull();
 
-        assertThat(descriptor.unwrap(LocaleId.EN, String.class, null))
+        assertThat(descriptor.unwrap(LocaleCode.EN, String.class, null))
                 .isEqualTo("en");
 
         assertThatThrownBy(
-                () -> descriptor.unwrap(LocaleId.EN, Integer.class, null))
+                () -> descriptor.unwrap(LocaleCode.EN, Integer.class, null))
                 .isInstanceOf(HibernateException.class);
     }
 
     @Test
     public void testWrap() {
-        LocaleIdTypeDescriptor descriptor = new LocaleIdTypeDescriptor();
+        LocaleCodeTypeDescriptor descriptor = new LocaleCodeTypeDescriptor();
         assertThat(descriptor.wrap(null, null)).isNull();
 
-        assertThat(descriptor.wrap("EN", null)).isEqualTo(LocaleId.EN);
+        assertThat(descriptor.wrap("EN", null)).isEqualTo(LocaleCode.EN);
 
         assertThatThrownBy(
                 () -> descriptor.wrap(1, null))

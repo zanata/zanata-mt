@@ -1,7 +1,7 @@
 package org.zanata.mt.util;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,8 @@ public class SegmentStringTest {
     public void segmentStringTest() {
         String text =
                 "Das nennen Sie ein Schinken-Sandwich? Nehmen Sie das sofort weg!";
-        List<String> strings = SegmentString.segmentString(text, Optional.of(LocaleId.DE));
+        List<String> strings = SegmentString.segmentString(text, Optional.of(
+                LocaleCode.DE));
         assertThat(strings.size()).isEqualTo(2);
     }
 }

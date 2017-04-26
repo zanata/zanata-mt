@@ -17,7 +17,7 @@ import com.webcohesion.enunciate.metadata.rs.TypeHint;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 /**
  * API entry point for Document services.
@@ -56,8 +56,8 @@ public interface DocumentResource {
             @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getStatistics(@QueryParam("url") String url,
-            @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
             @QueryParam("dateRange") String dateRange);
 
     /**
@@ -94,5 +94,5 @@ public interface DocumentResource {
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode);
 }

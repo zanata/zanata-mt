@@ -1,6 +1,6 @@
 package org.zanata.mt.process;
 
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -13,11 +13,11 @@ import java.io.Serializable;
 public class DocumentProcessKey implements Serializable {
 
     private final String url;
-    private final LocaleId fromLocaleCode;
-    private final LocaleId toLocaleCode;
+    private final LocaleCode fromLocaleCode;
+    private final LocaleCode toLocaleCode;
 
     public DocumentProcessKey(@NotNull String url,
-            @NotNull LocaleId fromLocaleCode, @NotNull LocaleId toLocaleCode) {
+            @NotNull LocaleCode fromLocaleCode, @NotNull LocaleCode toLocaleCode) {
         this.url = url;
         this.fromLocaleCode = fromLocaleCode;
         this.toLocaleCode = toLocaleCode;

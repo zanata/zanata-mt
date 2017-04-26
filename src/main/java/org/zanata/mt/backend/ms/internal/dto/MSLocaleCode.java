@@ -1,10 +1,9 @@
 package org.zanata.mt.backend.ms.internal.dto;
 
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 /**
  * A wrapper for locale code used in MS translator
@@ -14,8 +13,8 @@ import java.io.Serializable;
 public class MSLocaleCode implements BackendLocaleCode {
     private String localeCode;
 
-    public MSLocaleCode(@NotNull LocaleId localeId) {
-        this(localeId.getId());
+    public MSLocaleCode(@NotNull LocaleCode localeCode) {
+        this(localeCode.getId());
     }
 
     public MSLocaleCode(@NotNull String localeCode) {

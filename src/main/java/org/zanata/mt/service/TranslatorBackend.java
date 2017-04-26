@@ -5,10 +5,9 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
-import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.AugmentedTranslation;
 
 /**
@@ -37,7 +36,7 @@ public interface TranslatorBackend {
 
     /**
      * Return mapped locale for the backend
-     * @param localeId
+     * @param localeCode
      */
-    BackendLocaleCode getMappedLocale(@NotNull LocaleId localeId);
+    BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode);
 }

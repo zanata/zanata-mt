@@ -15,84 +15,84 @@
   <changeSet author="aeng@redhat.com" id="2">
     <comment>Insert default locale list</comment>
     <insert tableName="locale">
-      <column name="localeid" value="en-us" />
+      <column name="localecode" value="en-us" />
       <column name="name" value="English (United States)"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="de" />
+      <column name="localecode" value="de" />
       <column name="name" value="German"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="es" />
+      <column name="localecode" value="es" />
       <column name="name" value="Spanish"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="fr" />
+      <column name="localecode" value="fr" />
       <column name="name" value="French"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="it" />
+      <column name="localecode" value="it" />
       <column name="name" value="Italian"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="ja" />
+      <column name="localecode" value="ja" />
       <column name="name" value="Japanese"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="ko" />
+      <column name="localecode" value="ko" />
       <column name="name" value="Korean"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="pt" />
+      <column name="localecode" value="pt" />
       <column name="name" value="Portuguese"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="ru" />
+      <column name="localecode" value="ru" />
       <column name="name" value="Russian"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="zh-hans" />
+      <column name="localecode" value="zh-hans" />
       <column name="name" value="Chinese (Simplified)"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="zh-hant" />
+      <column name="localecode" value="zh-hant" />
       <column name="name" value="Chinese (Traditional)"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>
     </insert>
 
     <insert tableName="locale">
-      <column name="localeid" value="hi" />
+      <column name="localecode" value="hi" />
       <column name="name" value="Hindi"/>
       <column name="creationdate" value ="${now}"/>
       <column name="lastchanged" value="${now}"/>

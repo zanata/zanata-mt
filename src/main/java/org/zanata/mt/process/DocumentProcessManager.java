@@ -3,7 +3,7 @@ package org.zanata.mt.process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.DocumentContent;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Handle locking of api request for
- * {@link org.zanata.mt.api.service.DocumentContentTranslatorResource#translate(DocumentContent, LocaleId)}
+ * {@link org.zanata.mt.api.service.DocumentContentTranslatorResource#translate(DocumentContent, LocaleCode)}
  *
  * Limit to process one translation request at a time.
  * This lock uses single thread lock library which does not support clustering.

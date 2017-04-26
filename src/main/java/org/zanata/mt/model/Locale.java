@@ -9,23 +9,23 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.zanata.mt.api.dto.LocaleId;
-import org.zanata.mt.model.type.LocaleIdType;
+import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.model.type.LocaleCodeType;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Entity
 @Access(AccessType.FIELD)
-@TypeDef(name = "localeId", typeClass = LocaleIdType.class)
+@TypeDef(name = "localeCode", typeClass = LocaleCodeType.class)
 public class Locale extends ModelEntity {
 
     private static final long serialVersionUID = -7976081605962247643L;
 
-    @Type(type = "localeId")
+    @Type(type = "localeCode")
     @NaturalId
     @NotNull
-    private LocaleId localeId;
+    private LocaleCode localeCode;
 
     @Size(max = 191)
     private String name;
@@ -33,13 +33,13 @@ public class Locale extends ModelEntity {
     public Locale() {
     }
 
-    public Locale(LocaleId localeId, String name) {
-        this.localeId = localeId;
+    public Locale(LocaleCode localeCode, String name) {
+        this.localeCode = localeCode;
         this.name = name;
     }
 
-    public LocaleId getLocaleId() {
-        return localeId;
+    public LocaleCode getLocaleCode() {
+        return localeCode;
     }
 
     public String getName() {
@@ -53,13 +53,13 @@ public class Locale extends ModelEntity {
 
         Locale locale = (Locale) o;
 
-        return getLocaleId() != null ?
-                getLocaleId().equals(locale.getLocaleId()) :
-                locale.getLocaleId() == null;
+        return getLocaleCode() != null ?
+                getLocaleCode().equals(locale.getLocaleCode()) :
+                locale.getLocaleCode() == null;
     }
 
     @Override
     public int hashCode() {
-        return getLocaleId() != null ? getLocaleId().hashCode() : 0;
+        return getLocaleCode() != null ? getLocaleCode().hashCode() : 0;
     }
 }

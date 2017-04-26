@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.api.service.impl.LanguagesResourceImpl;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Locale;
@@ -41,8 +41,8 @@ public class LanguagesResourceTest {
     @Test
     public void testGetSupportedLocales() {
         List<Locale> locales =
-                Lists.newArrayList(new Locale(LocaleId.EN_US, "English"),
-                        new Locale(LocaleId.DE, "German"));
+                Lists.newArrayList(new Locale(LocaleCode.EN_US, "English"),
+                        new Locale(LocaleCode.DE, "German"));
         List<org.zanata.mt.api.dto.Locale> expectedLocales = Lists.newArrayList(
                 new org.zanata.mt.api.dto.Locale("en-us", "English"),
                 new org.zanata.mt.api.dto.Locale("de", "German"));
