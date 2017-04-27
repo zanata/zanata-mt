@@ -27,6 +27,7 @@ import org.zanata.mt.util.HashUtil;
 import com.google.common.collect.Lists;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +104,62 @@ public class PersistentTranslationServiceJPATest {
                     .stream()
                     .map(AugmentedTranslation::getPlainTranslation)
                     .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testNewTranslationDuplicateString()
+            throws BadRequestException {
+        List<String> sources = Lists.newArrayList("string to translate", "string to translate");
+        List<AugmentedTranslation> expectedTranslations =
+                Lists.newArrayList(new AugmentedTranslation(
+                        "translation of:" + sources.get(0), "<MSString>"
+                        + "translation of:" + sources.get(0) + "</MSString>"), new AugmentedTranslation(
+                        "translation of:" + sources.get(0), "<MSString>"
+                        + "translation of:" + sources.get(0) + "</MSString>"));
+        Document doc = new Document();
+        Locale fromLocale = new Locale(LocaleId.EN, "English");
+        Locale toLocale = new Locale(LocaleId.DE, "German");
+        TextFlow expectedTf = new TextFlow(doc, sources.get(0), fromLocale);
+        TextFlowTarget expectedTft =
+                new TextFlowTarget(
+                        expectedTranslations.get(0).getPlainTranslation(),
+                        expectedTranslations.get(0).getRawTranslation(),
+                        expectedTf, toLocale, BackendID.MS);
+
+        String hash = HashUtil.generateHash(sources.get(0));
+
+        when(textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash))
+                .thenReturn(null);
+        when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
+        when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
+
+        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleId());
+        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleId());
+
+        when(msBackend.getMappedLocale(fromLocale.getLocaleId()))
+                .thenReturn(fromLocaleCode);
+        when(msBackend.getMappedLocale(toLocale.getLocaleId()))
+                .thenReturn(toLocaleCode);
+
+        when(msBackend
+                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
+                        MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(expectedTranslations);
+
+        List<String> translations =
+                persistentTranslationService.translate(doc, sources, fromLocale,
+                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+
+        verify(msBackend)
+                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
+                        MediaType.TEXT_PLAIN_TYPE);
+        verify(textFlowDAO, times(2)).getByContentHash(fromLocale.getLocaleId(), hash);
+        verify(textFlowTargetDAO).persist(expectedTft);
+        assertThat(translations).isEqualTo(
+                expectedTranslations
+                        .stream()
+                        .map(AugmentedTranslation::getPlainTranslation)
+                        .collect(Collectors.toList()));
     }
 
     @Test

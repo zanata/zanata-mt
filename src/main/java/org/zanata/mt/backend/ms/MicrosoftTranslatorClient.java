@@ -70,7 +70,9 @@ class MicrosoftTranslatorClient {
     protected String requestTranslations(MSTranslateArrayReq req)
             throws ZanataMTException {
         getTokenIfNeeded();
-
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Source sending:" + DTOUtil.toXML(req));
+        }
         ResteasyWebTarget webTarget =
                 restClient.getWebTarget(TRANSLATIONS_BASE_URL);
         Response response = webTarget.request(MediaType.TEXT_XML)
