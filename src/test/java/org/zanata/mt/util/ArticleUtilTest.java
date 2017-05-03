@@ -45,7 +45,7 @@ public class ArticleUtilTest {
     @Test
     public void asElement() {
         String html = "<html><body>test</body></html>";
-        Node node = ArticleUtil.asElement(html);
+        Node node = ArticleUtil.asNode(html);
         assertThat(node).isNotNull().extracting(Node::outerHtml)
                 .contains(html);
     }

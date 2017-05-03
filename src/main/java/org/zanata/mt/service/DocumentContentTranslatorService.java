@@ -151,9 +151,11 @@ public class DocumentContentTranslatorService {
                 continue;
             }
             if (charCount + string.length() > maxLength) {
-                translatedStrings.addAll(persistentTranslationService
+                List<String> translated = persistentTranslationService
                         .translate(doc, batchedStrings, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, mediaType));
+                                doc.getToLocale(), backendID, mediaType);
+                translatedStrings.addAll(translated);
+                assert batchedStrings.size() == translated.size();
                 charCount = 0;
                 batchedStrings.clear();
             }
@@ -162,15 +164,17 @@ public class DocumentContentTranslatorService {
             charCount += string.length();
         }
         if (!batchedStrings.isEmpty()) {
-            translatedStrings.addAll(persistentTranslationService
+            List<String> translated = persistentTranslationService
                     .translate(doc, batchedStrings, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, mediaType));
+                            doc.getToLocale(), backendID, mediaType);
+            translatedStrings.addAll(translated);
+            assert batchedStrings.size() == translated.size();
         }
 
         for (int index = 0; index < translatedStrings.size(); index++) {
             results.set(indexOrderList.get(index), translatedStrings.get(index));
         }
-        return String.join(" ", results);
+        return String.join("", results);
     }
 
     /**
@@ -271,7 +275,7 @@ public class DocumentContentTranslatorService {
                                         doc.getToLocale(), backendID,
                                         mediaType);
                 assert translated.size() == 1;
-                child.replaceWith(ArticleUtil.asElement(translated.get(0)));
+                child.replaceWith(ArticleUtil.asNode(translated.get(0)));
             } else {
                 // show warning if there is no more children under this node
                 addMaxLengthWarnings(html, warnings, maxLength);

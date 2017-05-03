@@ -14,6 +14,7 @@ import org.zanata.mt.model.TranslatableHTMLNode;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -91,7 +92,7 @@ public final class ArticleUtil {
                 counter++;
             }
         }
-        return new TranslatableHTMLNode(unwrapAsElement(document),
+        return new TranslatableHTMLNode(unwrapAsNode(document),
                 placeholderIdMap);
     }
 
@@ -126,37 +127,25 @@ public final class ArticleUtil {
 
     /**
      * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
-     * first child in the wrapper.
+     * first child in the wrapper or the first text node.
      *
      * IMPORTANT: This assumes the html is wrap in single html node
      */
     public static @Nullable Node unwrapAsNode(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
-            if (!wrapper.childNodes().isEmpty()) {
-                return wrapper.childNodes().get(0);
+            if (!wrapper.children().isEmpty()) {
+                return wrapper.children().first();
+            } else if (!wrapper.textNodes().isEmpty()) {
+                return wrapper.textNodes().get(0);
             }
         }
         return null;
     }
 
-    /**
-     * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
-     * first child in the wrapper.
-     *
-     * IMPORTANT: This assumes the html is wrap in single html node
-     */
-    public static @Nullable Element unwrapAsElement(@NotNull Element element) {
-        Element wrapper = element.select("#" + getWrapperId()).first();
-        if (wrapper != null && !wrapper.children().isEmpty()) {
-            return wrapper.children().first();
-        }
-        return null;
-    }
-
     // parse html string into element
-    public static Element asElement(String html) {
-        return unwrapAsElement(wrapHTML(html));
+    public static Node asNode(String html) {
+        return unwrapAsNode(wrapHTML(html));
     }
 
     /**
