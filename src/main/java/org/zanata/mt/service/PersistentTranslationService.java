@@ -1,9 +1,11 @@
 package org.zanata.mt.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,8 +13,10 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 
+import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.LocaleCode;
@@ -76,7 +80,8 @@ public class PersistentTranslationService {
         }
 
         List<String> results = new ArrayList<>(strings);
-        Map<String, Integer> untranslatedIndexMap = Maps.newHashMap();
+        Multimap<String, Integer> untranslatedIndexMap = ArrayListMultimap.create();
+
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
         // search from database
@@ -118,21 +123,23 @@ public class PersistentTranslationService {
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
-        BackendLocaleCode mappedfromLocaleCode =
+        BackendLocaleCode mappedFromLocaleCode =
                 getMappedLocale(fromLocale.getLocaleCode());
-        BackendLocaleCode mappedTransLang =
+        BackendLocaleCode mappedToLocaleCode =
                 getMappedLocale(toLocale.getLocaleCode());
 
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, mappedfromLocaleCode, mappedTransLang, mediaType);
+                .translate(sources, mappedFromLocaleCode, mappedToLocaleCode, mediaType);
 
         for (String source: sources) {
-            int index = untranslatedIndexMap.get(source);
+            Collection<Integer> indexes = untranslatedIndexMap.get(source);
             AugmentedTranslation translation = translations.get(sources.indexOf(source));
-            results.set(index, translation.getPlainTranslation());
+            for (int index: indexes) {
+                results.set(index, translation.getPlainTranslation());
+            }
 
-            TextFlow tf = indexTextFlowMap.get(index);
+            TextFlow tf = indexTextFlowMap.get(indexes.iterator().next());
             if (tf == null) {
                 tf = createOrFetchTextFlow(document, source, fromLocale);
             }

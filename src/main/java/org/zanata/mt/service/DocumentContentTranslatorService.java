@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -151,9 +152,11 @@ public class DocumentContentTranslatorService {
                 continue;
             }
             if (charCount + string.length() > maxLength) {
-                translatedStrings.addAll(persistentTranslationService
+                List<String> translated = persistentTranslationService
                         .translate(doc, batchedStrings, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, mediaType));
+                                doc.getToLocale(), backendID, mediaType);
+                translatedStrings.addAll(translated);
+                assert batchedStrings.size() == translated.size();
                 charCount = 0;
                 batchedStrings.clear();
             }
@@ -162,15 +165,17 @@ public class DocumentContentTranslatorService {
             charCount += string.length();
         }
         if (!batchedStrings.isEmpty()) {
-            translatedStrings.addAll(persistentTranslationService
+            List<String> translated = persistentTranslationService
                     .translate(doc, batchedStrings, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, mediaType));
+                            doc.getToLocale(), backendID, mediaType);
+            translatedStrings.addAll(translated);
+            assert batchedStrings.size() == translated.size();
         }
 
         for (int index = 0; index < translatedStrings.size(); index++) {
             results.set(indexOrderList.get(index), translatedStrings.get(index));
         }
-        return String.join(" ", results);
+        return String.join("", results);
     }
 
     /**

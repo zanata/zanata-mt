@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -28,6 +29,7 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 
 import com.google.common.collect.Lists;
+import org.zanata.mt.util.SegmentString;
 import org.zanata.mt.util.ShortString;
 
 /**
@@ -120,6 +122,48 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getContents().get(0).getValue())
                 .isEqualTo(expectedHtml);
         assertThat(translatedDocContent.getWarnings()).hasSize(2);
+    }
+
+    @Test
+    public void testTranslateLongPlainText() {
+        int MAX_LENGTH = 50;
+
+        // strings with 6 sentences
+        String text = "Hurry! I am never at home on Sundays. The mysterious diary records the voice. She was too short to see over the fence. Everyone was busy, so I went to the movie alone. Sometimes it is better to just walk away from things and go back to them later when you’re in a better frame of mind.";
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", fromLocale, toLocale);
+        List<String> strings = SegmentString.segmentString(text, Optional.empty());
+
+        when(persistentTranslationService.translate(document,
+                strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
+                MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(Lists.newArrayList("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
+
+        when(persistentTranslationService.translate(document,
+                strings.subList(2, 3), fromLocale, toLocale, BackendID.MS,
+                MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(Lists.newArrayList("Translated:The mysterious diary records the voice. "));
+
+        when(persistentTranslationService.translate(document,
+                strings.subList(3, 4), fromLocale, toLocale, BackendID.MS,
+                MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(Lists.newArrayList("Translated:She was too short to see over the fence. "));
+
+        when(persistentTranslationService.translate(document,
+                strings.subList(4, 5), fromLocale, toLocale, BackendID.MS,
+                MediaType.TEXT_PLAIN_TYPE))
+                .thenReturn(Lists.newArrayList("Translated:Everyone was busy, so I went to the movie alone. "));
+
+        DocumentContent docContent =
+                new DocumentContent(Lists.newArrayList(
+                        new TypeString(text, MediaType.TEXT_PLAIN, "meta")), "http://localhost", "en");
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS, MAX_LENGTH);
+        assertThat(translatedDocContent.getContents()).hasSize(1);
+        assertThat(StringUtils.countMatches(translatedDocContent.getContents().get(0).getValue(), "Translated")).isEqualTo(5);
     }
 
     @Test
