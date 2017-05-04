@@ -13,9 +13,11 @@ import org.zanata.mt.model.TranslatableHTMLNode;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Article
@@ -92,7 +94,7 @@ public final class ArticleUtil {
                 counter++;
             }
         }
-        return new TranslatableHTMLNode(unwrapAsNode(document),
+        return new TranslatableHTMLNode(unwrapAsNodes(document),
                 placeholderIdMap);
     }
 
@@ -131,13 +133,13 @@ public final class ArticleUtil {
      *
      * IMPORTANT: This assumes the html is wrap in single html node
      */
-    public static @Nullable Node unwrapAsNode(@NotNull Element element) {
+    public static @Nullable List<Node> unwrapAsNodes(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
-            if (!wrapper.children().isEmpty()) {
-                return wrapper.children().first();
+            if (!wrapper.childNodes().isEmpty()) {
+                return wrapper.childNodes();
             } else if (!wrapper.textNodes().isEmpty()) {
-                return wrapper.textNodes().get(0);
+                return new ArrayList<Node>(wrapper.textNodes());
             }
         }
         return null;
@@ -145,7 +147,7 @@ public final class ArticleUtil {
 
     // parse html string into element
     public static Node asNode(String html) {
-        return unwrapAsNode(wrapHTML(html));
+        return unwrapAsNodes(wrapHTML(html)).get(0);
     }
 
     /**
@@ -159,7 +161,8 @@ public final class ArticleUtil {
             Node replacementNode = entry.getValue();
             element.select("#" + id).first().replaceWith(replacementNode);
         }
-        return unwrapAsNode(element).outerHtml();
+        return unwrapAsNodes(element).stream().map(node -> node.outerHtml())
+                .collect(Collectors.joining());
     }
 
     private static String getWrapperId() {

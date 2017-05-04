@@ -1,5 +1,6 @@
 package org.zanata.mt.model;
 
+import org.assertj.core.util.Lists;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -20,7 +21,8 @@ public class TranslatableHTMLNodeTest {
     public void testConstructor() {
         Map<String, Node> map = new HashMap<>();
         Element doc = new Element(Tag.valueOf("span"), "", new Attributes());
-        TranslatableHTMLNode node = new TranslatableHTMLNode(doc, map);
+        TranslatableHTMLNode node = new TranslatableHTMLNode(
+                Lists.newArrayList(doc), map);
         assertThat(node.getPlaceholderIdMap()).isEqualTo(map);
         assertThat(node.getHtml()).isEqualTo(doc.outerHtml());
     }

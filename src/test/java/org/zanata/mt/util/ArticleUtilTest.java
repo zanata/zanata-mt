@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,9 +58,12 @@ public class ArticleUtilTest {
         assertThat(wrappedElement.outerHtml().length())
                 .isGreaterThan(html.length());
 
-        Node unwrappedNode = ArticleUtil.unwrapAsNode(wrappedElement);
-        assertThat(unwrappedNode).isNotEqualTo(wrappedElement);
-        String unwrappedHTML = unwrappedNode.outerHtml();
+        List<Node> unwrappedNodes = ArticleUtil.unwrapAsNodes(wrappedElement);
+        assertThat(unwrappedNodes).isNotEmpty();
+
+        String unwrappedHTML =
+                unwrappedNodes.stream().map(node -> node.outerHtml())
+                        .collect(Collectors.joining());
 
         assertThat(unwrappedHTML.replaceAll("\n", "")
                 .replaceAll(" ", "")).isEqualTo(html);
@@ -86,6 +91,14 @@ public class ArticleUtilTest {
                 .doesNotContain(node3).doesNotContain(node4)
                 .doesNotContain(node5).contains(node6, node7);
     }
+
+    @Test
+    public void test() {
+        String html = "<code class=\"notranslate\">The ski is blue.</code><p>This is a test of what kinds of fruit that you like best.  Oranges? Grapes?</p>";
+        TranslatableHTMLNode node = ArticleUtil.replaceNonTranslatableNode(1, html);
+        System.out.println(node.getHtml());
+    }
+
 
     @Test
     public void replacePlaceholderWithNode() {

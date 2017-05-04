@@ -4,7 +4,9 @@ import org.jsoup.nodes.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A holder object for html which all non-translatable nodes are being replaced
@@ -14,13 +16,13 @@ import java.util.Map;
  */
 public class TranslatableHTMLNode {
 
-    private final Node node;
+    private final List<Node> nodes;
 
     private Map<String, Node> placeholderIdMap = new HashMap<>();
 
-    public TranslatableHTMLNode(@NotNull Node node,
+    public TranslatableHTMLNode(@NotNull List<Node> nodes,
             @NotNull Map<String, Node> placeholderIdMap) {
-        this.node = node;
+        this.nodes = nodes;
         this.placeholderIdMap = placeholderIdMap;
     }
 
@@ -31,6 +33,7 @@ public class TranslatableHTMLNode {
 
     // html string of {@link #nodes}
     public String getHtml() {
-        return node.outerHtml();
+        return nodes.stream().map(node -> node.outerHtml())
+                .collect(Collectors.joining());
     }
 }
