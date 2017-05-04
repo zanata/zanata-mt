@@ -124,7 +124,7 @@ public class DocumentContentTranslatorService {
                     maxLength, indexHTMLMap, results);
         }
         return new DocumentContent(results, documentContent.getUrl(),
-                doc.getTargetLocale().getLocaleId().getId(), backendID.getId(),
+                doc.getToLocale().getLocaleCode().getId(), backendID.getId(),
                 warnings);
     }
 
@@ -136,7 +136,7 @@ public class DocumentContentTranslatorService {
             List<APIResponse> warnings) {
         List<String> segmentedStrings =
                 SegmentString.segmentString(source,
-                        Optional.of(doc.getSrcLocale().getLocaleId()));
+                        Optional.of(doc.getFromLocale().getLocaleCode()));
         List<String> results = new ArrayList<>(segmentedStrings);
 
         List<String> batchedStrings = Lists.newArrayList();
@@ -152,8 +152,8 @@ public class DocumentContentTranslatorService {
             }
             if (charCount + string.length() > maxLength) {
                 List<String> translated = persistentTranslationService
-                        .translate(doc, batchedStrings, doc.getSrcLocale(),
-                                doc.getTargetLocale(), backendID, mediaType);
+                        .translate(doc, batchedStrings, doc.getFromLocale(),
+                                doc.getToLocale(), backendID, mediaType);
                 translatedStrings.addAll(translated);
                 assert batchedStrings.size() == translated.size();
                 charCount = 0;
@@ -165,8 +165,8 @@ public class DocumentContentTranslatorService {
         }
         if (!batchedStrings.isEmpty()) {
             List<String> translated = persistentTranslationService
-                    .translate(doc, batchedStrings, doc.getSrcLocale(),
-                            doc.getTargetLocale(), backendID, mediaType);
+                    .translate(doc, batchedStrings, doc.getFromLocale(),
+                            doc.getToLocale(), backendID, mediaType);
             translatedStrings.addAll(translated);
             assert batchedStrings.size() == translated.size();
         }
@@ -238,8 +238,8 @@ public class DocumentContentTranslatorService {
             List<Integer> indexOrderList, List<TypeString> results) {
 
         List<String> translatedStrings = persistentTranslationService
-                .translate(doc, strings, doc.getSrcLocale(),
-                        doc.getTargetLocale(), backendID, mediaType);
+                .translate(doc, strings, doc.getFromLocale(),
+                        doc.getToLocale(), backendID, mediaType);
         assert translatedStrings.size() == strings.size();
 
         for (int index = 0; index < translatedStrings.size(); index++) {
@@ -271,11 +271,11 @@ public class DocumentContentTranslatorService {
                 List<String> translated =
                         persistentTranslationService
                                 .translate(doc, Lists.newArrayList(html),
-                                        doc.getSrcLocale(),
-                                        doc.getTargetLocale(), backendID,
+                                        doc.getFromLocale(),
+                                        doc.getToLocale(), backendID,
                                         mediaType);
                 assert translated.size() == 1;
-                child.replaceWith(ArticleUtil.asElement(translated.get(0)));
+                child.replaceWith(ArticleUtil.asNode(translated.get(0)));
             } else {
                 // show warning if there is no more children under this node
                 addMaxLengthWarnings(html, warnings, maxLength);

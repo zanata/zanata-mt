@@ -32,7 +32,7 @@ public class LanguagesResourceImpl implements LanguagesResource {
         List<Locale> locales = localeDAO.getSupportedLocales();
         List<org.zanata.mt.api.dto.Locale> dtos = locales.stream()
                 .map(locale -> new org.zanata.mt.api.dto.Locale(
-                        locale.getLocaleId().getId(), locale.getName()))
+                        locale.getLocaleCode().getId(), locale.getName()))
                 .collect(Collectors.toList());
         return Response.ok().entity(dtos).build();
     }

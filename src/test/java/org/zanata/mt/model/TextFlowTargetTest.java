@@ -1,7 +1,7 @@
 package org.zanata.mt.model;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +19,7 @@ public class TextFlowTargetTest {
     @Test
     public void testConstructor() {
         TextFlow textFlow = new TextFlow();
-        Locale locale = new Locale(LocaleId.EN_US, "English US");
+        Locale locale = new Locale(LocaleCode.EN_US, "English US");
 
         TextFlowTarget target =
                 new TextFlowTarget("content", "raw content", textFlow, locale,
@@ -43,8 +43,8 @@ public class TextFlowTargetTest {
 
     @Test
     public void testEqualsAndHashcode() {
-        Locale fromLocale = new Locale(LocaleId.EN_US, "English US");
-        Locale toLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleCode.EN_US, "English US");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
         TextFlow textFlow = new TextFlow(new Document(), "content", fromLocale);
 
         TextFlowTarget target1 =
@@ -68,7 +68,7 @@ public class TextFlowTargetTest {
 
 
         // diff locale
-        Locale newToLocale = new Locale(LocaleId.FR, "French");
+        Locale newToLocale = new Locale(LocaleCode.FR, "French");
         target2 =
                 new TextFlowTarget("content", "raw content", textFlow, newToLocale,
                         BackendID.MS);

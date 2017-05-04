@@ -33,14 +33,14 @@ public class Document extends ModelEntity {
     @NotNull
     @NaturalId
     @ManyToOne(optional = false)
-    @JoinColumn(name = "srcLocaleId", nullable = false, updatable = false)
-    private Locale srcLocale;
+    @JoinColumn(name = "fromLocaleId", nullable = false, updatable = false)
+    private Locale fromLocale;
 
     @NotNull
     @NaturalId
     @ManyToOne(optional = false)
-    @JoinColumn(name = "targetLocaleId", nullable = false, updatable = false)
-    private Locale targetLocale;
+    @JoinColumn(name = "toLocaleId", nullable = false, updatable = false)
+    private Locale toLocale;
 
     private int count;
 
@@ -58,16 +58,16 @@ public class Document extends ModelEntity {
     public Document() {
     }
 
-    public Document(String url, Locale srcLocale, Locale targetLocale) {
+    public Document(String url, Locale fromLocale, Locale toLocale) {
         this.url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
-        this.srcLocale = srcLocale;
-        this.targetLocale = targetLocale;
+        this.fromLocale = fromLocale;
+        this.toLocale = toLocale;
         updateUrlHash();
     }
 
-    public Document(String url, Locale srcLocale, Locale targetLocale,
+    public Document(String url, Locale fromLocale, Locale toLocale,
             Set<TextFlow> textFlows) {
-        this(url, srcLocale, targetLocale);
+        this(url, fromLocale, toLocale);
         this.textFlows = textFlows;
     }
 
@@ -79,12 +79,12 @@ public class Document extends ModelEntity {
         return url;
     }
 
-    public Locale getSrcLocale() {
-        return srcLocale;
+    public Locale getFromLocale() {
+        return fromLocale;
     }
 
-    public Locale getTargetLocale() {
-        return targetLocale;
+    public Locale getToLocale() {
+        return toLocale;
     }
 
     public int getCount() {
@@ -112,12 +112,12 @@ public class Document extends ModelEntity {
 
         if (getUrlHash() != null ? !getUrlHash().equals(document.getUrlHash()) :
                 document.getUrlHash() != null) return false;
-        if (getSrcLocale() != null ?
-                !getSrcLocale().equals(document.getSrcLocale()) :
-                document.getSrcLocale() != null) return false;
-        return getTargetLocale() != null ?
-                getTargetLocale().equals(document.getTargetLocale()) :
-                document.getTargetLocale() == null;
+        if (getFromLocale() != null ?
+                !getFromLocale().equals(document.getFromLocale()) :
+                document.getFromLocale() != null) return false;
+        return getToLocale() != null ?
+                getToLocale().equals(document.getToLocale()) :
+                document.getToLocale() == null;
     }
 
     @Override
@@ -125,10 +125,10 @@ public class Document extends ModelEntity {
         int result = getUrlHash() != null ? getUrlHash().hashCode() : 0;
         result =
                 31 * result +
-                        (getSrcLocale() != null ? getSrcLocale().hashCode() :
+                        (getFromLocale() != null ? getFromLocale().hashCode() :
                                 0);
         result = 31 * result +
-                (getTargetLocale() != null ? getTargetLocale().hashCode() : 0);
+                (getToLocale() != null ? getToLocale().hashCode() : 0);
         return result;
     }
 }

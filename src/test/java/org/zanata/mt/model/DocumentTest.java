@@ -1,7 +1,7 @@
 package org.zanata.mt.model;
 
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,20 +20,20 @@ public class DocumentTest {
 
     @Test
     public void testConstructor() {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
         Document doc = new Document("http://localhost/",
                 srcLocale, targetLocale);
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
-        assertThat(doc.getSrcLocale()).isEqualTo(srcLocale);
-        assertThat(doc.getTargetLocale()).isEqualTo(targetLocale);
+        assertThat(doc.getFromLocale()).isEqualTo(srcLocale);
+        assertThat(doc.getToLocale()).isEqualTo(targetLocale);
         assertThat(doc.getUrlHash()).isNotEmpty();
     }
 
     @Test
     public void testConstructor2() {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
         Set<TextFlow> textFlowSet = new HashSet<>();
         TextFlow tf = new TextFlow();
         tf.setContent("testing");
@@ -41,8 +41,8 @@ public class DocumentTest {
         Document doc = new Document("http://localhost",
                 srcLocale, targetLocale, textFlowSet);
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
-        assertThat(doc.getSrcLocale()).isEqualTo(srcLocale);
-        assertThat(doc.getTargetLocale()).isEqualTo(targetLocale);
+        assertThat(doc.getFromLocale()).isEqualTo(srcLocale);
+        assertThat(doc.getToLocale()).isEqualTo(targetLocale);
         assertThat(doc.getUrlHash()).isNotEmpty();
         assertThat(doc.getTextFlows()).isEqualTo(textFlowSet);
     }
@@ -59,8 +59,8 @@ public class DocumentTest {
 
     @Test
     public void testEqualsAndHashcode() {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
         Document doc1 = getDefaultDocument();
         Document doc2 = getDefaultDocument();
@@ -75,13 +75,13 @@ public class DocumentTest {
 
         // change srcLocale
         doc2 = new Document("http://localhost",
-                new Locale(LocaleId.EN_US, "English"), targetLocale);
+                new Locale(LocaleCode.EN_US, "English"), targetLocale);
         assertThat(doc1.hashCode()).isNotEqualTo(doc2.hashCode());
         assertThat(doc1.equals(doc2)).isFalse();
 
         // change targetLocale
         doc2 = new Document("http://localhost",
-                srcLocale, new Locale(LocaleId.FR, "French"));
+                srcLocale, new Locale(LocaleCode.FR, "French"));
         assertThat(doc1.hashCode()).isNotEqualTo(doc2.hashCode());
         assertThat(doc1.equals(doc2)).isFalse();
 
@@ -93,8 +93,8 @@ public class DocumentTest {
     }
 
     private Document getDefaultDocument() {
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale targetLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
         return new Document("http://localhost",
                 srcLocale, targetLocale);
     }

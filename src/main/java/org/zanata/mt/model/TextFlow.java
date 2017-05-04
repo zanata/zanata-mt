@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.util.HashUtil;
 
 /**
@@ -96,10 +96,10 @@ public class TextFlow extends ModelEntity {
     }
 
     @Transient
-    public List<TextFlowTarget> getTargetsByLocaleId(LocaleId localeId) {
+    public List<TextFlowTarget> getTargetsByLocaleCode(LocaleCode localeCode) {
         return getTargets().stream()
                 .filter(textFlowTarget -> textFlowTarget.getLocale()
-                        .getLocaleId().equals(localeId))
+                        .getLocaleCode().equals(localeCode))
                 .collect(Collectors.toList());
     }
 

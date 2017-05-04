@@ -17,7 +17,7 @@ import com.webcohesion.enunciate.metadata.rs.TypeHint;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 /**
  * API entry point for Document services.
@@ -56,8 +56,8 @@ public interface DocumentResource {
             @ResponseCode(code = 500, condition = "Unexpected error")
     })
     Response getStatistics(@QueryParam("url") String url,
-            @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
             @QueryParam("dateRange") String dateRange);
 
     /**
@@ -69,7 +69,13 @@ public interface DocumentResource {
      * <p>'text/plain' - Service will try to segment string that is more than 10,000
      * characters. String will be ignore if it is unable to be segmented.</p>
      *
-     * <p>'text/html' - Service will try to split string that is more than 10,000
+     * <p>'text/html' - HTML string must be wrapped in a single HTML node for processing.
+     * Service will only process the first HTML node if there are multiple passed in.
+     * Example:<br/>
+     * `<div>multiple html contents</div>` - service will translate this whole<br/>
+     * `<div>html content1</div><div>html content2</div>` - service will only translate 'html content1' html.<br/>
+     *
+     * Service will try to split string that is more than 10,000
      * characters by running down to child element that has less than maximum chars.
      * String will be ignored if html element cannot be broken down further.
      *
@@ -94,5 +100,5 @@ public interface DocumentResource {
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode);
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode);
 }

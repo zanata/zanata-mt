@@ -21,7 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.DocumentContent;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentResource;
 import org.zanata.mt.model.BackendID;
@@ -73,8 +73,8 @@ public class DocumentContentTranslatorServiceTest {
     @Test
     public void testLongHTML() {
         int maxLength = 25;
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
         Document document =
                 new Document("http://localhost", srcLocale, transLocale);
 
@@ -99,8 +99,8 @@ public class DocumentContentTranslatorServiceTest {
     @Test
     public void testLongHTMLCannotTranslate() {
         int maxLength = 25;
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
         Document document =
                 new Document("http://localhost", srcLocale, transLocale);
 
@@ -130,8 +130,8 @@ public class DocumentContentTranslatorServiceTest {
 
         // strings with 6 sentences
         String text = "Hurry! I am never at home on Sundays. The mysterious diary records the voice. She was too short to see over the fence. Everyone was busy, so I went to the movie alone. Sometimes it is better to just walk away from things and go back to them later when you’re in a better frame of mind.";
-        Locale fromLocale = new Locale(LocaleId.EN, "English");
-        Locale toLocale = new Locale(LocaleId.DE, "German");
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
         Document document =
                 new Document("http://localhost", fromLocale, toLocale);
         List<String> strings = SegmentString.segmentString(text, Optional.empty());
@@ -170,8 +170,8 @@ public class DocumentContentTranslatorServiceTest {
     public void testTranslateDocumentContent() {
         int MAX_LENGTH = DocumentResource.MAX_LENGTH;
 
-        Locale srcLocale = new Locale(LocaleId.EN, "English");
-        Locale transLocale = new Locale(LocaleId.DE, "German");
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
 
         String longText = StringUtils.repeat("5", MAX_LENGTH);
         String maxString = StringUtils.repeat("t", MAX_LENGTH + 1);
@@ -248,7 +248,7 @@ public class DocumentContentTranslatorServiceTest {
                 .translateDocument(document, docContent, BackendID.MS, MAX_LENGTH);
 
         assertThat(translatedDocContent.getLocaleCode())
-                .isEqualTo(transLocale.getLocaleId().getId());
+                .isEqualTo(transLocale.getLocaleCode().getId());
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());
 

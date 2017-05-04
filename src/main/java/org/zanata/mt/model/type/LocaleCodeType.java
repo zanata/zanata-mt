@@ -24,26 +24,26 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.type.LiteralType;
 import org.hibernate.type.StringType;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
-public class LocaleIdType extends
-    AbstractSingleColumnStandardBasicType<LocaleId> implements
-    LiteralType<LocaleId> {
+public class LocaleCodeType extends
+    AbstractSingleColumnStandardBasicType<LocaleCode> implements
+    LiteralType<LocaleCode> {
 
     private static final long serialVersionUID = 3064881963824869913L;
 
-    public LocaleIdType() {
+    public LocaleCodeType() {
         super(StringType.INSTANCE.getSqlTypeDescriptor(),
-                LocaleIdTypeDescriptor.INSTANCE);
+                LocaleCodeTypeDescriptor.INSTANCE);
     }
 
     @Override
     public String getName() {
-        return "localeId";
+        return "localeCode";
     }
 
     @Override
-    public String objectToSQLString(LocaleId value, Dialect dialect)
+    public String objectToSQLString(LocaleCode value, Dialect dialect)
             throws Exception {
         return "\'" + toString(value) + "\'";
     }

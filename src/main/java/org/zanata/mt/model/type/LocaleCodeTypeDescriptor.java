@@ -22,33 +22,33 @@ package org.zanata.mt.model.type;
 
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
-public class LocaleIdTypeDescriptor extends AbstractTypeDescriptor<LocaleId> {
+public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode> {
     private static final long serialVersionUID = 1L;
-    public static final LocaleIdTypeDescriptor INSTANCE =
-            new LocaleIdTypeDescriptor();
+    public static final LocaleCodeTypeDescriptor INSTANCE =
+            new LocaleCodeTypeDescriptor();
 
-    protected LocaleIdTypeDescriptor() {
-        super(LocaleId.class);
+    protected LocaleCodeTypeDescriptor() {
+        super(LocaleCode.class);
     }
 
     @Override
-    public LocaleId fromString(String string) {
+    public LocaleCode fromString(String string) {
         if (string == null) {
             return null;
         } else {
-            return new LocaleId(string);
+            return new LocaleCode(string);
         }
     }
 
     @Override
-    public String toString(LocaleId value) {
+    public String toString(LocaleCode value) {
         return value.toString();
     }
 
     @Override
-    public <X> X unwrap(LocaleId value, Class<X> type, WrapperOptions options) {
+    public <X> X unwrap(LocaleCode value, Class<X> type, WrapperOptions options) {
         if (value == null) {
             return null;
         }
@@ -59,12 +59,12 @@ public class LocaleIdTypeDescriptor extends AbstractTypeDescriptor<LocaleId> {
     }
 
     @Override
-    public <X> LocaleId wrap(X value, WrapperOptions options) {
+    public <X> LocaleCode wrap(X value, WrapperOptions options) {
         if (value == null) {
             return null;
         }
         if (String.class.isInstance(value)) {
-            return new LocaleId((String) value);
+            return new LocaleCode((String) value);
         }
         throw unknownWrap(value.getClass());
     }

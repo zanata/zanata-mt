@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
  * This entity is used for generic translations by accepting array of strings with type.
  *
  * Used in
- * {@link DocumentResource#translate(DocumentContent, LocaleId)}
+ * {@link DocumentResource#translate(DocumentContent, LocaleCode)}
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */

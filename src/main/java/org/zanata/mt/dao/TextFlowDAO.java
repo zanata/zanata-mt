@@ -4,7 +4,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.model.TextFlow;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -25,12 +25,12 @@ public class TextFlowDAO extends AbstractDAO<TextFlow> {
         setEntityManager(entityManager);
     }
 
-    public TextFlow getByContentHash(LocaleId localeId, String contentHash) {
+    public TextFlow getByContentHash(LocaleCode localeCode, String contentHash) {
         List<TextFlow> tfs = getEntityManager()
                 .createQuery(
-                        "from TextFlow where contentHash =:contentHash and locale.localeId =:localeId")
+                        "from TextFlow where contentHash =:contentHash and locale.localeCode =:localeCode")
                 .setParameter("contentHash", contentHash)
-                .setParameter("localeId", localeId)
+                .setParameter("localeCode", localeCode)
                 .getResultList();
         return (tfs == null || tfs.isEmpty()) ? null : tfs.get(0);
     }

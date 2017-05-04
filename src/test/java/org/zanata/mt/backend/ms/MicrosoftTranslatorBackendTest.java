@@ -2,7 +2,7 @@ package org.zanata.mt.backend.ms;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
@@ -55,12 +55,12 @@ public class MicrosoftTranslatorBackendTest {
 
     @Test
     public void testMappedLocale() {
-        LocaleId from = LocaleId.ZH_HANS;
+        LocaleCode from = LocaleCode.ZH_HANS;
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         BackendLocaleCode to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
-        from = LocaleId.PT;
+        from = LocaleCode.PT;
         to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isEqualTo(from.getId());
     }
@@ -68,8 +68,8 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testTranslate() {
         String content = "content";
-        MSLocaleCode srcLocale = new MSLocaleCode(LocaleId.EN);
-        MSLocaleCode transLocale = new MSLocaleCode(LocaleId.DE);
+        MSLocaleCode srcLocale = new MSLocaleCode(LocaleCode.EN);
+        MSLocaleCode transLocale = new MSLocaleCode(LocaleCode.DE);
         MSTranslateArrayResp resp = new MSTranslateArrayResp();
         List<MSTranslateArrayResponse> respList = new ArrayList<>();
         respList.add(buildMSResponse("translation1"));

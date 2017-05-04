@@ -2,7 +2,7 @@ package org.zanata.mt.process;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,7 +22,7 @@ public class DocumentProcessManagerTest {
     public void testTryLock() {
         String url = "testing";
         DocumentProcessKey key =
-                new DocumentProcessKey(url, LocaleId.EN, LocaleId.DE);
+                new DocumentProcessKey(url, LocaleCode.EN, LocaleCode.DE);
         lock.lock(key);
         assertThat(lock.isLocked(key)).isTrue();
         assertThat(lock.getLock(key).getHoldCount()).isEqualTo(1);

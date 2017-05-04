@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentResource;
 import org.zanata.mt.dao.DocumentDAO;
@@ -62,8 +62,8 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response getStatistics(@QueryParam("url") String url,
-            @QueryParam("fromLocaleCode") LocaleId fromLocaleCode,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode,
+            @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
             @QueryParam("dateRange") String dateRangeParam) {
         if (StringUtils.isBlank(url)) {
             APIResponse response =
@@ -83,8 +83,8 @@ public class DocumentResourceImpl implements DocumentResource {
         DocumentStatistics statistics = new DocumentStatistics(url);
         for (Document document: documents) {
             statistics.addRequestCount(
-                    document.getSrcLocale().getLocaleId().getId(),
-                    document.getTargetLocale().getLocaleId().getId(),
+                    document.getFromLocale().getLocaleCode().getId(),
+                    document.getToLocale().getLocaleCode().getId(),
                     document.getCount());
         }
         return Response.ok().entity(statistics).build();
@@ -92,7 +92,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleId toLocaleCode) {
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
         // Default to MS engine for translation
         BackendID backendID = BackendID.MS;
 
@@ -104,7 +104,7 @@ public class DocumentResourceImpl implements DocumentResource {
         }
 
         // if source locale == target locale, return docContent
-        LocaleId fromLocaleCode = new LocaleId(docContent.getLocaleCode());
+        LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
             LOG.info("Returning request as FROM and TO localeCode are the same:" + fromLocaleCode);
             return Response.ok().entity(docContent).build();
@@ -138,8 +138,8 @@ public class DocumentResourceImpl implements DocumentResource {
     }
 
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,
-            LocaleId toLocaleId) {
-        if (toLocaleId == null) {
+            LocaleCode toLocaleCode) {
+        if (toLocaleCode == null) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                     "Invalid query param: toLocaleCode"));
         }
@@ -174,11 +174,11 @@ public class DocumentResourceImpl implements DocumentResource {
         return Optional.empty();
     }
 
-    private Locale getLocale(LocaleId localeCode) throws BadRequestException {
+    private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
         if (localeCode == null) {
             return null;
         }
-        Locale locale = localeDAO.getByLocaleId(localeCode);
+        Locale locale = localeDAO.getByLocaleCode(localeCode);
         if (locale == null) {
             throw new BadRequestException("Not supported locale:" + localeCode);
         }

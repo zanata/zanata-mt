@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,7 +19,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -79,7 +80,6 @@ public class PersistentTranslationService {
         }
 
         List<String> results = new ArrayList<>(strings);
-//        Map<String, Integer> untranslatedIndexMap = Maps.newHashMap();
         Multimap<String, Integer> untranslatedIndexMap = ArrayListMultimap.create();
 
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
@@ -89,20 +89,20 @@ public class PersistentTranslationService {
             String string = strings.get(index);
             String hash = HashUtil.generateHash(string);
             TextFlow matchedHashTf =
-                    textFlowDAO.getByContentHash(fromLocale.getLocaleId(), hash);
+                    textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash);
 
             if (matchedHashTf != null) {
                 Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
-                        matchedHashTf.getTargetsByLocaleId(
-                                toLocale.getLocaleId()), backendID);
+                        matchedHashTf.getTargetsByLocaleCode(
+                                toLocale.getLocaleCode()), backendID);
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
                     matchedEntity.incrementCount();
                     textFlowTargetDAO.persist(matchedEntity);
                     LOG.info(
-                            "Found matched, Source-" + fromLocale.getLocaleId() + ":" +
-                                    string + "\nTranslation-" + toLocale.getLocaleId() +
+                            "Found matched, Source-" + fromLocale.getLocaleCode() + ":" +
+                                    string + "\nTranslation-" + toLocale.getLocaleCode() +
                                     ":" + matchedEntity.getContent());
                     results.set(index, matchedEntity.getContent());
                 } else {
@@ -123,14 +123,14 @@ public class PersistentTranslationService {
         // trigger MT engine search
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
-        BackendLocaleCode mappedfromLocaleCode =
-                getMappedLocale(fromLocale.getLocaleId());
-        BackendLocaleCode mappedtoLocaleCode =
-                getMappedLocale(toLocale.getLocaleId());
+        BackendLocaleCode mappedFromLocaleCode =
+                getMappedLocale(fromLocale.getLocaleCode());
+        BackendLocaleCode mappedToLocaleCode =
+                getMappedLocale(toLocale.getLocaleCode());
 
         List<AugmentedTranslation> translations =
             microsoftTranslatorBackend
-                .translate(sources, mappedfromLocaleCode, mappedtoLocaleCode, mediaType);
+                .translate(sources, mappedFromLocaleCode, mappedToLocaleCode, mediaType);
 
         for (String source: sources) {
             Collection<Integer> indexes = untranslatedIndexMap.get(source);
@@ -164,7 +164,7 @@ public class PersistentTranslationService {
         } catch (Exception e) {
             if (ExceptionUtil.isConstraintViolationException(e)) {
                 tf = textFlowDAO
-                        .getByContentHash(locale.getLocaleId(),
+                        .getByContentHash(locale.getLocaleCode(),
                                 tf.getContentHash());
             }
         } finally {
@@ -179,7 +179,7 @@ public class PersistentTranslationService {
     private void createOrUpdateTextFlowTarget(TextFlowTarget tft) {
         TextFlow tf = tft.getTextFlow();
         List<TextFlowTarget> existingTfts =
-                tf.getTargetsByLocaleId(tft.getLocale().getLocaleId());
+                tf.getTargetsByLocaleCode(tft.getLocale().getLocaleCode());
         if (existingTfts.isEmpty()) {
             textFlowTargetDAO.persist(tft);
             tf.getTargets().add(tft);
@@ -204,7 +204,7 @@ public class PersistentTranslationService {
         return Optional.empty();
     }
 
-    public BackendLocaleCode getMappedLocale(@NotNull LocaleId localeId) {
-        return microsoftTranslatorBackend.getMappedLocale(localeId);
+    public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
+        return microsoftTranslatorBackend.getMappedLocale(localeCode);
     }
 }

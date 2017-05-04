@@ -29,8 +29,8 @@ public class DocumentStatisticsTest {
 
         int count = 1;
         TranslationRequestStatistics requestStats =
-                new TranslationRequestStatistics(LocaleId.EN_US.getId(),
-                        LocaleId.FR.getId(), count);
+                new TranslationRequestStatistics(LocaleCode.EN_US.getId(),
+                        LocaleCode.FR.getId(), count);
 
         stats.addRequestCount(requestStats.getFromLocaleCode(),
                 requestStats.getToLocaleCode(), count);
@@ -46,8 +46,8 @@ public class DocumentStatisticsTest {
 
         int count = 1;
         TranslationRequestStatistics requestStats =
-                new TranslationRequestStatistics(LocaleId.EN_US.getId(),
-                        LocaleId.FR.getId(), count);
+                new TranslationRequestStatistics(LocaleCode.EN_US.getId(),
+                        LocaleCode.FR.getId(), count);
 
         stats.addRequestCount(requestStats.getFromLocaleCode(),
                 requestStats.getToLocaleCode(), count);
@@ -70,7 +70,7 @@ public class DocumentStatisticsTest {
         assertThat(stats.equals(stats2)).isTrue();
         assertThat(stats.hashCode()).isEqualTo(stats2.hashCode());
 
-        stats.addRequestCount(LocaleId.EN_US.getId(), LocaleId.FR.getId(), 1);
+        stats.addRequestCount(LocaleCode.EN_US.getId(), LocaleCode.FR.getId(), 1);
         assertThat(stats.equals(stats2)).isFalse();
         assertThat(stats.hashCode()).isNotEqualTo(stats2.hashCode());
 

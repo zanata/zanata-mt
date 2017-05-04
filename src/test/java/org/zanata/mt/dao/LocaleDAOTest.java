@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.zanata.mt.JPATest;
-import org.zanata.mt.api.dto.LocaleId;
+import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.model.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,35 +29,35 @@ public class LocaleDAOTest extends JPATest {
     }
 
     @Test
-    public void testGetByLocaleIdEmpty() {
-        Locale locale = dao.getByLocaleId(LocaleId.FR);
+    public void testGetByLocaleCodeEmpty() {
+        Locale locale = dao.getByLocaleCode(LocaleCode.FR);
         assertThat(locale).isNull();
     }
 
     @Test
-    public void testGetByLocaleId() {
-        Locale locale = dao.getByLocaleId(LocaleId.EN_US);
-        assertThat(locale).isNotNull().extracting("localeId")
-                .contains(LocaleId.EN_US);
+    public void testGetByLocaleCode() {
+        Locale locale = dao.getByLocaleCode(LocaleCode.EN_US);
+        assertThat(locale).isNotNull().extracting("localeCode")
+                .contains(LocaleCode.EN_US);
     }
 
     @Test
-    public void testGetOrCreateByLocaleIdNew() {
-        Locale locale = dao.getOrCreateByLocaleId(LocaleId.FR);
-        assertThat(locale).isNotNull().extracting("localeId")
-                .contains(LocaleId.FR);
+    public void testGetOrCreateByLocaleCodeNew() {
+        Locale locale = dao.getOrCreateByLocaleCode(LocaleCode.FR);
+        assertThat(locale).isNotNull().extracting("localeCode")
+                .contains(LocaleCode.FR);
     }
 
     @Test
-    public void testGetOrCreateByLocaleId() {
-        Locale locale = dao.getOrCreateByLocaleId(LocaleId.EN_US);
-        assertThat(locale).isNotNull().extracting("localeId")
-                .contains(LocaleId.EN_US);
+    public void testGetOrCreateByLocaleCode() {
+        Locale locale = dao.getOrCreateByLocaleCode(LocaleCode.EN_US);
+        assertThat(locale).isNotNull().extracting("localeCode")
+                .contains(LocaleCode.EN_US);
     }
 
     @Override
     protected void setupTestData() {
-        getEm().persist(new Locale(LocaleId.EN_US, "English US"));
-        getEm().persist(new Locale(LocaleId.DE, "German"));
+        getEm().persist(new Locale(LocaleCode.EN_US, "English US"));
+        getEm().persist(new Locale(LocaleCode.DE, "German"));
     }
 }
