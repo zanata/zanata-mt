@@ -2,6 +2,7 @@ package org.zanata.mt.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -26,13 +27,13 @@ import java.util.stream.Collectors;
  */
 public final class ArticleUtil {
     private final static String ID_PREFIX = "ZNTA";
-    private final static String WRAPPER_ID = "WRAPPER";
+    private final static String WRAPPER_ID = "WRAP";
 
     // HTML tag that will not be translated
     private final static ImmutableList<String> NON_TRANSLATABLE_NODE = ImmutableList
-            .of("script", "#text", "code", "col", "colgroup", "embed", "em",
+            .of("script", "#text", "code", "col", "colgroup", "embed",
                     "#comment", "image", "map", "media", "meta", "source",
-                    "xml", "pre");
+                    "xml");
 
     // Node with attribute that will not be translated
     private final static ImmutableMap<String, String> NON_TRANSLATABLE_ATTRIBUTE =
@@ -128,26 +129,30 @@ public final class ArticleUtil {
     }
 
     /**
-     * Unwrap wrapped element inside ZANATA-MT wrapper. Only returns the
-     * first child in the wrapper or the first text node.
-     *
-     * IMPORTANT: This assumes the html is wrap in single html node
+     * Unwrap a wrapped element inside ZANATA-MT wrapper.
      */
     public static @Nullable List<Node> unwrapAsNodes(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
-            if (!wrapper.childNodes().isEmpty()) {
-                return wrapper.childNodes();
-            } else if (!wrapper.textNodes().isEmpty()) {
-                return new ArrayList<Node>(wrapper.textNodes());
-            }
+            return wrapper.childNodes();
+        }
+        return null;
+    }
+
+    /**
+     * Unwrap a wrapped element inside ZANATA-MT wrapper.
+     */
+    public static @Nullable List<Element> unwrapAsElements(@NotNull Element element) {
+        Element wrapper = element.select("#" + getWrapperId()).first();
+        if (wrapper != null) {
+            return wrapper.children();
         }
         return null;
     }
 
     // parse html string into element
-    public static Node asNode(String html) {
-        return unwrapAsNodes(wrapHTML(html)).get(0);
+    public static Element asElement(String html) {
+        return unwrapAsElements(wrapHTML(html)).get(0);
     }
 
     /**

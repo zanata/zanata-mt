@@ -97,6 +97,32 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
+    public void testLongHTML2() {
+        int maxLength = 25;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "<span>content1</span><span>content2</span>";
+        String expectedHtml = "<span>translated</span><span>translated</span>";
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any()))
+                .thenReturn(Lists.newArrayList("<span>translated</span>"));
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS, maxLength);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+    }
+
+    @Test
     public void testLongHTMLCannotTranslate() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
@@ -180,7 +206,7 @@ public class DocumentContentTranslatorServiceTest {
                 Lists.newArrayList("<div>Entry 1</div>",
                         "<div>Entry 2</div>",
                         "<div>Entry 6</div>",
-                        "<pre>KCS code section</pre>",
+                        "<code>KCS code section</code>",
                         "<div translate=\"no\">non translatable node</div>",
                         "<div id=\"private-notes\"><span>private notes</span></div>");
 

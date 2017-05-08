@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -258,33 +259,45 @@ public class DocumentContentTranslatorService {
     private String translateLargeHTMLElement(Document doc, BackendID backendID,
             MediaType mediaType, int maxLength, String source,
             List<APIResponse> warnings) {
-        Element root = ArticleUtil.wrapHTML(source).children().first();
-        Element content = root.children().first();
 
-        int size = content.getAllElements().size();
-        int index = 0;
+        List<Element> contents =
+                ArticleUtil.unwrapAsElements(ArticleUtil.wrapHTML(source));
 
-        while (index < size) {
-            Element child = content.getAllElements().get(index);
-            String html = child.outerHtml();
-            if (html.length() <= maxLength) {
-                List<String> translated =
-                        persistentTranslationService
-                                .translate(doc, Lists.newArrayList(html),
-                                        doc.getFromLocale(),
-                                        doc.getToLocale(), backendID,
-                                        mediaType);
-                assert translated.size() == 1;
-                child.replaceWith(ArticleUtil.asNode(translated.get(0)));
-            } else {
-                // show warning if there is no more children under this node
-                addMaxLengthWarnings(html, warnings, maxLength);
+        for (int i = 0; i < contents.size(); i++) {
+            Element content = contents.get(i);
+            int size = content.getAllElements().size();
+            int index = 0;
+
+            while (index < size) {
+                Element child = content.getAllElements().get(index);
+                String html = child.outerHtml();
+                if (html.length() <= maxLength) {
+                    List<String> translated =
+                            persistentTranslationService
+                                    .translate(doc, Lists.newArrayList(html),
+                                            doc.getFromLocale(),
+                                            doc.getToLocale(), backendID,
+                                            mediaType);
+                    assert translated.size() == 1;
+                    Element replacement = ArticleUtil.asElement(translated.get(0));
+                    if (child == content) {
+                        //replace this item in contents list, exit while loop
+                        contents.set(i, replacement);
+                        break;
+                    } else {
+                        child.replaceWith(replacement);
+                    }
+                } else {
+                    // show warning if there is no more children under this node
+                    addMaxLengthWarnings(html, warnings, maxLength);
+                }
+                // size changes if child node is being translated
+                size = content.getAllElements().size();
+                index++;
             }
-            // size changes if child node is being translated
-            size = content.getAllElements().size();
-            index++;
         }
-        return root.children().first().outerHtml();
+        return contents.stream().map(node -> node.outerHtml())
+                .collect(Collectors.joining());
     }
 
     private void addMaxLengthWarnings(String source, List<APIResponse> warnings,
