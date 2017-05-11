@@ -1,5 +1,6 @@
 package org.zanata.mt.api.dto;
 
+import com.webcohesion.enunciate.metadata.DocumentationExample;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -37,6 +38,7 @@ public class TranslationRequestStatistics implements Serializable {
     @JsonProperty("fromLocaleCode")
     @NotNull
     @Size(max = 128)
+    @DocumentationExample("en-us")
     public String getFromLocaleCode() {
         return fromLocaleCode;
     }
@@ -44,11 +46,13 @@ public class TranslationRequestStatistics implements Serializable {
     @JsonProperty("toLocaleCode")
     @NotNull
     @Size(max = 128)
+    @DocumentationExample("fr")
     public String getToLocaleCode() {
         return toLocaleCode;
     }
 
     @JsonProperty("count")
+    @DocumentationExample("42")
     public int getCount() {
         return count;
     }

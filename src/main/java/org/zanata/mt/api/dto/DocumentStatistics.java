@@ -1,5 +1,7 @@
 package org.zanata.mt.api.dto;
 
+import com.webcohesion.enunciate.metadata.DocumentationExample;
+import com.webcohesion.enunciate.metadata.Label;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -14,6 +16,7 @@ import java.util.List;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @JsonSerialize
+@Label("Document Statistics")
 public class DocumentStatistics implements Serializable {
 
     private String url;
@@ -50,6 +53,7 @@ public class DocumentStatistics implements Serializable {
      */
     @JsonProperty("url")
     @NotNull
+    @DocumentationExample("http://example.com")
     public String getUrl() {
         return url;
     }
