@@ -21,12 +21,14 @@ CREATE TABLE IF NOT EXISTS Document (
 
 CREATE TABLE IF NOT EXISTS TextFlow (
     id            SERIAL PRIMARY KEY,
+    documentId    BIGINT            NOT NULL,
     contentHash   VARCHAR(128)      NOT NULL,
     localeId      BIGINT            NOT NULL REFERENCES Locale (id),
     content       TEXT              NOT NULL,
+    wordCount     BIGINT            NOT NULL,
     creationDate  DATE              NOT NULL,
     lastChanged   DATE              NOT NULL,
-    UNIQUE (localeId, contentHash)
+    UNIQUE (documentId, contentHash, localeId)
 );
 
 CREATE TABLE IF NOT EXISTS TextFlowTarget (
@@ -36,15 +38,7 @@ CREATE TABLE IF NOT EXISTS TextFlowTarget (
     content       TEXT        NOT NULL,
     rawContent    TEXT        NOT NULL,
     backendId      VARCHAR(20) NOT NULL,
-    count     INTEGER     DEFAULT 0,
     creationDate  DATE        NOT NULL,
     lastChanged  DATE         NOT NULL,
     UNIQUE (localeId, textFlowId, backendId)
 );
-
-CREATE TABLE IF NOT EXISTS Document_TextFlow (
-    id            SERIAL PRIMARY KEY,
-    documentId    BIGINT      NOT NULL REFERENCES Document (id),
-    textFlowId    BIGINT      NOT NULL REFERENCES TextFlow (id),
-    UNIQUE (documentId, textFlowId)
-)

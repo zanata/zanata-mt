@@ -10,6 +10,8 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.TextFlow;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -33,24 +35,29 @@ public class TextFlowDAOTest extends JPATest {
 
     @Test
     public void testGetByHashNull() {
-        TextFlow tf = dao.getByContentHash(LocaleCode.EN_US, "hash");
-        assertThat(tf).isNull();
+        Optional<TextFlow>
+                tf = dao.getLatestByContentHash(LocaleCode.EN_US, "hash");
+        assertThat(tf.isPresent()).isFalse();
     }
 
     @Test
     public void testGetByHash() {
-        TextFlow tf = dao.getByContentHash(LocaleCode.EN_US, hash);
-        assertThat(tf).isNotNull();
-        assertThat(tf.getContent()).isEqualTo("content");
-        assertThat(tf.getContentHash()).isEqualTo(hash);
+        Optional<TextFlow> tf = dao.getLatestByContentHash(LocaleCode.EN_US, hash);
+        assertThat(tf.isPresent()).isTrue();
+        assertThat(tf.get().getContent()).isEqualTo("content");
+        assertThat(tf.get().getContentHash()).isEqualTo(hash);
     }
 
     @Override
     protected void setupTestData() {
-        Locale locale = new Locale(LocaleCode.EN_US, "English US");
-        getEm().persist(locale);
+        Locale fromLocale = new Locale(LocaleCode.EN_US, "English US");
+        getEm().persist(fromLocale);
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+        getEm().persist(toLocale);
+        Document doc = new Document("http://localhost", fromLocale, toLocale);
+        getEm().persist(doc);
 
-        TextFlow tf = new TextFlow(new Document(), "content", locale);
+        TextFlow tf = new TextFlow(doc, "content", fromLocale);
         getEm().persist(tf);
         hash = tf.getContentHash();
     }

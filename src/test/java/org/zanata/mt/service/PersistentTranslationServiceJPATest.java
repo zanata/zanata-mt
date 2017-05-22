@@ -1,6 +1,7 @@
 package org.zanata.mt.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.BadRequestException;
@@ -75,8 +76,8 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash))
-                .thenReturn(null);
+        when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
+                .thenReturn(Optional.empty());
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
@@ -97,7 +98,7 @@ public class PersistentTranslationServiceJPATest {
 
         verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleCode(), hash);
+        verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations
@@ -128,8 +129,8 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash))
-                .thenReturn(null);
+        when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
+                .thenReturn(Optional.empty());
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
@@ -153,7 +154,7 @@ public class PersistentTranslationServiceJPATest {
         verify(msBackend)
                 .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
                         MediaType.TEXT_PLAIN_TYPE);
-        verify(textFlowDAO, times(2)).getByContentHash(fromLocale.getLocaleCode(), hash);
+        verify(textFlowDAO, times(2)).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
                 expectedTranslations
@@ -180,16 +181,16 @@ public class PersistentTranslationServiceJPATest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
-        when(textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash))
-                .thenReturn(expectedTf);
+        when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
+                .thenReturn(Optional.of(expectedTf));
+        when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
 
         List<String> translations =
                 persistentTranslationService
                     .translate(doc, sources, fromLocale, toLocale,
                         BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
 
-        verify(textFlowDAO).getByContentHash(fromLocale.getLocaleCode(), hash);
-        verify(textFlowTargetDAO).persist(expectedTft);
+        verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
     }
 }

@@ -36,6 +36,16 @@ public class TextFlowTest {
     }
 
     @Test
+    public void testWordCount() {
+        Locale fromLocale = new Locale(LocaleCode.EN_US, "English US");
+        TextFlow tf =
+                new TextFlow(new Document(), "longer old content", fromLocale);
+        Long oldCount = tf.getWordCount();
+        tf.setContent("content");
+        assertThat(tf.getWordCount()).isNotEqualTo(oldCount);
+    }
+
+    @Test
     public void testDocuments() {
         Locale fromLocale = new Locale(LocaleCode.EN_US, "English US");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
@@ -44,7 +54,7 @@ public class TextFlowTest {
                 fromLocale, toLocale);
 
         TextFlow tf = new TextFlow(doc, "old content", fromLocale);
-        assertThat(tf.getDocuments()).isNotEmpty().contains(doc);
+        assertThat(tf.getDocument()).isEqualTo(doc);
     }
 
     @Test

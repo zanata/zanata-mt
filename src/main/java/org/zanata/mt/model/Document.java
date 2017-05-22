@@ -7,15 +7,17 @@ import org.zanata.mt.util.HashUtil;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -49,11 +51,10 @@ public class Document extends ModelEntity {
     @NaturalId
     private String urlHash;
 
-    @ManyToMany
-    @JoinTable(name = "Document_TextFlow",
-            joinColumns = @JoinColumn(name = "documentId"),
-            inverseJoinColumns = @JoinColumn(name = "textFlowId"))
-    private Set<TextFlow> textFlows = new HashSet<>();
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "documentId", insertable = false, updatable = false)
+    @MapKey(name = "contentHash")
+    private Map<String, TextFlow> textFlows;
 
     public Document() {
     }
@@ -66,7 +67,7 @@ public class Document extends ModelEntity {
     }
 
     public Document(String url, Locale fromLocale, Locale toLocale,
-            Set<TextFlow> textFlows) {
+            Map<String, TextFlow> textFlows) {
         this(url, fromLocale, toLocale);
         this.textFlows = textFlows;
     }
@@ -95,7 +96,10 @@ public class Document extends ModelEntity {
         return urlHash;
     }
 
-    public Set<TextFlow> getTextFlows() {
+    public Map<String, TextFlow> getTextFlows() {
+        if (textFlows == null) {
+            textFlows = new HashMap<>();
+        }
         return textFlows;
     }
 

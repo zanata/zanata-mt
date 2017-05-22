@@ -30,15 +30,6 @@ public class TextFlowTargetTest {
         assertThat(target.getTextFlow()).isEqualTo(textFlow);
         assertThat(target.getLocale()).isEqualTo(locale);
         assertThat(target.getBackendId()).isEqualTo(BackendID.MS);
-        assertThat(target.getCount()).isEqualTo(0);
-    }
-
-    @Test
-    public void testIncrementCount() {
-        TextFlowTarget target = new TextFlowTarget();
-        assertThat(target.getCount()).isEqualTo(0);
-        target.incrementCount();
-        assertThat(target.getCount()).isEqualTo(1);
     }
 
     @Test

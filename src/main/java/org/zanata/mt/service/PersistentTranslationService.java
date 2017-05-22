@@ -30,7 +30,6 @@ import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
-import org.zanata.mt.util.ExceptionUtil;
 import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
@@ -65,7 +64,9 @@ public class PersistentTranslationService {
     /**
      * Translate multiple string in an api trigger
      *
-     * Get from database if exists (hash), or from MT engine
+     * Get from database if exists (hash) from same document,
+     * if not exist, get latest TF from DB with matching hash,
+     * else from MT engine
      */
     @TransactionAttribute
     public List<String> translate(@NotNull Document document,
@@ -86,19 +87,23 @@ public class PersistentTranslationService {
         // search from database
         for (int index = 0; index < strings.size(); index++) {
             String string = strings.get(index);
-            String hash = HashUtil.generateHash(string);
-            TextFlow matchedHashTf =
-                    textFlowDAO.getByContentHash(fromLocale.getLocaleCode(), hash);
+            String contentHash = HashUtil.generateHash(string);
+            TextFlow matchedHashTf = document.getTextFlows().get(contentHash);
+            if (matchedHashTf == null) {
+                Optional<TextFlow> tfCopy =
+                        copyTextFlowAndTargetFromDB(document, fromLocale,
+                                toLocale, contentHash, backendID);
+
+                matchedHashTf = tfCopy.isPresent() ? tfCopy.get() : null;
+            }
 
             if (matchedHashTf != null) {
-                Optional<TextFlowTarget> matchedTarget = getTargetByProvider(
+                Optional<TextFlowTarget> matchedTarget = filterTargetByProvider(
                         matchedHashTf.getTargetsByLocaleCode(
                                 toLocale.getLocaleCode()), backendID);
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
-                    matchedEntity.incrementCount();
-                    textFlowTargetDAO.persist(matchedEntity);
                     LOG.info(
                             "Found matched, Source-" + fromLocale.getLocaleCode() + ":" +
                                     string + "\nTranslation-" + toLocale.getLocaleCode() +
@@ -140,7 +145,7 @@ public class PersistentTranslationService {
 
             TextFlow tf = indexTextFlowMap.get(indexes.iterator().next());
             if (tf == null) {
-                tf = createOrFetchTextFlow(document, source, fromLocale);
+                tf = createTextFlow(document, source, fromLocale);
             }
             TextFlowTarget target =
                     new TextFlowTarget(translation.getPlainTranslation(),
@@ -151,24 +156,42 @@ public class PersistentTranslationService {
         return results;
     }
 
-    /**
-     * This is to handle concurrent db request for 2 same text flow is being
-     * persisted at the same time.
-     */
-    private TextFlow createOrFetchTextFlow(Document document, String source,
+    private Optional<TextFlow> copyTextFlowAndTargetFromDB(Document document,
+            Locale fromLocale, Locale toLocale, String contentHash,
+            BackendID backendID) {
+        Optional<TextFlow> textFlow =
+                textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(),
+                        contentHash);
+        Optional<TextFlow> copy = Optional.empty();
+        if (textFlow.isPresent()) {
+            // copy textFlow and target textFlowTarget
+            List<TextFlowTarget> tfts =
+                    textFlow.get().getTargetsByLocaleCode(toLocale.getLocaleCode());
+            TextFlow newTfCopy =
+                    new TextFlow(document, textFlow.get().getContent(),
+                            fromLocale);
+            if (!tfts.isEmpty()) {
+                Optional<TextFlowTarget> tft =
+                        filterTargetByProvider(tfts, backendID);
+                if (tft.isPresent()) {
+                    newTfCopy.getTargets()
+                            .add(new TextFlowTarget(tft.get().getContent(),
+                                    tft.get().getRawContent(), newTfCopy,
+                                    toLocale,
+                                    tft.get().getBackendId()));
+                }
+            }
+            newTfCopy = textFlowDAO.persist(newTfCopy);
+            copy = Optional.of(newTfCopy);
+        }
+        return copy;
+    }
+
+    private TextFlow createTextFlow(Document document, String source,
             Locale locale) {
         TextFlow tf = new TextFlow(document, source, locale);
-        try {
-            tf = textFlowDAO.persist(tf);
-        } catch (Exception e) {
-            if (ExceptionUtil.isConstraintViolationException(e)) {
-                tf = textFlowDAO
-                        .getByContentHash(locale.getLocaleCode(),
-                                tf.getContentHash());
-            }
-        } finally {
-            return tf;
-        }
+        tf = textFlowDAO.persist(tf);
+        return tf;
     }
 
     /**
@@ -184,7 +207,7 @@ public class PersistentTranslationService {
             tf.getTargets().add(tft);
         } else {
             Optional<TextFlowTarget> existingTft =
-                    getTargetByProvider(existingTfts, tft.getBackendId());
+                    filterTargetByProvider(existingTfts, tft.getBackendId());
             if (existingTft.isPresent()) {
                 existingTft.get()
                         .updateContent(tft.getContent(), tft.getRawContent());
@@ -193,7 +216,7 @@ public class PersistentTranslationService {
         }
     }
 
-    private Optional<TextFlowTarget> getTargetByProvider(
+    private Optional<TextFlowTarget> filterTargetByProvider(
             List<TextFlowTarget> targets, BackendID backendID) {
         for (TextFlowTarget target : targets) {
             if (target.getBackendId().equals(backendID)) {

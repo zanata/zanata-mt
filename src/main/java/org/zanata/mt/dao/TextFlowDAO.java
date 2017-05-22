@@ -1,6 +1,7 @@
 package org.zanata.mt.dao;
 
 import java.util.List;
+import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
@@ -25,13 +26,16 @@ public class TextFlowDAO extends AbstractDAO<TextFlow> {
         setEntityManager(entityManager);
     }
 
-    public TextFlow getByContentHash(LocaleCode localeCode, String contentHash) {
+    public Optional<TextFlow> getLatestByContentHash(LocaleCode localeCode,
+            String contentHash) {
+        String query =
+                "FROM TextFlow WHERE contentHash =:contentHash AND locale.localeCode =:localeCode ORDER BY lastChanged DESC";
         List<TextFlow> tfs = getEntityManager()
-                .createQuery(
-                        "from TextFlow where contentHash =:contentHash and locale.localeCode =:localeCode")
+                .createQuery(query)
                 .setParameter("contentHash", contentHash)
                 .setParameter("localeCode", localeCode)
                 .getResultList();
-        return (tfs == null || tfs.isEmpty()) ? null : tfs.get(0);
+        return (tfs == null || tfs.isEmpty()) ? Optional.empty() :
+                Optional.of(tfs.get(0));
     }
 }

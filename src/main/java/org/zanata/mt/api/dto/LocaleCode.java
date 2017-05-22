@@ -27,15 +27,16 @@ public class LocaleCode implements Serializable {
 
     private String id;
 
-    public LocaleCode() {
-        this("");
-    }
-
     public LocaleCode(@NotNull String localeCode) {
         if (localeCode.indexOf('_') != -1)
             throw new IllegalArgumentException(
                 "expected lang[-country[-modifier]], got " + localeCode);
         this.id = localeCode.toLowerCase().intern();
+    }
+
+    @SuppressWarnings("unused")
+    protected LocaleCode() {
+        this("");
     }
 
     public static LocaleCode fromJavaName(String localeName) {

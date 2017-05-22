@@ -3,6 +3,7 @@ FROM jboss/wildfly:10.1.0.Final
 MAINTAINER "Alex Eng" <aeng@redhat.com>
 
 EXPOSE 8080
+EXPOSE 8787
 
 # Install postgresql driver
 RUN curl -L -o $JBOSS_HOME/standalone/deployments/postgresql-connector.jar https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar
@@ -17,7 +18,7 @@ COPY docker/conf/zanata-mt-config.cli /tmp/
 RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/zanata-mt-config.cli
 
 # use standalone.xml
-CMD $JBOSS_HOME/bin/standalone.sh -c  standalone.xml -b 0.0.0.0
+CMD $JBOSS_HOME/bin/standalone.sh -c  standalone.xml -b 0.0.0.0 --debug
 
 # copy war file
 ADD target/deployments/ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war

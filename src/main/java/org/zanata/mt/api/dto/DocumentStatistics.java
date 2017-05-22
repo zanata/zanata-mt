@@ -29,7 +29,7 @@ public class DocumentStatistics implements Serializable {
     }
 
     public void addRequestCount(String fromLocaleCode, String toLocaleCode,
-            int count) {
+            int count, int totalWordCount) {
         boolean inserted = false;
         for (TranslationRequestStatistics stats : requestCounts) {
             if (stats.getFromLocaleCode().equals(fromLocaleCode) &&
@@ -41,7 +41,7 @@ public class DocumentStatistics implements Serializable {
         }
         if (!inserted) {
             requestCounts.add(new TranslationRequestStatistics(fromLocaleCode,
-                    toLocaleCode, count));
+                    toLocaleCode, count, totalWordCount));
         }
     }
 

@@ -31,6 +31,7 @@
     <hibernate.version>5.2.5.Final</hibernate.version>
     <hibernate.commons.version>5.0.1.Final</hibernate.commons.version>
     <powermock.version>1.6.6</powermock.version>
+    <okapi.version>0.33</okapi.version>
 
     <!-- database -->
     <db.name>zanataMT</db.name>
@@ -41,18 +42,6 @@
     <postgresql.port>5432</postgresql.port>
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
-
-    <!-- cargo settings -->
-    <cargo.host>localhost</cargo.host>
-    <cargo.port.offset>0</cargo.port.offset>
-    <cargo.installation>http://download.jboss.org/wildfly/10.1.0.Final/wildfly-10.1.0.Final.tar.gz</cargo.installation>
-    <cargo.containerId>wildfly10x</cargo.containerId>
-    <cargo.extract.dir>${project.build.directory}/cargo/installs</cargo.extract.dir>
-    <cargo.container.home>${project.build.directory}/jboss/container</cargo.container.home>
-    <cargo.servlet.port>8080</cargo.servlet.port>
-    <cargo.jboss.management-http.port>10190</cargo.jboss.management-http.port>
-    <cargo.jboss.management-native.port>10199</cargo.jboss.management-native.port>
-    <context.path>/</context.path>
 
     <!-- checkstyle -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
@@ -258,6 +247,7 @@
                 <dockerFileDir>${project.basedir}</dockerFileDir>
                 <ports>
                   <port>8080:8080</port>
+                  <port>8787:8787</port>
                 </ports>
               </build>
               <run>
@@ -276,6 +266,7 @@
                 </dependsOn>
                 <ports>
                   <port>8080:8080</port>
+                  <port>8787:8787</port>
                 </ports>
                 <log>
                   <date>default</date>
@@ -623,6 +614,31 @@
       <version>${icu4j.version}</version>
     </dependency>
 
+    <!-- okapi -->
+    <dependency>
+      <groupId>net.sf.okapi</groupId>
+      <artifactId>okapi-core</artifactId>
+      <version>${okapi.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>net.sf.okapi.logbind</groupId>
+          <artifactId>build-log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.okapi.steps</groupId>
+      <artifactId>okapi-step-tokenization</artifactId>
+      <version>${okapi.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- Test -->
     <dependency>
       <groupId>junit</groupId>
@@ -673,4 +689,18 @@
     </dependency>
 
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>okapi-cloudbees-release</id>
+      <name>okapi-cloudbees-release</name>
+      <url>http://repository-okapi.forge.cloudbees.com/release/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>

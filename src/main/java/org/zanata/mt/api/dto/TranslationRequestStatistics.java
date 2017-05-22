@@ -18,16 +18,18 @@ public class TranslationRequestStatistics implements Serializable {
     private String fromLocaleCode;
     private String toLocaleCode;
     private int count;
+    private int wordCount;
 
     @SuppressWarnings("unused")
     protected TranslationRequestStatistics() {
     }
 
     public TranslationRequestStatistics(String fromLocaleCode, String toLocaleCode,
-            int count) {
+            int count, int wordCount) {
         this.fromLocaleCode = fromLocaleCode;
         this.toLocaleCode = toLocaleCode;
         this.count = count;
+        this.wordCount = wordCount;
     }
 
     public void addCount(int usedCount) {
@@ -53,32 +55,34 @@ public class TranslationRequestStatistics implements Serializable {
         return count;
     }
 
+    @JsonProperty("wordCount")
+    public int getWordCount() {
+        return wordCount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TranslationRequestStatistics)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        TranslationRequestStatistics
-                that = (TranslationRequestStatistics) o;
+        TranslationRequestStatistics that = (TranslationRequestStatistics) o;
 
-        if (getCount() != that.getCount()) return false;
-        if (getFromLocaleCode() != null ?
-                !getFromLocaleCode().equals(that.getFromLocaleCode()) :
-                that.getFromLocaleCode() != null) return false;
-        return getToLocaleCode() != null ?
-                getToLocaleCode().equals(that.getToLocaleCode()) :
-                that.getToLocaleCode() == null;
+        if (count != that.count) return false;
+        if (wordCount != that.wordCount) return false;
+        if (fromLocaleCode != null ?
+                !fromLocaleCode.equals(that.fromLocaleCode) :
+                that.fromLocaleCode != null) return false;
+        return toLocaleCode != null ? toLocaleCode.equals(that.toLocaleCode) :
+                that.toLocaleCode == null;
     }
 
     @Override
     public int hashCode() {
-        int result =
-                getFromLocaleCode() != null ?
-                        getFromLocaleCode().hashCode() : 0;
+        int result = fromLocaleCode != null ? fromLocaleCode.hashCode() : 0;
         result = 31 * result +
-                (getToLocaleCode() != null ? getToLocaleCode().hashCode() :
-                        0);
-        result = 31 * result + getCount();
+                (toLocaleCode != null ? toLocaleCode.hashCode() : 0);
+        result = 31 * result + count;
+        result = 31 * result + wordCount;
         return result;
     }
 }
