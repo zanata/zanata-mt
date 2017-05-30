@@ -105,9 +105,12 @@ public class PersistentTranslationService {
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
                     LOG.info(
-                            "Found matched, Source-" + fromLocale.getLocaleCode() + ":" +
-                                    string + "\nTranslation-" + toLocale.getLocaleCode() +
-                                    ":" + matchedEntity.getContent());
+                            "Found match, Source {}:{}:{}\nTranslation {}:{}",
+                            fromLocale.getLocaleCode(), document.getUrl(),
+                            string,
+                            toLocale.getLocaleCode(),
+                            matchedEntity.getContent());
+
                     results.set(index, matchedEntity.getContent());
                 } else {
                     untranslatedIndexMap.put(string, index);
