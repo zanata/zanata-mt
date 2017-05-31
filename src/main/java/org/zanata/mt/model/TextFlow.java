@@ -1,9 +1,8 @@
 package org.zanata.mt.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -11,8 +10,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -23,6 +20,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.util.HashUtil;
+import org.zanata.mt.util.OkapiUtil;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -32,11 +30,11 @@ import org.zanata.mt.util.HashUtil;
 public class TextFlow extends ModelEntity {
     private static final long serialVersionUID = -4550040877568062431L;
 
-    @ManyToMany
-    @JoinTable(name = "Document_TextFlow",
-            joinColumns = @JoinColumn(name = "textFlowId"),
-            inverseJoinColumns = @JoinColumn(name = "documentId"))
-    private Set<Document> documents = new HashSet<>();
+    @NaturalId
+    @ManyToOne
+    @JoinColumn(name = "documentId", updatable = false, nullable = false)
+    @NotNull
+    private Document document;
 
     @NotEmpty
     @Size(max = 255)
@@ -52,6 +50,9 @@ public class TextFlow extends ModelEntity {
     @NotEmpty
     private String content;
 
+    @NotNull
+    private Long wordCount;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "textFlow",
         fetch = FetchType.EAGER)
     private List<TextFlowTarget> targets = new ArrayList<>();
@@ -59,20 +60,26 @@ public class TextFlow extends ModelEntity {
     public TextFlow() {
     }
 
-    public void setContent(String content) {
-        this.content = content;
-        updateContentHash();
-    }
-
     public TextFlow(Document document, String content, Locale locale) {
         this.content = content;
         this.locale = locale;
-        documents.add(document);
-        updateContentHash();
+        this.document = document;
+        updateContentHashAndWordCount();
     }
 
-    private void updateContentHash() {
+    public void setContent(String content) {
+        this.content = content;
+        updateContentHashAndWordCount();
+    }
+
+    private void updateContentHashAndWordCount() {
         this.contentHash = HashUtil.generateHash(content);
+        String localeCode = LocaleCode.EN.getId();
+        if (locale != null) {
+            localeCode = locale.getLocaleCode().getId();
+        }
+        long count = OkapiUtil.countWords(content, localeCode);
+        this.wordCount = count;
     }
 
     public String getContentHash() {
@@ -91,8 +98,12 @@ public class TextFlow extends ModelEntity {
         return targets;
     }
 
-    public Set<Document> getDocuments() {
-        return documents;
+    public Document getDocument() {
+        return document;
+    }
+
+    public Long getWordCount() {
+        return wordCount;
     }
 
     @Transient
@@ -106,26 +117,27 @@ public class TextFlow extends ModelEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TextFlow)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         TextFlow textFlow = (TextFlow) o;
 
-        if (getContentHash() != null ? !getContentHash().equals(textFlow.getContentHash()) :
-                textFlow.getContentHash() != null) return false;
-        if (getLocale() != null ? !getLocale().equals(textFlow.getLocale()) :
-                textFlow.getLocale() != null) return false;
-        return getTargets() != null ?
-                getTargets().equals(textFlow.getTargets()) :
-                textFlow.getTargets() == null;
+        if (document != null ? !document.equals(textFlow.document) :
+                textFlow.document != null) return false;
+        if (contentHash != null ? !contentHash.equals(textFlow.contentHash) :
+                textFlow.contentHash != null) return false;
+        if (locale != null ? !locale.equals(textFlow.locale) :
+                textFlow.locale != null) return false;
+        return wordCount != null ? wordCount.equals(textFlow.wordCount) :
+                textFlow.wordCount == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getContentHash() != null ? getContentHash().hashCode() : 0;
+        int result = document != null ? document.hashCode() : 0;
         result = 31 * result +
-                (getLocale() != null ? getLocale().hashCode() : 0);
-        result = 31 * result +
-                (getTargets() != null ? getTargets().hashCode() : 0);
+                (contentHash != null ? contentHash.hashCode() : 0);
+        result = 31 * result + (locale != null ? locale.hashCode() : 0);
+        result = 31 * result + (wordCount != null ? wordCount.hashCode() : 0);
         return result;
     }
 }

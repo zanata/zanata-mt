@@ -82,12 +82,23 @@ public class DocumentResourceImpl implements DocumentResource {
 
         DocumentStatistics statistics = new DocumentStatistics(url);
         for (Document document: documents) {
+            int wordCount = getTotalWordCount(document,
+                    document.getFromLocale().getLocaleCode());
+
             statistics.addRequestCount(
                     document.getFromLocale().getLocaleCode().getId(),
                     document.getToLocale().getLocaleCode().getId(),
-                    document.getCount());
+                    document.getCount(), wordCount);
         }
         return Response.ok().entity(statistics).build();
+    }
+
+    private int getTotalWordCount(Document doc, LocaleCode localeCode) {
+        return doc.getTextFlows().values().stream()
+                .filter(tf -> tf.getLocale().getLocaleCode()
+                        .equals(localeCode))
+                .mapToInt(tf -> tf.getWordCount().intValue())
+                .sum();
     }
 
     @Override

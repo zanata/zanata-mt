@@ -30,10 +30,11 @@ public class DocumentStatisticsTest {
         int count = 1;
         TranslationRequestStatistics requestStats =
                 new TranslationRequestStatistics(LocaleCode.EN_US.getId(),
-                        LocaleCode.FR.getId(), count);
+                        LocaleCode.FR.getId(), count, 10);
 
         stats.addRequestCount(requestStats.getFromLocaleCode(),
-                requestStats.getToLocaleCode(), count);
+                requestStats.getToLocaleCode(), count,
+                requestStats.getWordCount());
 
         assertThat(stats.getRequestCounts()).hasSize(1)
                 .contains(requestStats);
@@ -47,15 +48,19 @@ public class DocumentStatisticsTest {
         int count = 1;
         TranslationRequestStatistics requestStats =
                 new TranslationRequestStatistics(LocaleCode.EN_US.getId(),
-                        LocaleCode.FR.getId(), count);
+                        LocaleCode.FR.getId(), count, 10);
 
         stats.addRequestCount(requestStats.getFromLocaleCode(),
-                requestStats.getToLocaleCode(), count);
+                requestStats.getToLocaleCode(), count,
+                requestStats.getWordCount());
         assertThat(stats.getRequestCounts()).hasSize(1);
         assertThat(stats.getRequestCounts().get(0).getCount()).isEqualTo(count);
+        assertThat(stats.getRequestCounts().get(0).getWordCount())
+                .isEqualTo(requestStats.getWordCount());
 
         stats.addRequestCount(requestStats.getFromLocaleCode(),
-                requestStats.getToLocaleCode(), count);
+                requestStats.getToLocaleCode(), count,
+                requestStats.getWordCount());
         assertThat(stats.getRequestCounts()).hasSize(1);
         assertThat(stats.getRequestCounts().get(0).getCount()).isEqualTo(2);
     }
@@ -70,7 +75,8 @@ public class DocumentStatisticsTest {
         assertThat(stats.equals(stats2)).isTrue();
         assertThat(stats.hashCode()).isEqualTo(stats2.hashCode());
 
-        stats.addRequestCount(LocaleCode.EN_US.getId(), LocaleCode.FR.getId(), 1);
+        stats.addRequestCount(LocaleCode.EN_US.getId(), LocaleCode.FR.getId(),
+                1, 1);
         assertThat(stats.equals(stats2)).isFalse();
         assertThat(stats.hashCode()).isNotEqualTo(stats2.hashCode());
 

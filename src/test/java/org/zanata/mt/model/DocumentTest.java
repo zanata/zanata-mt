@@ -3,8 +3,8 @@ package org.zanata.mt.model;
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleCode;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,17 +34,18 @@ public class DocumentTest {
     public void testConstructor2() {
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
-        Set<TextFlow> textFlowSet = new HashSet<>();
+        Map<String, TextFlow> textFlows = new HashMap<>();
         TextFlow tf = new TextFlow();
         tf.setContent("testing");
-        textFlowSet.add(tf);
+        textFlows.put(tf.getContentHash(), tf);
         Document doc = new Document("http://localhost",
-                srcLocale, targetLocale, textFlowSet);
+                srcLocale, targetLocale, textFlows);
+
         assertThat(doc.getUrl()).isEqualTo("http://localhost");
         assertThat(doc.getFromLocale()).isEqualTo(srcLocale);
         assertThat(doc.getToLocale()).isEqualTo(targetLocale);
         assertThat(doc.getUrlHash()).isNotEmpty();
-        assertThat(doc.getTextFlows()).isEqualTo(textFlowSet);
+        assertThat(doc.getTextFlows()).isEqualTo(textFlows);
     }
 
     @Test

@@ -44,8 +44,6 @@ public class TextFlowTarget extends ModelEntity {
     @NotEmpty
     private String rawContent;
 
-    private int count;
-
     @NaturalId
     @Type(type = "backendIdType")
     @Column(nullable = false)
@@ -62,10 +60,6 @@ public class TextFlowTarget extends ModelEntity {
         this.locale = locale;
         this.backendId = backendID;
         this.textFlow = textFlow;
-    }
-
-    public void incrementCount() {
-        this.count += 1;
     }
 
     public void updateContent(String content, String rawContent) {
@@ -87,10 +81,6 @@ public class TextFlowTarget extends ModelEntity {
 
     public String getRawContent() {
         return rawContent;
-    }
-
-    public int getCount() {
-        return count;
     }
 
     public BackendID getBackendId() {
