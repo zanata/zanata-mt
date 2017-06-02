@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS Document (
 
 CREATE TABLE IF NOT EXISTS TextFlow (
     id            SERIAL PRIMARY KEY,
-    documentId    BIGINT            NOT NULL,
+    documentId    BIGINT            NOT NULL REFERENCES Document (id),
     contentHash   VARCHAR(128)      NOT NULL,
     localeId      BIGINT            NOT NULL REFERENCES Locale (id),
     content       TEXT              NOT NULL,
