@@ -183,7 +183,6 @@ public class PersistentTranslationServiceJPATest {
 
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.of(expectedTf));
-        when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
 
         List<String> translations =
                 persistentTranslationService
