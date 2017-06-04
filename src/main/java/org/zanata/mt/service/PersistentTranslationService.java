@@ -159,6 +159,13 @@ public class PersistentTranslationService {
         return results;
     }
 
+    /**
+     * Find matching contentHash and create a new copy of TextFlow and
+     * TextFlowTarget if it is not from the same document. Otherwise, return the
+     * same copy.
+     *
+     * TODO: refactor TextFlow to use pos to allow duplication of content
+     */
     private Optional<TextFlow> copyTextFlowAndTargetFromDB(Document document,
             Locale fromLocale, Locale toLocale, String contentHash,
             BackendID backendID) {
@@ -167,25 +174,31 @@ public class PersistentTranslationService {
                         contentHash);
         Optional<TextFlow> copy = Optional.empty();
         if (textFlow.isPresent()) {
-            // copy textFlow and target textFlowTarget
-            List<TextFlowTarget> tfts =
-                    textFlow.get().getTargetsByLocaleCode(toLocale.getLocaleCode());
-            TextFlow newTfCopy =
-                    new TextFlow(document, textFlow.get().getContent(),
-                            fromLocale);
-            if (!tfts.isEmpty()) {
-                Optional<TextFlowTarget> tft =
-                        filterTargetByProvider(tfts, backendID);
-                if (tft.isPresent()) {
-                    newTfCopy.getTargets()
-                            .add(new TextFlowTarget(tft.get().getContent(),
-                                    tft.get().getRawContent(), newTfCopy,
-                                    toLocale,
-                                    tft.get().getBackendId()));
+            if (textFlow.get().getDocument().equals(document)) {
+                copy = textFlow;
+            } else {
+                // copy textFlow and target textFlowTarget
+                List<TextFlowTarget> tfts =
+                        textFlow.get().getTargetsByLocaleCode(toLocale.getLocaleCode());
+                TextFlow newTfCopy =
+                        new TextFlow(document, textFlow.get().getContent(),
+                                fromLocale);
+                if (!tfts.isEmpty()) {
+                    Optional<TextFlowTarget> tft =
+                            filterTargetByProvider(tfts, backendID);
+                    if (tft.isPresent()) {
+                        newTfCopy.getTargets()
+                                .add(new TextFlowTarget(tft.get().getContent(),
+                                        tft.get().getRawContent(), newTfCopy,
+                                        toLocale,
+                                        tft.get().getBackendId()));
+                    }
                 }
+                newTfCopy = textFlowDAO.persist(newTfCopy);
+                document.getTextFlows()
+                        .put(newTfCopy.getContentHash(), newTfCopy);
+                return Optional.of(newTfCopy);
             }
-            newTfCopy = textFlowDAO.persist(newTfCopy);
-            copy = Optional.of(newTfCopy);
         }
         return copy;
     }
