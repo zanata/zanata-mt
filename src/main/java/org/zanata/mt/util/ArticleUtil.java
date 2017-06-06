@@ -10,10 +10,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
+import org.jsoup.safety.Whitelist;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,9 +124,13 @@ public final class ArticleUtil {
      * IMPORTANT: This assumes the html is wrap in single html node
      */
     public static Element wrapHTML(String html) {
-        String wrapHTML = "<div id='" + getWrapperId() + "'>" + html + "</div>";
-        Document doc = Jsoup.parse(wrapHTML, "", Parser.xmlParser());
-        doc.outputSettings().indentAmount(0).prettyPrint(false);
+        String wrapHTML = html;
+        if (!html.startsWith("<html>") && !html.startsWith("<body>")) {
+            wrapHTML = "<div id='" + getWrapperId() + "'>" + html + "</div>";
+        }
+        Document doc = Jsoup.parseBodyFragment(wrapHTML);
+        doc.outputSettings().indentAmount(0).prettyPrint(false)
+                .syntax(Document.OutputSettings.Syntax.html);
         return doc;
     }
 
@@ -136,7 +142,7 @@ public final class ArticleUtil {
         if (wrapper != null) {
             return wrapper.childNodes();
         }
-        return null;
+        return Lists.newArrayList(element);
     }
 
     /**
@@ -147,7 +153,7 @@ public final class ArticleUtil {
         if (wrapper != null) {
             return wrapper.children();
         }
-        return null;
+        return Lists.newArrayList(element);
     }
 
     // parse html string into element

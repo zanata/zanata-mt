@@ -1,8 +1,12 @@
 package org.zanata.mt.util;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
 import org.junit.Test;
 import org.zanata.mt.model.TranslatableHTMLNode;
@@ -10,6 +14,7 @@ import org.zanata.mt.model.TranslatableHTMLNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,15 +43,15 @@ public class ArticleUtilTest {
 
     @Test
     public void wrapUnWrapHTML() {
-        assertWrapAndUnwrapHTML("<html><body>test</body></html>");
-        assertWrapAndUnwrapHTML("<body>test</body>");
+        assertWrapAndUnwrapHTML("<html><head></head><body>test</body></html>");
         assertWrapAndUnwrapHTML("<div>test</div>");
+        assertWrapAndUnwrapHTML("<div><br>test</div>");
         assertWrapAndUnwrapHTML("test");
     }
 
     @Test
     public void asElement() {
-        String html = "<html><body>test</body></html>";
+        String html = "<html><head></head><body>test</body></html>";
         Node node = ArticleUtil.asElement(html);
         assertThat(node).isNotNull().extracting(Node::outerHtml)
                 .contains(html);
@@ -54,9 +59,6 @@ public class ArticleUtilTest {
 
     private void assertWrapAndUnwrapHTML(String html) {
         Element wrappedElement = ArticleUtil.wrapHTML(html);
-        assertThat(wrappedElement.outerHtml()).isNotEqualTo(html);
-        assertThat(wrappedElement.outerHtml().length())
-                .isGreaterThan(html.length());
 
         List<Node> unwrappedNodes = ArticleUtil.unwrapAsNodes(wrappedElement);
         assertThat(unwrappedNodes).isNotEmpty();
@@ -64,9 +66,7 @@ public class ArticleUtilTest {
         String unwrappedHTML =
                 unwrappedNodes.stream().map(node -> node.outerHtml())
                         .collect(Collectors.joining());
-
-        assertThat(unwrappedHTML.replaceAll("\n", "")
-                .replaceAll(" ", "")).isEqualTo(html);
+        assertThat(unwrappedHTML).isEqualTo(html);
     }
 
     @Test
