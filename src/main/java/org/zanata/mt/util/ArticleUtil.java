@@ -8,15 +8,10 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
-import org.jsoup.parser.Parser;
 import org.jsoup.parser.Tag;
-import org.jsoup.safety.Whitelist;
 import org.zanata.mt.model.TranslatableHTMLNode;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +132,7 @@ public final class ArticleUtil {
     /**
      * Unwrap a wrapped element inside ZANATA-MT wrapper.
      */
-    public static @Nullable List<Node> unwrapAsNodes(@NotNull Element element) {
+    public static List<Node> unwrapAsNodes(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
             return wrapper.childNodes();
@@ -148,7 +143,7 @@ public final class ArticleUtil {
     /**
      * Unwrap a wrapped element inside ZANATA-MT wrapper.
      */
-    public static @Nullable List<Element> unwrapAsElements(@NotNull Element element) {
+    public static List<Element> unwrapAsElements(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
             return wrapper.children();
