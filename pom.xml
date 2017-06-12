@@ -695,8 +695,12 @@
   <profiles>
     <profile>
       <id>production</id>
+      <activation>
+        <property>
+          <name>production</name>
+        </property>
+      </activation>
       <properties>
-        <name>production</name>
         <ZANATA_MT_DEV_MODE>false</ZANATA_MT_DEV_MODE>
       </properties>
     </profile>

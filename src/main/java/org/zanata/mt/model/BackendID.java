@@ -13,6 +13,9 @@ public class BackendID implements Serializable {
     // Microsoft translators service
     public static final BackendID MS = new BackendID("MS");
 
+    // DEV translators service
+    public static final BackendID DEV = new BackendID("DEV");
+
     @NotNull
     private final String id;
 

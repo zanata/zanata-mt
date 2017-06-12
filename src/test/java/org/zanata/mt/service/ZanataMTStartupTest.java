@@ -12,27 +12,17 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class ZanataMTStartupTest {
 
     @Test
-    public void testEmptyConstructor() {
-        ZanataMTStartup app = new ZanataMTStartup();
-    }
-
-    @Test
     public void testEmptyCredentials() {
-        ZanataMTStartup app = new ZanataMTStartup(null, null);
+        ConfigurationService config = new ConfigurationService();
+        ZanataMTStartup app = new ZanataMTStartup(config);
         assertThatThrownBy(() -> app.onStartUp(null))
                 .isInstanceOf(ZanataMTException.class);
     }
 
     @Test
     public void testOnStartup() {
-        ZanataMTStartup app = new ZanataMTStartup("id", "id");
+        ConfigurationService config = new ConfigurationService("id", "key");
+        ZanataMTStartup app = new ZanataMTStartup(config);
         app.onStartUp(null);
-    }
-
-    @Test
-    public void testDevModeEnabledByDefault() {
-        ZanataMTStartup app = new ZanataMTStartup("id", "id");
-        app.onStartUp(null);
-        assertThat(app.isDevMode()).isTrue();
     }
 }

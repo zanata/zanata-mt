@@ -1,6 +1,5 @@
 package org.zanata.mt.backend.ms;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 

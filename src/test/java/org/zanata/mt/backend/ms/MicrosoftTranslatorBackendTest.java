@@ -1,7 +1,10 @@
 package org.zanata.mt.backend.ms;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
@@ -10,6 +13,7 @@ import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResponse;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.service.ConfigurationService;
 import org.zanata.mt.util.DTOUtil;
 
 import javax.ws.rs.core.MediaType;
@@ -25,8 +29,12 @@ import static org.mockito.Mockito.when;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(MockitoJUnitRunner.class)
 public class MicrosoftTranslatorBackendTest {
     private MicrosoftTranslatorBackend msBackend = null;
+
+    @Mock
+    private ConfigurationService configurationService;
 
     @Test
     public void testConstructor() {
@@ -35,28 +43,39 @@ public class MicrosoftTranslatorBackendTest {
 
     @Test
     public void testVerifyCredentialsInvalid() {
-        msBackend = new MicrosoftTranslatorBackend(null);
+        when(configurationService.isDevMode()).thenReturn(false);
+        msBackend = new MicrosoftTranslatorBackend(null, configurationService);
         assertThatThrownBy(() -> msBackend.onInit(null))
-            .isInstanceOf(ZanataMTException.class);
+                .isInstanceOf(ZanataMTException.class);
     }
 
     @Test
     public void testVerifyCredentials() {
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey",
+                configurationService);
+        msBackend.onInit(null);
+    }
+
+    @Test
+    public void testIgnoreCredentialCheckingInDevMode() {
+        when(configurationService.isDevMode()).thenReturn(true);
+        msBackend = new MicrosoftTranslatorBackend(null,
+                configurationService);
         msBackend.onInit(null);
     }
 
     @Test
     public void testClientSecret() {
         String key = "subscriptionKey";
-        msBackend = new MicrosoftTranslatorBackend(key);
+        msBackend = new MicrosoftTranslatorBackend(key, configurationService);
         assertThat(msBackend.getClientSubscriptionKey()).isEqualTo(key);
     }
 
     @Test
     public void testMappedLocale() {
         LocaleCode from = LocaleCode.ZH_HANS;
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey",
+                configurationService);
         BackendLocaleCode to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
@@ -77,13 +96,16 @@ public class MicrosoftTranslatorBackendTest {
         resp.setResponse(respList);
         String responseString = DTOUtil.toXML(resp);
 
-        MicrosoftTranslatorClient api = Mockito.mock(MicrosoftTranslatorClient.class);
+        MicrosoftTranslatorClient api =
+                Mockito.mock(MicrosoftTranslatorClient.class);
         when(api.requestTranslations(any())).thenReturn(responseString);
 
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey",
+                configurationService);
         msBackend.setApi(api);
-        AugmentedTranslation
-                translation = msBackend.translate(content, srcLocale, transLocale, MediaType.TEXT_PLAIN_TYPE);
+        AugmentedTranslation translation = msBackend
+                .translate(content, srcLocale, transLocale,
+                        MediaType.TEXT_PLAIN_TYPE);
         assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
         assertThat(translation.getRawTranslation())
                 .isEqualTo(DTOUtil.toXML(resp.getResponse().get(0)));
