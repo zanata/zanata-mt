@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -30,8 +31,10 @@ import com.google.common.collect.Lists;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.service.PersistentTranslationService.PREFIX_DEV_STRING;
+import static org.zanata.mt.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
+import static org.zanata.mt.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -48,8 +51,8 @@ public class PersistentTranslationServiceJPATest {
     @Mock
     private MicrosoftTranslatorBackend msBackend;
 
-    @Mock
-    private ZanataMTStartup startup;
+    private MockTranslatorBackend mockTranslatorBackend =
+            new MockTranslatorBackend();
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -57,7 +60,7 @@ public class PersistentTranslationServiceJPATest {
     public void setup() {
         persistentTranslationService =
                 new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                    msBackend, startup);
+                        msBackend, mockTranslatorBackend);
     }
 
     @Test
@@ -69,7 +72,7 @@ public class PersistentTranslationServiceJPATest {
         TextFlow expectedTf = new TextFlow(doc, source.get(0), fromLocale);
         TextFlowTarget expectedTft =
                 new TextFlowTarget(source.get(0), source.get(0), expectedTf,
-                        toLocale, BackendID.MS);
+                        toLocale, BackendID.DEV);
 
         String hash = HashUtil.generateHash(source.get(0));
 
@@ -77,13 +80,14 @@ public class PersistentTranslationServiceJPATest {
                 .thenReturn(Optional.empty());
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
-        when(startup.isDevMode()).thenReturn(true);
 
         List<String> translations = persistentTranslationService
                 .translate(new Document(), source, fromLocale, toLocale,
-                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+                        BackendID.DEV, MediaType.TEXT_PLAIN_TYPE);
         assertThat(translations.get(0))
-                .isEqualTo(PREFIX_DEV_STRING + source.get(0));
+                .contains(source.get(0), PREFIX_MOCK_STRING,
+                        UNICODE_SUPPLEMENTARY);
+        verifyZeroInteractions(msBackend);
     }
 
     @Test
