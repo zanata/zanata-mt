@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.zanata.mt.service.PersistentTranslationService.PREFIX_DEV_STRING;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -47,13 +48,42 @@ public class PersistentTranslationServiceJPATest {
     @Mock
     private MicrosoftTranslatorBackend msBackend;
 
+    @Mock
+    private ZanataMTStartup startup;
+
     private PersistentTranslationService persistentTranslationService;
 
     @Before
     public void setup() {
         persistentTranslationService =
                 new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                    msBackend);
+                    msBackend, startup);
+    }
+
+    @Test
+    public void testDevMode() {
+        List<String> source = Lists.newArrayList("testing source");
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+        Document doc = new Document();
+        TextFlow expectedTf = new TextFlow(doc, source.get(0), fromLocale);
+        TextFlowTarget expectedTft =
+                new TextFlowTarget(source.get(0), source.get(0), expectedTf,
+                        toLocale, BackendID.MS);
+
+        String hash = HashUtil.generateHash(source.get(0));
+
+        when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
+                .thenReturn(Optional.empty());
+        when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
+        when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
+        when(startup.isDevMode()).thenReturn(true);
+
+        List<String> translations = persistentTranslationService
+                .translate(new Document(), source, fromLocale, toLocale,
+                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+        assertThat(translations.get(0))
+                .isEqualTo(PREFIX_DEV_STRING + source.get(0));
     }
 
     @Test

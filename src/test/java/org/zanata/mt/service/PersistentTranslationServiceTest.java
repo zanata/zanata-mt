@@ -7,7 +7,9 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -19,11 +21,13 @@ import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PersistentTranslationServiceTest {
 
     @Mock
@@ -34,6 +38,9 @@ public class PersistentTranslationServiceTest {
 
     @Mock
     private MicrosoftTranslatorBackend msProvider;
+
+    @Mock
+    private ZanataMTStartup zanataMTStartup;
 
     private PersistentTranslationService persistentTranslationService;
 
@@ -47,7 +54,7 @@ public class PersistentTranslationServiceTest {
     public void setup() {
         persistentTranslationService =
             new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                msProvider);
+                msProvider, zanataMTStartup);
     }
 
     @Test

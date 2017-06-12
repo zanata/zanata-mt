@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,6 +49,10 @@ public class PersistentTranslationService {
 
     private MicrosoftTranslatorBackend microsoftTranslatorBackend;
 
+    private ZanataMTStartup zanataMTStartup;
+
+    public final static String PREFIX_DEV_STRING  = "translated:";
+
     @SuppressWarnings("unused")
     public PersistentTranslationService() {
     }
@@ -55,10 +60,12 @@ public class PersistentTranslationService {
     @Inject
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
         TextFlowTargetDAO textFlowTargetDAO,
-        MicrosoftTranslatorBackend microsoftTranslatorBackend) {
+            MicrosoftTranslatorBackend microsoftTranslatorBackend,
+            ZanataMTStartup zanataMTStartup) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
         this.microsoftTranslatorBackend = microsoftTranslatorBackend;
+        this.zanataMTStartup = zanataMTStartup;
     }
 
     /**
@@ -136,8 +143,8 @@ public class PersistentTranslationService {
                 getMappedLocale(toLocale.getLocaleCode());
 
         List<AugmentedTranslation> translations =
-            microsoftTranslatorBackend
-                .translate(sources, mappedFromLocaleCode, mappedToLocaleCode, mediaType);
+                translateStrings(sources, mappedFromLocaleCode,
+                        mappedToLocaleCode, mediaType);
 
         for (String source: sources) {
             Collection<Integer> indexes = untranslatedIndexMap.get(source);
@@ -157,6 +164,23 @@ public class PersistentTranslationService {
             createOrUpdateTextFlowTarget(target);
         }
         return results;
+    }
+
+    private List<AugmentedTranslation> translateStrings(List<String> sources,
+            BackendLocaleCode fromLocaleCode, BackendLocaleCode toLocaleCode,
+            MediaType mediaType) {
+        if (zanataMTStartup.isDevMode()) {
+            List<AugmentedTranslation> translations = sources.stream()
+                    .map(source -> new AugmentedTranslation(
+                            PREFIX_DEV_STRING + source,
+                            PREFIX_DEV_STRING + source))
+                    .collect(Collectors.toList());
+            return translations;
+        } else {
+            return microsoftTranslatorBackend
+                    .translate(sources, fromLocaleCode, toLocaleCode,
+                            mediaType);
+        }
     }
 
     /**

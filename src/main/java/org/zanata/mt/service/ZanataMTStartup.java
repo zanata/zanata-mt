@@ -8,6 +8,7 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +30,18 @@ public class ZanataMTStartup {
 
     private String version;
     private String buildDate;
+    private boolean isDevMode;
 
-    private final String id;
-    private final String apiKey;
+    private String id;
+    private String apiKey;
+
+    @SuppressWarnings("unused")
+    public ZanataMTStartup() {
+    }
 
     @Inject
     public ZanataMTStartup(@EnvVariable(APIConstant.API_ID) String id,
-        @EnvVariable(APIConstant.API_KEY) String apiKey) {
+            @EnvVariable(APIConstant.API_KEY) String apiKey) {
         this.id = id;
         this.apiKey = apiKey;
     }
@@ -43,16 +49,22 @@ public class ZanataMTStartup {
     public void onStartUp(
         @Observes @Initialized(ApplicationScoped.class) Object init)
         throws ZanataMTException {
-        LOG.info("============================================");
-        LOG.info("============================================");
-        LOG.info("=====Zanata Machine Translation Service=====");
-        LOG.info("============================================");
-        LOG.info("============================================");
+        LOG.info("===================================");
+        LOG.info("===================================");
+        LOG.info("=== Machine Translation Service ===");
+        LOG.info("===================================");
+        LOG.info("===================================");
         readBuildInfo();
         LOG.info("Build info: version-" + version + " date-" + buildDate);
+        if (isDevMode) {
+            LOG.warn("THIS IS DEV MODE BUILT. DO NOT USE IT FOR PRODUCTION");
+        }
         verifyCredentials();
     }
 
+    /**
+     * Read build information/configuration from build.properties
+     */
     public void readBuildInfo() {
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("build.properties");
@@ -61,6 +73,8 @@ public class ZanataMTStartup {
             properties.load(is);
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
+            isDevMode = BooleanUtils.toBoolean(
+                    properties.getProperty("build.mode.dev", "true"));
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
@@ -71,5 +85,9 @@ public class ZanataMTStartup {
             throw new ZanataMTException(
                 "Missing credentials of " + APIConstant.API_ID + " and " + APIConstant.API_KEY);
         }
+    }
+
+    public boolean isDevMode() {
+        return isDevMode;
     }
 }

@@ -1,4 +1,7 @@
-# To test (there is no access control, deploy only in localhost for testing)
+# Build and run 
+
+## DEV mode
+DEV mode is enabled by default. The service will not use MS backend in this mode but will return string with prefix 'translated'
 
 Run:
 - Build: `mvn clean package docker:build` (This will build a docker image named zanataMT)
@@ -6,8 +9,11 @@ Run:
 - Logs: `mvn docker:logs -Ddocker.follow`
 - To stop and remove: `mvn docker:stop` (This still stop and remove both containers)
 
-----
+## PROD mode
+PROD mode can be enabled by activating maven profile `production`. This will allow service to use Microsoft Translator service with provided **ZANATA_MT_AZURE_KEY**
+e.g. `mvn clean install -Pproduction`.
 
+----
 
 # Documentations
 
