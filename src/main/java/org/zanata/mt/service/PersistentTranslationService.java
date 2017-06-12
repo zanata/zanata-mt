@@ -2,10 +2,10 @@ package org.zanata.mt.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,8 +19,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -47,11 +47,8 @@ public class PersistentTranslationService {
 
     private TextFlowTargetDAO textFlowTargetDAO;
 
-    private MicrosoftTranslatorBackend microsoftTranslatorBackend;
-
-    private ZanataMTStartup zanataMTStartup;
-
-    public final static String PREFIX_DEV_STRING  = "translated:";
+    private Map<BackendID, TranslatorBackend> translatorBackendMap =
+            new HashMap<>();
 
     @SuppressWarnings("unused")
     public PersistentTranslationService() {
@@ -61,11 +58,12 @@ public class PersistentTranslationService {
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
         TextFlowTargetDAO textFlowTargetDAO,
             MicrosoftTranslatorBackend microsoftTranslatorBackend,
-            ZanataMTStartup zanataMTStartup) {
+            MockTranslatorBackend mockTranslatorBackend) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
-        this.microsoftTranslatorBackend = microsoftTranslatorBackend;
-        this.zanataMTStartup = zanataMTStartup;
+
+        translatorBackendMap.put(BackendID.MS, microsoftTranslatorBackend);
+        translatorBackendMap.put(BackendID.DEV, mockTranslatorBackend);
     }
 
     /**
@@ -135,15 +133,17 @@ public class PersistentTranslationService {
         }
 
         // trigger MT engine search
+        TranslatorBackend translatorBackend = getTranslatorBackend(backendID);
+
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
         BackendLocaleCode mappedFromLocaleCode =
-                getMappedLocale(fromLocale.getLocaleCode());
+                translatorBackend.getMappedLocale(fromLocale.getLocaleCode());
         BackendLocaleCode mappedToLocaleCode =
-                getMappedLocale(toLocale.getLocaleCode());
+                translatorBackend.getMappedLocale(toLocale.getLocaleCode());
 
         List<AugmentedTranslation> translations =
-                translateStrings(sources, mappedFromLocaleCode,
+                translatorBackend.translate(sources, mappedFromLocaleCode,
                         mappedToLocaleCode, mediaType);
 
         for (String source: sources) {
@@ -166,21 +166,12 @@ public class PersistentTranslationService {
         return results;
     }
 
-    private List<AugmentedTranslation> translateStrings(List<String> sources,
-            BackendLocaleCode fromLocaleCode, BackendLocaleCode toLocaleCode,
-            MediaType mediaType) {
-        if (zanataMTStartup.isDevMode()) {
-            List<AugmentedTranslation> translations = sources.stream()
-                    .map(source -> new AugmentedTranslation(
-                            PREFIX_DEV_STRING + source,
-                            PREFIX_DEV_STRING + source))
-                    .collect(Collectors.toList());
-            return translations;
-        } else {
-            return microsoftTranslatorBackend
-                    .translate(sources, fromLocaleCode, toLocaleCode,
-                            mediaType);
+    private @NotNull
+    TranslatorBackend getTranslatorBackend(@NotNull BackendID backendID) {
+        if (translatorBackendMap.containsKey(backendID)) {
+            return translatorBackendMap.get(backendID);
         }
+        throw new BadRequestException("Unsupported backendId:" + backendID);
     }
 
     /**
@@ -264,9 +255,5 @@ public class PersistentTranslationService {
             }
         }
         return Optional.empty();
-    }
-
-    public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
-        return microsoftTranslatorBackend.getMappedLocale(localeCode);
     }
 }

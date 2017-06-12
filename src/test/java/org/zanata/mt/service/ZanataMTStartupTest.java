@@ -28,11 +28,4 @@ public class ZanataMTStartupTest {
         ZanataMTStartup app = new ZanataMTStartup("id", "id");
         app.onStartUp(null);
     }
-
-    @Test
-    public void testDevModeEnabledByDefault() {
-        ZanataMTStartup app = new ZanataMTStartup("id", "id");
-        app.onStartUp(null);
-        assertThat(app.isDevMode()).isTrue();
-    }
 }

@@ -11,7 +11,7 @@ Run:
 
 ## PROD mode
 PROD mode can be enabled by activating maven profile `production`. This will allow service to use Microsoft Translator service with provided **ZANATA_MT_AZURE_KEY**
-e.g. `mvn clean install -Pproduction`.
+e.g. `mvn clean install -Dproduction`.
 
 ----
 
