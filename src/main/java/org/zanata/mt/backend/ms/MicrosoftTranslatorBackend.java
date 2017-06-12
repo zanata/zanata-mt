@@ -23,7 +23,6 @@ import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
 import org.zanata.mt.exception.ZanataMTException;
-import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
@@ -33,13 +32,13 @@ import com.google.common.collect.Lists;
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
 /**
- * Service for Microsoft translator.
+ * Service for Microsoft translator. {@link org.zanata.mt.model.BackendID#MS}
+ *
  * {@link org.zanata.mt.api.APIConstant#AZURE_KEY} during startup.
  *
- *
  * See
- * {@link #translate(String, Locale, Locale, MediaType)} and
- * {@link #translate(List, Locale, Locale, MediaType)} for more info.
+ * {@link #translate(String, BackendLocaleCode, BackendLocaleCode, MediaType)}
+ * {@link #translate(List, BackendLocaleCode, BackendLocaleCode, MediaType)}
  *
  * See {@link MicrosoftTranslatorClient} for MS translator configuration.
  *
