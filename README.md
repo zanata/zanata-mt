@@ -1,18 +1,18 @@
 # Build and run 
 
-## DEV mode
-DEV mode is enabled by default. The service will not use MS backend in this mode but will return string with prefix 'translated'
-
 Run:
 - Build: `mvn clean package docker:build` (This will build a docker image named zanataMT)
 - Run: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
 - Logs: `mvn docker:logs -Ddocker.follow`
 - To stop and remove: `mvn docker:stop` (This still stop and remove both containers)
 
-## PROD mode
-PROD mode can be enabled by activating maven profile `production`. This will allow service to use Microsoft Translator service with provided **ZANATA_MT_AZURE_KEY**
-e.g. `mvn clean install -Pproduction`.
+## DEV mode
 
+DEV mode is enabled when **ZANATA_MT_AZURE_KEY** is not present in environment variable. The service will not use MS backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
+
+`ZANATA_MT_API_ID` = `devID`<br/>
+`ZANATA_MT_API_KEY` = `devKEY`
+                  
 ----
 
 # Documentations
@@ -32,7 +32,7 @@ ID for /api request
 ### `ZANATA_MT_API_KEY` (required)
 Api key for /api request
 
-### `ZANATA_MT_AZURE_KEY` (required)
+### `ZANATA_MT_AZURE_KEY` (required, otherwise DEV mode will be enabled)
 Subscription key for MS translators
 
 ### `ZANATA_MT_ORIGIN_WHITELIST` (optional)

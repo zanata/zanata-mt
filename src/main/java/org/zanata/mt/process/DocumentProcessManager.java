@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Handle locking of api request for
- * {@link org.zanata.mt.api.service.DocumentContentTranslatorResource#translate(DocumentContent, LocaleCode)}
+ * {@link org.zanata.mt.api.service.DocumentResource#translate(DocumentContent, LocaleCode)}
  *
  * Limit to process one translation request at a time.
  * This lock uses single thread lock library which does not support clustering.

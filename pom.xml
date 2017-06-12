@@ -54,9 +54,6 @@
     <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
     <enunciate.version>2.8.0</enunciate.version>
 
-    <!-- Enable DEV mode by default -->
-    <ZANATA_MT_DEV_MODE>true</ZANATA_MT_DEV_MODE>
-
     <findbugs.failOnError>true</findbugs.failOnError>
   </properties>
 
@@ -691,16 +688,6 @@
     </dependency>
 
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>production</id>
-      <properties>
-        <name>production</name>
-        <ZANATA_MT_DEV_MODE>false</ZANATA_MT_DEV_MODE>
-      </properties>
-    </profile>
-  </profiles>
 
   <repositories>
     <repository>
