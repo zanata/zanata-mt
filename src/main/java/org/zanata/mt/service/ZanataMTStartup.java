@@ -41,7 +41,7 @@ public class ZanataMTStartup {
         LOG.info("Build info: version-" + configurationService.getVersion() +
                 " date-" + configurationService.getBuildDate());
         if (configurationService.isDevMode()) {
-            LOG.warn("THIS IS DEV MODE BUILT. DO NOT USE IT FOR PRODUCTION");
+            LOG.warn("THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION");
         }
         verifyCredentials();
     }
