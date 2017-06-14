@@ -2,6 +2,8 @@ package org.zanata.mt.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,8 +20,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -46,7 +48,7 @@ public class PersistentTranslationService {
 
     private TextFlowTargetDAO textFlowTargetDAO;
 
-    private MicrosoftTranslatorBackend microsoftTranslatorBackend;
+    private Map<BackendID, TranslatorBackend> translatorBackendMap;
 
     @SuppressWarnings("unused")
     public PersistentTranslationService() {
@@ -55,10 +57,16 @@ public class PersistentTranslationService {
     @Inject
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
         TextFlowTargetDAO textFlowTargetDAO,
-        MicrosoftTranslatorBackend microsoftTranslatorBackend) {
+            MicrosoftTranslatorBackend microsoftTranslatorBackend,
+            MockTranslatorBackend mockTranslatorBackend) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
-        this.microsoftTranslatorBackend = microsoftTranslatorBackend;
+
+        Map<BackendID, TranslatorBackend> backendMap = new HashMap<>();
+        backendMap.put(BackendID.MS, microsoftTranslatorBackend);
+        backendMap.put(BackendID.DEV, mockTranslatorBackend);
+
+        translatorBackendMap = Collections.unmodifiableMap(backendMap);
     }
 
     /**
@@ -128,16 +136,18 @@ public class PersistentTranslationService {
         }
 
         // trigger MT engine search
+        TranslatorBackend translatorBackend = getTranslatorBackend(backendID);
+
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
         BackendLocaleCode mappedFromLocaleCode =
-                getMappedLocale(fromLocale.getLocaleCode());
+                translatorBackend.getMappedLocale(fromLocale.getLocaleCode());
         BackendLocaleCode mappedToLocaleCode =
-                getMappedLocale(toLocale.getLocaleCode());
+                translatorBackend.getMappedLocale(toLocale.getLocaleCode());
 
         List<AugmentedTranslation> translations =
-            microsoftTranslatorBackend
-                .translate(sources, mappedFromLocaleCode, mappedToLocaleCode, mediaType);
+                translatorBackend.translate(sources, mappedFromLocaleCode,
+                        mappedToLocaleCode, mediaType);
 
         for (String source: sources) {
             Collection<Integer> indexes = untranslatedIndexMap.get(source);
@@ -157,6 +167,14 @@ public class PersistentTranslationService {
             createOrUpdateTextFlowTarget(target);
         }
         return results;
+    }
+
+    private @NotNull
+    TranslatorBackend getTranslatorBackend(@NotNull BackendID backendID) {
+        if (translatorBackendMap.containsKey(backendID)) {
+            return translatorBackendMap.get(backendID);
+        }
+        throw new BadRequestException("Unsupported backendId:" + backendID);
     }
 
     /**
@@ -240,9 +258,5 @@ public class PersistentTranslationService {
             }
         }
         return Optional.empty();
-    }
-
-    public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
-        return microsoftTranslatorBackend.getMappedLocale(localeCode);
     }
 }

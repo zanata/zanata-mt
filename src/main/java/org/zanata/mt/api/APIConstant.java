@@ -1,7 +1,7 @@
 package org.zanata.mt.api;
 
 /**
- * System properties and HTTP header fields used in application
+ * Environment variables and HTTP header fields used in application
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
@@ -11,7 +11,6 @@ public final class APIConstant {
     private APIConstant() {
     }
 
-    // System properties
     // list of url to allow access to /api. White space separated
     public static final String ORIGIN_WHITELIST = "ZANATA_MT_ORIGIN_WHITELIST";
     // API_ID to be used for API request
