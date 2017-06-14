@@ -1,11 +1,14 @@
 package org.zanata.mt.process;
 
+import org.infinispan.Cache;
+import org.infinispan.manager.DefaultCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleCode;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,28 +28,42 @@ public class DocumentProcessManager {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentProcessManager.class);
 
+    private static final String DOC_LOCK_CACHE = "DOCUMENT_LOCK_CACHE";
+
+    private DefaultCacheManager cacheManager;
+
+    private Cache<DocumentProcessKey, Boolean> documentProcessCache;
+
     private final ReentrantLock lock = new ReentrantLock(true);
 
     @SuppressWarnings("unused")
     public DocumentProcessManager() {
     }
 
+    @Inject
+    public DocumentProcessManager(DefaultCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+        documentProcessCache = this.cacheManager.getCache(DOC_LOCK_CACHE);
+    }
+
     public void lock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Locking document translation request:{}", key.toString());
         }
-        lock.lock();
+        documentProcessCache.put(key, true);
+//        lock.lock();
     }
 
     public void unlock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("release document translation lock:{}", key.toString());
         }
-        lock.unlock();
+        documentProcessCache.remove(key);
+//        lock.unlock();
     }
 
     public boolean isLocked(@NotNull DocumentProcessKey key) {
-        return lock.isLocked();
+        return documentProcessCache.containsKey(key);
     }
 
     public ReentrantLock getLock(@NotNull DocumentProcessKey key) {
