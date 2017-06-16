@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocumentContentTranslatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.service</a> &gt; <span class="el_source">DocumentContentTranslatorService.java</span></div><h1>DocumentContentTranslatorService.java</h1><pre class="source lang-java linenums">package org.zanata.mt.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.mt.api.dto.APIResponse;
+import org.zanata.mt.api.dto.DocumentContent;
+import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.model.Document;
+import org.zanata.mt.model.TranslatableHTMLNode;
+import org.zanata.mt.util.ArticleUtil;
+import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.BackendID;
+
+import com.google.common.collect.Lists;
+import org.zanata.mt.util.SegmentString;
+import org.zanata.mt.util.ShortString;
+
+/**
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">@Stateless</span>
+public class DocumentContentTranslatorService {
+<span class="fc" id="L40">    private static final Logger LOG =</span>
+<span class="fc" id="L41">            LoggerFactory.getLogger(DocumentContentTranslatorService.class);</span>
+
+    private PersistentTranslationService persistentTranslationService;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L46">    public DocumentContentTranslatorService() {</span>
+<span class="fc" id="L47">    }</span>
+
+    @Inject
+    public DocumentContentTranslatorService(
+<span class="fc" id="L51">            PersistentTranslationService persistentTranslationService) {</span>
+<span class="fc" id="L52">        this.persistentTranslationService = persistentTranslationService;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Translate a Document and send in for machine translation request.
+     *
+     * If string is no longer than maxLength, it will be send as a batch according
+     * to the type.
+     *
+     * If a string is longer than maxLength,
+     * Plain Text: try to segment it and send it as a single MT request. Will
+     * be ignored if cannot be segmented.
+     * HTML: try to run through the node tree and translate. Will be ignored if
+     * cannot be broken down.
+     *
+     * {@link DocumentContent}
+     **/
+    public DocumentContent translateDocument(Document doc,
+            DocumentContent documentContent, BackendID backendID, int maxLength)
+            throws BadRequestException, ZanataMTException {
+
+<span class="fc" id="L73">        LinkedHashMap&lt;Integer, TypeString&gt; indexTextMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L74">        LinkedHashMap&lt;Integer, TypeString&gt; indexHTMLMap = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="fc" id="L76">        List&lt;APIResponse&gt; warnings = Lists.newArrayList();</span>
+<span class="fc" id="L77">        List&lt;TypeString&gt; results =</span>
+<span class="fc" id="L78">                Lists.newArrayList(documentContent.getContents());</span>
+
+<span class="fc" id="L80">        int index = 0;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (TypeString typeString: results) {</span>
+<span class="fc" id="L82">            MediaType mediaType = getMediaType(typeString.getType());</span>
+<span class="fc" id="L83">            String source = typeString.getValue();</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                if (source.length() &lt;= maxLength) {</span>
+<span class="fc" id="L86">                    indexTextMap.put(index, typeString);</span>
+                } else {
+<span class="fc" id="L88">                    String translatedString =</span>
+<span class="fc" id="L89">                            translateLargeString(doc, backendID,</span>
+                                    mediaType, source, maxLength, warnings);
+<span class="fc" id="L91">                   typeString.setValue(translatedString);</span>
+<span class="fc" id="L92">                }</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {</span>
+                // put placeholder on all non-translatable html
+<span class="fc" id="L95">                TranslatableHTMLNode translatableHTMLNode =</span>
+<span class="fc" id="L96">                        ArticleUtil.replaceNonTranslatableNode(index, source);</span>
+<span class="fc" id="L97">                String html = translatableHTMLNode.getHtml();</span>
+
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
+<span class="fc" id="L100">                    indexHTMLMap.put(index, typeString);</span>
+                } else {
+<span class="fc" id="L102">                    String translatedString =</span>
+<span class="fc" id="L103">                            translateLargeHTMLElement(doc, backendID, mediaType,</span>
+                                    maxLength, html, warnings);
+                    // replace placeholder with original node
+<span class="fc" id="L106">                    translatedString = ArticleUtil</span>
+<span class="fc" id="L107">                            .replacePlaceholderWithNode(</span>
+<span class="fc" id="L108">                                    translatableHTMLNode.getPlaceholderIdMap(),</span>
+                                    translatedString);
+<span class="fc" id="L110">                    typeString.setValue(translatedString);</span>
+                }
+            }
+<span class="fc" id="L113">            index++;</span>
+<span class="fc" id="L114">        }</span>
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (!indexTextMap.isEmpty()) {</span>
+<span class="fc" id="L117">            translateAndMergeStringsInBatch(doc, backendID,</span>
+                    MediaType.TEXT_PLAIN_TYPE,
+                    maxLength, indexTextMap, results);
+        }
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (!indexHTMLMap.isEmpty()) {</span>
+<span class="fc" id="L123">            translateAndMergeStringsInBatch(doc, backendID,</span>
+                    MediaType.TEXT_HTML_TYPE,
+                    maxLength, indexHTMLMap, results);
+        }
+<span class="fc" id="L127">        return new DocumentContent(results, documentContent.getUrl(),</span>
+<span class="fc" id="L128">                doc.getToLocale().getLocaleCode().getId(), backendID.getId(),</span>
+                warnings);
+    }
+
+    /**
+     * Translate strings with batch of maxLength
+     */
+    private String translateLargeString(Document doc, BackendID backendID,
+            MediaType mediaType, String source, int maxLength,
+            List&lt;APIResponse&gt; warnings) {
+<span class="fc" id="L138">        List&lt;String&gt; segmentedStrings =</span>
+<span class="fc" id="L139">                SegmentString.segmentString(source,</span>
+<span class="fc" id="L140">                        Optional.of(doc.getFromLocale().getLocaleCode()));</span>
+<span class="fc" id="L141">        List&lt;String&gt; results = new ArrayList&lt;&gt;(segmentedStrings);</span>
+
+<span class="fc" id="L143">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L144">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
+<span class="fc" id="L145">        List&lt;String&gt; translatedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L146">        int charCount = 0;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int index = 0; index &lt; segmentedStrings.size(); index++) {</span>
+<span class="fc" id="L148">            String string = segmentedStrings.get(index);</span>
+            // ignore string if length is longer the maxLength
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (string.length() &gt; maxLength) {</span>
+<span class="fc" id="L151">                addMaxLengthWarnings(string, warnings, maxLength);</span>
+<span class="fc" id="L152">                continue;</span>
+            }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            if (charCount + string.length() &gt; maxLength) {</span>
+<span class="fc" id="L155">                List&lt;String&gt; translated = persistentTranslationService</span>
+<span class="fc" id="L156">                        .translate(doc, batchedStrings, doc.getFromLocale(),</span>
+<span class="fc" id="L157">                                doc.getToLocale(), backendID, mediaType);</span>
+<span class="fc" id="L158">                translatedStrings.addAll(translated);</span>
+<span class="pc bpc" id="L159" title="2 of 4 branches missed.">                assert batchedStrings.size() == translated.size();</span>
+<span class="fc" id="L160">                charCount = 0;</span>
+<span class="fc" id="L161">                batchedStrings.clear();</span>
+            }
+<span class="fc" id="L163">            batchedStrings.add(string);</span>
+<span class="fc" id="L164">            indexOrderList.add(index);</span>
+<span class="fc" id="L165">            charCount += string.length();</span>
+        }
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (!batchedStrings.isEmpty()) {</span>
+<span class="fc" id="L168">            List&lt;String&gt; translated = persistentTranslationService</span>
+<span class="fc" id="L169">                    .translate(doc, batchedStrings, doc.getFromLocale(),</span>
+<span class="fc" id="L170">                            doc.getToLocale(), backendID, mediaType);</span>
+<span class="fc" id="L171">            translatedStrings.addAll(translated);</span>
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">            assert batchedStrings.size() == translated.size();</span>
+        }
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
+<span class="fc" id="L176">            results.set(indexOrderList.get(index), translatedStrings.get(index));</span>
+        }
+<span class="fc" id="L178">        return String.join(&quot;&quot;, results);</span>
+    }
+
+    /**
+     * Translate strings with batch of maxLength
+     */
+    private void translateAndMergeStringsInBatch(Document doc, BackendID backendID,
+            MediaType mediaType, int maxLength,
+            LinkedHashMap&lt;Integer, TypeString&gt; indexTypeStringMap,
+            List&lt;TypeString&gt; results) {
+<span class="fc" id="L188">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L189">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
+<span class="fc" id="L190">        Map&lt;Integer, TranslatableHTMLNode&gt; htmlNodeCache = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L192">        int charCount = 0;</span>
+<span class="fc" id="L193">        Iterator iter = indexTypeStringMap.entrySet().iterator();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L195">            Map.Entry&lt;Integer, TypeString&gt; entry =</span>
+<span class="fc" id="L196">                    (Map.Entry&lt;Integer, TypeString&gt;) iter.next();</span>
+<span class="fc" id="L197">            String stringToTranslate = entry.getValue().getValue();</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            if (mediaType == MediaType.TEXT_HTML_TYPE) {</span>
+<span class="fc" id="L199">                int index = entry.getKey();</span>
+<span class="fc" id="L200">                TranslatableHTMLNode translatableHTMLNode =</span>
+<span class="fc" id="L201">                        ArticleUtil.replaceNonTranslatableNode(index,</span>
+                                stringToTranslate);
+<span class="fc" id="L203">                htmlNodeCache.put(index, translatableHTMLNode);</span>
+<span class="fc" id="L204">                stringToTranslate = translatableHTMLNode.getHtml();</span>
+            }
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            if (charCount + stringToTranslate.length() &gt; maxLength) {</span>
+<span class="fc" id="L208">                translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
+                        indexOrderList, results);
+<span class="fc" id="L210">                charCount = 0;</span>
+<span class="fc" id="L211">                batchedStrings.clear();</span>
+<span class="fc" id="L212">                indexOrderList.clear();</span>
+            }
+<span class="fc" id="L214">            batchedStrings.add(stringToTranslate);</span>
+<span class="fc" id="L215">            indexOrderList.add(entry.getKey());</span>
+<span class="fc" id="L216">            charCount += stringToTranslate.length();</span>
+<span class="fc" id="L217">        }</span>
+<span class="fc" id="L218">        translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
+                indexOrderList, results);
+
+        // restore placeholder into html
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (!htmlNodeCache.isEmpty()) {</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">            for (Map.Entry&lt;Integer, TranslatableHTMLNode&gt; entry: htmlNodeCache.entrySet()) {</span>
+<span class="fc" id="L224">                int index = entry.getKey();</span>
+<span class="fc" id="L225">                TypeString typeString = results.get(index);</span>
+<span class="fc" id="L226">                String translatedString = ArticleUtil</span>
+<span class="fc" id="L227">                        .replacePlaceholderWithNode(</span>
+<span class="fc" id="L228">                                entry.getValue().getPlaceholderIdMap(),</span>
+<span class="fc" id="L229">                                typeString.getValue());</span>
+<span class="fc" id="L230">                typeString.setValue(translatedString);</span>
+<span class="fc" id="L231">                results.set(index, typeString);</span>
+<span class="fc" id="L232">            }</span>
+        }
+<span class="fc" id="L234">    }</span>
+
+    // perform translation on list of string and merge into results
+    private void translateAndMergeStrings(Document doc, BackendID backendID,
+            MediaType mediaType, List&lt;String&gt; strings,
+            List&lt;Integer&gt; indexOrderList, List&lt;TypeString&gt; results) {
+
+<span class="fc" id="L241">        List&lt;String&gt; translatedStrings = persistentTranslationService</span>
+<span class="fc" id="L242">                .translate(doc, strings, doc.getFromLocale(),</span>
+<span class="fc" id="L243">                        doc.getToLocale(), backendID, mediaType);</span>
+<span class="pc bpc" id="L244" title="2 of 4 branches missed.">        assert translatedStrings.size() == strings.size();</span>
+
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
+<span class="fc" id="L247">            results.get(indexOrderList.get(index))</span>
+<span class="fc" id="L248">                    .setValue(translatedStrings.get(index));</span>
+        }
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * Translate all html tree nodes from top to bottom.
+     * If parent node is being translated,
+     * its child nodes will not be translated again.
+     *
+     * root.getAllElements().size() changes once root is being translated.
+     */
+    private String translateLargeHTMLElement(Document doc, BackendID backendID,
+            MediaType mediaType, int maxLength, String source,
+            List&lt;APIResponse&gt; warnings) {
+
+<span class="fc" id="L263">        List&lt;Element&gt; contents =</span>
+<span class="fc" id="L264">                ArticleUtil.unwrapAsElements(ArticleUtil.wrapHTML(source));</span>
+
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        for (int i = 0; i &lt; contents.size(); i++) {</span>
+<span class="fc" id="L267">            Element content = contents.get(i);</span>
+<span class="fc" id="L268">            int size = content.getAllElements().size();</span>
+<span class="fc" id="L269">            int index = 0;</span>
+
+<span class="fc bfc" id="L271" title="All 2 branches covered.">            while (index &lt; size) {</span>
+<span class="fc" id="L272">                Element child = content.getAllElements().get(index);</span>
+<span class="fc" id="L273">                String html = child.outerHtml();</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
+<span class="fc" id="L275">                    List&lt;String&gt; translated =</span>
+                            persistentTranslationService
+<span class="fc" id="L277">                                    .translate(doc, Lists.newArrayList(html),</span>
+<span class="fc" id="L278">                                            doc.getFromLocale(),</span>
+<span class="fc" id="L279">                                            doc.getToLocale(), backendID,</span>
+                                            mediaType);
+<span class="pc bpc" id="L281" title="2 of 4 branches missed.">                    assert translated.size() == 1;</span>
+<span class="fc" id="L282">                    Element replacement = ArticleUtil.asElement(translated.get(0));</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">                    if (child == content) {</span>
+                        //replace this item in contents list, exit while loop
+<span class="fc" id="L285">                        contents.set(i, replacement);</span>
+<span class="fc" id="L286">                        break;</span>
+                    } else {
+<span class="fc" id="L288">                        child.replaceWith(replacement);</span>
+                    }
+<span class="fc" id="L290">                } else {</span>
+                    // show warning if there is no more children under this node
+<span class="fc" id="L292">                    addMaxLengthWarnings(html, warnings, maxLength);</span>
+                }
+                // size changes if child node is being translated
+<span class="fc" id="L295">                size = content.getAllElements().size();</span>
+<span class="fc" id="L296">                index++;</span>
+<span class="fc" id="L297">            }</span>
+        }
+<span class="fc" id="L299">        return contents.stream().map(node -&gt; node.outerHtml())</span>
+<span class="fc" id="L300">                .collect(Collectors.joining());</span>
+    }
+
+    private void addMaxLengthWarnings(String source, List&lt;APIResponse&gt; warnings,
+            int maxLength) {
+<span class="fc" id="L305">        String title =</span>
+                &quot;Warning: translation skipped: String length is over &quot; +
+                        maxLength;
+<span class="fc" id="L308">        String shortenString = ShortString.shorten(source);</span>
+<span class="fc" id="L309">        LOG.warn(title + &quot; - &quot; + shortenString);</span>
+<span class="fc" id="L310">        warnings.add(new APIResponse(</span>
+                Response.Status.BAD_REQUEST, new Exception(shortenString),
+                title));
+<span class="fc" id="L313">    }</span>
+
+    public MediaType getMediaType(String mediaType) throws BadRequestException {
+<span class="fc bfc" id="L316" title="All 2 branches covered.">        if (isMediaTypeSupported(mediaType)) {</span>
+<span class="fc" id="L317">            return MediaType.valueOf(mediaType);</span>
+        }
+<span class="fc" id="L319">        throw new BadRequestException(&quot;Unsupported media type:&quot; + mediaType);</span>
+    }
+
+    public boolean isMediaTypeSupported(String mediaType) {
+<span class="fc" id="L323">        return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,</span>
+                MediaType.TEXT_PLAIN);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

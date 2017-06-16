@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BackendResourceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.service.impl</a> &gt; <span class="el_source">BackendResourceImpl.java</span></div><h1>BackendResourceImpl.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.service.impl;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.mt.api.InputStreamStreamingOutput;
+import org.zanata.mt.api.dto.APIResponse;
+import org.zanata.mt.api.service.BackendResource;
+import org.zanata.mt.model.BackendID;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.InputStream;
+import java.util.Optional;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@RequestScoped
+public class BackendResourceImpl implements BackendResource {
+
+<span class="fc" id="L24">    private static final Logger LOG =</span>
+<span class="fc" id="L25">            LoggerFactory.getLogger(BackendResourceImpl.class);</span>
+
+    private static final String MS_ATTRIBUTION_IMAGE = &quot;/images/MS_attribution.png&quot;;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L30">    public BackendResourceImpl() {</span>
+<span class="fc" id="L31">    }</span>
+
+    @Override
+    public Response getAttribution(@QueryParam(&quot;id&quot;) String id) {
+<span class="fc" id="L35">        Optional&lt;APIResponse&gt; response = validateId(id);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (response.isPresent()) {</span>
+<span class="fc" id="L37">            return Response.status(response.get().getStatus())</span>
+<span class="fc" id="L38">                    .entity(response.get()).build();</span>
+        }
+
+<span class="fc" id="L41">        BackendID backendID = new BackendID(id.toUpperCase());</span>
+<span class="fc" id="L42">        String imageResource = getAttributionImageResource(backendID);</span>
+<span class="fc" id="L43">        String docName = id + &quot;-attribution.png&quot;;</span>
+
+<span class="fc" id="L45">        ClassLoader classLoader = this.getClass().getClassLoader();</span>
+<span class="fc" id="L46">        InputStream is = classLoader.getResourceAsStream(imageResource);</span>
+<span class="fc" id="L47">        StreamingOutput output =</span>
+                new InputStreamStreamingOutput(is);
+<span class="fc" id="L49">        return Response.ok().header(&quot;Content-Disposition&quot;,</span>
+                &quot;attachment; filename=\&quot;&quot; + docName + &quot;\&quot;&quot;)
+<span class="fc" id="L51">                .entity(output).build();</span>
+    }
+
+    private String getAttributionImageResource(BackendID backendID) {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (backendID.equals(BackendID.MS)) {</span>
+<span class="fc" id="L56">            return MS_ATTRIBUTION_IMAGE;</span>
+        }
+<span class="nc" id="L58">        return &quot;&quot;;</span>
+    }
+
+    private Optional&lt;APIResponse&gt; validateId(String id) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (StringUtils.isBlank(id)) {</span>
+<span class="fc" id="L63">            APIResponse response =</span>
+                    new APIResponse(Response.Status.BAD_REQUEST, &quot;Invalid id&quot;);
+<span class="fc" id="L65">            return Optional.of(response);</span>
+        }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId())) {</span>
+<span class="fc" id="L68">            APIResponse response =</span>
+                    new APIResponse(Response.Status.NOT_FOUND, &quot;Not supported id:&quot; + id);
+<span class="fc" id="L70">            return Optional.of(response);</span>
+        }
+<span class="fc" id="L72">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
