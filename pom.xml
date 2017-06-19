@@ -51,6 +51,8 @@
     <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
     <enunciate.version>2.8.0</enunciate.version>
     <cdi-api.version>1.2</cdi-api.version>
+    <site-maven-plugin.version>0.12</site-maven-plugin.version>
+    <frontend-maven-plugin.version>1.4</frontend-maven-plugin.version>
 
     <!-- checkstyle/findbugs -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
@@ -60,6 +62,8 @@
     <checkstyle.suppressions.location>src/main/resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     <findbugs.failOnError>true</findbugs.failOnError>
+
+    <download.dir>${user.home}/Downloads</download.dir>
   </properties>
 
   <dependencyManagement>
@@ -557,9 +561,13 @@
           </configuration>
         </plugin>
         <plugin>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${maven-war-plugin.version}</version>
+        </plugin>
+        <plugin>
           <groupId>com.github.github</groupId>
           <artifactId>site-maven-plugin</artifactId>
-          <version>0.12</version>
+          <version>${site-maven-plugin.version}</version>
           <configuration>
             <message>Creating site for ${project.version}</message>
           </configuration>
@@ -575,16 +583,6 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <reporting>
-    <excludeDefaults>true</excludeDefaults>
-    <plugins>
-      <plugin>
-        <groupId>com.webcohesion.enunciate</groupId>
-        <artifactId>enunciate-slim-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <modules>
     <!--<module>frontend</module>-->

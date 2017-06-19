@@ -6,9 +6,14 @@
     <artifactId>zanata-mt</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>server</artifactId>
+  <artifactId>mt-server</artifactId>
+  <name>server</name>
   <packaging>war</packaging>
-
+  <scm>
+    <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
+    <developerConnection>scm:git:git@github.com:zanata/zanata-mt.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
   <properties>
     <!-- database -->
     <db.name>zanataMT</db.name>
@@ -16,6 +21,7 @@
     <postgresql.port>5432</postgresql.port>
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <build>
@@ -29,6 +35,10 @@
 
     <plugins>
       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>com.webcohesion.enunciate</groupId>
         <artifactId>enunciate-slim-maven-plugin</artifactId>
         <configuration>
@@ -36,11 +46,18 @@
           <docsDir>${project.build.directory}/site</docsDir>
           <!-- The subdirectory of the site where the documentation will be put. -->
           <!-- Note that if this isn't set, the documentation will overwrite the site. -->
-          <docsSubdir>api-docs</docsSubdir>
+          <docsSubdir>apidocs</docsSubdir>
           <indexPageName>index.html</indexPageName>
         </configuration>
       </plugin>
-
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
       <plugin>
         <!-- The Docker Maven plugin is used to create docker image with the fat jar -->
         <groupId>io.fabric8</groupId>
@@ -122,20 +139,33 @@
           </images>
         </configuration>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+      </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>${maven-war-plugin.version}</version>
         <configuration>
-          <outputDirectory>target/deployments</outputDirectory>
+          <outputDirectory>${project.build.directory}/deployments</outputDirectory>
           <warName>ROOT</warName>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
+    <!--
+    <dependency>
+      <groupId>org.zanata.mt</groupId>
+      <artifactId>mt-frontend</artifactId>
+    </dependency>
+    -->
+
     <!-- enunciate -->
     <dependency>
       <groupId>com.webcohesion.enunciate</groupId>
@@ -322,4 +352,14 @@
       <artifactId>h2</artifactId>
     </dependency>
   </dependencies>
+
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>

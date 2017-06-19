@@ -111,7 +111,7 @@ timestamps {
 
 // Run maven site to build documentation
 void mavenSite() {
-  sh "./mvnw -e site"
+  sh "./mvnw clean package site -DskipTests -Dfindbugs.skip -pl :server"
 }
 
 /**
