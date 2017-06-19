@@ -23,6 +23,7 @@ import org.zanata.mt.model.BackendID;
 import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
+import org.zanata.mt.service.ConfigurationService;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,11 +52,15 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentProcessManager docProcessLock;
 
+    @Mock
+    private ConfigurationService configurationService;
+
     @Before
     public void beforeTest() {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentDAO, docProcessLock);
+                        localeDAO, documentDAO, docProcessLock,
+                        configurationService);
         when(documentContentTranslatorService
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
@@ -346,5 +351,36 @@ public class DocumentResourceImplTest {
         verify(docProcessLock).lock(key);
         verify(doc).incrementCount();
         verify(documentDAO).persist(doc);
+    }
+
+    @Test
+    public void testDevMode() {
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html><body>Entry 1</body></html>",
+                        MediaType.TEXT_HTML, "meta1"));
+
+        org.zanata.mt.model.Document
+                doc = Mockito.mock(org.zanata.mt.model.Document.class);
+
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost",
+                fromLocale.getLocaleCode().getId());
+
+        when(configurationService.isDevMode()).thenReturn(true);
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+                .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
+                .thenReturn(toLocale);
+        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocale)).thenReturn(doc);
+
+        documentResource
+                .translate(docContent, toLocale.getLocaleCode());
+        verify(documentContentTranslatorService)
+                .translateDocument(doc, docContent, BackendID.DEV,
+                        DocumentResource.MAX_LENGTH);
     }
 }

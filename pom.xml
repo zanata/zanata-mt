@@ -58,9 +58,12 @@
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
     <checkstyle.version>7.2</checkstyle.version>
     <checkstyle.skip>false</checkstyle.skip>
-    <checkstyle.config.location>src/main/resources/checkstyle.xml</checkstyle.config.location>
-    <checkstyle.suppressions.location>src/main/resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
+    <checkstyle.config.location>resources/checkstyle.xml</checkstyle.config.location>
+    <checkstyle.suppressions.location>resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+    <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
+    <enunciate.version>2.8.0</enunciate.version>
+
     <findbugs.failOnError>true</findbugs.failOnError>
 
     <download.dir>${user.home}/Downloads</download.dir>
