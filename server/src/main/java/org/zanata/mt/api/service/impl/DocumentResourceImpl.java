@@ -18,6 +18,7 @@ import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DateRange;
 import org.zanata.mt.service.DocumentContentTranslatorService;
+import org.zanata.mt.service.ConfigurationService;
 import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
@@ -44,6 +45,8 @@ public class DocumentResourceImpl implements DocumentResource {
 
     private DocumentProcessManager docProcessManager;
 
+    private ConfigurationService configurationService;
+
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
     }
@@ -52,12 +55,14 @@ public class DocumentResourceImpl implements DocumentResource {
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentDAO documentDAO,
-            DocumentProcessManager docProcessManager) {
+            DocumentProcessManager docProcessManager,
+            ConfigurationService configurationService) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentDAO = documentDAO;
         this.docProcessManager = docProcessManager;
+        this.configurationService = configurationService;
     }
 
     @Override
@@ -104,8 +109,12 @@ public class DocumentResourceImpl implements DocumentResource {
     @Override
     public Response translate(DocumentContent docContent,
             @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
-        // Default to MS engine for translation
-        BackendID backendID = BackendID.MS;
+
+        // Default to MS engine for translation if not DEV mode
+        BackendID backendID = BackendID.DEV;
+        if (!configurationService.isDevMode()) {
+            backendID = BackendID.MS;
+        }
 
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);
