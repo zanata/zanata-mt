@@ -8,6 +8,8 @@ import org.zanata.mt.model.AugmentedTranslation;
 
 import javax.ws.rs.core.MediaType;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.zanata.mt.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
 import static org.zanata.mt.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
@@ -47,7 +49,9 @@ public class MockTranslatorBackendTest {
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
         AugmentedTranslation translation =
-                mockBackend.translate(content, fromLocale, toLocale, mediaType);
+                mockBackend.translate(content, fromLocale, toLocale, mediaType,
+                        Optional
+                                .of("tech"));
         assertThat(translation.getRawTranslation())
                 .contains(content, PREFIX_MOCK_STRING, UNICODE_SUPPLEMENTARY);
         assertThat(translation.getPlainTranslation())

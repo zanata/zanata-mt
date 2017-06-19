@@ -1,6 +1,7 @@
 package org.zanata.mt.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
@@ -22,7 +23,8 @@ public interface TranslatorBackend {
      * @throws ZanataMTException
      */
     AugmentedTranslation translate(String content, BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType)
+            BackendLocaleCode targetLocale, MediaType mediaType,
+            Optional<String> category)
             throws ZanataMTException;
 
     /**
@@ -31,7 +33,8 @@ public interface TranslatorBackend {
      */
     List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType)
+            BackendLocaleCode targetLocale, MediaType mediaType,
+            Optional<String> category)
             throws ZanataMTException;
 
     /**

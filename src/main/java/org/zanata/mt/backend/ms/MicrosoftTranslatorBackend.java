@@ -1,6 +1,7 @@
 package org.zanata.mt.backend.ms;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -93,16 +94,18 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     @Override
     public AugmentedTranslation translate(String content,
             BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType)
+            BackendLocaleCode targetLocale, MediaType mediaType,
+            Optional<String> category)
             throws ZanataMTException {
         return translate(Lists.newArrayList(content), srcLocale, targetLocale,
-                mediaType).get(0);
+                mediaType, category).get(0);
     }
 
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode fromLocale,
-            BackendLocaleCode toLocale, MediaType mediaType)
+            BackendLocaleCode toLocale, MediaType mediaType,
+            Optional<String> category)
             throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
@@ -113,6 +116,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
             options.setContentType(mediaType.toString());
+            if (category.isPresent()) {
+                options.setCategory(category.get());
+            }
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);
