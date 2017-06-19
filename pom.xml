@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.zanata.mt</groupId>
   <artifactId>zanata-mt</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0.16</version>
   <name>Zanata MT</name>
   <packaging>war</packaging>
   <url>http://zanata.org</url>
   <scm>
     <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
     <developerConnection>scm:git:git@github.com:zanata/zanata-mt.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>zanata-mt-1.0.0.16</tag>
   </scm>
   <properties>
     <github.global.server>github</github.global.server>
