@@ -53,7 +53,6 @@ timestamps {
           final String VERSION=POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
           final String GIT_URL='git@github.com:zanata/zanata-mt.git'
 
-          final String DOCKER_WORKSPACE = 'docker_workspace'
           final String DOCKER_IMAGE = 'zanata-mt/server'
           final String DOCKERFILE_GIT_REPO = "$CEE_GITLAB_URL/zanata/zanata-dockerfiles.git"
 
@@ -78,7 +77,7 @@ timestamps {
                     "DOCUMENTATION": { mavenSite() },
                     "DOCKER_BUILD_RELEASE": {
                       dockerBuildAndDeploy("$VERSION", "$DOCKERFILE_GIT_REPO",
-                              "$DOCKER_WORKSPACE", "${DOCKER_IMAGE}");
+                              "${DOCKER_IMAGE}");
                       deployToStage("${VERSION}", "${DOCKER_IMAGE}")
                     },
             ]
@@ -120,17 +119,18 @@ void mavenSite() {
  *
  * @param version - image version
  * @param dockerGitRepo - git repo to for dockerfile
- * @param dockerWorkspace - workspace for docker process
  * @param dockerImage - docker image name
  */
-void dockerBuildAndDeploy(String version, String dockerGitRepo, String dockerWorkspace, String dockerImage) {
-  echo "Getting dockerfile from $dockerGitRepo:master and copy to target/$dockerWorkspace/zanata-mt/deployments/"
-  sh "git clone --depth 1 --single-branch $dockerGitRepo -b master target/$dockerWorkspace"
-  sh "mkdir -p target/$dockerWorkspace/zanata-mt/deployments"
-  sh "cp target/deployments/ROOT.war target/$dockerWorkspace/zanata-mt/deployments/"
+void dockerBuildAndDeploy(String version, String dockerGitRepo, String dockerImage) {
+  def workspace = "server/target/docker_workspace"
+
+  echo "Getting dockerfile from $dockerGitRepo:master and copy to $workspace/zanata-mt/deployments/"
+  sh "git clone --depth 1 --single-branch $dockerGitRepo -b master $workspace"
+  sh "mkdir -p $workspace/zanata-mt/deployments"
+  sh "cp server/target/deployments/ROOT.war $workspace/zanata-mt/deployments/"
 
   echo "Building docker zanata-mt $version..."
-  sh "docker build -f target/$dockerWorkspace/zanata-mt/Dockerfile-OPENSHIFT -t $dockerImage:$version target/$dockerWorkspace/zanata-mt"
+  sh "docker build -f $workspace/zanata-mt/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace/zanata-mt"
 
   sh "echo Creating tag for $version..."
   sh "docker tag $dockerImage:$version $RH_ENGINEERING_DOCKER_REGISTRY_URL/$dockerImage:$version"
@@ -241,7 +241,7 @@ void processTestCoverage() {
   }
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
-  archive "**/target/*.war"
+  archive "**/target/*.jar, **/target/*.war"
 
   // parse Jacoco test coverage
   step([$class: 'JacocoPublisher'])

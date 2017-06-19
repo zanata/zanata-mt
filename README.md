@@ -1,8 +1,9 @@
 # To test (there is no access control, deploy only in localhost for testing)
 
 Run:
-- Build: `mvn clean package docker:build` (This will build a docker image named zanataMT)
-- Run: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
+- Package: `mvn clean package` (This will build a docker image named zanataMT)
+- Docker build: Go to `server` directory, run `mvn docker:build -DskipTests`
+- Start docker: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
 - Logs: `mvn docker:logs -Ddocker.follow`
 - To stop and remove: `mvn docker:stop` (This still stop and remove both containers)
 
