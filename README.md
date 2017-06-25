@@ -2,7 +2,8 @@
 
 Run:
 - Package: `mvn clean package` (build and package war file)
-- Docker build: Go to `server` directory, run `mvn docker:build -DskipTests` (build docker image named zanataMT)
+- Go to `server` directory
+- Docker build: run `mvn docker:build -DskipTests` (build docker image named zanataMT)
 - Start docker: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
 - Logs: `mvn docker:logs -Ddocker.follow`
 - To stop and remove: `mvn docker:stop` (This still stop and remove both containers)

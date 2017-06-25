@@ -8,7 +8,6 @@ rules:
   # double-quotes for attributes.
   # TODO migrate frontend to have all double-quotes and reactivate this rule
   jsx-quotes:
-#    - 2              # Error to enforce compliance.
-    - 0              # Off, can't enforce yet as frontend all has single-quotes
+    - 2              # Error to enforce compliance.
     - prefer-double  # Use double quotes unless the string contains a literal
                      # double-quote character.

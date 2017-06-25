@@ -107,12 +107,8 @@
               <resources>
                 <resource>
                   <directory>src/frontend/dist</directory>
-                  <include>editor.min.js</include>
-                  <include>editor.css</include>
-                  <include>editor.css.map</include>
                   <include>intl-polyfill.min.js</include>
                   <include>frontend.min.js</include>
-                  <include>frontend.legacy.min.js</include>
                   <include>frontend.css</include>
                   <include>frontend.css.map</include>
                   <include>*.js.map</include>
