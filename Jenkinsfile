@@ -3,10 +3,10 @@
 
 /* Only keep the 10 most recent builds. */
 def projectProperties = [
-        [
-                $class: 'BuildDiscarderProperty',
-                strategy: [$class: 'LogRotator', numToKeepStr: '10']
-        ],
+  [
+    $class: 'BuildDiscarderProperty',
+    strategy: [$class: 'LogRotator', numToKeepStr: '10']
+  ],
 ]
 
 properties(projectProperties)

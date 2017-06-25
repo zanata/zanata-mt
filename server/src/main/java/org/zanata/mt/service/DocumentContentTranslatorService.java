@@ -40,6 +40,9 @@ public class DocumentContentTranslatorService {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorService.class);
 
+    // set MT category for translation
+    private static final String CATEGORY = "tech";
+
     private PersistentTranslationService persistentTranslationService;
 
     @SuppressWarnings("unused")
@@ -154,7 +157,8 @@ public class DocumentContentTranslatorService {
             if (charCount + string.length() > maxLength) {
                 List<String> translated = persistentTranslationService
                         .translate(doc, batchedStrings, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, mediaType);
+                                doc.getToLocale(), backendID, mediaType,
+                                Optional.of(CATEGORY));
                 translatedStrings.addAll(translated);
                 assert batchedStrings.size() == translated.size();
                 charCount = 0;
@@ -167,7 +171,8 @@ public class DocumentContentTranslatorService {
         if (!batchedStrings.isEmpty()) {
             List<String> translated = persistentTranslationService
                     .translate(doc, batchedStrings, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, mediaType);
+                            doc.getToLocale(), backendID, mediaType,
+                            Optional.of(CATEGORY));
             translatedStrings.addAll(translated);
             assert batchedStrings.size() == translated.size();
         }
@@ -240,7 +245,8 @@ public class DocumentContentTranslatorService {
 
         List<String> translatedStrings = persistentTranslationService
                 .translate(doc, strings, doc.getFromLocale(),
-                        doc.getToLocale(), backendID, mediaType);
+                        doc.getToLocale(), backendID, mediaType,
+                        Optional.of(CATEGORY));
         assert translatedStrings.size() == strings.size();
 
         for (int index = 0; index < translatedStrings.size(); index++) {
@@ -277,7 +283,7 @@ public class DocumentContentTranslatorService {
                                     .translate(doc, Lists.newArrayList(html),
                                             doc.getFromLocale(),
                                             doc.getToLocale(), backendID,
-                                            mediaType);
+                                            mediaType, Optional.of(CATEGORY));
                     assert translated.size() == 1;
                     Element replacement = ArticleUtil.asElement(translated.get(0));
                     if (child == content) {

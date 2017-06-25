@@ -82,7 +82,7 @@ public class DocumentContentTranslatorServiceTest {
         String expectedHtml = "<div><span>translated</span><span>translated</span></div>";
 
         when(persistentTranslationService.translate(any(),
-                any(), any(), any(), any(), any()))
+                any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
 
         List<TypeString> contents = Lists.newArrayList(
@@ -108,7 +108,7 @@ public class DocumentContentTranslatorServiceTest {
         String expectedHtml = "<span>translated</span><span>translated</span>";
 
         when(persistentTranslationService.translate(any(),
-                any(), any(), any(), any(), any()))
+                any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
 
         List<TypeString> contents = Lists.newArrayList(
@@ -134,7 +134,7 @@ public class DocumentContentTranslatorServiceTest {
         String expectedHtml = "<div><span>translated</span><span>content too long cannot be translated</span></div>";
 
         when(persistentTranslationService.translate(any(),
-                any(), any(), any(), any(), any()))
+                any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
 
         List<TypeString> contents = Lists.newArrayList(
@@ -164,22 +164,22 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document,
                 strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE))
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(Lists.newArrayList("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(2, 3), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE))
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(Lists.newArrayList("Translated:The mysterious diary records the voice. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(3, 4), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE))
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(Lists.newArrayList("Translated:She was too short to see over the fence. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(4, 5), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE))
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(Lists.newArrayList("Translated:Everyone was busy, so I went to the movie alone. "));
 
         DocumentContent docContent =
@@ -260,14 +260,18 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document, processedHtmls,
                 srcLocale, transLocale, BackendID.MS,
-                MediaType.TEXT_HTML_TYPE)).thenReturn(translatedHtmls);
+                MediaType.TEXT_HTML_TYPE, Optional.of("tech"))).thenReturn(translatedHtmls);
 
-        when(persistentTranslationService.translate(document, text.subList(0, 2),
-                srcLocale, transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+        when(persistentTranslationService
+                .translate(document, text.subList(0, 2),
+                        srcLocale, transLocale, BackendID.MS,
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(translatedText.subList(0, 2));
 
-        when(persistentTranslationService.translate(document, text.subList(2, 3),
-                srcLocale, transLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+        when(persistentTranslationService
+                .translate(document, text.subList(2, 3),
+                        srcLocale, transLocale, BackendID.MS,
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(translatedText.subList(2, 3));
 
         DocumentContent translatedDocContent = documentContentTranslatorService
@@ -292,6 +296,7 @@ public class DocumentContentTranslatorServiceTest {
                 times(requestsCount))
                 .translate(any(), anyList(), any(Locale.class),
                         any(Locale.class),
-                        any(BackendID.class), any(MediaType.class));
+                        any(BackendID.class), any(MediaType.class),
+                        any());
     }
 }

@@ -80,7 +80,8 @@ public class PersistentTranslationService {
     public List<String> translate(@NotNull Document document,
             @NotNull List<String> strings,
             @NotNull Locale fromLocale, @NotNull Locale toLocale,
-            @NotNull BackendID backendID, @NotNull MediaType mediaType)
+            @NotNull BackendID backendID, @NotNull MediaType mediaType,
+            Optional<String> category)
             throws BadRequestException, ZanataMTException {
         if (strings == null || strings.isEmpty() || fromLocale == null
                 || toLocale == null || backendID == null) {
@@ -147,7 +148,7 @@ public class PersistentTranslationService {
 
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sources, mappedFromLocaleCode,
-                        mappedToLocaleCode, mediaType);
+                        mappedToLocaleCode, mediaType, category);
 
         for (String source: sources) {
             Collection<Integer> indexes = untranslatedIndexMap.get(source);

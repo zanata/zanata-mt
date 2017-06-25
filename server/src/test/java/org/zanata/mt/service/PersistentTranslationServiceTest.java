@@ -20,6 +20,7 @@ import org.zanata.mt.model.BackendID;
 import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
@@ -70,7 +71,8 @@ public class PersistentTranslationServiceTest {
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         null, targetLocale,
-                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
+                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        Optional.of("tech")))
                 .isInstanceOf(BadRequestException.class);
     }
 
@@ -79,11 +81,13 @@ public class PersistentTranslationServiceTest {
         List<String> source = Lists.newArrayList("testing source");
         Locale sourceLocale = new Locale(LocaleCode.EN, "English");
 
-        assertThatThrownBy(() -> persistentTranslationService.translate(new Document(),
-                source,
-                sourceLocale, null,
-                BackendID.MS, MediaType.TEXT_PLAIN_TYPE))
-                        .isInstanceOf(BadRequestException.class);
+        assertThatThrownBy(
+                () -> persistentTranslationService.translate(new Document(),
+                        source,
+                        sourceLocale, null,
+                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        Optional.of("tech")))
+                .isInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -95,7 +99,7 @@ public class PersistentTranslationServiceTest {
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         sourceLocale, targetLocale, null,
-                        MediaType.TEXT_PLAIN_TYPE))
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .isInstanceOf(BadRequestException.class);
     }
 }
