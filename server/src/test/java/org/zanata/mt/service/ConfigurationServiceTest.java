@@ -12,11 +12,12 @@ public class ConfigurationServiceTest {
     @Test
     public void testConstructor() {
         ConfigurationService config =
-                new ConfigurationService("id", "key", "clientSubscriptionKey");
+                new ConfigurationService("id", "key", "clientSubscriptionKey", "googleKey");
         assertThat(config.getId()).isEqualTo("id");
         assertThat(config.getApiKey()).isEqualTo("key");
-        assertThat(config.getClientSubscriptionKey())
+        assertThat(config.getMsAPIKey())
                 .isEqualTo("clientSubscriptionKey");
+        assertThat(config.getGoogleAPIKey()).isEqualTo("googleKey");
         assertThat(config.getBuildDate()).isNotBlank();
         assertThat(config.getVersion()).isNotBlank();
     }

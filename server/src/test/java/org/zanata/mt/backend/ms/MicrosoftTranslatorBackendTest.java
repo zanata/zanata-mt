@@ -44,7 +44,7 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testVerifyKeyInvalid() {
         when(configurationService.isDevMode()).thenReturn(false);
-        when(configurationService.getClientSubscriptionKey()).thenReturn(null);
+        when(configurationService.getMsAPIKey()).thenReturn(null);
         msBackend = new MicrosoftTranslatorBackend(configurationService);
         assertThatThrownBy(() -> msBackend.onInit(null))
                 .isInstanceOf(ZanataMTException.class);
@@ -53,7 +53,7 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testVerifyKey() {
         when(configurationService.isDevMode()).thenReturn(false);
-        when(configurationService.getClientSubscriptionKey())
+        when(configurationService.getMsAPIKey())
                 .thenReturn("subscriptionKey");
         msBackend = new MicrosoftTranslatorBackend(configurationService);
         msBackend.onInit(null);
@@ -62,14 +62,14 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testIgnoreKeyCheckingInDevMode() {
         when(configurationService.isDevMode()).thenReturn(true);
-        when(configurationService.getClientSubscriptionKey()).thenReturn(null);
+        when(configurationService.getMsAPIKey()).thenReturn(null);
         msBackend = new MicrosoftTranslatorBackend(configurationService);
         msBackend.onInit(null);
     }
 
     @Test
     public void testMappedLocale() {
-        when(configurationService.getClientSubscriptionKey())
+        when(configurationService.getMsAPIKey())
                 .thenReturn("subscriptionKey");
         LocaleCode from = LocaleCode.ZH_HANS;
         msBackend = new MicrosoftTranslatorBackend(configurationService);
@@ -96,7 +96,7 @@ public class MicrosoftTranslatorBackendTest {
         MicrosoftTranslatorClient api =
                 Mockito.mock(MicrosoftTranslatorClient.class);
         when(api.requestTranslations(any())).thenReturn(responseString);
-        when(configurationService.getClientSubscriptionKey())
+        when(configurationService.getMsAPIKey())
                 .thenReturn("subscriptionKey");
 
         msBackend = new MicrosoftTranslatorBackend(configurationService);

@@ -33,8 +33,11 @@ ID for /api request
 ### `ZANATA_MT_API_KEY` (required)
 Api key for /api request
 
-### `ZANATA_MT_AZURE_KEY` (required, otherwise DEV mode will be enabled)
+### `ZANATA_MT_AZURE_KEY` (if this and Google key is empty, DEV mode will be enabled)
 Subscription key for MS translators
+
+### `GOOGLE_API_KEY` (if this and AZURE key is empty, DEV mode will be enabled)
+API key for Google translators
 
 ### `ZANATA_MT_ORIGIN_WHITELIST` (optional)
 Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.

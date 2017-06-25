@@ -1,6 +1,5 @@
 package org.zanata.mt.service;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
+import static org.zanata.mt.api.APIConstant.GOOGLE_API_KEY;
 
 /**
  * This service will startup in eager loading in application.
@@ -29,7 +29,8 @@ public class ConfigurationService {
 
     private String version;
     private String buildDate;
-    private String clientSubscriptionKey;
+    private String msAPIKey;
+    private String googleAPIKey;
     private boolean isDevMode;
 
     private String id;
@@ -42,10 +43,12 @@ public class ConfigurationService {
     @Inject
     public ConfigurationService(@EnvVariable(APIConstant.API_ID) String id,
             @EnvVariable(APIConstant.API_KEY) String apiKey,
-            @EnvVariable(AZURE_KEY) String clientSubscriptionKey) {
+            @EnvVariable(AZURE_KEY) String msAPIKey,
+            @EnvVariable(GOOGLE_API_KEY) String googleAPIKey) {
         this.id = id;
         this.apiKey = apiKey;
-        this.clientSubscriptionKey = clientSubscriptionKey;
+        this.msAPIKey = msAPIKey;
+        this.googleAPIKey = googleAPIKey;
 
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("build.properties");
@@ -54,7 +57,8 @@ public class ConfigurationService {
             properties.load(is);
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
-            isDevMode = StringUtils.isBlank(clientSubscriptionKey);
+            isDevMode = StringUtils.isBlank(msAPIKey) &&
+                    StringUtils.isBlank(googleAPIKey);
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
@@ -80,7 +84,11 @@ public class ConfigurationService {
         return apiKey;
     }
 
-    public String getClientSubscriptionKey() {
-        return clientSubscriptionKey;
+    public String getMsAPIKey() {
+        return msAPIKey;
+    }
+
+    public String getGoogleAPIKey() {
+        return googleAPIKey;
     }
 }

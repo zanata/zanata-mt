@@ -67,11 +67,12 @@ public class DocumentContentTranslatorService {
      * {@link DocumentContent}
      **/
     public DocumentContent translateDocument(Document doc,
-            DocumentContent documentContent, BackendID backendID, int maxLength)
+            DocumentContent documentContent, BackendID backendID)
             throws BadRequestException, ZanataMTException {
 
         LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
         LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
+        int maxLength = persistentTranslationService.getMaxLength(backendID);
 
         List<APIResponse> warnings = Lists.newArrayList();
         List<TypeString> results =

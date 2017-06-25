@@ -220,6 +220,11 @@
       <artifactId>annotations</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-translate</artifactId>
+    </dependency>
+
     <!-- resteasy -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>

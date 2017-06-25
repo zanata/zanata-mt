@@ -39,4 +39,11 @@ public interface TranslatorBackend {
      * @param localeCode
      */
     BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode);
+
+    /**
+     * @return
+     *      max length for request for this backend. Contents will be segmented
+     *      if the length of over limit
+     */
+    int getCharLimitPerRequest();
 }

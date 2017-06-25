@@ -47,6 +47,9 @@ import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
+    // Max length per request for MS service
+    private final static int MAX_LENGTH = 10000;
+
     private ConfigurationService configurationService;
 
     /**
@@ -76,7 +79,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             ConfigurationService configurationService) {
         this.configurationService = configurationService;
         this.clientSubscriptionKey =
-                configurationService.getClientSubscriptionKey();
+                configurationService.getMsAPIKey();
     }
 
     public void onInit(
@@ -131,6 +134,11 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
         MSLocaleCode from = new MSLocaleCode(localeCode);
         return LOCALE_MAP.getOrDefault(localeCode, from);
+    }
+
+    @Override
+    public int getCharLimitPerRequest() {
+        return MAX_LENGTH;
     }
 
     @VisibleForTesting

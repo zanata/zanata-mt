@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.google.GoogleTranslatorBackend;
 import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -58,12 +60,14 @@ public class PersistentTranslationService {
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
         TextFlowTargetDAO textFlowTargetDAO,
             MicrosoftTranslatorBackend microsoftTranslatorBackend,
+            GoogleTranslatorBackend googleTranslatorBackend,
             MockTranslatorBackend mockTranslatorBackend) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
 
         Map<BackendID, TranslatorBackend> backendMap = new HashMap<>();
         backendMap.put(BackendID.MS, microsoftTranslatorBackend);
+        backendMap.put(BackendID.GOOGLE, googleTranslatorBackend);
         backendMap.put(BackendID.DEV, mockTranslatorBackend);
 
         translatorBackendMap = Collections.unmodifiableMap(backendMap);
@@ -168,6 +172,11 @@ public class PersistentTranslationService {
         }
         return results;
     }
+
+    public int getMaxLength(@NotNull BackendID backendID) {
+        return getTranslatorBackend(backendID).getCharLimitPerRequest();
+    }
+
 
     private @NotNull
     TranslatorBackend getTranslatorBackend(@NotNull BackendID backendID) {

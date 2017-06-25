@@ -22,7 +22,7 @@ public class ZanataMTStartupTest {
     @Test
     public void testOnStartup() {
         ConfigurationService config =
-                new ConfigurationService("id", "key", "azureKey");
+                new ConfigurationService("id", "key", "azureKey", "googleKey");
         ZanataMTStartup app = new ZanataMTStartup(config);
         app.onStartUp(null);
     }

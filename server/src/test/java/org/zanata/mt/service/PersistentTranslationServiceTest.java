@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.backend.google.GoogleTranslatorBackend;
 import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
@@ -37,7 +38,10 @@ public class PersistentTranslationServiceTest {
     private TextFlowTargetDAO textFlowTargetDAO;
 
     @Mock
-    private MicrosoftTranslatorBackend msProvider;
+    private MicrosoftTranslatorBackend microsoftTranslatorBackend;
+
+    @Mock
+    private GoogleTranslatorBackend googleTranslatorBackend;
 
     private MockTranslatorBackend mockTranslatorBackend =
             new MockTranslatorBackend();
@@ -53,8 +57,9 @@ public class PersistentTranslationServiceTest {
     @Before
     public void setup() {
         persistentTranslationService =
-            new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                msProvider, mockTranslatorBackend);
+                new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
+                        microsoftTranslatorBackend, googleTranslatorBackend,
+                        mockTranslatorBackend);
     }
 
     @Test

@@ -148,7 +148,7 @@ public class DocumentResourceImpl implements DocumentResource {
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);
+                    .translateDocument(doc, docContent, backendID);
             doc.incrementCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();

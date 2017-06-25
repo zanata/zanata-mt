@@ -13,6 +13,9 @@ public class BackendID implements Serializable {
     // Microsoft translators service
     public static final BackendID MS = new BackendID("MS");
 
+    // Google translation service
+    public static final BackendID GOOGLE = new BackendID("GOOGLE");
+
     // DEV translators service
     public static final BackendID DEV = new BackendID("DEV");
 

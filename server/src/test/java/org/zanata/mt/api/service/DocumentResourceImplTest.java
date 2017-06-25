@@ -329,8 +329,7 @@ public class DocumentResourceImplTest {
                 toLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
-                .translateDocument(doc, docContent, BackendID.MS,
-                        DocumentResource.MAX_LENGTH))
+                .translateDocument(doc, docContent, BackendID.MS))
                 .thenReturn(translatedDocContent);
 
         Response response =
@@ -380,7 +379,6 @@ public class DocumentResourceImplTest {
         documentResource
                 .translate(docContent, toLocale.getLocaleCode());
         verify(documentContentTranslatorService)
-                .translateDocument(doc, docContent, BackendID.DEV,
-                        DocumentResource.MAX_LENGTH);
+                .translateDocument(doc, docContent, BackendID.DEV);
     }
 }

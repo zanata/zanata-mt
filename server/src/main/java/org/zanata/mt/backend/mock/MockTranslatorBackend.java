@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class MockTranslatorBackend implements TranslatorBackend {
 
+    // Max length per request for mock service
+    private final static int MAX_LENGTH = 10000;
+
     public final static String PREFIX_MOCK_STRING = "translated[";
     public final static String UNICODE_SUPPLEMENTARY = "\uD843\uDFB4";
 
@@ -59,6 +62,11 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
         return new MockLocaleCode(localeCode);
+    }
+
+    @Override
+    public int getCharLimitPerRequest() {
+        return MAX_LENGTH;
     }
 
     public static class MockLocaleCode implements BackendLocaleCode {

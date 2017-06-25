@@ -31,9 +31,6 @@ import org.zanata.mt.api.dto.LocaleCode;
 })
 public interface DocumentResource {
 
-    // Max length per request
-    int MAX_LENGTH = 10000;
-
     /**
      * Get request count for a document with given url
      *
