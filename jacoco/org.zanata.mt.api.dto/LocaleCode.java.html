@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocaleCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Zanata MT</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.dto</a> &gt; <span class="el_source">LocaleCode.java</span></div><h1>LocaleCode.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.dto;
+
+import java.io.Serializable;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+/**
+ * Wrapper for LocaleCode for language entity
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+public class LocaleCode implements Serializable {
+    private static final long serialVersionUID = 2193027706150405364L;
+
+<span class="fc" id="L15">    public static final LocaleCode EN = new LocaleCode(&quot;en&quot;);</span>
+<span class="fc" id="L16">    public static final LocaleCode EN_US = new LocaleCode(&quot;en-us&quot;);</span>
+<span class="fc" id="L17">    public static final LocaleCode DE = new LocaleCode(&quot;de&quot;);</span>
+<span class="fc" id="L18">    public static final LocaleCode FR = new LocaleCode(&quot;fr&quot;);</span>
+<span class="fc" id="L19">    public static final LocaleCode IT = new LocaleCode(&quot;it&quot;);</span>
+<span class="fc" id="L20">    public static final LocaleCode ES = new LocaleCode(&quot;es&quot;);</span>
+<span class="fc" id="L21">    public static final LocaleCode JA = new LocaleCode(&quot;ja&quot;);</span>
+<span class="fc" id="L22">    public static final LocaleCode KO = new LocaleCode(&quot;ko&quot;);</span>
+<span class="fc" id="L23">    public static final LocaleCode PT = new LocaleCode(&quot;pt&quot;);</span>
+<span class="fc" id="L24">    public static final LocaleCode RU = new LocaleCode(&quot;ru&quot;);</span>
+<span class="fc" id="L25">    public static final LocaleCode ZH_HANS = new LocaleCode(&quot;zh-hans&quot;);</span>
+<span class="fc" id="L26">    public static final LocaleCode ZH_HANT = new LocaleCode(&quot;zh-hant&quot;);</span>
+
+    private String id;
+
+<span class="fc" id="L30">    public LocaleCode(@NotNull String localeCode) {</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (localeCode.indexOf('_') != -1)</span>
+<span class="fc" id="L32">            throw new IllegalArgumentException(</span>
+                &quot;expected lang[-country[-modifier]], got &quot; + localeCode);
+<span class="fc" id="L34">        this.id = localeCode.toLowerCase().intern();</span>
+<span class="fc" id="L35">    }</span>
+
+    @SuppressWarnings(&quot;unused&quot;)
+    protected LocaleCode() {
+<span class="fc" id="L39">        this(&quot;&quot;);</span>
+<span class="fc" id="L40">    }</span>
+
+    public static LocaleCode fromJavaName(String localeName) {
+<span class="fc" id="L43">        return new LocaleCode(localeName.replace('_', '-'));</span>
+    }
+
+    @SuppressWarnings(&quot;null&quot;)
+    public @NotNull String toJavaName() {
+<span class="fc" id="L48">        return id.replace('-', '_');</span>
+    }
+
+    public @NotNull String toString() {
+<span class="fc" id="L52">        return id;</span>
+    }
+
+    @Size(max = 128)
+    @NotNull
+    public String getId() {
+<span class="fc" id="L58">        return id;</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (this == o)</span>
+<span class="fc" id="L64">            return true;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (!(o instanceof LocaleCode))</span>
+<span class="nc" id="L66">            return false;</span>
+<span class="fc" id="L67">        LocaleCode localeCode = (LocaleCode) o;</span>
+<span class="fc" id="L68">        return id.equals(localeCode.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L73">        return id.hashCode();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
