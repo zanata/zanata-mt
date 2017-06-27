@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.zanata.mt</groupId>
-    <artifactId>zanata-mt</artifactId>
+    <artifactId>mt-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>mt-frontend</artifactId>
-  <name>frontend</name>
+  <name>mt-frontend</name>
   <packaging>jar</packaging>
   <scm>
     <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
