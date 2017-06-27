@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.zanata.mt</groupId>
+    <artifactId>zanata-mt</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>mt-frontend</artifactId>
+  <name>frontend</name>
+  <packaging>jar</packaging>
+  <scm>
+    <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
+    <developerConnection>scm:git:git@github.com:zanata/zanata-mt.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <node.version>v8.1.2</node.version>
+    <yarn.version>v0.24.5</yarn.version>
+    <!-- The location to download the correct version of Node and Yarn.
+        ${download.dir} comes from parent pom.xml -->
+    <yarn.install.directory>${download.dir}/zanata/node-${node.version}-yarn-${yarn.version}</yarn.install.directory>
+    <build.directory>${project.basedir}/src</build.directory>
+
+    <!-- Do not run checkstyle (eslint is used instead for this module) -->
+    <checkstyle.skip>true</checkstyle.skip>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>${frontend-maven-plugin.version}</version>
+        <configuration>
+          <installDirectory>${yarn.install.directory}</installDirectory>
+        </configuration>
+        <executions>
+          <!-- Installs correct version of node and yarn locally. -->
+          <execution>
+            <id>install node and yarn</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>install-node-and-yarn</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <yarnVersion>${yarn.version}</yarnVersion>
+            </configuration>
+          </execution>
+
+          <!-- Transpile and bundle all the javascript and css -->
+          <execution>
+            <id>frontend: execute yarn build</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${build.directory}</workingDirectory>
+              <arguments>yarn build</arguments>
+            </configuration>
+          </execution>
+
+          <!-- Run javascript tests -->
+          <execution>
+            <id>execute yarn test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${build.directory}</workingDirectory>
+              <arguments>yarn test</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <!-- Copy the built files into META-INF/resources (or nested directories).
+            Files in this location will be built in the JAR file and served relative to the root path of the web app.
+            e.g. META-INF/resources/app/index.html will be served at example.org/app/index.html -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <!-- Copy the built frontend files to their position in the jar file. -->
+          <execution>
+            <phase>prepare-package</phase>
+            <id>frontend copy-resources</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <!-- Do not substitute maven variables like ${variablename} in the
+                   contents of these files. -->
+              <useBuildFilters>false</useBuildFilters>
+              <outputDirectory>${bundle.dest}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/frontend/dist</directory>
+                  <include>intl-polyfill.min.js</include>
+                  <include>frontend.min.js</include>
+                  <include>frontend.css</include>
+                  <include>frontend.css.map</include>
+                  <include>*.js.map</include>
+                  <!-- TODO eliminate generate bootstrap.css, bundle.js, style.css? -->
+                  <!-- TODO try including everything -->
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>src</directory>
+              <includes>
+                <include>**/node_modules/**</include>
+                <include>**/dist/**</include>
+              </includes>
+              <followSymlinks>false</followSymlinks>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
