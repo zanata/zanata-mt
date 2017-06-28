@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MSTranslateArrayResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.backend.ms.internal.dto</a> &gt; <span class="el_source">MSTranslateArrayResponse.java</span></div><h1>MSTranslateArrayResponse.java</h1><pre class="source lang-java linenums">package org.zanata.mt.backend.ms.internal.dto;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = &quot;TranslateArray2Response&quot;)
+<span class="fc" id="L11">public class MSTranslateArrayResponse implements Serializable {</span>
+    private static final long serialVersionUID = -6479498157835672314L;
+    private String srcLanguage;
+    private String alignment;
+    private TextSentenceLength originalTextSentenceLengths;
+    private TextSentenceLength translatedTextSentenceLengths;
+    private MSString translatedText;
+
+    @XmlElement(name = &quot;From&quot;)
+    public String getSrcLanguage() {
+<span class="fc" id="L21">        return srcLanguage;</span>
+    }
+
+    public void setSrcLanguage(String srcLanguage) {
+<span class="fc" id="L25">        this.srcLanguage = srcLanguage;</span>
+<span class="fc" id="L26">    }</span>
+
+    @XmlElement(name = &quot;Alignment&quot;)
+    public String getAlignment() {
+<span class="fc" id="L30">        return alignment;</span>
+    }
+
+    public void setAlignment(String alignment) {
+<span class="fc" id="L34">        this.alignment = alignment;</span>
+<span class="fc" id="L35">    }</span>
+
+    @XmlElement(name = &quot;OriginalTextSentenceLengths&quot;)
+    public TextSentenceLength getOriginalTextSentenceLengths() {
+<span class="fc" id="L39">        return originalTextSentenceLengths;</span>
+    }
+
+    public void setOriginalTextSentenceLengths(
+        TextSentenceLength originalTextSentenceLengths) {
+<span class="fc" id="L44">        this.originalTextSentenceLengths = originalTextSentenceLengths;</span>
+<span class="fc" id="L45">    }</span>
+
+    @XmlElement(name = &quot;TranslatedTextSentenceLengths&quot;)
+    public TextSentenceLength getTranslatedTextSentenceLengths() {
+<span class="fc" id="L49">        return translatedTextSentenceLengths;</span>
+    }
+
+    public void setTranslatedTextSentenceLengths(
+            TextSentenceLength translatedTextSentenceLengths) {
+<span class="fc" id="L54">        this.translatedTextSentenceLengths = translatedTextSentenceLengths;</span>
+<span class="fc" id="L55">    }</span>
+
+    @XmlElement(name = &quot;TranslatedText&quot;)
+    public MSString getTranslatedText() {
+<span class="fc" id="L59">        return translatedText;</span>
+    }
+
+    public void setTranslatedText(MSString translatedText) {
+<span class="fc" id="L63">        this.translatedText = translatedText;</span>
+<span class="fc" id="L64">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L71">        MSTranslateArrayResponse that = (MSTranslateArrayResponse) o;</span>
+
+<span class="pc bpc" id="L73" title="3 of 6 branches missed.">        if (srcLanguage != null ? !srcLanguage.equals(that.srcLanguage) :</span>
+<span class="fc" id="L74">                that.srcLanguage != null) return false;</span>
+<span class="pc bpc" id="L75" title="3 of 6 branches missed.">        if (alignment != null ? !alignment.equals(that.alignment) :</span>
+<span class="fc" id="L76">                that.alignment != null) return false;</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (originalTextSentenceLengths != null ?</span>
+                !originalTextSentenceLengths
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">                        .equals(that.originalTextSentenceLengths) :</span>
+<span class="fc" id="L80">                that.originalTextSentenceLengths != null) return false;</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (translatedTextSentenceLengths != null ?</span>
+                !translatedTextSentenceLengths
+<span class="pc bpc" id="L83" title="2 of 4 branches missed.">                        .equals(that.translatedTextSentenceLengths) :</span>
+<span class="fc" id="L84">                that.translatedTextSentenceLengths != null) return false;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        return translatedText != null ?</span>
+<span class="pc bnc" id="L86" title="All 2 branches missed.">                translatedText.equals(that.translatedText) :</span>
+                that.translatedText == null;
+    }
+
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        int result = srcLanguage != null ? srcLanguage.hashCode() : 0;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        result = 31 * result + (alignment != null ? alignment.hashCode() : 0);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        result = 31 * result + (originalTextSentenceLengths != null ?</span>
+<span class="pc" id="L95">                originalTextSentenceLengths.hashCode() : 0);</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        result = 31 * result + (translatedTextSentenceLengths != null ?</span>
+<span class="pc" id="L97">                translatedTextSentenceLengths.hashCode() : 0);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        result =</span>
+                31 * result +
+<span class="pc" id="L100">                        (translatedText != null ? translatedText.hashCode() :</span>
+                                0);
+<span class="fc" id="L102">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
