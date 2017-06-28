@@ -5,7 +5,7 @@
  * Environment variables:
  * MT_DOCKER_REGISTRY_URL - docker registry url to upload image
  * MT_OPENSHIFT_URL - openshift url for stage and prod
- * MT_GIT_SSH_URL - ssh git url
+ * MT_GIT_URL - git url
  * MT_STAGE_PROJECT_NAME - Openshift project name for stage
  * MT_PROD_PROJECT_NAME - Openshift project name for production
  *
@@ -44,11 +44,12 @@ def version
 
 node {
   echo "running on node ${env.NODE_NAME}"
+
   /**
-   * Cannot run on Openstack yet until it is setup same as KVM slaves
+   * Set to master until jenkins slaves is ready
    * defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
    */
-  defaultNodeLabel = env.DEFAULT_NODE ?: 'master||kvm'
+  defaultNodeLabel = 'master'
   branchName = env.BRANCH_NAME
 }
 
@@ -75,26 +76,35 @@ timestamps {
           sh "./mvnw --version"
         }
 
-        // TODO: revert to == master, this is for testing
-        if (branchName != 'master') {
+        if (branchName == 'master') {
           def POM = readMavenPom file: 'pom.xml'
           version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
 
-          git credentialsId: 'zanata-jenkins', url: "$MT_GIT_SSH_URL"
-
           stage('Maven build and release') {
+            echo "Update project version to $version"
+            sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
+
+            echo "Run maven build"
             sh """./mvnw -e clean verify \
-                       release:prepare \
-                       release:perform \
                        --batch-mode \
                        --update-snapshots \
-                       -DreleaseVersion=$version \
-                       -DdevelopmentVersion=$POM.version \
-                       -DpushChanges=false \
                        -DstaticAnalysis \
              """
-            processTestCoverage()
-            sh "git push origin $POM.artifactId-$version"
+            if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+              def tag="MT-$version"
+              sh "shopt -s globstar && git commit **/pom.xml pom.xml -m 'MT release: $tag' && git tag $tag"
+              processTestCoverage()
+
+              withCredentials(
+                      [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
+                        usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
+                sh "git push https://$GIT_USERNAME:$GITHUB_OAUTH2_TOKEN@$MT_GIT_URL $tag"
+              }
+            } else {
+              currentBuild.result = 'FAILURE'
+              error('Build failure.')
+            }
+
           }
           stage('Stash') {
             stash name: 'generated-files',
@@ -121,8 +131,7 @@ timestamps {
     }
   }
 
-  // TODO: revert to == master, this is for testing
-  if (branchName != 'master') {
+  if (branchName == 'master') {
     final String DOCKER_IMAGE = 'zanata-mt/server'
 
     stage('Deploy to STAGE') {
@@ -150,8 +159,8 @@ void mavenSite() {
     unstash 'generated-files'
     withCredentials(
             [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
-              usernameVariable: 'USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-      sh "./mvnw -e site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN"
+              usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
+      sh "./mvnw -e site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode"
     }
   }
 }
@@ -162,7 +171,7 @@ void mavenSite() {
  * @param dockerImage - docker image name
  */
 void dockerBuildAndDeploy(String dockerImage) {
-  final String DOCKER_WORKSPACE = 'target/docker_workspace'
+  final String DOCKER_WORKSPACE = 'server/target/docker_workspace'
 
   node(defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
@@ -173,10 +182,13 @@ void dockerBuildAndDeploy(String dockerImage) {
 
     echo "Copy Dockerfile-OPENSHIFT and ROOT.war to $DOCKER_WORKSPACE/"
     sh "mkdir -p $DOCKER_WORKSPACE"
-    sh "cp target/deployments/ROOT.war $DOCKER_WORKSPACE/"
-    sh "cp docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
+    sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
+    sh "cp server/docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
 
-    echo "Building docker zanata-mt $version..."
+    def certName = 'rds-combined-ca-bundle.pem'
+    sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
+
+    echo "Building docker MT $version..."
     sh "docker build -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
@@ -199,23 +211,45 @@ void dockerBuildAndDeploy(String dockerImage) {
 }
 
 /**
+ * TODO: replace this with docker in pipeline
+ * docker.image('openshift/origin:v3.6.0-alpha.2').inside {
+ * }
+ */
+String getOpenshiftClient() {
+    def name = "openshift-origin-client-tools-v3.6.0-alpha.2-3c221d5-linux-64bit"
+    def fileName = name + ".tar.gz"
+    def downloadDest = "/tmp/" + fileName
+
+    if (!fileExists("/tmp/$name")) {
+      // Download client if there's not downloaded yet
+      if (!fileExists("$downloadDest")) {
+        sh "wget https://github.com/openshift/origin/releases/download/v3.6.0-alpha.2/$fileName -O $downloadDest"
+      }
+      sh "tar -xvzf $downloadDest -C /tmp"
+    }
+    return "/tmp/$name/oc"
+}
+
+/**
  * Deploy docker image to openshift staging
  * @param dockerImage
  */
 void deployToStage(String dockerImage) {
   node(defaultNodeLabel) {
+    def ocClient = getOpenshiftClient();
+
     echo "Login to OPENSHIFT with token"
 
     withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
             variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
-      sh "oc login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE"
+      sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify"
     }
 
-    sh "oc project $MT_STAGE_PROJECT_NAME"
+    sh "$ocClient project $MT_STAGE_PROJECT_NAME"
 
     echo "Update 'latest' tag to $version"
-    sh "oc tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
-    sh "oc logout"
+    sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
+    sh "$ocClient logout"
   }
 }
 
@@ -234,19 +268,21 @@ void deployToProduction(String dockerImage) {
 
         if (deployToProd) {
           stage('Deploy to PRODUCTION') {
+            def ocClient = getOpenshiftClient();
+
             echo "Login to OPENSHIFT with token"
             withCredentials(
                     [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
                             variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
-              sh "oc login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD"
+              sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify"
             }
 
             echo "Switch to use zanata-mt project"
-            sh "oc project $MT_PROD_PROJECT_NAME"
+            sh "$ocClient project $MT_PROD_PROJECT_NAME"
 
             echo "Update 'latest' tag to $version"
-            sh "oc tag $MT_DOCKER_REGISTRY_URL/$dockerImage:latest server:latest"
-            sh "oc logout"
+            sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:latest server:latest"
+            sh "$ocClient logout"
           }
         } else {
           echo "PROD deployment aborted."
