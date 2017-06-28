@@ -1,0 +1,25 @@
+# THIS DOCKER FILE IS FOR OPENSHIFT DEPLOYMENT
+# DATASOURCE IS BEING CONFIGURED USING ENVIRONMENT VARIABLES IN OPENSHIFT INSTANCE
+#
+# Required file in same directory:
+# - ROOT.war - packaged war file
+# - rds-combined-ca-bundle.pem - S3 SSL certificate
+#
+# https://access.redhat.com/containers/?tab=tech-details#/registry.access.redhat.com/jboss-eap-7/eap70-openshift
+FROM registry.access.redhat.com/jboss-eap-7/eap70-openshift:1.4-28
+
+MAINTAINER "Alex Eng" <aeng@redhat.com>
+
+EXPOSE 8080
+
+USER root
+# copy rds-combined-ca-bundle.pem, assuming the file is in the same directory
+COPY rds-combined-ca-bundle.pem /etc/pki/ca-trust/source/anchors/rds-combined-ca-bundle.pem
+RUN update-ca-trust
+
+
+USER jboss
+
+# copy war file
+# assuming war file is in the same directory
+COPY ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war
