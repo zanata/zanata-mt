@@ -1,0 +1,52 @@
+{
+  "name": "mt-frontend",
+  "version": "1.0.0",
+  "description": "MT frontend package",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zanata/zanata-mt.git"
+  },
+  "engines": {
+    "node": "8.1.2",
+    "yarn": "0.24.5"
+  },
+  "license": "LGPL-2.1",
+  "devDependencies": {
+
+  },
+  "dependencies": {
+
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "app/**/*.{js,jsx}",
+      "!**/node_modules/**",
+      "!app/**/*.story.js"
+    ],
+    "coverageReporters": [
+      "cobertura",
+      "html",
+      "lcov",
+      "text"
+    ],
+    "transform": {
+      ".*": "./node_modules/babel-jest"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/__tests__/mock"
+    ],
+    "unmockedModulePathPatterns": [
+      "/node_modules",
+      "/app"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ]
+  }
+}
