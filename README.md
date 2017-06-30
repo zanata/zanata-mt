@@ -1,5 +1,7 @@
-[![codecov](https://codecov.io/gh/zanata/zanata-mt/branch/master/graph/badge.svg)](https://codecov.io/gh/zanata/zanata-mt)
-[![license](https://img.shields.io/github/license/zanata/zanata-mt.svg)]()
+[![GitHub release](https://img.shields.io/github/release/zanata/zanata-mt.svg?maxAge=3600)](https://github.com/zanata/zanata-mt/releases)
+[![Codecov](https://img.shields.io/codecov/c/github/zanata/zanata-mt.svg?maxAge=3600)](https://codecov.io/gh/zanata/zanata-mt)
+[![api](https://img.shields.io/badge/docs-API-brightgreen.svg?maxAge=3600)](http://zanata.org/zanata-mt/apidocs/)
+[![license](https://img.shields.io/github/license/zanata/zanata-mt.svg?maxAge=3600)](https://github.com/zanata/zanata-mt/blob/master/LICENSE)
 
 # Build and run 
 
