@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>mt-server: DocumentsResource</title>
+  <title>mt-server: Documents</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">mt-server: DocumentsResource</a>
+        <a class="navbar-brand" href="index.html">mt-server: Documents</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -60,19 +60,19 @@
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
           <li class="active dropdown"><a href="resources.html">Resources</a></li>
-          <li class="dropdown"><a href="resource_DocumentsResource.html">DocumentsResource</a></li>
+          <li class="dropdown"><a href="resource_DocumentsResource.html">Documents</a></li>
         </ol>
 
-      <h1 class="page-header">DocumentsResource <small>Resource</small></h1>
+      <h1 class="page-header">Documents <small>Resource</small></h1>
 
       <p>API entry point for documents</p>
 
       <div id="resource_DocumentsResource_getDocumentUrls_GET">
         <h3><span class="label label-default resource-method">GET</span> <span class="resource-path">/documents <a href="../api/documents" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
 
-        <p>Return list of document url.
+        <p>Return a list of document urls.
 
-This can be use with DocumentResource#getStatistics
+This can be used with DocumentResource#getStatistics
 to retrieve detailed getStatistics of a document</p>
 
         <table class="table resource-parameters">
@@ -82,6 +82,7 @@ to retrieve detailed getStatistics of a document</p>
             <th>name</th>
             <th>type</th>
             <th>description</th>
+            <th>multivalued</th>
           </tr>
           </thead>
           <tbody>
@@ -89,16 +90,19 @@ to retrieve detailed getStatistics of a document</p>
             <td><span class="parameter-name">X-Auth-Token</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication token.</span></td>
+            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">X-Auth-User</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication user.</span></td>
+            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">dateRange</span></td>
             <td>query</td>
-            <td><span class="parameter-description">date range of last updated request document(Optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)</span></td>
+            <td><span class="parameter-description">date range of last updated request document (optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)</span></td>
+            <td><span class="parameter-multivalued">no</span></td>
           </tr>
           </tbody>
         </table>
@@ -115,7 +119,7 @@ to retrieve detailed getStatistics of a document</p>
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
-            <td><span class="response-condition">List of document url</span></td>
+            <td><span class="response-condition">List of document urls</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference">array of string
  (JSON)</span></li></ul></td>
           </tr>
@@ -138,7 +142,7 @@ to retrieve detailed getStatistics of a document</p>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">object
+            <td><span class="datatype-reference">array of string
  (JSON)</span></td>
           </tr>
           </tbody>

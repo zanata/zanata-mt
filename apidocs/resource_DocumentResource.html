@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>mt-server: DocumentResource</title>
+  <title>mt-server: Document</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">mt-server: DocumentResource</a>
+        <a class="navbar-brand" href="index.html">mt-server: Document</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -61,10 +61,10 @@
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
           <li class="active dropdown"><a href="resources.html">Resources</a></li>
-          <li class="dropdown"><a href="resource_DocumentResource.html">DocumentResource</a></li>
+          <li class="dropdown"><a href="resource_DocumentResource.html">Document</a></li>
         </ol>
 
-      <h1 class="page-header">DocumentResource <small>Resource</small></h1>
+      <h1 class="page-header">Document <small>Resource</small></h1>
 
       <p>API entry point for Document services.</p>
 
@@ -96,17 +96,17 @@
           <tr>
             <td><span class="parameter-name">dateRange</span></td>
             <td>query</td>
-            <td><span class="parameter-description">date range of last updated request document(Optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)</span></td>
+            <td><span class="parameter-description">date range of last updated request document (optional). Format: from..to (yyyy-mm-dd..yyyy-mm-dd)</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">fromLocaleCode</span></td>
             <td>query</td>
-            <td><span class="parameter-description">Language code of the document, optional</span></td>
+            <td><span class="parameter-description">Language code of the document (optional)</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">toLocaleCode</span></td>
             <td>query</td>
-            <td><span class="parameter-description">Language code of translation for the document, optional</span></td>
+            <td><span class="parameter-description">Language code of translation for the document (optional)</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">url</span></td>
@@ -129,12 +129,12 @@
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">Return statistics for given document</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_DocumentStatistics.html">DocumentStatistics</a>
+            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_DocumentStatistics.html">Document Statistics</a>
  (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-warning response-code">400</span></td>
-            <td><span class="response-condition">Missing url</span></td>
+            <td><span class="response-condition">Missing url parameter</span></td>
             <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
  (JSON)</span></li></ul></td>
           </tr>
@@ -157,7 +157,7 @@
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">object
+            <td><span class="datatype-reference"><a href="json_DocumentStatistics.html">Document Statistics</a>
  (JSON)</span></td>
           </tr>
           </tbody>
@@ -182,8 +182,21 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-txt">
-...
+                <code class="prettyprint language-js">
+{
+  &quot;url&quot; : &quot;http://example.com&quot;,
+  &quot;requestCounts&quot; : [ {
+    &quot;fromLocaleCode&quot; : &quot;en-us&quot;,
+    &quot;toLocaleCode&quot; : &quot;fr&quot;,
+    &quot;count&quot; : 42,
+    &quot;wordCount&quot; : 12345
+  }, {
+    &quot;fromLocaleCode&quot; : &quot;...&quot;,
+    &quot;toLocaleCode&quot; : &quot;...&quot;,
+    &quot;count&quot; : 12345,
+    &quot;wordCount&quot; : 12345
+  } ]
+}
                 </code>
               </pre>
             </div>
@@ -197,21 +210,21 @@ Content-Type: application/json
         <p>Perform machine translation on DocumentContent#contents to given
 locale code.<br/>
 
-<b>This is a paid service which cost is based on character count.</b><br/>
+<b>This is a paid service where cost is based on character count.</b>
+<br/>
+<p>'text/plain' - The service will attempt to segment a string that is more than 10,000
+characters. The string will be returned untranslated if it cannot be segmented.</p>
 
-<p>'text/plain' - Service will try to segment string that is more than 10,000
-characters. String will be ignore if it is unable to be segmented.</p>
-
-<p>'text/html' - HTML string must be wrapped in a single HTML node for processing.
-Service will only process the first HTML node if there are multiple passed in.
+<p>'text/html' - HTML strings must be wrapped in a single HTML node for processing.
+The service will only process the first HTML node if there are multiple passed in.
 Example:<br/>
-`<div>multiple html contents</div>` - service will translate this whole<br/>
-`<div>html content1</div><div>html content2</div>` - service will only translate 'html content1' html.<br/>
-
-Service will try to split string that is more than 10,000
-characters by running down to child element that has less than maximum chars.
-String will be ignored if html element cannot be broken down further.
-
+`&lt;div&gt;multiple html contents&lt;/div&gt;` - service will translate this whole<br/>
+`&lt;div&gt;html content1&lt;/div&gt;&lt;div&gt;html content2&lt;/div&gt;` - service will only translate 'html content1' html.<br/>
+<br/>
+The service will attempt to segment a html string that is more than 10,000
+characters by traversing down to a child element that has less than the maximum characters.
+The string will be returned untranslated if the html element cannot be segmented.
+<br/>
 The content in parent element of the translated child element will not be
 translated.</p>
 
@@ -305,7 +318,7 @@ See LanguagesResource#getSupportedLanguages() for supported locales.</p>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">object
+            <td><span class="datatype-reference"><a href="json_DocumentContent.html">DocumentContent</a>
  (JSON)</span></td>
           </tr>
           </tbody>
@@ -325,7 +338,7 @@ X-Auth-User: ...
 
                 <code class="prettyprint language-js">
 {
-  &quot;url&quot; : &quot;...&quot;,
+  &quot;url&quot; : &quot;http://example.com&quot;,
   &quot;contents&quot; : [ {
     &quot;value&quot; : &quot;...&quot;,
     &quot;type&quot; : &quot;...&quot;,
@@ -335,8 +348,8 @@ X-Auth-User: ...
     &quot;type&quot; : &quot;...&quot;,
     &quot;metadata&quot; : &quot;...&quot;
   } ],
-  &quot;localeCode&quot; : &quot;...&quot;,
-  &quot;backendId&quot; : &quot;...&quot;,
+  &quot;localeCode&quot; : &quot;en-us&quot;,
+  &quot;backendId&quot; : &quot;ms&quot;,
   &quot;warnings&quot; : [ {
     &quot;status&quot; : 12345,
     &quot;title&quot; : &quot;...&quot;,
@@ -358,8 +371,32 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-txt">
-...
+                <code class="prettyprint language-js">
+{
+  &quot;url&quot; : &quot;http://example.com&quot;,
+  &quot;contents&quot; : [ {
+    &quot;value&quot; : &quot;...&quot;,
+    &quot;type&quot; : &quot;...&quot;,
+    &quot;metadata&quot; : &quot;...&quot;
+  }, {
+    &quot;value&quot; : &quot;...&quot;,
+    &quot;type&quot; : &quot;...&quot;,
+    &quot;metadata&quot; : &quot;...&quot;
+  } ],
+  &quot;localeCode&quot; : &quot;en-us&quot;,
+  &quot;backendId&quot; : &quot;ms&quot;,
+  &quot;warnings&quot; : [ {
+    &quot;status&quot; : 12345,
+    &quot;title&quot; : &quot;...&quot;,
+    &quot;details&quot; : &quot;...&quot;,
+    &quot;timestamp&quot; : &quot;...&quot;
+  }, {
+    &quot;status&quot; : 12345,
+    &quot;title&quot; : &quot;...&quot;,
+    &quot;details&quot; : &quot;...&quot;,
+    &quot;timestamp&quot; : &quot;...&quot;
+  } ]
+}
                 </code>
               </pre>
             </div>
