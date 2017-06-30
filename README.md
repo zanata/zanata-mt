@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/zanata/zanata-mt/branch/master/graph/badge.svg)](https://codecov.io/gh/zanata/zanata-mt)
 # Build and run 
 
 Run:
