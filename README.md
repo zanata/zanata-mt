@@ -1,4 +1,6 @@
 [![codecov](https://codecov.io/gh/zanata/zanata-mt/branch/master/graph/badge.svg)](https://codecov.io/gh/zanata/zanata-mt)
+[![license](https://img.shields.io/github/license/zanata/zanata-mt.svg)]()
+
 # Build and run 
 
 Run:
