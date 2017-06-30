@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocaleCodeType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.model.type</a> &gt; <span class="el_source">LocaleCodeType.java</span></div><h1>LocaleCodeType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016, Red Hat, Inc. and individual contributors as indicated by the
+ * @author tags. See the copyright.txt file in the distribution for a full
+ * listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
+ * site: http://www.fsf.org.
+ */
+package org.zanata.mt.model.type;
+
+import org.hibernate.dialect.Dialect;
+import org.hibernate.type.AbstractSingleColumnStandardBasicType;
+import org.hibernate.type.LiteralType;
+import org.hibernate.type.StringType;
+import org.zanata.mt.api.dto.LocaleCode;
+
+public class LocaleCodeType extends
+    AbstractSingleColumnStandardBasicType&lt;LocaleCode&gt; implements
+    LiteralType&lt;LocaleCode&gt; {
+
+    private static final long serialVersionUID = 3064881963824869913L;
+
+    public LocaleCodeType() {
+<span class="fc" id="L36">        super(StringType.INSTANCE.getSqlTypeDescriptor(),</span>
+                LocaleCodeTypeDescriptor.INSTANCE);
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public String getName() {
+<span class="fc" id="L42">        return &quot;localeCode&quot;;</span>
+    }
+
+    @Override
+    public String objectToSQLString(LocaleCode value, Dialect dialect)
+            throws Exception {
+<span class="fc" id="L48">        return &quot;\'&quot; + toString(value) + &quot;\'&quot;;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>mt-server: Languages</title>
+  <title>mt-server: LanguagesResource</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">mt-server: Languages</a>
+        <a class="navbar-brand" href="index.html">mt-server: LanguagesResource</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -60,10 +60,10 @@
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
           <li class="active dropdown"><a href="resources.html">Resources</a></li>
-          <li class="dropdown"><a href="resource_LanguagesResource.html">Languages</a></li>
+          <li class="dropdown"><a href="resource_LanguagesResource.html">LanguagesResource</a></li>
         </ol>
 
-      <h1 class="page-header">Languages <small>Resource</small></h1>
+      <h1 class="page-header">LanguagesResource <small>Resource</small></h1>
 
       <p>API entry point for languages</p>
 
@@ -79,7 +79,6 @@
             <th>name</th>
             <th>type</th>
             <th>description</th>
-            <th>multivalued</th>
           </tr>
           </thead>
           <tbody>
@@ -87,13 +86,11 @@
             <td><span class="parameter-name">X-Auth-Token</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication token.</span></td>
-            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           <tr>
             <td><span class="parameter-name">X-Auth-User</span></td>
             <td>header</td>
             <td><span class="parameter-description">The authentication user.</span></td>
-            <td><span class="parameter-multivalued">yes</span></td>
           </tr>
           </tbody>
         </table>
@@ -134,24 +131,23 @@
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">array of <a href="json_Locale.html">Locale</a>
+            <td><span class="datatype-reference">object
  (JSON)</span></td>
             <td><span class="response-description">all supported languages
 
 Supported locales:
-<p><ul>
-<li>en-us (English)
-<li>de (German)
-<li>es (Spanish)
-<li>fr (French)
-<li>it (Italian)
-<li>ja (Japanese)
-<li>ko (Korean)
-<li>pt (Portuguese)
-<li>ru (Russian)
-<li>zh-hans (Chinese (Simplified))
-<li>zh-hant (Chinese (Traditional))
-</ul></p></span></td>
+
+- en-us (English)
+- de (German)
+- es (Spanish)
+- fr (French)
+- it (Italian)
+- ja (Japanese)
+- ko (Korean)
+- pt (Portuguese)
+- ru (Russian)
+- zh-hans (Chinese (Simplified))
+- zh-hant (Chinese (Traditional))</span></td>
           </tr>
           </tbody>
         </table>
@@ -175,11 +171,8 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-[ {
-  &quot;localeCode&quot; : &quot;...&quot;,
-  &quot;name&quot; : &quot;...&quot;
-} ]
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>

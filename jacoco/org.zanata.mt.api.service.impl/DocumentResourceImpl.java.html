@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocumentResourceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.service.impl</a> &gt; <span class="el_source">DocumentResourceImpl.java</span></div><h1>DocumentResourceImpl.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.service.impl;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.mt.api.dto.APIResponse;
+import org.zanata.mt.api.dto.DocumentContent;
+import org.zanata.mt.api.dto.DocumentStatistics;
+import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.api.dto.TypeString;
+import org.zanata.mt.api.service.DocumentResource;
+import org.zanata.mt.dao.DocumentDAO;
+import org.zanata.mt.dao.LocaleDAO;
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Document;
+import org.zanata.mt.model.Locale;
+import org.zanata.mt.process.DocumentProcessKey;
+import org.zanata.mt.process.DocumentProcessManager;
+import org.zanata.mt.service.DateRange;
+import org.zanata.mt.service.DocumentContentTranslatorService;
+import org.zanata.mt.service.ConfigurationService;
+import org.zanata.mt.util.UrlUtil;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@RequestScoped
+public class DocumentResourceImpl implements DocumentResource {
+<span class="fc" id="L37">    private static final Logger LOG =</span>
+<span class="fc" id="L38">            LoggerFactory.getLogger(DocumentResourceImpl.class);</span>
+
+    private DocumentContentTranslatorService documentContentTranslatorService;
+
+    private LocaleDAO localeDAO;
+
+    private DocumentDAO documentDAO;
+
+    private DocumentProcessManager docProcessManager;
+
+    private ConfigurationService configurationService;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L51">    public DocumentResourceImpl() {</span>
+<span class="fc" id="L52">    }</span>
+
+    @Inject
+    public DocumentResourceImpl(
+            DocumentContentTranslatorService documentContentTranslatorService,
+            LocaleDAO localeDAO, DocumentDAO documentDAO,
+            DocumentProcessManager docProcessManager,
+<span class="fc" id="L59">            ConfigurationService configurationService) {</span>
+<span class="fc" id="L60">        this.documentContentTranslatorService =</span>
+                documentContentTranslatorService;
+<span class="fc" id="L62">        this.localeDAO = localeDAO;</span>
+<span class="fc" id="L63">        this.documentDAO = documentDAO;</span>
+<span class="fc" id="L64">        this.docProcessManager = docProcessManager;</span>
+<span class="fc" id="L65">        this.configurationService = configurationService;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public Response getStatistics(@QueryParam(&quot;url&quot;) String url,
+            @QueryParam(&quot;fromLocaleCode&quot;) LocaleCode fromLocaleCode,
+            @QueryParam(&quot;toLocaleCode&quot;) LocaleCode toLocaleCode,
+            @QueryParam(&quot;dateRange&quot;) String dateRangeParam) {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (StringUtils.isBlank(url)) {</span>
+<span class="fc" id="L74">            APIResponse response =</span>
+                    new APIResponse(Response.Status.BAD_REQUEST, &quot;Empty url&quot;);
+<span class="fc" id="L76">            return Response.status(response.getStatus()).entity(response)</span>
+<span class="fc" id="L77">                    .build();</span>
+        }
+
+<span class="fc" id="L80">        Optional&lt;DateRange&gt; dateParam =</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">                StringUtils.isBlank(dateRangeParam) ? Optional.empty() :</span>
+<span class="pc" id="L82">                        Optional.of(DateRange.from(dateRangeParam));</span>
+
+<span class="fc" id="L84">        List&lt;Document&gt; documents = documentDAO</span>
+<span class="fc" id="L85">                .getByUrl(url, Optional.ofNullable(fromLocaleCode),</span>
+<span class="fc" id="L86">                        Optional.ofNullable(toLocaleCode), dateParam);</span>
+
+<span class="fc" id="L88">        DocumentStatistics statistics = new DocumentStatistics(url);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (Document document: documents) {</span>
+<span class="fc" id="L90">            int wordCount = getTotalWordCount(document,</span>
+<span class="fc" id="L91">                    document.getFromLocale().getLocaleCode());</span>
+
+<span class="fc" id="L93">            statistics.addRequestCount(</span>
+<span class="fc" id="L94">                    document.getFromLocale().getLocaleCode().getId(),</span>
+<span class="fc" id="L95">                    document.getToLocale().getLocaleCode().getId(),</span>
+<span class="fc" id="L96">                    document.getCount(), wordCount);</span>
+<span class="fc" id="L97">        }</span>
+<span class="fc" id="L98">        return Response.ok().entity(statistics).build();</span>
+    }
+
+    private int getTotalWordCount(Document doc, LocaleCode localeCode) {
+<span class="fc" id="L102">        return doc.getTextFlows().values().stream()</span>
+<span class="pc" id="L103">                .filter(tf -&gt; tf.getLocale().getLocaleCode()</span>
+<span class="nc" id="L104">                        .equals(localeCode))</span>
+<span class="pc" id="L105">                .mapToInt(tf -&gt; tf.getWordCount().intValue())</span>
+<span class="fc" id="L106">                .sum();</span>
+    }
+
+    @Override
+    public Response translate(DocumentContent docContent,
+            @QueryParam(&quot;toLocaleCode&quot;) LocaleCode toLocaleCode) {
+
+        // Default to MS engine for translation if not DEV mode
+<span class="fc" id="L114">        BackendID backendID = BackendID.DEV;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (!configurationService.isDevMode()) {</span>
+<span class="fc" id="L116">            backendID = BackendID.MS;</span>
+        }
+
+<span class="fc" id="L119">        Optional&lt;APIResponse&gt; errorResp =</span>
+<span class="fc" id="L120">                validateTranslateRequest(docContent, toLocaleCode);</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (errorResp.isPresent()) {</span>
+<span class="fc" id="L122">            return Response.status(errorResp.get().getStatus())</span>
+<span class="fc" id="L123">                    .entity(errorResp.get()).build();</span>
+        }
+
+        // if source locale == target locale, return docContent
+<span class="fc" id="L127">        LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (fromLocaleCode.equals(toLocaleCode)) {</span>
+<span class="fc" id="L129">            LOG.info(&quot;Returning request as FROM and TO localeCode are the same:&quot; + fromLocaleCode);</span>
+<span class="fc" id="L130">            return Response.ok().entity(docContent).build();</span>
+        }
+
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L134">            LOG.debug(&quot;Request translations:&quot; + docContent + &quot; toLocaleCode&quot;</span>
+<span class="nc" id="L135">                    + toLocaleCode + &quot; backendId:&quot; + backendID.getId());</span>
+        }
+
+<span class="fc" id="L138">        DocumentProcessKey key =</span>
+<span class="fc" id="L139">                new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,</span>
+                        toLocaleCode);
+        try {
+<span class="fc" id="L142">            docProcessManager.lock(key);</span>
+
+<span class="fc" id="L144">            Locale fromLocale = getLocale(fromLocaleCode);</span>
+<span class="fc" id="L145">            Locale toLocale = getLocale(toLocaleCode);</span>
+
+<span class="fc" id="L147">            Document doc = documentDAO</span>
+<span class="fc" id="L148">                    .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);</span>
+
+<span class="fc" id="L150">            DocumentContent newDocContent = documentContentTranslatorService</span>
+<span class="fc" id="L151">                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);</span>
+<span class="fc" id="L152">            doc.incrementCount();</span>
+<span class="fc" id="L153">            documentDAO.persist(doc);</span>
+<span class="fc" id="L154">            return Response.ok().entity(newDocContent).build();</span>
+        } finally {
+<span class="pc" id="L156">            docProcessManager.unlock(key);</span>
+        }
+    }
+
+    private Optional&lt;APIResponse&gt; validateTranslateRequest(DocumentContent docContent,
+            LocaleCode toLocaleCode) {
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (toLocaleCode == null) {</span>
+<span class="fc" id="L163">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+                    &quot;Invalid query param: toLocaleCode&quot;));
+        }
+<span class="pc bpc" id="L166" title="1 of 4 branches missed.">        if (docContent == null || docContent.getContents() == null ||</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">                docContent.getContents().isEmpty()) {</span>
+<span class="fc" id="L168">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+                    &quot;Empty content:&quot; + docContent));
+        }
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getLocaleCode())) {</span>
+<span class="fc" id="L172">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+                    &quot;Empty localeCode&quot;));
+        }
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getUrl()) ||</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                !UrlUtil.isValidURL(docContent.getUrl())) {</span>
+<span class="fc" id="L177">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L178">                    &quot;Invalid url:&quot; + docContent.getUrl()));</span>
+        }
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (TypeString string : docContent.getContents()) {</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (StringUtils.isBlank(string.getValue()) ||</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                    StringUtils.isBlank(string.getType())) {</span>
+<span class="fc" id="L183">                return Optional</span>
+<span class="fc" id="L184">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L185">                                &quot;Empty content: &quot; + string.toString()));</span>
+            }
+<span class="fc" id="L187">            if (!documentContentTranslatorService</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">                    .isMediaTypeSupported(string.getType())) {</span>
+<span class="fc" id="L189">                return Optional</span>
+<span class="fc" id="L190">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L191">                                &quot;Invalid mediaType: &quot; + string.getType()));</span>
+            }
+<span class="fc" id="L193">        }</span>
+<span class="fc" id="L194">        return Optional.empty();</span>
+    }
+
+    private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (localeCode == null) {</span>
+<span class="nc" id="L199">            return null;</span>
+        }
+<span class="fc" id="L201">        Locale locale = localeDAO.getByLocaleCode(localeCode);</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (locale == null) {</span>
+<span class="nc" id="L203">            throw new BadRequestException(&quot;Not supported locale:&quot; + localeCode);</span>
+        }
+<span class="fc" id="L205">        return locale;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BackendIdType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.model.type</a> &gt; <span class="el_source">BackendIdType.java</span></div><h1>BackendIdType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016, Red Hat, Inc. and individual contributors as indicated by the
+ * @author tags. See the copyright.txt file in the distribution for a full
+ * listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
+ * site: http://www.fsf.org.
+ */
+
+package org.zanata.mt.model.type;
+
+import org.hibernate.MappingException;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.type.AbstractSingleColumnStandardBasicType;
+import org.hibernate.type.DiscriminatorType;
+import org.hibernate.type.StringType;
+import org.zanata.mt.model.BackendID;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+public class BackendIdType extends AbstractSingleColumnStandardBasicType&lt;BackendID&gt;
+    implements DiscriminatorType&lt;BackendID&gt; {
+
+    private static final long serialVersionUID = 7345081786271438120L;
+
+    public BackendIdType() {
+<span class="fc" id="L40">        super(StringType.INSTANCE.getSqlTypeDescriptor(),</span>
+            BackendIdTypeDescriptor.INSTANCE);
+<span class="fc" id="L42">    }</span>
+
+    @Override
+    public String toString(BackendID value) {
+<span class="fc" id="L46">        return String.valueOf((value).getId());</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="fc" id="L51">        return &quot;backendID&quot;;</span>
+    }
+
+    @Override
+    public String objectToSQLString(BackendID value, Dialect dialect)
+        throws Exception {
+<span class="fc" id="L57">        return &quot;\'&quot; + toString(value) + &quot;\'&quot;;</span>
+    }
+
+    public BackendID stringToObject(String xml) throws Exception {
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (xml == null || xml.length() &lt; 1) {</span>
+<span class="fc" id="L62">            throw new MappingException(</span>
+                &quot;empty string found when parsing&quot;);
+        }
+<span class="fc" id="L65">        return new BackendID(xml);</span>
+    }
+
+    public BackendID fromStringValue(String xml) {
+<span class="fc" id="L69">        return new BackendID(xml);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
