@@ -126,13 +126,13 @@ public class DocumentResourceImpl implements DocumentResource {
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
-            LOG.info("Returning request as FROM and TO localeCode are the same:" + fromLocaleCode);
+            LOG.info("Returning request as FROM and TO localeCode are the same: {}", fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " toLocaleCode"
-                    + toLocaleCode + " backendId:" + backendID.getId());
+            LOG.debug("Request translations: {} toLocaleCode {} backendId: {}",
+                    docContent, toLocaleCode, backendID.getId());
         }
 
         DocumentProcessKey key =

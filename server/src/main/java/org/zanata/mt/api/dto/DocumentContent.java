@@ -1,5 +1,6 @@
 package org.zanata.mt.api.dto;
 
+import com.webcohesion.enunciate.metadata.DocumentationExample;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.zanata.mt.api.service.DocumentResource;
@@ -56,6 +57,7 @@ public class DocumentContent implements Serializable {
      */
     @JsonProperty("url")
     @NotNull
+    @DocumentationExample("http://example.com")
     public String getUrl() {
         return url;
     }
@@ -83,6 +85,7 @@ public class DocumentContent implements Serializable {
     @JsonProperty("localeCode")
     @NotNull
     @Size(max = 128)
+    @DocumentationExample("en-us")
     public String getLocaleCode() {
         return localeCode;
     }
@@ -97,6 +100,7 @@ public class DocumentContent implements Serializable {
     @JsonProperty("backendId")
     @Nullable
     @Size(max = 20)
+    @DocumentationExample("ms")
     public String getBackendId() {
         return backendId;
     }
@@ -110,6 +114,7 @@ public class DocumentContent implements Serializable {
      */
     @JsonProperty("warnings")
     @Nullable
+    @DocumentationExample("[]")
     public List<APIResponse> getWarnings() {
         return warnings;
     }
