@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocumentContent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.mt.api.dto</a> &gt; <span class="el_source">DocumentContent.java</span></div><h1>DocumentContent.java</h1><pre class="source lang-java linenums">package org.zanata.mt.api.dto;
 
+import com.webcohesion.enunciate.metadata.DocumentationExample;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.zanata.mt.api.service.DocumentResource;
@@ -35,34 +36,35 @@ public class DocumentContent implements Serializable {
     private List&lt;APIResponse&gt; warnings;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="fc" id="L38">    protected DocumentContent() {</span>
-<span class="fc" id="L39">    }</span>
+<span class="fc" id="L39">    protected DocumentContent() {</span>
+<span class="fc" id="L40">    }</span>
 
     public DocumentContent(List&lt;TypeString&gt; contents, String url, String localeCode) {
-<span class="fc" id="L42">        this(contents, url, localeCode, null, null);</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L43">        this(contents, url, localeCode, null, null);</span>
+<span class="fc" id="L44">    }</span>
 
     public DocumentContent(List&lt;TypeString&gt; contents, String url, String localeCode,
-<span class="fc" id="L46">            String backendId, List&lt;APIResponse&gt; warnings) {</span>
-<span class="fc" id="L47">        this.contents = contents;</span>
-<span class="fc" id="L48">        this.url = url;</span>
-<span class="fc" id="L49">        this.localeCode = localeCode;</span>
-<span class="fc" id="L50">        this.backendId = backendId;</span>
-<span class="fc" id="L51">        this.warnings = warnings;</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L47">            String backendId, List&lt;APIResponse&gt; warnings) {</span>
+<span class="fc" id="L48">        this.contents = contents;</span>
+<span class="fc" id="L49">        this.url = url;</span>
+<span class="fc" id="L50">        this.localeCode = localeCode;</span>
+<span class="fc" id="L51">        this.backendId = backendId;</span>
+<span class="fc" id="L52">        this.warnings = warnings;</span>
+<span class="fc" id="L53">    }</span>
 
     /**
      * Source url of this document
      */
     @JsonProperty(&quot;url&quot;)
     @NotNull
+    @DocumentationExample(&quot;http://example.com&quot;)
     public String getUrl() {
-<span class="fc" id="L60">        return url;</span>
+<span class="fc" id="L62">        return url;</span>
     }
 
     public void setUrl(String url) {
-<span class="fc" id="L64">        this.url = url;</span>
-<span class="fc" id="L65">    }</span>
+<span class="fc" id="L66">        this.url = url;</span>
+<span class="fc" id="L67">    }</span>
 
     /**
      * Content of this document in array of {@link TypeString}
@@ -70,12 +72,12 @@ public class DocumentContent implements Serializable {
     @JsonProperty(&quot;contents&quot;)
     @NotNull
     public List&lt;TypeString&gt; getContents() {
-<span class="fc" id="L73">        return contents;</span>
+<span class="fc" id="L75">        return contents;</span>
     }
 
     public void setContents(List&lt;TypeString&gt; contents) {
-<span class="fc" id="L77">        this.contents = contents;</span>
-<span class="fc" id="L78">    }</span>
+<span class="fc" id="L79">        this.contents = contents;</span>
+<span class="fc" id="L80">    }</span>
 
     /**
      * locale code of this DocumentContent
@@ -83,13 +85,14 @@ public class DocumentContent implements Serializable {
     @JsonProperty(&quot;localeCode&quot;)
     @NotNull
     @Size(max = 128)
+    @DocumentationExample(&quot;en-us&quot;)
     public String getLocaleCode() {
-<span class="fc" id="L87">        return localeCode;</span>
+<span class="fc" id="L90">        return localeCode;</span>
     }
 
     public void setLocaleCode(String localeCode) {
-<span class="fc" id="L91">        this.localeCode = localeCode;</span>
-<span class="fc" id="L92">    }</span>
+<span class="fc" id="L94">        this.localeCode = localeCode;</span>
+<span class="fc" id="L95">    }</span>
 
     /**
      * backendId of translated content for this DocumentContent
@@ -97,30 +100,32 @@ public class DocumentContent implements Serializable {
     @JsonProperty(&quot;backendId&quot;)
     @Nullable
     @Size(max = 20)
+    @DocumentationExample(&quot;ms&quot;)
     public String getBackendId() {
-<span class="fc" id="L101">        return backendId;</span>
+<span class="fc" id="L105">        return backendId;</span>
     }
 
     public void setBackendId(@Nullable String backendId) {
-<span class="fc" id="L105">        this.backendId = backendId;</span>
-<span class="fc" id="L106">    }</span>
+<span class="fc" id="L109">        this.backendId = backendId;</span>
+<span class="fc" id="L110">    }</span>
 
     /**
      * warning messages {@link APIResponse}
      */
     @JsonProperty(&quot;warnings&quot;)
     @Nullable
+    @DocumentationExample(&quot;[]&quot;)
     public List&lt;APIResponse&gt; getWarnings() {
-<span class="fc" id="L114">        return warnings;</span>
+<span class="fc" id="L119">        return warnings;</span>
     }
 
     public void setWarnings(List&lt;APIResponse&gt; warnings) {
-<span class="fc" id="L118">        this.warnings = warnings;</span>
-<span class="fc" id="L119">    }</span>
+<span class="fc" id="L123">        this.warnings = warnings;</span>
+<span class="fc" id="L124">    }</span>
 
     @Override
     public String toString() {
-<span class="fc" id="L123">        return &quot;DocumentContent{&quot; +</span>
+<span class="fc" id="L128">        return &quot;DocumentContent{&quot; +</span>
                 &quot;url='&quot; + url + '\'' +
                 &quot;, contents=&quot; + contents +
                 &quot;, localeCode='&quot; + localeCode + '\'' +
@@ -131,29 +136,29 @@ public class DocumentContent implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (this == o) return true;</span>
-<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if (!(o instanceof DocumentContent)) return false;</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (!(o instanceof DocumentContent)) return false;</span>
 
-<span class="fc" id="L137">        DocumentContent docContent = (DocumentContent) o;</span>
+<span class="fc" id="L142">        DocumentContent docContent = (DocumentContent) o;</span>
 
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (!url.equals(docContent.url))</span>
-<span class="fc" id="L140">            return false;</span>
-<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!contents.equals(docContent.contents))</span>
-<span class="fc" id="L142">            return false;</span>
-<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (!localeCode.equals(docContent.localeCode))</span>
-<span class="fc" id="L144">            return false;</span>
-<span class="pc bpc" id="L145" title="3 of 4 branches missed.">        return backendId != null ? backendId.equals(docContent.backendId) :</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (!url.equals(docContent.url))</span>
+<span class="fc" id="L145">            return false;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (!contents.equals(docContent.contents))</span>
+<span class="fc" id="L147">            return false;</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (!localeCode.equals(docContent.localeCode))</span>
+<span class="fc" id="L149">            return false;</span>
+<span class="pc bpc" id="L150" title="3 of 4 branches missed.">        return backendId != null ? backendId.equals(docContent.backendId) :</span>
                 docContent.backendId == null;
 
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L152">        int result = url.hashCode();</span>
-<span class="fc" id="L153">        result = 31 * result + contents.hashCode();</span>
-<span class="fc" id="L154">        result = 31 * result + localeCode.hashCode();</span>
-<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        result = 31 * result + (backendId != null ? backendId.hashCode() : 0);</span>
-<span class="fc" id="L156">        return result;</span>
+<span class="fc" id="L157">        int result = url.hashCode();</span>
+<span class="fc" id="L158">        result = 31 * result + contents.hashCode();</span>
+<span class="fc" id="L159">        result = 31 * result + localeCode.hashCode();</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        result = 31 * result + (backendId != null ? backendId.hashCode() : 0);</span>
+<span class="fc" id="L161">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
