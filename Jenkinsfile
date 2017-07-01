@@ -99,12 +99,15 @@ timestamps {
                       [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
                         usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
                 sh "git push https://$GIT_USERNAME:$GITHUB_OAUTH2_TOKEN@$MT_GIT_URL $tag"
+
+                def apiJson="{\"tag_name\": \"$tag\",\"target_commitish\": \"master\",\"name\": \"$tag\",\"body\": \"Release of version $tag\",\"draft\": false,\"prerelease\": false}"
+                echo "Create github release: $apiJson"
+                sh "curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN"
               }
             } else {
               currentBuild.result = 'FAILURE'
               error('Build failure.')
             }
-
           }
           stage('Stash') {
             stash name: 'generated-files',
@@ -207,6 +210,9 @@ void dockerBuildAndDeploy(String dockerImage) {
 
     echo "Docker logout.."
     sh "docker logout $MT_DOCKER_REGISTRY_URL"
+
+    echo "Remove local docker image $dockerImage:$version"
+    sh "docker rmi $dockerImage:$version"
   }
 }
 
@@ -254,14 +260,14 @@ void deployToStage(String dockerImage) {
 }
 
 /**
- * Pending permission to deploy to production. 10 days before timeout
+ * Pending permission to deploy to production. 5 days before timeout
  *
  * @param dockerImage
  */
 void deployToProduction(String dockerImage) {
   node (defaultNodeLabel) {
     try {
-      timeout(time: 10, unit: 'DAYS') {
+      timeout(time: 5, unit: 'DAYS') {
         def deployToProd = input(message: 'Deploy docker image to production?',
                 parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
                               description: '', name: 'Deploy to production?']])
