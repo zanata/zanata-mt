@@ -248,10 +248,8 @@ void deployToStage(String dockerImage) {
 
     withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
             variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
-      sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify"
+      sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME"
     }
-
-    sh "$ocClient project $MT_STAGE_PROJECT_NAME"
 
     echo "Update 'latest' tag to $version"
     sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
@@ -280,11 +278,8 @@ void deployToProduction(String dockerImage) {
             withCredentials(
                     [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
                             variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
-              sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify"
+              sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify -namespace=$MT_PROD_PROJECT_NAME"
             }
-
-            echo "Switch to use zanata-mt project"
-            sh "$ocClient project $MT_PROD_PROJECT_NAME"
 
             echo "Update 'latest' tag to $version"
             sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:latest server:latest"
