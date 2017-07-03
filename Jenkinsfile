@@ -188,6 +188,10 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
     sh "cp server/docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
 
+    /**
+     * Cert is downloaded in host as workaround for connection issue in container
+     * TODO: move download cert task to Dockerfile when docker host is stable
+     */
     def certName = 'rds-combined-ca-bundle.pem'
     sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
 
@@ -212,12 +216,12 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "docker logout $MT_DOCKER_REGISTRY_URL"
 
     echo "Remove local docker image $dockerImage:$version"
-    sh "docker rmi $dockerImage:$version"
+    sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
   }
 }
 
 /**
- * TODO: replace this with docker in pipeline
+ * TODO: replace docker in pipeline
  * docker.image('openshift/origin:v3.6.0-alpha.2').inside {
  * }
  */
