@@ -26,6 +26,7 @@ import org.zanata.jenkins.PullRequests
 
 import groovy.transform.Field
 
+milestone 1
 PullRequests.ensureJobDescription(env, manager, steps)
 
 @Field
@@ -137,15 +138,18 @@ timestamps {
   if (branchName == 'master') {
     final String DOCKER_IMAGE = 'zanata-mt/server'
 
-    stage('Deploy to STAGE') {
-      def tasks = [
-        "DOCUMENTATION": { mavenSite() },
-        "DOCKER_BUILD_RELEASE": {
-          dockerBuildAndDeploy("$DOCKER_IMAGE")
-          deployToStage("$DOCKER_IMAGE")
-        }
-      ]
-      parallel tasks
+    lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
+      milestone 2
+      stage('Deploy to STAGE') {
+        def tasks = [
+                "DOCUMENTATION": { mavenSite() },
+                "DOCKER_BUILD_RELEASE": {
+                  dockerBuildAndDeploy("$DOCKER_IMAGE")
+                  deployToStage("$DOCKER_IMAGE")
+                }
+        ]
+        parallel tasks
+      }
     }
     deployToProduction("$DOCKER_IMAGE")
   }
@@ -267,39 +271,31 @@ void deployToStage(String dockerImage) {
  * @param dockerImage
  */
 void deployToProduction(String dockerImage) {
-  node (defaultNodeLabel) {
-    try {
+  lock(resource: 'MT-DEPLOY-TO-PROD', inversePrecedence: true) {
+    stage('Deploy to PRODUCTION') {
+      milestone 3
+      def deployToProd = false
       timeout(time: 5, unit: 'DAYS') {
-        def deployToProd = input(message: 'Deploy docker image to production?',
+        deployToProd = input(message: 'Deploy docker image to production?',
                 parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
                               description: '', name: 'Deploy to production?']])
-
-        if (deployToProd) {
-          stage('Deploy to PRODUCTION') {
-            def ocClient = getOpenshiftClient();
-
-            echo "Login to OPENSHIFT with token"
-            withCredentials(
-                    [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
-                            variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
-              sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify --namespace=$MT_PROD_PROJECT_NAME"
-            }
-
-            echo "Update 'latest' tag to $version"
-            sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:latest server:latest"
-            sh "$ocClient logout"
-          }
-        } else {
-          echo "PROD deployment aborted."
-        }
       }
-    } catch (e) {
-      def user = e.getCauses()[0].getUser()
-      // SYSTEM means timeout.
-      if ('SYSTEM' == user.toString()) {
-        echo "Timeout for PROD deployment."
-      } else {
-        echo "PROD deployment aborted."
+      milestone 4
+      if (deployToProd) {
+        node(defaultNodeLabel) {
+          def ocClient = getOpenshiftClient();
+
+          echo "Login to OPENSHIFT with token"
+          withCredentials(
+                  [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
+                          variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
+            sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify --namespace=$MT_PROD_PROJECT_NAME"
+          }
+
+          echo "Update 'latest' tag to $version"
+          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
+          sh "$ocClient logout"
+        }
       }
     }
   }
