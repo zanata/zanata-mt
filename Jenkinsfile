@@ -26,7 +26,7 @@ import org.zanata.jenkins.PullRequests
 
 import groovy.transform.Field
 
-milestone 1
+milestone 0
 PullRequests.ensureJobDescription(env, manager, steps)
 
 @Field
@@ -139,7 +139,7 @@ timestamps {
     final String DOCKER_IMAGE = 'zanata-mt/server'
 
     lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
-      milestone 2
+      milestone 500
       stage('Deploy to STAGE') {
         def tasks = [
                 "DOCUMENTATION": { mavenSite() },
@@ -266,21 +266,21 @@ void deployToStage(String dockerImage) {
 }
 
 /**
- * Pending permission to deploy to production. 5 days before timeout
+ * Pending permission to deploy to production. 14 days before timeout
  *
  * @param dockerImage
  */
 void deployToProduction(String dockerImage) {
-  lock(resource: 'MT-DEPLOY-TO-PROD', inversePrecedence: true) {
-    stage('Deploy to PRODUCTION') {
-      milestone 3
+  stage('Deploy to PRODUCTION') {
+    lock(resource: 'MT-DEPLOY-TO-PROD', inversePrecedence: true) {
+      milestone 800
       def deployToProd = false
-      timeout(time: 5, unit: 'DAYS') {
+      timeout(time: 14, unit: 'DAYS') {
         deployToProd = input(message: 'Deploy docker image to production?',
                 parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
                               description: '', name: 'Deploy to production?']])
       }
-      milestone 4
+      milestone 900
       if (deployToProd) {
         node(defaultNodeLabel) {
           def ocClient = getOpenshiftClient();
