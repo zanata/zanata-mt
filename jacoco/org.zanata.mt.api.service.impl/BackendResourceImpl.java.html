@@ -56,10 +56,10 @@ public class BackendResourceImpl implements BackendResource {
     }
 
     private String getAttributionImageResource(BackendID backendID) {
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (backendID.equals(BackendID.MS)) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (backendID.equals(BackendID.MS)) {</span>
 <span class="fc" id="L60">            return MS_ATTRIBUTION_IMAGE;</span>
-<span class="nc bnc" id="L61" title="All 2 branches missed.">        } else if (backendID.equals(BackendID.DEV)) {</span>
-<span class="nc" id="L62">            return DEV_ATTRIBUTION_IMAGE;</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        } else if (backendID.equals(BackendID.DEV)) {</span>
+<span class="fc" id="L62">            return DEV_ATTRIBUTION_IMAGE;</span>
         }
 <span class="nc" id="L64">        return &quot;&quot;;</span>
     }
@@ -71,7 +71,7 @@ public class BackendResourceImpl implements BackendResource {
 <span class="fc" id="L71">            return Optional.of(response);</span>
         }
 <span class="fc bfc" id="L73" title="All 2 branches covered.">        if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId()) &amp;&amp;</span>
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                !StringUtils.equalsIgnoreCase(id, BackendID.DEV.getId())) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                !StringUtils.equalsIgnoreCase(id, BackendID.DEV.getId())) {</span>
 <span class="fc" id="L75">            APIResponse response =</span>
                     new APIResponse(Response.Status.NOT_FOUND,
                             &quot;Not supported id:&quot; + id);
