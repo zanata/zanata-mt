@@ -33,6 +33,20 @@ public class TextFlowTargetTest {
     }
 
     @Test
+    public void testUpdateContent() {
+        TextFlow textFlow = new TextFlow();
+        Locale locale = new Locale(LocaleCode.EN_US, "English US");
+
+        TextFlowTarget tft =
+                new TextFlowTarget("content", "raw content", textFlow, locale,
+                        BackendID.MS);
+
+        tft.updateContent("new content", "new raw content");
+        assertThat(tft.getContent()).isEqualTo("new content");
+        assertThat(tft.getRawContent()).isEqualTo("new raw content");
+    }
+
+    @Test
     public void testEqualsAndHashcode() {
         Locale fromLocale = new Locale(LocaleCode.EN_US, "English US");
         Locale toLocale = new Locale(LocaleCode.DE, "German");

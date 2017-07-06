@@ -28,13 +28,29 @@ public class BackendResourceTest {
     }
 
     @Test
-    public void testGetAttributionLowerCase() {
+    public void testGetAttributionMSLowerCase() {
         String id = "ms";
         Response response = backendResource.getAttribution(id);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getHeaders()).isNotEmpty()
                 .containsKeys("Content-Disposition");
+        assertThat(
+                (String) response.getHeaders().getFirst("Content-Disposition"))
+                .contains(id);
+    }
+
+    @Test
+    public void testGetAttributionDEVLowerCase() {
+        String id = "dev";
+        Response response = backendResource.getAttribution(id);
+        assertThat(response.getStatus())
+                .isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getHeaders()).isNotEmpty()
+                .containsKeys("Content-Disposition");
+        assertThat(
+                (String) response.getHeaders().getFirst("Content-Disposition"))
+                .contains(id);
     }
 
     @Test
