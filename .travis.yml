@@ -14,12 +14,9 @@ language: java
 install: /bin/true
 
 script: |
-  ./mvnw verify \
+  ./mvnw clean verify \
     --batch-mode \
-    --settings .travis-settings.xml \
     --update-snapshots
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
 
 jdk:
   - oraclejdk8
