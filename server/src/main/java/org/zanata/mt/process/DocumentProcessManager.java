@@ -9,6 +9,8 @@ import org.zanata.mt.api.dto.LocaleCode;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.Response;
+import java.util.concurrent.Callable;
 
 /**
  * Important: This lock uses single thread lock library which does not support
@@ -35,18 +37,28 @@ public class DocumentProcessManager {
     public DocumentProcessManager() {
     }
 
-    public void lock(@NotNull DocumentProcessKey key) {
+    private void lock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Locking document translation request:{}", key.toString());
         }
         lock.acquireLock(key, true);
     }
 
-    public void unlock(@NotNull DocumentProcessKey key) {
+    private void unlock(@NotNull DocumentProcessKey key) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("release document translation lock:{}", key.toString());
         }
         lock.releaseLock(key);
+    }
+
+    public Response withLock(DocumentProcessKey key, Callable<Response> callable)
+            throws Exception {
+        lock(key);
+        try {
+            return callable.call();
+        } finally {
+            unlock(key);
+        }
     }
 
     @VisibleForTesting

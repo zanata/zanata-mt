@@ -108,13 +108,12 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode)
+            throws Exception {
 
         // Default to MS engine for translation if not DEV mode
-        BackendID backendID = BackendID.DEV;
-        if (!configurationService.isDevMode()) {
-            backendID = BackendID.MS;
-        }
+        final BackendID backendID =
+                configurationService.isDevMode() ? BackendID.DEV : BackendID.MS;
 
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);
@@ -138,23 +137,20 @@ public class DocumentResourceImpl implements DocumentResource {
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
                         toLocaleCode);
-        try {
-            docProcessManager.lock(key);
-
+        return docProcessManager.withLock(key, () -> {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
             Document doc = documentDAO
-                    .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
+                    .getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                            toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID, MAX_LENGTH);
             doc.incrementCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
-        } finally {
-            docProcessManager.unlock(key);
-        }
+        });
     }
 
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,

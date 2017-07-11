@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
 
+import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -22,13 +24,14 @@ public class DocumentProcessManagerTest {
     }
 
     @Test
-    public void testTryLock() {
+    public void testTryLock() throws Exception {
         String url = "testing";
         DocumentProcessKey key =
                 new DocumentProcessKey(url, LocaleCode.EN, LocaleCode.DE);
-        processManager.lock(key);
-        assertThat(processManager.getTotalLockCount()).isEqualTo(1);
-        processManager.unlock(key);
+        processManager.withLock(key, () -> {
+            assertThat(processManager.getTotalLockCount()).isEqualTo(1);
+            return Response.ok().build();
+        });
         assertThat(processManager.getTotalLockCount()).isEqualTo(0);
     }
 }

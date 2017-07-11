@@ -20,7 +20,6 @@ import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
-import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.service.ConfigurationService;
@@ -49,8 +48,8 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentDAO documentDAO;
 
-    @Mock
-    private DocumentProcessManager docProcessLock;
+    private DocumentProcessManager docProcessLock =
+            new DocumentProcessManager();
 
     @Mock
     private ConfigurationService configurationService;
@@ -180,7 +179,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateDocumentContentBadParams() {
+    public void testTranslateDocumentContentBadParams() throws Exception {
         DocumentContent docContent = new DocumentContent(null, null, null);
         // empty trans locale
         Response response = documentResource
@@ -190,7 +189,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testInvalidTranslateDocRequest() {
+    public void testInvalidTranslateDocRequest() throws Exception {
         // null docContent
         Response response =
                 documentResource.translate(null, null);
@@ -260,7 +259,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testSameLocale() {
+    public void testSameLocale() throws Exception {
         Locale locale = new Locale(LocaleCode.EN, "English");
 
         DocumentContent
@@ -282,7 +281,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateDocumentContent() {
+    public void testTranslateDocumentContent() throws Exception {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
@@ -345,16 +344,12 @@ public class DocumentResourceImplTest {
         assertThat(returnedDocContent.getLocaleCode())
                 .isEqualTo(toLocale.getLocaleCode().getId());
 
-        DocumentProcessKey key =
-                new DocumentProcessKey(docContent.getUrl(),
-                        fromLocale.getLocaleCode(), toLocale.getLocaleCode());
-        verify(docProcessLock).lock(key);
         verify(doc).incrementCount();
         verify(documentDAO).persist(doc);
     }
 
     @Test
-    public void testDevMode() {
+    public void testDevMode() throws Exception {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
