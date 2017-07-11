@@ -151,7 +151,9 @@ timestamps {
         parallel tasks
       }
     }
-    deployToProduction("$DOCKER_IMAGE")
+    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+      deployToProduction("$DOCKER_IMAGE")
+    }
   }
 }
 
@@ -249,19 +251,21 @@ String getOpenshiftClient() {
  * @param dockerImage
  */
 void deployToStage(String dockerImage) {
-  node(defaultNodeLabel) {
-    def ocClient = getOpenshiftClient();
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+    node(defaultNodeLabel) {
+      def ocClient = getOpenshiftClient();
 
-    echo "Login to OPENSHIFT with token"
+      echo "Login to OPENSHIFT with token"
 
-    withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
-            variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
-      sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME"
+      withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
+              variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
+        sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME"
+      }
+
+      echo "Update 'latest' tag to $version"
+      sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
+      sh "$ocClient logout"
     }
-
-    echo "Update 'latest' tag to $version"
-    sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
-    sh "$ocClient logout"
   }
 }
 
