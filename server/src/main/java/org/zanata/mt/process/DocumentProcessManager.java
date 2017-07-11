@@ -10,8 +10,7 @@ import org.zanata.mt.api.dto.LocaleCode;
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Important: This lock does not support clustering.
@@ -52,10 +51,10 @@ public class DocumentProcessManager {
     }
 
     public Response withLock(DocumentProcessKey key,
-            Function<DocumentProcessKey, Response> function) {
+            Supplier<Response> function) {
         lock(key);
         try {
-            return function.apply(key);
+            return function.get();
         } finally {
             unlock(key);
         }

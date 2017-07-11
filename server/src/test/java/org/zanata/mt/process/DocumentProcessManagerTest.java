@@ -28,7 +28,7 @@ public class DocumentProcessManagerTest {
         String url = "testing";
         DocumentProcessKey key =
                 new DocumentProcessKey(url, LocaleCode.EN, LocaleCode.DE);
-        processManager.withLock(key, k -> {
+        processManager.withLock(key, () -> {
             assertThat(processManager.getTotalLockCount()).isEqualTo(1);
             return Response.ok().build();
         });

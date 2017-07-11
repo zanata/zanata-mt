@@ -136,7 +136,7 @@ public class DocumentResourceImpl implements DocumentResource {
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
                         toLocaleCode);
-        return docProcessManager.withLock(key, k -> {
+        return docProcessManager.withLock(key, () -> {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
