@@ -24,11 +24,11 @@ public class DocumentProcessManagerTest {
     }
 
     @Test
-    public void testTryLock() throws Exception {
+    public void testTryLock() {
         String url = "testing";
         DocumentProcessKey key =
                 new DocumentProcessKey(url, LocaleCode.EN, LocaleCode.DE);
-        processManager.withLock(key, () -> {
+        processManager.withLock(key, k -> {
             assertThat(processManager.getTotalLockCount()).isEqualTo(1);
             return Response.ok().build();
         });

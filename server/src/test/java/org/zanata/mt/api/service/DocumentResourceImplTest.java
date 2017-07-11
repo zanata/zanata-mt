@@ -179,7 +179,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateDocumentContentBadParams() throws Exception {
+    public void testTranslateDocumentContentBadParams() {
         DocumentContent docContent = new DocumentContent(null, null, null);
         // empty trans locale
         Response response = documentResource
@@ -189,7 +189,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testInvalidTranslateDocRequest() throws Exception {
+    public void testInvalidTranslateDocRequest() {
         // null docContent
         Response response =
                 documentResource.translate(null, null);
@@ -259,7 +259,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testSameLocale() throws Exception {
+    public void testSameLocale() {
         Locale locale = new Locale(LocaleCode.EN, "English");
 
         DocumentContent
@@ -281,7 +281,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateDocumentContent() throws Exception {
+    public void testTranslateDocumentContent() {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
@@ -349,7 +349,7 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testDevMode() throws Exception {
+    public void testDevMode() {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 

@@ -108,8 +108,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleCode toLocaleCode)
-            throws Exception {
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
 
         // Default to MS engine for translation if not DEV mode
         final BackendID backendID =
@@ -137,7 +136,7 @@ public class DocumentResourceImpl implements DocumentResource {
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
                         toLocaleCode);
-        return docProcessManager.withLock(key, () -> {
+        return docProcessManager.withLock(key, k -> {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 

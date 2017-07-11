@@ -17,6 +17,8 @@
     </exclusions>
     <dependencies>
 
+      <module name="org.infinispan" />
+      <module name="org.infinispan.commons" optional="true" />
       <module name="javax.annotation.api" />
       <!-- not needed for wildfly: -->
       <module name="javax.inject.api" />
