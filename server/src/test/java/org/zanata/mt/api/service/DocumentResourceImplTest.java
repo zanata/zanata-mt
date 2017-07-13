@@ -20,7 +20,6 @@ import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
-import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.service.ConfigurationService;
@@ -49,8 +48,8 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentDAO documentDAO;
 
-    @Mock
-    private DocumentProcessManager docProcessLock;
+    private DocumentProcessManager docProcessLock =
+            new DocumentProcessManager();
 
     @Mock
     private ConfigurationService configurationService;
@@ -345,10 +344,6 @@ public class DocumentResourceImplTest {
         assertThat(returnedDocContent.getLocaleCode())
                 .isEqualTo(toLocale.getLocaleCode().getId());
 
-        DocumentProcessKey key =
-                new DocumentProcessKey(docContent.getUrl(),
-                        fromLocale.getLocaleCode(), toLocale.getLocaleCode());
-        verify(docProcessLock).lock(key);
         verify(doc).incrementCount();
         verify(documentDAO).persist(doc);
     }

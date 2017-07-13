@@ -45,6 +45,7 @@
     <hibernate.commons.version>5.0.1.Final</hibernate.commons.version>
     <powermock.version>1.6.6</powermock.version>
     <okapi.version>0.33</okapi.version>
+    <infinispan.version>8.1.4.Final</infinispan.version>
     <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
     <icu4j.version>58.2</icu4j.version>
     <postgresql.version>9.4.1212</postgresql.version>
@@ -305,6 +306,23 @@
           <exclusion>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-core</artifactId>
+        <version>${infinispan.version}</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jboss.marshalling</groupId>
+            <artifactId>jboss-marshalling-osgi</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.jboss.spec.javax.transaction</groupId>
+            <artifactId>jboss-transaction-api_1.1_spec</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
