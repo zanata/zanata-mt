@@ -111,98 +111,93 @@ public class DocumentResourceImpl implements DocumentResource {
             @QueryParam(&quot;toLocaleCode&quot;) LocaleCode toLocaleCode) {
 
         // Default to MS engine for translation if not DEV mode
-<span class="fc" id="L114">        BackendID backendID = BackendID.DEV;</span>
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (!configurationService.isDevMode()) {</span>
-<span class="fc" id="L116">            backendID = BackendID.MS;</span>
-        }
+<span class="fc" id="L114">        final BackendID backendID =</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">                configurationService.isDevMode() ? BackendID.DEV : BackendID.MS;</span>
 
-<span class="fc" id="L119">        Optional&lt;APIResponse&gt; errorResp =</span>
-<span class="fc" id="L120">                validateTranslateRequest(docContent, toLocaleCode);</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (errorResp.isPresent()) {</span>
-<span class="fc" id="L122">            return Response.status(errorResp.get().getStatus())</span>
-<span class="fc" id="L123">                    .entity(errorResp.get()).build();</span>
+<span class="fc" id="L117">        Optional&lt;APIResponse&gt; errorResp =</span>
+<span class="fc" id="L118">                validateTranslateRequest(docContent, toLocaleCode);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (errorResp.isPresent()) {</span>
+<span class="fc" id="L120">            return Response.status(errorResp.get().getStatus())</span>
+<span class="fc" id="L121">                    .entity(errorResp.get()).build();</span>
         }
 
         // if source locale == target locale, return docContent
-<span class="fc" id="L127">        LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());</span>
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (fromLocaleCode.equals(toLocaleCode)) {</span>
-<span class="fc" id="L129">            LOG.info(&quot;Returning request as FROM and TO localeCode are the same: {}&quot;, fromLocaleCode);</span>
-<span class="fc" id="L130">            return Response.ok().entity(docContent).build();</span>
+<span class="fc" id="L125">        LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (fromLocaleCode.equals(toLocaleCode)) {</span>
+<span class="fc" id="L127">            LOG.info(&quot;Returning request as FROM and TO localeCode are the same: {}&quot;, fromLocaleCode);</span>
+<span class="fc" id="L128">            return Response.ok().entity(docContent).build();</span>
         }
 
-<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L134">            LOG.debug(&quot;Request translations: {} toLocaleCode {} backendId: {}&quot;,</span>
-<span class="nc" id="L135">                    docContent, toLocaleCode, backendID.getId());</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L132">            LOG.debug(&quot;Request translations: {} toLocaleCode {} backendId: {}&quot;,</span>
+<span class="nc" id="L133">                    docContent, toLocaleCode, backendID.getId());</span>
         }
 
-<span class="fc" id="L138">        DocumentProcessKey key =</span>
-<span class="fc" id="L139">                new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,</span>
+<span class="fc" id="L136">        DocumentProcessKey key =</span>
+<span class="fc" id="L137">                new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,</span>
                         toLocaleCode);
-        try {
-<span class="fc" id="L142">            docProcessManager.lock(key);</span>
+<span class="fc" id="L139">        return docProcessManager.withLock(key, () -&gt; {</span>
+<span class="fc" id="L140">            Locale fromLocale = getLocale(fromLocaleCode);</span>
+<span class="fc" id="L141">            Locale toLocale = getLocale(toLocaleCode);</span>
 
-<span class="fc" id="L144">            Locale fromLocale = getLocale(fromLocaleCode);</span>
-<span class="fc" id="L145">            Locale toLocale = getLocale(toLocaleCode);</span>
+<span class="fc" id="L143">            Document doc = documentDAO</span>
+<span class="fc" id="L144">                    .getOrCreateByUrl(docContent.getUrl(), fromLocale,</span>
+                            toLocale);
 
-<span class="fc" id="L147">            Document doc = documentDAO</span>
-<span class="fc" id="L148">                    .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);</span>
-
-<span class="fc" id="L150">            DocumentContent newDocContent = documentContentTranslatorService</span>
-<span class="fc" id="L151">                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);</span>
-<span class="fc" id="L152">            doc.incrementCount();</span>
-<span class="fc" id="L153">            documentDAO.persist(doc);</span>
-<span class="fc" id="L154">            return Response.ok().entity(newDocContent).build();</span>
-        } finally {
-<span class="pc" id="L156">            docProcessManager.unlock(key);</span>
-        }
+<span class="fc" id="L147">            DocumentContent newDocContent = documentContentTranslatorService</span>
+<span class="fc" id="L148">                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);</span>
+<span class="fc" id="L149">            doc.incrementCount();</span>
+<span class="fc" id="L150">            documentDAO.persist(doc);</span>
+<span class="fc" id="L151">            return Response.ok().entity(newDocContent).build();</span>
+        });
     }
 
     private Optional&lt;APIResponse&gt; validateTranslateRequest(DocumentContent docContent,
             LocaleCode toLocaleCode) {
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (toLocaleCode == null) {</span>
-<span class="fc" id="L163">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (toLocaleCode == null) {</span>
+<span class="fc" id="L158">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
                     &quot;Invalid query param: toLocaleCode&quot;));
         }
-<span class="pc bpc" id="L166" title="1 of 4 branches missed.">        if (docContent == null || docContent.getContents() == null ||</span>
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">                docContent.getContents().isEmpty()) {</span>
-<span class="fc" id="L168">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">        if (docContent == null || docContent.getContents() == null ||</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                docContent.getContents().isEmpty()) {</span>
+<span class="fc" id="L163">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
                     &quot;Empty content:&quot; + docContent));
         }
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getLocaleCode())) {</span>
-<span class="fc" id="L172">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getLocaleCode())) {</span>
+<span class="fc" id="L167">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
                     &quot;Empty localeCode&quot;));
         }
-<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getUrl()) ||</span>
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                !UrlUtil.isValidURL(docContent.getUrl())) {</span>
-<span class="fc" id="L177">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
-<span class="fc" id="L178">                    &quot;Invalid url:&quot; + docContent.getUrl()));</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        if (StringUtils.isBlank(docContent.getUrl()) ||</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">                !UrlUtil.isValidURL(docContent.getUrl())) {</span>
+<span class="fc" id="L172">            return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L173">                    &quot;Invalid url:&quot; + docContent.getUrl()));</span>
         }
-<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (TypeString string : docContent.getContents()) {</span>
-<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (StringUtils.isBlank(string.getValue()) ||</span>
-<span class="fc bfc" id="L182" title="All 2 branches covered.">                    StringUtils.isBlank(string.getType())) {</span>
-<span class="fc" id="L183">                return Optional</span>
-<span class="fc" id="L184">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
-<span class="fc" id="L185">                                &quot;Empty content: &quot; + string.toString()));</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (TypeString string : docContent.getContents()) {</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            if (StringUtils.isBlank(string.getValue()) ||</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                    StringUtils.isBlank(string.getType())) {</span>
+<span class="fc" id="L178">                return Optional</span>
+<span class="fc" id="L179">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L180">                                &quot;Empty content: &quot; + string.toString()));</span>
             }
-<span class="fc" id="L187">            if (!documentContentTranslatorService</span>
-<span class="fc bfc" id="L188" title="All 2 branches covered.">                    .isMediaTypeSupported(string.getType())) {</span>
-<span class="fc" id="L189">                return Optional</span>
-<span class="fc" id="L190">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
-<span class="fc" id="L191">                                &quot;Invalid mediaType: &quot; + string.getType()));</span>
+<span class="fc" id="L182">            if (!documentContentTranslatorService</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                    .isMediaTypeSupported(string.getType())) {</span>
+<span class="fc" id="L184">                return Optional</span>
+<span class="fc" id="L185">                        .of(new APIResponse(Response.Status.BAD_REQUEST,</span>
+<span class="fc" id="L186">                                &quot;Invalid mediaType: &quot; + string.getType()));</span>
             }
-<span class="fc" id="L193">        }</span>
-<span class="fc" id="L194">        return Optional.empty();</span>
+<span class="fc" id="L188">        }</span>
+<span class="fc" id="L189">        return Optional.empty();</span>
     }
 
     private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
-<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (localeCode == null) {</span>
-<span class="nc" id="L199">            return null;</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if (localeCode == null) {</span>
+<span class="nc" id="L194">            return null;</span>
         }
-<span class="fc" id="L201">        Locale locale = localeDAO.getByLocaleCode(localeCode);</span>
-<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (locale == null) {</span>
-<span class="nc" id="L203">            throw new BadRequestException(&quot;Not supported locale:&quot; + localeCode);</span>
+<span class="fc" id="L196">        Locale locale = localeDAO.getByLocaleCode(localeCode);</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">        if (locale == null) {</span>
+<span class="nc" id="L198">            throw new BadRequestException(&quot;Not supported locale:&quot; + localeCode);</span>
         }
-<span class="fc" id="L205">        return locale;</span>
+<span class="fc" id="L200">        return locale;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
