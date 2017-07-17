@@ -1,13 +1,24 @@
-# Build and run 
+# Machine translations [![GitHub release](https://img.shields.io/github/release/zanata/zanata-mt.svg?maxAge=3600)](https://github.com/zanata/zanata-mt/releases)
 
-Run:
-- Package: `mvn clean package` (build and package war file)
-- Docker build: Go to `server` directory, run `mvn docker:build -DskipTests` (build docker image named zanataMT)
-- Start docker: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
-- Logs: `mvn docker:logs -Ddocker.follow`
-- To stop and remove: `mvn docker:stop` (This still stop and remove both containers)
+[![Build Status](https://travis-ci.org/zanata/zanata-mt.svg?branch=master)](https://travis-ci.org/zanata/zanata-mt)
+[![Codecov](https://img.shields.io/codecov/c/github/zanata/zanata-mt.svg?maxAge=3600)](https://codecov.io/gh/zanata/zanata-mt)
 
-## DEV mode
+[![jira](https://img.shields.io/badge/issues-Jira-yellow.svg?maxAge=3600)](https://zanata.atlassian.net/projects/ZNTAMT/issues)
+[![api](https://img.shields.io/badge/docs-API-brightgreen.svg?maxAge=3600)](http://zanata.org/zanata-mt/apidocs/)
+[![license](https://img.shields.io/github/license/zanata/zanata-mt.svg?maxAge=3600)](https://github.com/zanata/zanata-mt/blob/master/LICENSE)
+
+----
+
+## Build and run 
+
+1. Package: `mvn clean package` (build and package war file)
+2. Go to `server` directory
+3. Docker build: run `mvn docker:build -DskipTests` (build docker image named zanataMT)
+4. Start docker: `mvn docker:start` (This will start docker **zanataMT** and postgresql **zanataMTDB**)
+5. Logs: `mvn docker:logs -Ddocker.follow`
+6. To stop and remove: `mvn docker:stop` (This will stop and remove both containers)
+
+### DEV mode
 
 DEV mode is enabled when **ZANATA_MT_AZURE_KEY** is not present in environment variable. The service will not use MS backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
 
@@ -15,13 +26,6 @@ DEV mode is enabled when **ZANATA_MT_AZURE_KEY** is not present in environment v
 `ZANATA_MT_API_KEY` = `devKEY`
                   
 ----
-
-# Documentations
-
-## API
-
-See [here](http://zanata.org/zanata-mt/apidocs) for more information.
-
 
 ## Environment Variables
 

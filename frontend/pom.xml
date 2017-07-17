@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.zanata.mt</groupId>
-    <artifactId>zanata-mt</artifactId>
+    <artifactId>mt-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>mt-frontend</artifactId>
-  <name>frontend</name>
+  <name>mt-frontend</name>
   <packaging>jar</packaging>
   <scm>
     <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
@@ -107,12 +107,8 @@
               <resources>
                 <resource>
                   <directory>src/frontend/dist</directory>
-                  <include>editor.min.js</include>
-                  <include>editor.css</include>
-                  <include>editor.css.map</include>
                   <include>intl-polyfill.min.js</include>
                   <include>frontend.min.js</include>
-                  <include>frontend.legacy.min.js</include>
                   <include>frontend.css</include>
                   <include>frontend.css.map</include>
                   <include>*.js.map</include>

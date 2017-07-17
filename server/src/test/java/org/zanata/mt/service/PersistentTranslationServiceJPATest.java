@@ -88,7 +88,7 @@ public class PersistentTranslationServiceJPATest {
 
         List<String> translations = persistentTranslationService
                 .translate(new Document(), source, fromLocale, toLocale,
-                        BackendID.DEV, MediaType.TEXT_PLAIN_TYPE);
+                        BackendID.DEV, MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         assertThat(translations.get(0))
                 .contains(source.get(0), PREFIX_MOCK_STRING,
                         UNICODE_SUPPLEMENTARY);
@@ -129,14 +129,15 @@ public class PersistentTranslationServiceJPATest {
                 .thenReturn(toLocaleCode);
 
         when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
-                MediaType.TEXT_PLAIN_TYPE)).thenReturn(expectedTranslations);
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"))).thenReturn(expectedTranslations);
 
         List<String> translations =
                 persistentTranslationService.translate(doc, sources, fromLocale,
-                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        Optional.of("tech"));
 
         verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
-                MediaType.TEXT_PLAIN_TYPE);
+                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
@@ -183,16 +184,17 @@ public class PersistentTranslationServiceJPATest {
 
         when(msBackend
                 .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
-                        MediaType.TEXT_PLAIN_TYPE))
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(expectedTranslations);
 
         List<String> translations =
                 persistentTranslationService.translate(doc, sources, fromLocale,
-                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        Optional.of("tech"));
 
         verify(msBackend)
                 .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
-                        MediaType.TEXT_PLAIN_TYPE);
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO, times(2)).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
@@ -225,8 +227,9 @@ public class PersistentTranslationServiceJPATest {
 
         List<String> translations =
                 persistentTranslationService
-                    .translate(doc, sources, fromLocale, toLocale,
-                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE);
+                        .translate(doc, sources, fromLocale, toLocale,
+                                BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                                Optional.of("tech"));
 
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);

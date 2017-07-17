@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.zanata.mt</groupId>
-    <artifactId>zanata-mt</artifactId>
+    <artifactId>mt-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>mt-server</artifactId>
-  <name>server</name>
+  <name>mt-server</name>
   <packaging>war</packaging>
   <scm>
     <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
@@ -25,7 +25,7 @@
   </properties>
 
   <build>
-    <finalName>ZanataMT</finalName>
+    <finalName>mt-server</finalName>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -141,15 +141,16 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-      </plugin>
-      <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <outputDirectory>${project.build.directory}/deployments</outputDirectory>
           <warName>ROOT</warName>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>com.github.github</groupId>
@@ -288,6 +289,11 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-core</artifactId>
     </dependency>
 
     <dependency>

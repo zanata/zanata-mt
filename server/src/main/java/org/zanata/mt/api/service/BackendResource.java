@@ -1,10 +1,6 @@
 package org.zanata.mt.api.service;
 
-import com.webcohesion.enunciate.metadata.rs.RequestHeader;
-import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
-import com.webcohesion.enunciate.metadata.rs.ResponseCode;
-import com.webcohesion.enunciate.metadata.rs.StatusCodes;
-import com.webcohesion.enunciate.metadata.rs.TypeHint;
+import com.webcohesion.enunciate.metadata.rs.*;
 import org.zanata.mt.api.dto.APIResponse;
 
 import javax.ws.rs.Consumes;
@@ -26,6 +22,7 @@ import javax.ws.rs.core.StreamingOutput;
         @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
         @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
 })
+@ResourceLabel("Backend")
 public interface BackendResource {
     /**
      * Retrieve backend attribution (image) based on given id
@@ -38,10 +35,10 @@ public interface BackendResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"image/png", "application/json"})
     @StatusCodes({
-            @ResponseCode(code = 200, condition = "Attribution found for given id", type = @TypeHint(StreamingOutput.class)),
-            @ResponseCode(code = 400, condition = "id is missing.", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 404, condition = "id not found.", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation")
+            @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
+            @ResponseCode(code = 400, condition = "id parameter is missing.", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 404, condition = "id not recognised.", type = @TypeHint(APIResponse.class)),
+            @ResponseCode(code = 500, condition = "Unexpected error during translation.")
     })
     Response getAttribution(@QueryParam("id") String id);
 }

@@ -2,20 +2,25 @@ package org.zanata.mt.process;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
+
+import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DocumentProcessManagerTest {
 
-    private DocumentProcessManager lock;
+    private DocumentProcessManager processManager;
 
     @Before
     public void init() {
-        lock = new DocumentProcessManager();
+        processManager = new DocumentProcessManager();
     }
 
     @Test
@@ -23,11 +28,10 @@ public class DocumentProcessManagerTest {
         String url = "testing";
         DocumentProcessKey key =
                 new DocumentProcessKey(url, LocaleCode.EN, LocaleCode.DE);
-        lock.lock(key);
-        assertThat(lock.isLocked(key)).isTrue();
-        assertThat(lock.getLock(key).getHoldCount()).isEqualTo(1);
-        lock.unlock(key);
-        assertThat(lock.isLocked(key)).isFalse();
-        assertThat(lock.getLock(key).getHoldCount()).isEqualTo(0);
+        processManager.withLock(key, () -> {
+            assertThat(processManager.getTotalLockCount()).isEqualTo(1);
+            return Response.ok().build();
+        });
+        assertThat(processManager.getTotalLockCount()).isEqualTo(0);
     }
 }

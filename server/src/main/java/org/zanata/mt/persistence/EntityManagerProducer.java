@@ -12,7 +12,7 @@ import javax.persistence.PersistenceContext;
 public final class EntityManagerProducer {
 
     @SuppressWarnings("unused")
-    private EntityManagerProducer() {
+    protected EntityManagerProducer() {
     }
 
     @Produces

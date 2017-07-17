@@ -11,6 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OkapiUtilTest {
 
     @Test
+    public void countEmptyWordsTest() {
+        String test = "";
+        long words = OkapiUtil.countWords(test, LocaleCode.EN.getId());
+        assertThat(words).isEqualTo(0);
+    }
+
+    @Test
     public void countWordsTest() {
         String test = "Long long long time ago";
         long words = OkapiUtil.countWords(test, LocaleCode.EN.getId());

@@ -111,10 +111,8 @@ public class DocumentResourceImpl implements DocumentResource {
             @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
 
         // Default to MS engine for translation if not DEV mode
-        BackendID backendID = BackendID.DEV;
-        if (!configurationService.isDevMode()) {
-            backendID = BackendID.MS;
-        }
+        final BackendID backendID =
+                configurationService.isDevMode() ? BackendID.DEV : BackendID.MS;
 
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);
@@ -126,35 +124,32 @@ public class DocumentResourceImpl implements DocumentResource {
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
-            LOG.info("Returning request as FROM and TO localeCode are the same:" + fromLocaleCode);
+            LOG.info("Returning request as FROM and TO localeCode are the same: {}", fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Request translations:" + docContent + " toLocaleCode"
-                    + toLocaleCode + " backendId:" + backendID.getId());
+            LOG.debug("Request translations: {} toLocaleCode {} backendId: {}",
+                    docContent, toLocaleCode, backendID.getId());
         }
 
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
                         toLocaleCode);
-        try {
-            docProcessManager.lock(key);
-
+        return docProcessManager.withLock(key, () -> {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
             Document doc = documentDAO
-                    .getOrCreateByUrl(docContent.getUrl(), fromLocale, toLocale);
+                    .getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                            toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID);
             doc.incrementCount();
             documentDAO.persist(doc);
             return Response.ok().entity(newDocContent).build();
-        } finally {
-            docProcessManager.unlock(key);
-        }
+        });
     }
 
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,

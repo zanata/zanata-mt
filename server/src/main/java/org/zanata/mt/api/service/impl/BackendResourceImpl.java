@@ -27,6 +27,9 @@ public class BackendResourceImpl implements BackendResource {
     private static final String MS_ATTRIBUTION_IMAGE =
             "/images/MS_attribution.png";
 
+    private static final String DEV_ATTRIBUTION_IMAGE =
+            "/images/DEV_attribution.png";
+
     @SuppressWarnings("unused")
     public BackendResourceImpl() {
     }
@@ -55,6 +58,8 @@ public class BackendResourceImpl implements BackendResource {
     private String getAttributionImageResource(BackendID backendID) {
         if (backendID.equals(BackendID.MS)) {
             return MS_ATTRIBUTION_IMAGE;
+        } else if (backendID.equals(BackendID.DEV)) {
+            return DEV_ATTRIBUTION_IMAGE;
         }
         return "";
     }
@@ -65,9 +70,11 @@ public class BackendResourceImpl implements BackendResource {
                     new APIResponse(Response.Status.BAD_REQUEST, "Invalid id");
             return Optional.of(response);
         }
-        if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId())) {
+        if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId()) &&
+                !StringUtils.equalsIgnoreCase(id, BackendID.DEV.getId())) {
             APIResponse response =
-                    new APIResponse(Response.Status.NOT_FOUND, "Not supported id:" + id);
+                    new APIResponse(Response.Status.NOT_FOUND,
+                            "Not supported id:" + id);
             return Optional.of(response);
         }
         return Optional.empty();

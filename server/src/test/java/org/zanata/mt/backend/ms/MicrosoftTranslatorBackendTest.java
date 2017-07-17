@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -103,7 +104,7 @@ public class MicrosoftTranslatorBackendTest {
         msBackend.setApi(api);
         AugmentedTranslation translation = msBackend
                 .translate(content, srcLocale, transLocale,
-                        MediaType.TEXT_PLAIN_TYPE);
+                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
         assertThat(translation.getRawTranslation())
                 .isEqualTo(DTOUtil.toXML(resp.getResponse().get(0)));

@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +40,8 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public AugmentedTranslation translate(String content,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType) throws ZanataMTException {
+            MediaType mediaType, Optional<String> category)
+            throws ZanataMTException {
         return new AugmentedTranslation(wrapContentInBlock(content),
                 wrapContentInBlock(content));
     }
@@ -47,7 +49,8 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType) throws ZanataMTException {
+            MediaType mediaType, Optional<String> category)
+            throws ZanataMTException {
         List<AugmentedTranslation> translations = contents.stream()
                 .map(source -> new AugmentedTranslation(
                         wrapContentInBlock(source),
