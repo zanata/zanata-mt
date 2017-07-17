@@ -1,5 +1,7 @@
 package org.zanata.mt.service;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -17,7 +19,7 @@ public class ConfigurationServiceTest {
         assertThat(config.getApiKey()).isEqualTo("key");
         assertThat(config.getMsAPIKey())
                 .isEqualTo("clientSubscriptionKey");
-        assertThat(config.getGoogleAPIKey()).isEqualTo("googleKey");
+        assertThat(config.getGoogleADC()).isEqualTo(new File("googleKey"));
         assertThat(config.getBuildDate()).isNotBlank();
         assertThat(config.getVersion()).isNotBlank();
     }

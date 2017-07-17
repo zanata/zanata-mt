@@ -225,6 +225,11 @@
       <artifactId>google-cloud-translate</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client</artifactId>
+    </dependency>
+
     <!-- resteasy -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>

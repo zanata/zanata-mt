@@ -3,18 +3,21 @@ package org.zanata.mt.service;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
 
 import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
-import static org.zanata.mt.api.APIConstant.GOOGLE_API_KEY;
+import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
 
 /**
  * This service will startup in eager loading in application.
@@ -30,7 +33,7 @@ public class ConfigurationService {
     private String version;
     private String buildDate;
     private String msAPIKey;
-    private String googleAPIKey;
+    private File googleADC;
     private boolean isDevMode;
 
     private String id;
@@ -44,11 +47,11 @@ public class ConfigurationService {
     public ConfigurationService(@EnvVariable(APIConstant.API_ID) String id,
             @EnvVariable(APIConstant.API_KEY) String apiKey,
             @EnvVariable(AZURE_KEY) String msAPIKey,
-            @EnvVariable(GOOGLE_API_KEY) String googleAPIKey) {
+            @EnvVariable(GOOGLE_ADC) String googleADC) {
         this.id = id;
         this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
-        this.googleAPIKey = googleAPIKey;
+        this.googleADC = new File(googleADC);
 
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("build.properties");
@@ -58,7 +61,7 @@ public class ConfigurationService {
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
             isDevMode = StringUtils.isBlank(msAPIKey) &&
-                    StringUtils.isBlank(googleAPIKey);
+                    StringUtils.isBlank(googleADC);
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
@@ -72,6 +75,8 @@ public class ConfigurationService {
         return buildDate;
     }
 
+    @Produces
+    @DevMode
     public boolean isDevMode() {
         return isDevMode;
     }
@@ -88,7 +93,7 @@ public class ConfigurationService {
         return msAPIKey;
     }
 
-    public String getGoogleAPIKey() {
-        return googleAPIKey;
+    public File getGoogleADC() {
+        return googleADC;
     }
 }

@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
@@ -50,8 +51,6 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     // Max length per request for MS service
     private final static int MAX_LENGTH = 10000;
 
-    private ConfigurationService configurationService;
-
     /**
      * Map from request locale to MS supported locale code
      *
@@ -77,15 +76,14 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     @Inject
     public MicrosoftTranslatorBackend(
             ConfigurationService configurationService) {
-        this.configurationService = configurationService;
         this.clientSubscriptionKey =
                 configurationService.getMsAPIKey();
     }
 
     public void onInit(
-            @Observes @Initialized(ApplicationScoped.class) Object init)
+            @Observes @Initialized(ApplicationScoped.class) Object init, @DevMode boolean isDevMode)
             throws ZanataMTException {
-        if (!configurationService.isDevMode() &&
+        if (!isDevMode &&
                 StringUtils.isBlank(clientSubscriptionKey)) {
             throw new ZanataMTException(
                     "Missing system properties of " + AZURE_KEY);

@@ -20,10 +20,11 @@ public final class APIConstant {
     // AZURE Subscription key for MS backend
     public static final String AZURE_KEY = "ZANATA_MT_AZURE_KEY";
     /**
-     * Google API key for google backend.
-     * Should be same as {@link com.google.cloud.translate.TranslateOptions#GOOGLE_API_KEY}
+     * Google Application Default Credentials for google backend.
+     * Should point to a file that defines the credentials.
+     * https://developers.google.com/identity/protocols/application-default-credentials#howtheywork
      */
-    public static final String GOOGLE_API_KEY = "GOOGLE_API_KEY";
+    public static final String GOOGLE_ADC = "GOOGLE_APPLICATION_CREDENTIALS";
 
     // HTTP header request authentication
     public static final String HEADER_API_KEY = "X-Auth-Token";
