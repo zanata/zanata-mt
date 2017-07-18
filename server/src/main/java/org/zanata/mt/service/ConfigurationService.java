@@ -3,9 +3,12 @@ package org.zanata.mt.service;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.Credentials;
+import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
+import org.zanata.mt.api.dto.TranslationProvider;
 
 import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
@@ -17,6 +20,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
+import static org.zanata.mt.api.APIConstant.DEFAULT_PROVIDER;
 import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
 
 /**
@@ -38,6 +42,7 @@ public class ConfigurationService {
 
     private String id;
     private String apiKey;
+    private TranslationProvider defaultTranslationProvider;
 
     @SuppressWarnings("unused")
     public ConfigurationService() {
@@ -47,11 +52,14 @@ public class ConfigurationService {
     public ConfigurationService(@EnvVariable(APIConstant.API_ID) String id,
             @EnvVariable(APIConstant.API_KEY) String apiKey,
             @EnvVariable(AZURE_KEY) String msAPIKey,
-            @EnvVariable(GOOGLE_ADC) String googleADC) {
+            @EnvVariable(GOOGLE_ADC) String googleADC,
+            @EnvVariable(DEFAULT_PROVIDER) String defaultProvider) {
         this.id = id;
         this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
         this.googleADC = new File(googleADC);
+        defaultTranslationProvider =
+                TranslationProvider.fromString(defaultProvider);
 
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("build.properties");
@@ -81,6 +89,18 @@ public class ConfigurationService {
         return isDevMode;
     }
 
+    @Produces
+    @DefaultProvider
+    protected TranslationProvider getDefaultTranslationProvider(@DevMode boolean isDevMode) {
+        return isDevMode ? TranslationProvider.Dev : defaultTranslationProvider;
+    }
+
+    @Produces
+    @Credentials(TranslationProvider.Google)
+    protected File googleDefaultCredentialFile() {
+        return googleADC;
+    }
+
     public String getId() {
         return id;
     }
@@ -89,11 +109,10 @@ public class ConfigurationService {
         return apiKey;
     }
 
-    public String getMsAPIKey() {
+    @Produces
+    @Credentials(TranslationProvider.Microsoft)
+    protected String getMsAPIKey() {
         return msAPIKey;
     }
 
-    public File getGoogleADC() {
-        return googleADC;
-    }
 }

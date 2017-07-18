@@ -3,10 +3,12 @@ package org.zanata.mt.api.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentResource;
 import org.zanata.mt.dao.DocumentDAO;
@@ -24,6 +26,7 @@ import org.zanata.mt.util.UrlUtil;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -44,8 +47,7 @@ public class DocumentResourceImpl implements DocumentResource {
     private DocumentDAO documentDAO;
 
     private DocumentProcessManager docProcessManager;
-
-    private ConfigurationService configurationService;
+    private boolean isDevMode;
 
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
@@ -56,13 +58,13 @@ public class DocumentResourceImpl implements DocumentResource {
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentDAO documentDAO,
             DocumentProcessManager docProcessManager,
-            ConfigurationService configurationService) {
+            @DevMode boolean isDevMode) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentDAO = documentDAO;
         this.docProcessManager = docProcessManager;
-        this.configurationService = configurationService;
+        this.isDevMode = isDevMode;
     }
 
     @Override
@@ -108,11 +110,11 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
+            @QueryParam("provider") TranslationProvider provider) {
 
-        // Default to MS engine for translation if not DEV mode
-        final BackendID backendID =
-                configurationService.isDevMode() ? BackendID.DEV : BackendID.MS;
+        // use dev backend if it's DEV mode
+        final BackendID backendID = isDevMode ? BackendID.DEV : provider.getBackendID();
 
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);

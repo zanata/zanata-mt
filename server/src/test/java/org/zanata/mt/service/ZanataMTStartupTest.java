@@ -15,15 +15,15 @@ public class ZanataMTStartupTest {
     public void testEmptyCredentials() {
         ConfigurationService config = new ConfigurationService();
         ZanataMTStartup app = new ZanataMTStartup(config);
-        assertThatThrownBy(() -> app.onStartUp(null))
+        assertThatThrownBy(() -> app.onStartUp(null, false))
                 .isInstanceOf(ZanataMTException.class);
     }
 
     @Test
     public void testOnStartup() {
         ConfigurationService config =
-                new ConfigurationService("id", "key", "azureKey", "googleKey");
+                new ConfigurationService("id", "key", "azureKey", "googleKey", "ms");
         ZanataMTStartup app = new ZanataMTStartup(config);
-        app.onStartUp(null);
+        app.onStartUp(null, false);
     }
 }

@@ -15,8 +15,10 @@ import javax.xml.bind.JAXBException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
@@ -75,10 +77,8 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(
-            ConfigurationService configurationService) {
-        this.clientSubscriptionKey =
-                configurationService.getMsAPIKey();
+    public MicrosoftTranslatorBackend(@Credentials(TranslationProvider.Microsoft) String msAPIKey) {
+        this.clientSubscriptionKey = msAPIKey;
     }
 
     public void onInit(

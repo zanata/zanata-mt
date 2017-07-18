@@ -20,37 +20,42 @@
  */
 package org.zanata.mt.backend.google;
 
+import java.io.File;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+
+import org.zanata.mt.annotation.Credentials;
+import org.zanata.mt.annotation.DevMode;
+import org.zanata.mt.api.dto.LocaleCode;
+import org.zanata.mt.api.dto.TranslationProvider;
+import org.zanata.mt.backend.BackendLocaleCode;
+import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
+import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.service.TranslatorBackend;
+
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.zanata.mt.annotation.DevMode;
-import org.zanata.mt.api.dto.LocaleCode;
-import org.zanata.mt.backend.BackendLocaleCode;
-import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
-import org.zanata.mt.exception.ZanataMTException;
-import org.zanata.mt.model.AugmentedTranslation;
-import org.zanata.mt.service.ConfigurationService;
-import org.zanata.mt.service.TranslatorBackend;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class GoogleTranslatorBackend implements TranslatorBackend {
 
-    // Max length per request for Google service
+    // Max length per request for Google Cloud Translation API
     private final static int MAX_LENGTH = 5000;
 
     private Translate translate;
 
     /**
-     * Map from request locale to Google supported locale code
+     * Map from request locale to Google Cloud Translation API supported locale code
      *
      * https://cloud.google.com/translate/docs/languages
      */
@@ -61,9 +66,12 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
             );
 
     @Inject
-    public GoogleTranslatorBackend(ConfigurationService configurationService, @DevMode boolean isDevMode) {
-        if (!isDevMode && !configurationService.getGoogleADC().exists()) {
-            throw new ZanataMTException("google application default credential is not defined");
+    public GoogleTranslatorBackend(
+            @Credentials(TranslationProvider.Google) File googleCredential,
+            @DevMode boolean isDevMode) {
+        if (!isDevMode && !googleCredential.exists()) {
+            throw new ZanataMTException(
+                    "google application default credential is not defined");
         }
         translate = TranslateOptions.getDefaultInstance().getService();
     }
@@ -71,15 +79,15 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     @Override
     public AugmentedTranslation translate(String content,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType) throws ZanataMTException {
+            MediaType mediaType, Optional<String> category) throws ZanataMTException {
         return translate(Lists.newArrayList(content), srcLocale, targetLocale,
-                mediaType).get(0);
+                mediaType, category).get(0);
     }
 
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType) throws ZanataMTException {
+            MediaType mediaType, Optional<String> category) throws ZanataMTException {
         try {
             List<Translation> translations =
                     translate.translate(

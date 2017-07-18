@@ -24,6 +24,13 @@ import javax.ws.rs.core.StreamingOutput;
 })
 @ResourceLabel("Backend")
 public interface BackendResource {
+    String MS_ATTRIBUTION_IMAGE =
+            "/images/MS_attribution.png";
+    String GOOGLE_ATTRIBUTION_IMAGE =
+                    "/images/google_attribution.svg";
+    String DEV_ATTRIBUTION_IMAGE =
+                            "/images/logo-256.png";
+
     /**
      * Retrieve backend attribution (image) based on given id
      *

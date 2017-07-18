@@ -1,5 +1,7 @@
 package org.zanata.mt.api.service;
 
+import java.io.File;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.mt.api.service.impl.BackendResourceImpl;
@@ -37,7 +39,7 @@ public class BackendResourceTest {
                 .containsKeys("Content-Disposition");
         assertThat(
                 (String) response.getHeaders().getFirst("Content-Disposition"))
-                .contains(id);
+                .contains(new File(BackendResource.MS_ATTRIBUTION_IMAGE).getName());
     }
 
     @Test
@@ -50,7 +52,7 @@ public class BackendResourceTest {
                 .containsKeys("Content-Disposition");
         assertThat(
                 (String) response.getHeaders().getFirst("Content-Disposition"))
-                .contains(id);
+                .contains(new File(BackendResource.DEV_ATTRIBUTION_IMAGE).getName());
     }
 
     @Test

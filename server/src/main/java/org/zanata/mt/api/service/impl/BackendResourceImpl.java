@@ -12,6 +12,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 
@@ -23,12 +24,6 @@ public class BackendResourceImpl implements BackendResource {
 
     private static final Logger LOG =
             LoggerFactory.getLogger(BackendResourceImpl.class);
-
-    private static final String MS_ATTRIBUTION_IMAGE =
-            "/images/MS_attribution.png";
-
-    private static final String DEV_ATTRIBUTION_IMAGE =
-            "/images/DEV_attribution.png";
 
     @SuppressWarnings("unused")
     public BackendResourceImpl() {
@@ -44,7 +39,7 @@ public class BackendResourceImpl implements BackendResource {
 
         BackendID backendID = new BackendID(id.toUpperCase());
         String imageResource = getAttributionImageResource(backendID);
-        String docName = id + "-attribution.png";
+        String docName = new File(imageResource).getName();
 
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream is = classLoader.getResourceAsStream(imageResource);
@@ -60,6 +55,8 @@ public class BackendResourceImpl implements BackendResource {
             return MS_ATTRIBUTION_IMAGE;
         } else if (backendID.equals(BackendID.DEV)) {
             return DEV_ATTRIBUTION_IMAGE;
+        } else if (backendID.equals(BackendID.GOOGLE)) {
+            return GOOGLE_ATTRIBUTION_IMAGE;
         }
         return "";
     }
