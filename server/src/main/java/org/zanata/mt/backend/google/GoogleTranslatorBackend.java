@@ -88,6 +88,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional<String> category) throws ZanataMTException {
+        String format = MediaType.TEXT_HTML_TYPE.isCompatible(mediaType) ? "html" : "text";
         try {
             List<Translation> translations =
                     translate.translate(
@@ -96,7 +97,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                                     .sourceLanguage(srcLocale.getLocaleCode()),
                             Translate.TranslateOption
                                     .targetLanguage(
-                                            targetLocale.getLocaleCode()));
+                                            targetLocale.getLocaleCode()),
+                            Translate.TranslateOption.format(format));
             return translations.stream()
                     .map(translation -> new AugmentedTranslation(
                             translation.getTranslatedText(),

@@ -22,6 +22,7 @@ public class GoogleTranslatorBackendTest {
     public static void checkCredential() {
         String googleAppCredentials =
                 System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        Assume.assumeNotNull(googleAppCredentials);
         credentialFile = new File(googleAppCredentials);
         Assume.assumeTrue("google application credential file exists",
                 credentialFile.exists());
@@ -34,15 +35,26 @@ public class GoogleTranslatorBackendTest {
 
     @Test
     public void canTranslateViaGoogle() {
-        String googleAppCredentials =
-                System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
-        Assume.assumeTrue("google application credential file exists",
-                new File(googleAppCredentials).exists());
-        AugmentedTranslation result = translatorBackend.translate("hello",
+        AugmentedTranslation result = translatorBackend.translate(
+                "<div>hello<a href='http://nowhere.com'>world</a></div>",
                 new GoogleLocaleCode("en"), new GoogleLocaleCode("zh"),
                 MediaType.TEXT_PLAIN_TYPE, Optional.empty());
 
-        Assertions.assertThat(result.getPlainTranslation()).isEqualTo("你好");
+        Assertions.assertThat(result.getPlainTranslation())
+                .isEqualTo("<div>你好<a href='http://nowhere.com'>世界</a> </div>");
     }
+
+    @Test
+    public void canTranslatePlainText() {
+        AugmentedTranslation result = translatorBackend.translate(
+                "Why &amp; is a nuisance in source code",
+                new GoogleLocaleCode("en"), new GoogleLocaleCode("zh"),
+                MediaType.TEXT_PLAIN_TYPE, Optional.empty());
+
+        Assertions.assertThat(result.getPlainTranslation())
+                .isEqualTo("为什么＆amp;是源代码的滋扰");
+    }
+
+
 
 }
