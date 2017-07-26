@@ -91,13 +91,6 @@ public class DocumentDAOTest extends JPATest {
     }
 
     @Test
-    public void testGetOrCreateByUrl() {
-        Document doc = dao.getOrCreateByUrl("http://localhost3", fromLocale,
-                toLocale);
-        assertThat(doc).isNotNull();
-    }
-
-    @Test
     public void testGetUrlListAll() throws Exception {
         List<String> urls = dao.getUrlList(Optional.empty());
         assertThat(urls).hasSize(2);

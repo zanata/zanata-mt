@@ -124,11 +124,11 @@ public class PersistentTranslationServiceJPATest {
         MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(fromLocaleCode);
+                .thenReturn(Optional.of(fromLocaleCode));
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(toLocaleCode);
+                .thenReturn(Optional.of(toLocaleCode));
 
-        when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
+        when(msBackend.translate(sources, Optional.of(fromLocaleCode), toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"))).thenReturn(expectedTranslations);
 
         List<String> translations =
@@ -136,7 +136,7 @@ public class PersistentTranslationServiceJPATest {
                         toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
                         Optional.of("tech"));
 
-        verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
+        verify(msBackend).translate(sources, Optional.of(fromLocaleCode), toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -178,12 +178,12 @@ public class PersistentTranslationServiceJPATest {
         MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(fromLocaleCode);
+                .thenReturn(Optional.of(fromLocaleCode));
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(toLocaleCode);
+                .thenReturn(Optional.of(toLocaleCode));
 
         when(msBackend
-                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
+                .translate(sources.subList(0, 1), Optional.of(fromLocaleCode), toLocaleCode,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(expectedTranslations);
 
@@ -193,7 +193,7 @@ public class PersistentTranslationServiceJPATest {
                         Optional.of("tech"));
 
         verify(msBackend)
-                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
+                .translate(sources.subList(0, 1), Optional.of(fromLocaleCode), toLocaleCode,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO, times(2)).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -233,5 +233,10 @@ public class PersistentTranslationServiceJPATest {
 
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
+    }
+
+    @Test
+    public void testTranslationFromDifferentProvider() {
+
     }
 }

@@ -52,8 +52,8 @@ public class TextFlow extends ModelEntity {
     @NotNull
     private Long wordCount;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "textFlow",
-        fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "textFlowId", nullable = false)
     private List<TextFlowTarget> targets = new ArrayList<>();
 
     public TextFlow() {

@@ -37,6 +37,7 @@ import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.service.TranslatorBackend;
+import org.zanata.mt.util.DTOUtil;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
@@ -61,6 +62,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
      */
     private final ImmutableMap<LocaleCode, GoogleLocaleCode> LOCALE_MAP =
             ImmutableMap.of(
+                    LocaleCode.EN_US, new GoogleLocaleCode(LocaleCode.EN),
                     LocaleCode.ZH_HANS, new GoogleLocaleCode("zh-CN"),
                     LocaleCode.ZH_HANT, new GoogleLocaleCode("zh-TW")
             );
@@ -80,29 +82,32 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     public AugmentedTranslation translate(String content,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional<String> category) throws ZanataMTException {
-        return translate(Lists.newArrayList(content), srcLocale, targetLocale,
+        return translate(Lists.newArrayList(content), Optional.of(srcLocale), targetLocale,
                 mediaType, category).get(0);
     }
 
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
-            BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
+            Optional<BackendLocaleCode> srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional<String> category) throws ZanataMTException {
         String format = MediaType.TEXT_HTML_TYPE.isCompatible(mediaType) ? "html" : "text";
+        List<Translate.TranslateOption> options = Lists.newLinkedList();
+        options.add(Translate.TranslateOption
+                .targetLanguage(
+                        targetLocale.getLocaleCode()));
+        options.add(Translate.TranslateOption.format(format));
+        // google can detect source locale if omitted
+        srcLocale.ifPresent(l -> options.add(
+                Translate.TranslateOption.sourceLanguage(l.getLocaleCode())));
         try {
             List<Translation> translations =
                     translate.translate(
                             contents,
-                            Translate.TranslateOption
-                                    .sourceLanguage(srcLocale.getLocaleCode()),
-                            Translate.TranslateOption
-                                    .targetLanguage(
-                                            targetLocale.getLocaleCode()),
-                            Translate.TranslateOption.format(format));
+                            options.toArray(new Translate.TranslateOption[options.size()]));
             return translations.stream()
                     .map(translation -> new AugmentedTranslation(
                             translation.getTranslatedText(),
-                            translation.toString())).collect(
+                            DTOUtil.toJSON(translation))).collect(
                             Collectors.toList());
         } catch (Exception e) {
             throw new ZanataMTException(
@@ -111,8 +116,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
-        return LOCALE_MAP.get(localeCode);
+    public Optional<BackendLocaleCode> getMappedLocale(LocaleCode localeCode) {
+        return Optional.ofNullable(LOCALE_MAP.get(localeCode));
     }
 
     @Override

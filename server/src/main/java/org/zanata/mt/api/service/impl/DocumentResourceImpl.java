@@ -21,6 +21,7 @@ import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DateRange;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.service.ConfigurationService;
+import org.zanata.mt.service.DocumentService;
 import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
@@ -44,8 +45,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
     private LocaleDAO localeDAO;
 
-    private DocumentDAO documentDAO;
-
+    private DocumentService documentService;
     private DocumentProcessManager docProcessManager;
     private boolean isDevMode;
 
@@ -56,13 +56,13 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentDAO documentDAO,
+            LocaleDAO localeDAO, DocumentService documentService,
             DocumentProcessManager docProcessManager,
             @DevMode boolean isDevMode) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
-        this.documentDAO = documentDAO;
+        this.documentService = documentService;
         this.docProcessManager = docProcessManager;
         this.isDevMode = isDevMode;
     }
@@ -83,7 +83,7 @@ public class DocumentResourceImpl implements DocumentResource {
                 StringUtils.isBlank(dateRangeParam) ? Optional.empty() :
                         Optional.of(DateRange.from(dateRangeParam));
 
-        List<Document> documents = documentDAO
+        List<Document> documents = documentService
                 .getByUrl(url, Optional.ofNullable(fromLocaleCode),
                         Optional.ofNullable(toLocaleCode), dateParam);
 
@@ -110,11 +110,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translate(DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
-            @QueryParam("provider") TranslationProvider provider) {
-
-        // use dev backend if it's DEV mode
-        final BackendID backendID = isDevMode ? BackendID.DEV : provider.getBackendID();
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
 
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);
@@ -122,6 +118,9 @@ public class DocumentResourceImpl implements DocumentResource {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
         }
+
+        // use dev backend if it's DEV mode
+        final BackendID backendID = isDevMode ? BackendID.DEV : BackendID.fromValue(docContent.getBackendId());
 
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
@@ -142,14 +141,14 @@ public class DocumentResourceImpl implements DocumentResource {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
-            Document doc = documentDAO
+            Document doc = documentService
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale,
                             toLocale);
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID);
             doc.incrementCount();
-            documentDAO.persist(doc);
+            documentService.merge(doc);
             return Response.ok().entity(newDocContent).build();
         });
     }

@@ -28,7 +28,7 @@ public class TextFlowTarget extends ModelEntity {
 
     @NaturalId
     @ManyToOne(optional = false)
-    @JoinColumn(name = "textFlowId", nullable = false, updatable = false)
+    @JoinColumn(name = "textFlowId", nullable = false, updatable = false, insertable = false)
     @NotNull
     private TextFlow textFlow;
 
@@ -60,6 +60,7 @@ public class TextFlowTarget extends ModelEntity {
         this.locale = locale;
         this.backendId = backendID;
         this.textFlow = textFlow;
+        textFlow.getTargets().add(this);
     }
 
     public void updateContent(String content, String rawContent) {

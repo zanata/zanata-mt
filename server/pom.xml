@@ -114,8 +114,11 @@
                   <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
                   <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
                   <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
+                  <!-- this need to match the volume binding below -->
+                  <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/zanata-mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
                   <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
                   <ZANATA_MT_API_KEY>devKEY</ZANATA_MT_API_KEY>
+                  <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
                 </env>
                 <dependsOn>
                   <container>zanataMTDB</container>
@@ -133,6 +136,11 @@
                   <!-- this is to expose DB container's env variables with prefix DB -->
                   <link>zanataMTDB:db</link>
                 </links>
+                <volumes>
+                  <bind>
+                    ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/jboss/google/zanata-mt-credential.json
+                  </bind>
+                </volumes>
                 <namingStrategy>alias</namingStrategy>
               </run>
             </image>

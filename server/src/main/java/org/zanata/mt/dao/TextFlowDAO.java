@@ -3,6 +3,7 @@ package org.zanata.mt.dao;
 import java.util.List;
 import java.util.Optional;
 import javax.ejb.Stateless;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
 import org.zanata.mt.api.dto.LocaleCode;
@@ -13,7 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Stateless
+@RequestScoped
 public class TextFlowDAO extends AbstractDAO<TextFlow> {
     private static final long serialVersionUID = -4593105065135284822L;
 
@@ -22,7 +23,7 @@ public class TextFlowDAO extends AbstractDAO<TextFlow> {
     }
 
     @VisibleForTesting
-    TextFlowDAO(EntityManager entityManager) {
+    public TextFlowDAO(EntityManager entityManager) {
         setEntityManager(entityManager);
     }
 

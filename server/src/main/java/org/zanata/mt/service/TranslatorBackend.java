@@ -32,7 +32,7 @@ public interface TranslatorBackend {
      * @throws ZanataMTException
      */
     List<AugmentedTranslation> translate(List<String> contents,
-            BackendLocaleCode srcLocale,
+            Optional<BackendLocaleCode> srcLocale,
             BackendLocaleCode targetLocale, MediaType mediaType,
             Optional<String> category)
             throws ZanataMTException;
@@ -41,7 +41,7 @@ public interface TranslatorBackend {
      * Return mapped locale for the backend
      * @param localeCode
      */
-    BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode);
+    Optional<BackendLocaleCode> getMappedLocale(@NotNull LocaleCode localeCode);
 
     /**
      * @return

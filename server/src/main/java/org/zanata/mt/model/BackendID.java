@@ -3,6 +3,8 @@ package org.zanata.mt.model;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Strings;
+
 /**
  * Backend type
  *
@@ -48,5 +50,22 @@ public class BackendID implements Serializable {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public static BackendID fromValue(String backendId) {
+        if (Strings.isNullOrEmpty(backendId)) {
+            return null;
+        }
+        if (backendId.toLowerCase().startsWith("m")) {
+            return MS;
+        }
+        if (backendId.toLowerCase().startsWith("g")) {
+            return GOOGLE;
+        }
+        if (backendId.equalsIgnoreCase("dev")) {
+            return DEV;
+        }
+        throw new IllegalArgumentException(
+                "can not parse [" + backendId + "] to a translation provider");
     }
 }

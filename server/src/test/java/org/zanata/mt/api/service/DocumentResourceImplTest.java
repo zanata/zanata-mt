@@ -13,17 +13,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleCode;
-import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentResourceImpl;
-import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
-import org.zanata.mt.service.ConfigurationService;
+import org.zanata.mt.service.DocumentService;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +48,7 @@ public class DocumentResourceImplTest {
     private LocaleDAO localeDAO;
 
     @Mock
-    private DocumentDAO documentDAO;
+    private DocumentService documentService;
 
     private DocumentProcessManager docProcessLock =
             new DocumentProcessManager();
@@ -59,7 +57,7 @@ public class DocumentResourceImplTest {
     public void beforeTest() {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentDAO, docProcessLock,
+                        localeDAO, documentService, docProcessLock,
                         false);
         when(documentContentTranslatorService
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
@@ -100,7 +98,7 @@ public class DocumentResourceImplTest {
         expectedDocList.add(document1);
         expectedDocList.add(document2);
 
-        when(documentDAO.getByUrl(url, Optional.empty(), Optional.empty(),
+        when(documentService.getByUrl(url, Optional.empty(), Optional.empty(),
                 Optional.empty()))
                 .thenReturn(expectedDocList);
 
@@ -112,8 +110,6 @@ public class DocumentResourceImplTest {
         assertThat(docStats.getUrl()).isEqualTo(url);
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
-        verify(documentDAO).getByUrl(url, Optional.empty(), Optional.empty(),
-                Optional.empty());
     }
 
     @Test
@@ -130,7 +126,7 @@ public class DocumentResourceImplTest {
         document1.incrementCount();
         expectedDocList.add(document1);
 
-        when(documentDAO
+        when(documentService
                 .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty(),
                         Optional.empty()))
                 .thenReturn(expectedDocList);
@@ -143,7 +139,7 @@ public class DocumentResourceImplTest {
         assertThat(docStats.getUrl()).isEqualTo(url);
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
-        verify(documentDAO)
+        verify(documentService)
                 .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty(), Optional.empty());
     }
 
@@ -161,7 +157,7 @@ public class DocumentResourceImplTest {
         document1.incrementCount();
         expectedDocList.add(document1);
 
-        when(documentDAO
+        when(documentService
                 .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode),
                         Optional.empty()))
                 .thenReturn(expectedDocList);
@@ -174,7 +170,7 @@ public class DocumentResourceImplTest {
         assertThat(docStats.getUrl()).isEqualTo(url);
         assertThat(docStats.getRequestCounts().size())
                 .isEqualTo(expectedDocList.size());
-        verify(documentDAO)
+        verify(documentService)
                 .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode),
                         Optional.empty());
     }
@@ -184,7 +180,7 @@ public class DocumentResourceImplTest {
         DocumentContent docContent = new DocumentContent(null, null, null);
         // empty trans locale
         Response response = documentResource
-                .translate(docContent, null, Google);
+                .translate(docContent, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -193,21 +189,21 @@ public class DocumentResourceImplTest {
     public void testInvalidTranslateDocRequest() {
         // null docContent
         Response response =
-                documentResource.translate(null, null, Google);
+                documentResource.translate(null, null);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty fields
         DocumentContent documentContent = new DocumentContent(null, null, null);
         response = documentResource.translate(documentContent,
-                LocaleCode.DE, Google);
+                LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // docContent with no content
         documentContent = new DocumentContent(null, null, null);
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -216,7 +212,7 @@ public class DocumentResourceImplTest {
                 Lists.newArrayList(new TypeString("string", "text/plain", "meta")),
                 "http://localhost", null);
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -224,7 +220,7 @@ public class DocumentResourceImplTest {
         documentContent = new DocumentContent(Lists.newArrayList(new TypeString("test",
                 MediaType.TEXT_PLAIN, "meta")), null, "en");
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -234,7 +230,7 @@ public class DocumentResourceImplTest {
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -244,7 +240,7 @@ public class DocumentResourceImplTest {
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
@@ -254,7 +250,7 @@ public class DocumentResourceImplTest {
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
         response = documentResource
-                .translate(documentContent, LocaleCode.DE, Google);
+                .translate(documentContent, LocaleCode.DE);
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -270,7 +266,7 @@ public class DocumentResourceImplTest {
 
         Response response =
                 documentResource
-                        .translate(docContent, locale.getLocaleCode(), Google);
+                        .translate(docContent, locale.getLocaleCode());
 
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
@@ -314,6 +310,7 @@ public class DocumentResourceImplTest {
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost", "en");
+        docContent.setBackendId(BackendID.MS.getId());
         DocumentContent translatedDocContent =
                 new DocumentContent(translatedContents, "http://localhost",
                         toLocale.getLocaleCode().getId());
@@ -325,7 +322,7 @@ public class DocumentResourceImplTest {
                 .thenReturn(fromLocale);
         when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
                 .thenReturn(toLocale);
-        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
                 toLocale)).thenReturn(doc);
 
         when(documentContentTranslatorService
@@ -334,7 +331,7 @@ public class DocumentResourceImplTest {
 
         Response response =
                 documentResource
-                        .translate(docContent, toLocale.getLocaleCode(), Microsoft);
+                        .translate(docContent, toLocale.getLocaleCode());
 
         assertThat(response.getStatus())
                     .isEqualTo(Response.Status.OK.getStatusCode());
@@ -345,11 +342,14 @@ public class DocumentResourceImplTest {
                 .isEqualTo(toLocale.getLocaleCode().getId());
 
         verify(doc).incrementCount();
-        verify(documentDAO).persist(doc);
     }
 
     @Test
     public void testDevMode() {
+        documentResource =
+                new DocumentResourceImpl(documentContentTranslatorService,
+                        localeDAO, documentService, docProcessLock,
+                        true);
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
@@ -368,11 +368,11 @@ public class DocumentResourceImplTest {
                 .thenReturn(fromLocale);
         when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
                 .thenReturn(toLocale);
-        when(documentDAO.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
                 toLocale)).thenReturn(doc);
 
         documentResource
-                .translate(docContent, toLocale.getLocaleCode(), Dev);
+                .translate(docContent, toLocale.getLocaleCode());
         verify(documentContentTranslatorService)
                 .translateDocument(doc, docContent, BackendID.DEV);
     }

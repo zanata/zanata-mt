@@ -21,4 +21,4 @@ RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/zanata-mt-config.cli
 CMD $JBOSS_HOME/bin/standalone.sh -c  standalone.xml -b 0.0.0.0 --debug
 
 # copy war file
-ADD target/deployments/ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war
+COPY target/deployments/ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war

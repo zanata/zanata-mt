@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,7 +42,7 @@ import com.google.common.collect.Lists;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@ApplicationScoped
+@Stateless
 public class PersistentTranslationService {
     private static final Logger LOG =
         LoggerFactory.getLogger(PersistentTranslationService.class);
@@ -145,14 +146,18 @@ public class PersistentTranslationService {
 
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
-        BackendLocaleCode mappedFromLocaleCode =
+        Optional<BackendLocaleCode> mappedFromLocaleCode =
                 translatorBackend.getMappedLocale(fromLocale.getLocaleCode());
-        BackendLocaleCode mappedToLocaleCode =
+        Optional<BackendLocaleCode> mappedToLocaleCode =
                 translatorBackend.getMappedLocale(toLocale.getLocaleCode());
+
+        if (!mappedToLocaleCode.isPresent()) {
+            throw new BadRequestException("can not map " + toLocale + " to provider " + backendID + " locale");
+        }
 
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sources, mappedFromLocaleCode,
-                        mappedToLocaleCode, mediaType, category);
+                        mappedToLocaleCode.get(), mediaType, category);
 
         for (String source: sources) {
             Collection<Integer> indexes = untranslatedIndexMap.get(source);
@@ -215,11 +220,11 @@ public class PersistentTranslationService {
                     Optional<TextFlowTarget> tft =
                             filterTargetByProvider(tfts, backendID);
                     if (tft.isPresent()) {
-                        newTfCopy.getTargets()
-                                .add(new TextFlowTarget(tft.get().getContent(),
+                        TextFlowTarget textFlowTarget =
+                                new TextFlowTarget(tft.get().getContent(),
                                         tft.get().getRawContent(), newTfCopy,
                                         toLocale,
-                                        tft.get().getBackendId()));
+                                        tft.get().getBackendId());
                     }
                 }
                 newTfCopy = textFlowDAO.persist(newTfCopy);
@@ -248,15 +253,18 @@ public class PersistentTranslationService {
                 tf.getTargetsByLocaleCode(tft.getLocale().getLocaleCode());
         if (existingTfts.isEmpty()) {
             textFlowTargetDAO.persist(tft);
-            tf.getTargets().add(tft);
         } else {
             Optional<TextFlowTarget> existingTft =
                     filterTargetByProvider(existingTfts, tft.getBackendId());
-            if (existingTft.isPresent()) {
-                existingTft.get()
+            existingTft.ifPresent(textFlowTarget -> {
+                textFlowTarget
                         .updateContent(tft.getContent(), tft.getRawContent());
-                textFlowTargetDAO.persist(existingTft.get());
-            }
+                if (textFlowTarget.getId() == null) {
+                    textFlowTargetDAO.persist(textFlowTarget);
+                } else {
+                    textFlowTargetDAO.merge(textFlowTarget);
+                }
+            });
         }
     }
 

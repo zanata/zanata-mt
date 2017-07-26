@@ -29,12 +29,12 @@ public class MockTranslatorBackendTest {
     public void testGetMappedLocale() {
         LocaleCode localeCode = LocaleCode.ZH_HANS;
         BackendLocaleCode backendLocaleCode =
-                mockBackend.getMappedLocale(localeCode);
+                mockBackend.getMappedLocale(localeCode).get();
         assertThat(backendLocaleCode.getLocaleCode())
                 .isEqualTo(localeCode.getId());
 
         localeCode = LocaleCode.DE;
-        backendLocaleCode = mockBackend.getMappedLocale(localeCode);
+        backendLocaleCode = mockBackend.getMappedLocale(localeCode).get();
         assertThat(backendLocaleCode.getLocaleCode())
                 .isEqualTo(localeCode.getId());
     }
@@ -43,9 +43,9 @@ public class MockTranslatorBackendTest {
     public void testTranslate() {
         String content = "testing";
         BackendLocaleCode fromLocale =
-                mockBackend.getMappedLocale(LocaleCode.EN);
+                mockBackend.getMappedLocale(LocaleCode.EN).get();
         BackendLocaleCode toLocale =
-                mockBackend.getMappedLocale(LocaleCode.DE);
+                mockBackend.getMappedLocale(LocaleCode.DE).get();
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
         AugmentedTranslation translation =

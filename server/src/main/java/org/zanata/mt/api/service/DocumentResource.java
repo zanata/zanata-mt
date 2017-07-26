@@ -98,6 +98,5 @@ public interface DocumentResource {
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,
-            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
-            @QueryParam("provider") TranslationProvider provider);
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode);
 }

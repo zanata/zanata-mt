@@ -62,11 +62,11 @@ public class MicrosoftTranslatorBackendTest {
     public void testMappedLocale() {
         LocaleCode from = LocaleCode.ZH_HANS;
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
-        BackendLocaleCode to = msBackend.getMappedLocale(from);
+        BackendLocaleCode to = msBackend.getMappedLocale(from).get();
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
         from = LocaleCode.PT;
-        to = msBackend.getMappedLocale(from);
+        to = msBackend.getMappedLocale(from).get();
         assertThat(to.getLocaleCode()).isEqualTo(from.getId());
     }
 

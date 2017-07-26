@@ -3,6 +3,7 @@ package org.zanata.mt.dao;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
 import com.ibm.icu.util.ULocale;
@@ -14,7 +15,7 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Stateless
+@RequestScoped
 public class LocaleDAO extends AbstractDAO<Locale> {
     private static final long serialVersionUID = -1640472923498327999L;
 
@@ -35,7 +36,6 @@ public class LocaleDAO extends AbstractDAO<Locale> {
         return locales.isEmpty() ? null : locales.get(0);
     }
 
-    @TransactionAttribute
     public Locale getOrCreateByLocaleCode(LocaleCode localeCode) {
         Locale locale = getByLocaleCode(localeCode);
 

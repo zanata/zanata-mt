@@ -27,7 +27,6 @@ import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
-import org.zanata.mt.service.ConfigurationService;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
 
@@ -98,19 +97,20 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             BackendLocaleCode targetLocale, MediaType mediaType,
             Optional<String> category)
             throws ZanataMTException {
-        return translate(Lists.newArrayList(content), srcLocale, targetLocale,
+        return translate(Lists.newArrayList(content), Optional.of(srcLocale), targetLocale,
                 mediaType, category).get(0);
     }
 
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
-            BackendLocaleCode fromLocale,
+            Optional<BackendLocaleCode> fromLocale,
             BackendLocaleCode toLocale, MediaType mediaType,
             Optional<String> category)
             throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
-            req.setSrcLanguage(fromLocale.getLocaleCode());
+            // see getMappedLocale() we always return what's provided by the user
+            req.setSrcLanguage(fromLocale.get().getLocaleCode());
             req.setTransLanguage(toLocale.getLocaleCode());
             for (String content: contents) {
                 req.getTexts().add(new MSString(content));
@@ -135,9 +135,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
+    public Optional<BackendLocaleCode> getMappedLocale(@NotNull LocaleCode localeCode) {
         MSLocaleCode from = new MSLocaleCode(localeCode);
-        return LOCALE_MAP.getOrDefault(localeCode, from);
+        return Optional.of(LOCALE_MAP.getOrDefault(localeCode, from));
     }
 
     @Override
