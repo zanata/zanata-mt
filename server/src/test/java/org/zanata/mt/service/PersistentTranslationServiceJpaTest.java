@@ -26,7 +26,7 @@ import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
 import org.zanata.mt.model.TextFlowTarget;
 
-public class PersistentTranslationServiceRealJpaTest extends JPATest {
+public class PersistentTranslationServiceJpaTest extends JPATest {
     @Mock
     private MicrosoftTranslatorBackend msBackend;
     @Mock
