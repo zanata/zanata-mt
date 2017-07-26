@@ -220,11 +220,11 @@ public class PersistentTranslationService {
                     Optional<TextFlowTarget> tft =
                             filterTargetByProvider(tfts, backendID);
                     if (tft.isPresent()) {
-                        TextFlowTarget textFlowTarget =
-                                new TextFlowTarget(tft.get().getContent(),
+                        newTfCopy.getTargets()
+                                .add(new TextFlowTarget(tft.get().getContent(),
                                         tft.get().getRawContent(), newTfCopy,
                                         toLocale,
-                                        tft.get().getBackendId());
+                                        tft.get().getBackendId()));
                     }
                 }
                 newTfCopy = textFlowDAO.persist(newTfCopy);
@@ -253,18 +253,15 @@ public class PersistentTranslationService {
                 tf.getTargetsByLocaleCode(tft.getLocale().getLocaleCode());
         if (existingTfts.isEmpty()) {
             textFlowTargetDAO.persist(tft);
+            tf.getTargets().add(tft);
         } else {
             Optional<TextFlowTarget> existingTft =
                     filterTargetByProvider(existingTfts, tft.getBackendId());
-            existingTft.ifPresent(textFlowTarget -> {
-                textFlowTarget
+            if (existingTft.isPresent()) {
+                existingTft.get()
                         .updateContent(tft.getContent(), tft.getRawContent());
-                if (textFlowTarget.getId() == null) {
-                    textFlowTargetDAO.persist(textFlowTarget);
-                } else {
-                    textFlowTargetDAO.merge(textFlowTarget);
-                }
-            });
+                textFlowTargetDAO.persist(existingTft.get());
+            }
         }
     }
 
