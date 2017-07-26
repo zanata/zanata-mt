@@ -1,9 +1,25 @@
 package org.zanata.mt.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
+import static org.zanata.mt.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
+import static org.zanata.mt.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
+import static org.zanata.mt.model.BackendID.GOOGLE;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.inject.Instance;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,31 +29,19 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.google.GoogleTranslatorBackend;
 import org.zanata.mt.backend.mock.MockTranslatorBackend;
+import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.BackendID;
-import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 import org.zanata.mt.util.HashUtil;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.zanata.mt.api.APIConstant.AZURE_KEY;
-import static org.zanata.mt.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
-import static org.zanata.mt.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
+import com.google.common.collect.Lists;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -61,19 +65,17 @@ public class PersistentTranslationServiceTest {
             new MockTranslatorBackend();
 
     private PersistentTranslationService persistentTranslationService;
-
-    @BeforeClass
-    public static void beforeClass() {
-        String secret = "subscriptionKey";
-        System.setProperty(AZURE_KEY, secret);
-    }
+    @Mock private Instance<TranslatorBackend> translators;
 
     @Before
     public void setup() {
-        persistentTranslationService =
-                new PersistentTranslationService(textFlowDAO, textFlowTargetDAO,
-                        msBackend, googleTranslatorBackend,
-                        mockTranslatorBackend);
+        when(msBackend.getId()).thenReturn(BackendID.MS);
+        when(googleTranslatorBackend.getId()).thenReturn(GOOGLE);
+        when(translators.iterator())
+                .thenReturn(Lists.newArrayList(googleTranslatorBackend,
+                        mockTranslatorBackend, msBackend).iterator());
+        persistentTranslationService = new PersistentTranslationService(
+                textFlowDAO, textFlowTargetDAO, translators);
     }
 
     @Test
@@ -145,7 +147,8 @@ public class PersistentTranslationServiceTest {
         assertThat(translations.get(0))
                 .contains(source.get(0), PREFIX_MOCK_STRING,
                         UNICODE_SUPPLEMENTARY);
-        verifyZeroInteractions(msBackend);
+        verify(msBackend).getId();
+        verifyNoMoreInteractions(msBackend);
     }
 
     @Test

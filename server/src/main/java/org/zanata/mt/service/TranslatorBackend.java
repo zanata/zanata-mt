@@ -10,6 +10,7 @@ import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 
 /**
  * Interface for machine translation provider
@@ -49,4 +50,6 @@ public interface TranslatorBackend {
      *      if the length of over limit
      */
     int getCharLimitPerRequest();
+
+    BackendID getId();
 }

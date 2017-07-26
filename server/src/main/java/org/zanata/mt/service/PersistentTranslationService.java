@@ -11,11 +11,13 @@ import javax.annotation.Nonnull;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import com.google.cloud.translate.Translate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 
@@ -59,17 +61,15 @@ public class PersistentTranslationService {
 
     @Inject
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
-        TextFlowTargetDAO textFlowTargetDAO,
-            MicrosoftTranslatorBackend microsoftTranslatorBackend,
-            GoogleTranslatorBackend googleTranslatorBackend,
-            MockTranslatorBackend mockTranslatorBackend) {
+            TextFlowTargetDAO textFlowTargetDAO,
+            Instance<TranslatorBackend> translatorBackends) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
 
         Map<BackendID, TranslatorBackend> backendMap = new HashMap<>();
-        backendMap.put(BackendID.MS, microsoftTranslatorBackend);
-        backendMap.put(BackendID.GOOGLE, googleTranslatorBackend);
-        backendMap.put(BackendID.DEV, mockTranslatorBackend);
+        for (TranslatorBackend backend : translatorBackends) {
+            backendMap.put(backend.getId(), backend);
+        }
 
         translatorBackendMap = Collections.unmodifiableMap(backendMap);
     }

@@ -124,4 +124,9 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     public int getCharLimitPerRequest() {
         return MAX_LENGTH;
     }
+
+    @Override
+    public BackendID getId() {
+        return BackendID.GOOGLE;
+    }
 }

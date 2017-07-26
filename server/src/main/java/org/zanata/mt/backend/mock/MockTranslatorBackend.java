@@ -4,6 +4,7 @@ import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -70,6 +71,11 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public int getCharLimitPerRequest() {
         return MAX_LENGTH;
+    }
+
+    @Override
+    public BackendID getId() {
+        return BackendID.DEV;
     }
 
     public static class MockLocaleCode implements BackendLocaleCode {

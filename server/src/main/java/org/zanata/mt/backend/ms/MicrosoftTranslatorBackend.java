@@ -145,6 +145,11 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
         return MAX_LENGTH;
     }
 
+    @Override
+    public BackendID getId() {
+        return BackendID.MS;
+    }
+
     @VisibleForTesting
     protected void setApi(MicrosoftTranslatorClient api) {
         this.api = api;
