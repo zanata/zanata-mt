@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
-import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSString;
@@ -27,6 +26,7 @@ import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
 
@@ -76,7 +76,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(@Credentials(TranslationProvider.Microsoft) String msAPIKey) {
+    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey) {
         this.clientSubscriptionKey = msAPIKey;
     }
 

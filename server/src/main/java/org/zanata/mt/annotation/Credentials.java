@@ -26,7 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
-import org.zanata.mt.api.dto.TranslationProvider;
+import org.zanata.mt.model.BackendID;
 
 /**
  * Qualifier for translation service provider credentials
@@ -35,5 +35,5 @@ import org.zanata.mt.api.dto.TranslationProvider;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 public @interface Credentials {
-    TranslationProvider value();
+    BackendID value();
 }

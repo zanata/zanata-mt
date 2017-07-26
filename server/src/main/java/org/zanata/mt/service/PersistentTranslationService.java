@@ -261,6 +261,8 @@ public class PersistentTranslationService {
                 existingTft.get()
                         .updateContent(tft.getContent(), tft.getRawContent());
                 textFlowTargetDAO.persist(existingTft.get());
+            } else {
+                textFlowTargetDAO.persist(tft);
             }
         }
     }

@@ -31,11 +31,11 @@ import javax.ws.rs.core.MediaType;
 import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
-import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
 
@@ -69,7 +69,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 
     @Inject
     public GoogleTranslatorBackend(
-            @Credentials(TranslationProvider.Google) File googleCredential,
+            @Credentials(BackendID.GOOGLE) File googleCredential,
             @DevMode boolean isDevMode) {
         if (!isDevMode && !googleCredential.exists()) {
             throw new ZanataMTException(

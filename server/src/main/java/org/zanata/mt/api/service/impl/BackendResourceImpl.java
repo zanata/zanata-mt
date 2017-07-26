@@ -37,7 +37,7 @@ public class BackendResourceImpl implements BackendResource {
                     .entity(response.get()).build();
         }
 
-        BackendID backendID = new BackendID(id.toUpperCase());
+        BackendID backendID = BackendID.fromString(id);
         String imageResource = getAttributionImageResource(backendID);
         String docName = new File(imageResource).getName();
 

@@ -38,7 +38,7 @@ public class GoogleTranslatorBackendTest {
         AugmentedTranslation result = translatorBackend.translate(
                 "<div>hello<a href='http://nowhere.com'>world</a></div>",
                 new GoogleLocaleCode("en"), new GoogleLocaleCode("zh"),
-                MediaType.TEXT_PLAIN_TYPE, Optional.empty());
+                MediaType.TEXT_HTML_TYPE, Optional.empty());
 
         Assertions.assertThat(result.getPlainTranslation())
                 .isEqualTo("<div>你好<a href='http://nowhere.com'>世界</a> </div>");

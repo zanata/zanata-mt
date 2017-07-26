@@ -29,9 +29,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.zanata.mt.api.dto.TranslationProvider.Dev;
-import static org.zanata.mt.api.dto.TranslationProvider.Google;
-import static org.zanata.mt.api.dto.TranslationProvider.Microsoft;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>

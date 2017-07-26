@@ -1,7 +1,5 @@
 package org.zanata.mt.api;
 
-import org.zanata.mt.api.dto.TranslationProvider;
-
 /**
  * Environment variables and HTTP header fields used in application
  *

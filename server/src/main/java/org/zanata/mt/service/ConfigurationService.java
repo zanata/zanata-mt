@@ -1,3 +1,23 @@
+/*
+ * Copyright 2017, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.zanata.mt.service;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +28,7 @@ import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
-import org.zanata.mt.api.dto.TranslationProvider;
+import org.zanata.mt.model.BackendID;
 
 import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
@@ -42,7 +62,7 @@ public class ConfigurationService {
 
     private String id;
     private String apiKey;
-    private TranslationProvider defaultTranslationProvider;
+    private BackendID defaultTranslationProvider;
 
     @SuppressWarnings("unused")
     public ConfigurationService() {
@@ -59,7 +79,7 @@ public class ConfigurationService {
         this.msAPIKey = msAPIKey;
         this.googleADC = new File(googleADC);
         defaultTranslationProvider =
-                TranslationProvider.fromString(defaultProvider);
+                BackendID.fromString(defaultProvider);
 
         InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("build.properties");
@@ -91,12 +111,12 @@ public class ConfigurationService {
 
     @Produces
     @DefaultProvider
-    protected TranslationProvider getDefaultTranslationProvider(@DevMode boolean isDevMode) {
-        return isDevMode ? TranslationProvider.Dev : defaultTranslationProvider;
+    protected BackendID getDefaultTranslationProvider(@DevMode boolean isDevMode) {
+        return isDevMode ? BackendID.DEV : defaultTranslationProvider;
     }
 
     @Produces
-    @Credentials(TranslationProvider.Google)
+    @Credentials(BackendID.GOOGLE)
     protected File googleDefaultCredentialFile() {
         return googleADC;
     }
@@ -110,7 +130,7 @@ public class ConfigurationService {
     }
 
     @Produces
-    @Credentials(TranslationProvider.Microsoft)
+    @Credentials(BackendID.MS)
     protected String getMsAPIKey() {
         return msAPIKey;
     }

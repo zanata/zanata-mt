@@ -1,16 +1,14 @@
 package org.zanata.mt.model;
 
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.zanata.mt.model.type.BackendIdType;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
@@ -20,9 +18,6 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @Access(AccessType.FIELD)
-@TypeDefs({
-    @TypeDef(name = "backendIdType", typeClass = BackendIdType.class)
-})
 public class TextFlowTarget extends ModelEntity {
     private static final long serialVersionUID = -64231181018123191L;
 
@@ -45,8 +40,8 @@ public class TextFlowTarget extends ModelEntity {
     private String rawContent;
 
     @NaturalId
-    @Type(type = "backendIdType")
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private BackendID backendId;
 

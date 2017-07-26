@@ -8,10 +8,8 @@ import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleCode;
-import org.zanata.mt.api.dto.TranslationProvider;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentResource;
-import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
@@ -20,14 +18,12 @@ import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DateRange;
 import org.zanata.mt.service.DocumentContentTranslatorService;
-import org.zanata.mt.service.ConfigurationService;
 import org.zanata.mt.service.DocumentService;
 import org.zanata.mt.util.UrlUtil;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -120,7 +116,7 @@ public class DocumentResourceImpl implements DocumentResource {
         }
 
         // use dev backend if it's DEV mode
-        final BackendID backendID = isDevMode ? BackendID.DEV : BackendID.fromValue(docContent.getBackendId());
+        final BackendID backendID = isDevMode ? BackendID.DEV : BackendID.fromString(docContent.getBackendId());
 
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
