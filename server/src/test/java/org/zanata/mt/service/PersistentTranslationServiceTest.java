@@ -280,6 +280,8 @@ public class PersistentTranslationServiceTest {
 
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.of(expectedTf));
+        when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
+                .thenReturn(Optional.of(new MSLocaleCode(toLocale.getLocaleCode())));
 
         List<String> translations =
                 persistentTranslationService

@@ -1,9 +1,14 @@
 package org.zanata.mt.dao;
 
-import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Optional;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
+import org.zanata.mt.model.BackendID;
+import org.zanata.mt.model.Locale;
+import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -22,5 +27,17 @@ public class TextFlowTargetDAO extends AbstractDAO<TextFlowTarget> {
     @VisibleForTesting
     public TextFlowTargetDAO(EntityManager entityManager) {
         setEntityManager(entityManager);
+    }
+
+    public Optional<TextFlowTarget> findTarget(TextFlow textFlow, Locale locale,
+            BackendID backendID) {
+        List<TextFlowTarget> resultList = getEntityManager()
+                .createNamedQuery(TextFlowTarget.QUERY_FIND_BY_LOCALE_BACKEND,
+                        TextFlowTarget.class)
+                .setParameter("textFlow", textFlow)
+                .setParameter("locale", locale)
+                .setParameter("backendId", backendID).getResultList();
+        return resultList.isEmpty() ? Optional.empty()
+                : Optional.of(resultList.get(0));
     }
 }

@@ -1,7 +1,7 @@
 package org.zanata.mt.util;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ShortStrings are meant for use in logging. They don't incur the cost of
@@ -56,11 +56,9 @@ public class ShortString {
      * Truncate list of strings to be no longer than maxLength individually.
      */
     public static List<String> shorten(List<String> strings, int maxLength) {
-        List<String> shortStrings = new ArrayList(strings.size());
-        for (String s : strings) {
-            shortStrings.add(shorten(s, maxLength));
-        }
-        return shortStrings;
+        return strings.stream()
+                .map(s -> shorten(s, maxLength))
+                .collect(Collectors.toList());
     }
 
 }
