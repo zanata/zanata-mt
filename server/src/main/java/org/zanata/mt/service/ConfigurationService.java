@@ -20,7 +20,6 @@
  */
 package org.zanata.mt.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.annotation.Credentials;
@@ -39,6 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 import static org.zanata.mt.api.APIConstant.DEFAULT_PROVIDER;
 import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
@@ -57,7 +60,7 @@ public class ConfigurationService {
     private String version;
     private String buildDate;
     private String msAPIKey;
-    private File googleADC;
+    private File googleADCFile;
     private boolean isDevMode;
 
     private String id;
@@ -77,7 +80,7 @@ public class ConfigurationService {
         this.id = id;
         this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
-        this.googleADC = new File(googleADC);
+        this.googleADCFile = new File(googleADC);
         defaultTranslationProvider =
                 BackendID.fromString(defaultProvider);
 
@@ -88,11 +91,16 @@ public class ConfigurationService {
             properties.load(is);
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
-            isDevMode = StringUtils.isBlank(msAPIKey) &&
-                    StringUtils.isBlank(googleADC);
+            isDevMode = isBlank(msAPIKey) &&
+                    hasNoGoogleApplicationCredential(googleADC);
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
+    }
+
+    private boolean hasNoGoogleApplicationCredential(String googleADC) throws IOException {
+        return isBlank(googleADC) || Files.readLines(googleADCFile,
+                Charsets.UTF_8).isEmpty();
     }
 
     public String getVersion() {
@@ -118,7 +126,7 @@ public class ConfigurationService {
     @Produces
     @Credentials(BackendID.GOOGLE)
     protected File googleDefaultCredentialFile() {
-        return googleADC;
+        return googleADCFile;
     }
 
     public String getId() {
