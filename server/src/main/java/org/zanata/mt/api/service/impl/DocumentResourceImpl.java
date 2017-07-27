@@ -1,8 +1,18 @@
 package org.zanata.mt.api.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
@@ -21,13 +31,7 @@ import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.service.DocumentService;
 import org.zanata.mt.util.UrlUtil;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Optional;
+import static org.zanata.mt.model.BackendID.fromStringWithDefault;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -44,6 +48,7 @@ public class DocumentResourceImpl implements DocumentResource {
     private DocumentService documentService;
     private DocumentProcessManager docProcessManager;
     private boolean isDevMode;
+    private BackendID defaultProvider;
 
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
@@ -54,13 +59,15 @@ public class DocumentResourceImpl implements DocumentResource {
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentService documentService,
             DocumentProcessManager docProcessManager,
-            @DevMode boolean isDevMode) {
+            @DevMode boolean isDevMode,
+            @DefaultProvider BackendID defaultProvider) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentService = documentService;
         this.docProcessManager = docProcessManager;
         this.isDevMode = isDevMode;
+        this.defaultProvider = defaultProvider;
     }
 
     @Override
@@ -116,7 +123,9 @@ public class DocumentResourceImpl implements DocumentResource {
         }
 
         // use dev backend if it's DEV mode
-        final BackendID backendID = isDevMode ? BackendID.DEV : BackendID.fromString(docContent.getBackendId());
+        final BackendID backendID = isDevMode ? BackendID.DEV
+                : fromStringWithDefault(docContent.getBackendId(),
+                        defaultProvider);
 
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());

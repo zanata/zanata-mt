@@ -49,13 +49,14 @@ public class DocumentResourceImplTest {
 
     private DocumentProcessManager docProcessLock =
             new DocumentProcessManager();
+    private BackendID defaultProvider = BackendID.GOOGLE;
 
     @Before
     public void beforeTest() {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService, docProcessLock,
-                        false);
+                        false, defaultProvider);
         when(documentContentTranslatorService
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
@@ -312,8 +313,8 @@ public class DocumentResourceImplTest {
                 new DocumentContent(translatedContents, "http://localhost",
                         toLocale.getLocaleCode().getId());
 
-        org.zanata.mt.model.Document
-                doc = Mockito.mock(org.zanata.mt.model.Document.class);
+        Document
+                doc = Mockito.mock(Document.class);
 
         when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
                 .thenReturn(fromLocale);
@@ -346,7 +347,7 @@ public class DocumentResourceImplTest {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService, docProcessLock,
-                        true);
+                        true, BackendID.GOOGLE);
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
@@ -354,8 +355,8 @@ public class DocumentResourceImplTest {
                 new TypeString("<html><body>Entry 1</body></html>",
                         MediaType.TEXT_HTML, "meta1"));
 
-        org.zanata.mt.model.Document
-                doc = Mockito.mock(org.zanata.mt.model.Document.class);
+        Document
+                doc = Mockito.mock(Document.class);
 
         DocumentContent
                 docContent = new DocumentContent(contents, "http://localhost",
@@ -372,5 +373,34 @@ public class DocumentResourceImplTest {
                 .translate(docContent, toLocale.getLocaleCode());
         verify(documentContentTranslatorService)
                 .translateDocument(doc, docContent, BackendID.DEV);
+    }
+
+    @Test
+    public void testDefaultProvider() {
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html><body>Entry 1</body></html>",
+                        MediaType.TEXT_HTML, "meta1"));
+
+        Document
+                doc = Mockito.mock(Document.class);
+
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost",
+                fromLocale.getLocaleCode().getId());
+
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+                .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
+                .thenReturn(toLocale);
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocale)).thenReturn(doc);
+
+        documentResource
+                .translate(docContent, toLocale.getLocaleCode());
+        verify(documentContentTranslatorService)
+                .translateDocument(doc, docContent, defaultProvider);
     }
 }

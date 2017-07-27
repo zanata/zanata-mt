@@ -60,4 +60,9 @@ public enum  BackendID implements Serializable {
         throw new IllegalArgumentException(
                 "can not parse [" + value + "] to a BackendID");
     }
+
+    public static BackendID fromStringWithDefault(String value, BackendID defaultProvider) {
+        BackendID backendID = fromString(value);
+        return backendID == null ? defaultProvider : backendID;
+    }
 }
