@@ -7,17 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
-import com.google.cloud.translate.Translate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 
@@ -25,8 +22,6 @@ import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.backend.BackendLocaleCode;
-import org.zanata.mt.backend.google.GoogleTranslatorBackend;
-import org.zanata.mt.backend.mock.MockTranslatorBackend;
 import org.zanata.mt.dao.TextFlowDAO;
 import org.zanata.mt.dao.TextFlowTargetDAO;
 import org.zanata.mt.exception.ZanataMTException;
@@ -36,7 +31,6 @@ import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.TextFlow;
 import org.zanata.mt.model.TextFlowTarget;
 import org.zanata.mt.model.AugmentedTranslation;
-import org.zanata.mt.backend.ms.MicrosoftTranslatorBackend;
 import org.zanata.mt.util.HashUtil;
 
 import com.google.common.collect.Lists;
@@ -83,24 +77,27 @@ public class PersistentTranslationService {
      */
     @TransactionAttribute
     public List<String> translate(@NotNull Document document,
-            @NotNull List<String> strings,
+            @NotNull List<String> sourceStrings,
             @NotNull Locale fromLocale, @NotNull Locale toLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType,
             Optional<String> category)
             throws BadRequestException, ZanataMTException {
-        if (strings == null || strings.isEmpty() || fromLocale == null
+        if (sourceStrings == null || sourceStrings.isEmpty() || fromLocale == null
                 || toLocale == null || backendID == null) {
             throw new BadRequestException();
         }
 
-        List<String> results = new ArrayList<>(strings);
+        // get translator backend for MT engine search
+        TranslatorBackend translatorBackend = getTranslatorBackend(backendID);
+
+        List<String> results = new ArrayList<>(sourceStrings);
         Multimap<String, Integer> untranslatedIndexMap = ArrayListMultimap.create();
 
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
         // search from database
-        for (int index = 0; index < strings.size(); index++) {
-            String string = strings.get(index);
+        for (int index = 0; index < sourceStrings.size(); index++) {
+            String string = sourceStrings.get(index);
             String contentHash = HashUtil.generateHash(string);
             TextFlow matchedHashTf = document.getTextFlows().get(contentHash);
             if (matchedHashTf == null) {
@@ -108,10 +105,12 @@ public class PersistentTranslationService {
                         copyTextFlowAndTargetFromDB(document, fromLocale,
                                 toLocale, contentHash, backendID);
 
-                matchedHashTf = tfCopy.isPresent() ? tfCopy.get() : null;
+                matchedHashTf = tfCopy.orElse(null);
             }
 
             if (matchedHashTf != null) {
+                // we found a matching text flow in database
+                // now check to see if it's from the same provider
                 Optional<TextFlowTarget> matchedTarget = filterTargetByProvider(
                         matchedHashTf.getTargetsByLocaleCode(
                                 toLocale.getLocaleCode()), backendID);
@@ -132,7 +131,6 @@ public class PersistentTranslationService {
                 }
             } else {
                 untranslatedIndexMap.put(string, index);
-                indexTextFlowMap.put(index, null);
             }
         }
 
@@ -140,9 +138,6 @@ public class PersistentTranslationService {
         if (untranslatedIndexMap.isEmpty()) {
             return results;
         }
-
-        // trigger MT engine search
-        TranslatorBackend translatorBackend = getTranslatorBackend(backendID);
 
         List<String> sources = Lists.newArrayList(untranslatedIndexMap.keySet());
 
@@ -159,10 +154,11 @@ public class PersistentTranslationService {
                 translatorBackend.translate(sources, mappedFromLocaleCode,
                         mappedToLocaleCode.get(), mediaType, category);
 
-        for (String source: sources) {
+        for (int i = 0; i < sources.size(); i++) {
+            String source = sources.get(i);
             Collection<Integer> indexes = untranslatedIndexMap.get(source);
-            AugmentedTranslation translation = translations.get(sources.indexOf(source));
-            for (int index: indexes) {
+            AugmentedTranslation translation = translations.get(i);
+            for (int index : indexes) {
                 results.set(index, translation.getPlainTranslation());
             }
 
@@ -179,7 +175,7 @@ public class PersistentTranslationService {
         return results;
     }
 
-    public int getMaxLength(@NotNull BackendID backendID) {
+    int getMaxLength(@NotNull BackendID backendID) {
         return getTranslatorBackend(backendID).getCharLimitPerRequest();
     }
 
@@ -195,7 +191,7 @@ public class PersistentTranslationService {
     /**
      * Find matching contentHash and create a new copy of TextFlow and
      * TextFlowTarget if it is not from the same document. Otherwise, return the
-     * same copy.
+     * same copy or empty.
      *
      * TODO: refactor TextFlow to use pos to allow duplication of content
      */
