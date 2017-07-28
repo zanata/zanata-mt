@@ -144,8 +144,8 @@
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-translate</artifactId>
         <!-- TODO pahuang update once google releases new version -->
-        <!--<version>${google-cloud-translate.version}</version>-->
-        <version>0.20.4-alpha-SNAPSHOT</version>
+        <version>${google-cloud-translate.version}</version>
+        <!--<version>0.20.4-alpha-SNAPSHOT</version>-->
       </dependency>
 
       <dependency>

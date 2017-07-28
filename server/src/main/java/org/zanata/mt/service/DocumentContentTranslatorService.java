@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -72,9 +73,8 @@ public class DocumentContentTranslatorService {
     public DocumentContent translateDocument(Document doc,
             DocumentContent documentContent, BackendID backendID)
             throws BadRequestException, ZanataMTException {
-
-        LinkedHashMap<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
-        LinkedHashMap<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
+        Map<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
+        Map<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         int maxLength = persistentTranslationService.getMaxLength(backendID);
 
         List<APIResponse> warnings = Lists.newArrayList();
@@ -189,17 +189,17 @@ public class DocumentContentTranslatorService {
      */
     private void translateAndMergeStringsInBatch(Document doc, BackendID backendID,
             MediaType mediaType, int maxLength,
-            LinkedHashMap<Integer, TypeString> indexTypeStringMap,
+            Map<Integer, TypeString> indexTypeStringMap,
             List<TypeString> results) {
         List<String> batchedStrings = Lists.newArrayList();
         List<Integer> indexOrderList = Lists.newArrayList();
         Map<Integer, TranslatableHTMLNode> htmlNodeCache = new HashMap<>();
 
         int charCount = 0;
-        Iterator iter = indexTypeStringMap.entrySet().iterator();
+        Iterator<Map.Entry<Integer, TypeString>> iter =
+                indexTypeStringMap.entrySet().iterator();
         while (iter.hasNext()) {
-            Map.Entry<Integer, TypeString> entry =
-                    (Map.Entry<Integer, TypeString>) iter.next();
+            Map.Entry<Integer, TypeString> entry = iter.next();
             String stringToTranslate = entry.getValue().getValue();
             if (mediaType == MediaType.TEXT_HTML_TYPE) {
                 int index = entry.getKey();

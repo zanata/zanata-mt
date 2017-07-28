@@ -61,8 +61,8 @@ public class DocumentService {
     }
 
     @TransactionAttribute
-    // TODO should not expose this method
-    public void merge(Document doc) {
-        documentDAO.merge(doc);
+    public Document incrementDocRequestCount(Document doc) {
+        doc.incrementCount();
+        return documentDAO.merge(doc);
     }
 }

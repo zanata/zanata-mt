@@ -339,7 +339,7 @@ public class DocumentResourceImplTest {
         assertThat(returnedDocContent.getLocaleCode())
                 .isEqualTo(toLocale.getLocaleCode().getId());
 
-        verify(doc).incrementCount();
+        verify(documentService).incrementDocRequestCount(doc);
     }
 
     @Test

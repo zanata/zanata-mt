@@ -306,24 +306,6 @@ public class PersistentTranslationService {
         } else {
             textFlowTargetDAO.persist(tft);
         }
-
-
-//        List<TextFlowTarget> existingTfts =
-//                tf.getTargetsByLocaleCode(tft.getLocale().getLocaleCode());
-//        if (existingTfts.isEmpty()) {
-//            textFlowTargetDAO.persist(tft);
-//            tf.getTargets().add(tft);
-//        } else {
-//            Optional<TextFlowTarget> existingTft =
-//                    filterTargetByProvider(existingTfts, tft.getBackendId());
-//            if (existingTft.isPresent()) {
-//                existingTft.get()
-//                        .updateContent(tft.getContent(), tft.getRawContent());
-//                textFlowTargetDAO.persist(existingTft.get());
-//            } else {
-//                textFlowTargetDAO.persist(tft);
-//            }
-//        }
     }
 
     private static Optional<TextFlowTarget> findTargetByLocaleAndProvider(

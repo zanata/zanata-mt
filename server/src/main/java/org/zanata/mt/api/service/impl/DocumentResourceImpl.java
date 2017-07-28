@@ -149,11 +149,10 @@ public class DocumentResourceImpl implements DocumentResource {
             Document doc = documentService
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale,
                             toLocale);
+            documentService.incrementDocRequestCount(doc);
 
             DocumentContent newDocContent = documentContentTranslatorService
                     .translateDocument(doc, docContent, backendID);
-            doc.incrementCount();
-            documentService.merge(doc);
             return Response.ok().entity(newDocContent).build();
         });
     }

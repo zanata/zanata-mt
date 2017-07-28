@@ -95,7 +95,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
         options.add(Translate.TranslateOption
                 .targetLanguage(
                         targetLocale.getLocaleCode()));
-        options.add(Translate.TranslateOption.format(format));
+        // TODO need to wait until google release new version
+//        options.add(Translate.TranslateOption.format(format));
         // google can detect source locale if omitted
         srcLocale.ifPresent(l -> options.add(
                 Translate.TranslateOption.sourceLanguage(l.getLocaleCode())));
