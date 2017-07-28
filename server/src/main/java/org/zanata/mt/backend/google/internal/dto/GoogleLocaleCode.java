@@ -28,9 +28,9 @@ public class GoogleLocaleCode implements BackendLocaleCode {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof MSLocaleCode)) return false;
+        if (!(o instanceof GoogleLocaleCode)) return false;
 
-        MSLocaleCode that = (MSLocaleCode) o;
+        GoogleLocaleCode that = (GoogleLocaleCode) o;
 
         return getLocaleCode() != null ?
                 getLocaleCode().equals(that.getLocaleCode()) :
