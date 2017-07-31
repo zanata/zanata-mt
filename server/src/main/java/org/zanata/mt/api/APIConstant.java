@@ -19,6 +19,13 @@ public interface APIConstant {
 
     // AZURE Subscription key for MS backend
     String AZURE_KEY = "ZANATA_MT_AZURE_KEY";
+
+    /**
+     * Google Application Default Credentials content for google backend.
+     * The content of this environment variable will override the content of the
+     * file defined by {@link org.zanata.mt.api.APIConstant#GOOGLE_ADC}.
+     */
+    String GOOGLE_CREDENTIAL_CONTENT = "MT_GOOGLE_CREDENTIAL_CONTENT";
     /**
      * Google Application Default Credentials for google backend.
      * Should point to a file that defines the credentials.

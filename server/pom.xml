@@ -114,6 +114,7 @@
                   <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
                   <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
                   <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
+                  <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
                   <!-- this need to match the volume binding below -->
                   <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/zanata-mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
                   <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>

@@ -20,6 +20,22 @@
  */
 package org.zanata.mt.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.zanata.mt.api.APIConstant.AZURE_KEY;
+import static org.zanata.mt.api.APIConstant.DEFAULT_PROVIDER;
+import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
+import static org.zanata.mt.api.APIConstant.GOOGLE_CREDENTIAL_CONTENT;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import javax.ejb.Startup;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.annotation.Credentials;
@@ -29,26 +45,14 @@ import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.model.BackendID;
 
-import javax.ejb.Startup;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.zanata.mt.api.APIConstant.AZURE_KEY;
-import static org.zanata.mt.api.APIConstant.DEFAULT_PROVIDER;
-import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
-
 /**
- * This service will startup in eager loading in application.
- * It is used to cache build information from build.properties
+ * This service will startup in eager loading in application. It is used to
+ * cache build information from build.properties
+ *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationScoped
@@ -76,31 +80,57 @@ public class ConfigurationService {
             @EnvVariable(APIConstant.API_KEY) String apiKey,
             @EnvVariable(AZURE_KEY) String msAPIKey,
             @EnvVariable(GOOGLE_ADC) String googleADC,
+            @EnvVariable(GOOGLE_CREDENTIAL_CONTENT) String googleADCContent,
             @EnvVariable(DEFAULT_PROVIDER) String defaultProvider) {
         this.id = id;
         this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
         this.googleADCFile = new File(googleADC);
-        defaultTranslationProvider =
-                BackendID.fromString(defaultProvider);
 
-        InputStream is = getClass().getClassLoader()
-                .getResourceAsStream("build.properties");
+        defaultTranslationProvider = BackendID.fromString(defaultProvider);
+
+        if (!isBlank(googleADCContent)) {
+            writeGoogleADCFile(googleADCFile, googleADCContent);
+        }
+
+        isDevMode = isBlank(msAPIKey) && hasNoGoogleApplicationCredential();
+
         Properties properties = new Properties();
-        try {
+        try (InputStream is = getClass().getClassLoader()
+                .getResourceAsStream("build.properties")) {
             properties.load(is);
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
-            isDevMode = isBlank(msAPIKey) &&
-                    hasNoGoogleApplicationCredential(googleADC);
+
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
     }
 
-    private boolean hasNoGoogleApplicationCredential(String googleADC) throws IOException {
-        return isBlank(googleADC) || Files.readLines(googleADCFile,
-                Charsets.UTF_8).isEmpty();
+    private static void writeGoogleADCFile(File googleADCFile,
+            String googleADCContent) {
+        Preconditions.checkArgument(
+                googleADCFile.exists() && googleADCFile.isFile()
+                        && googleADCFile.canRead(),
+                "%s is not a valid file path", googleADCFile);
+
+        googleADCFile.getParentFile().mkdirs();
+        try {
+            Files.write(googleADCContent, googleADCFile, Charsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "failed to write Google Application Default Credentials file to "
+                            + googleADCFile);
+        }
+    }
+
+    private boolean hasNoGoogleApplicationCredential() {
+        try {
+            return Files.readLines(googleADCFile, Charsets.UTF_8).isEmpty();
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "can not read Google Application Default Credentials file");
+        }
     }
 
     public String getVersion() {
@@ -119,7 +149,8 @@ public class ConfigurationService {
 
     @Produces
     @DefaultProvider
-    protected BackendID getDefaultTranslationProvider(@DevMode boolean isDevMode) {
+    protected BackendID
+            getDefaultTranslationProvider(@DevMode boolean isDevMode) {
         return isDevMode ? BackendID.DEV : defaultTranslationProvider;
     }
 

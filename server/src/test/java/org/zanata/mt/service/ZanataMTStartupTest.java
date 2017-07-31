@@ -1,6 +1,11 @@
 package org.zanata.mt.service;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.zanata.mt.exception.ZanataMTException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -10,6 +15,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class ZanataMTStartupTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void testEmptyCredentials() {
@@ -20,9 +27,10 @@ public class ZanataMTStartupTest {
     }
 
     @Test
-    public void testOnStartup() {
+    public void testOnStartup() throws IOException {
+        File googleADC = temporaryFolder.newFile();
         ConfigurationService config =
-                new ConfigurationService("id", "key", "azureKey", "googleKey", "ms");
+                new ConfigurationService("id", "key", "azureKey", googleADC.getAbsolutePath(), "{}", "ms");
         ZanataMTStartup app = new ZanataMTStartup(config);
         app.onStartUp(null, false);
     }
