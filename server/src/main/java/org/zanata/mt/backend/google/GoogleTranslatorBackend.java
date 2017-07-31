@@ -68,11 +68,13 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                     LocaleCode.ZH_HANS, new GoogleLocaleCode("zh-CN"),
                     LocaleCode.ZH_HANT, new GoogleLocaleCode("zh-TW")
             );
+    private DTOUtil dtoUtil;
 
     @Inject
     public GoogleTranslatorBackend(
             @Credentials(BackendID.GOOGLE) File googleCredential,
-            @DevMode boolean isDevMode) {
+            @DevMode boolean isDevMode, DTOUtil dtoUtil) {
+        this.dtoUtil = dtoUtil;
         if (!isDevMode && !googleCredential.exists()) {
             throw new ZanataMTException(
                     "google application default credential is not defined");
@@ -82,8 +84,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 
     @VisibleForTesting
     protected GoogleTranslatorBackend(Translate translate, File googleCredential,
-            boolean isDevMode) {
-        this(googleCredential, isDevMode);
+            boolean isDevMode, DTOUtil dtoUtil) {
+        this(googleCredential, isDevMode, dtoUtil);
         this.translate = translate;
     }
 
@@ -109,7 +111,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
             return translations.stream()
                     .map(translation -> new AugmentedTranslation(
                             translation.getTranslatedText(),
-                            DTOUtil.toJSON(translation))).collect(
+                            dtoUtil.toJSON(translation))).collect(
                             Collectors.toList());
         } catch (Exception e) {
             throw new ZanataMTException(

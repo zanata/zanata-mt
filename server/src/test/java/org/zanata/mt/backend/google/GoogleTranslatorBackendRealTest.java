@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.util.DTOUtil;
 
 import com.google.common.collect.Lists;
 
@@ -38,7 +39,7 @@ public class GoogleTranslatorBackendRealTest {
 
     @Before
     public void setUp() {
-        translatorBackend = new GoogleTranslatorBackend(credentialFile, false);
+        translatorBackend = new GoogleTranslatorBackend(credentialFile, false, new DTOUtil());
     }
 
     @Test

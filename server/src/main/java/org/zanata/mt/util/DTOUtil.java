@@ -4,6 +4,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -16,16 +17,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-// TODO turn this into a CDI bean so that it can be mocked in test
-public final class DTOUtil {
+@ApplicationScoped
+public class DTOUtil {
     private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);
 
-    @SuppressWarnings("unused")
-    private DTOUtil() {
-    }
-
     @SuppressWarnings({ "unchecked" })
-    public static <T> String toXML(T obj) {
+    public <T> String toXML(T obj) {
         try {
             JAXBContext jc = JAXBContext.newInstance(obj.getClass());
             Marshaller m = jc.createMarshaller();
@@ -52,7 +49,7 @@ public final class DTOUtil {
         }
     }
 
-    public static <T> T toObject(String xml, Class<T> clazz)
+    public <T> T toObject(String xml, Class<T> clazz)
             throws JAXBException {
         JAXBContext jc = JAXBContext.newInstance(clazz);
         Unmarshaller um = jc.createUnmarshaller();
@@ -62,7 +59,7 @@ public final class DTOUtil {
         return elem.getValue();
     }
 
-    public static String toJSON(Object obj) {
+    public String toJSON(Object obj) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(obj);

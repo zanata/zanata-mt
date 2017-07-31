@@ -23,6 +23,7 @@ import org.zanata.mt.backend.google.internal.dto.GoogleLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
 import org.zanata.mt.model.BackendID;
+import org.zanata.mt.util.DTOUtil;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.Translation;
@@ -32,34 +33,25 @@ public class GoogleTranslatorBackendTest {
     private Translate translate;
     private File credentialFile = new File(System.getProperty("user.home"));
     private GoogleTranslatorBackend backend;
-    private static Translation translation;
-
-    @BeforeClass
-    public static void createGoogleTranslationResult()
-            throws IllegalAccessException, InvocationTargetException,
-            InstantiationException {
-        // TODO once we migrate DTOUtil into a CDI bean, we should get rid of this hack
-        Constructor<?>[] constructors =
-                Translation.class.getDeclaredConstructors();
-        // there is only one private constructor
-        Constructor<?> constructor = constructors[0];
-        constructor.setAccessible(true);
-        translation =
-                (Translation) constructor.newInstance("hola", "en", "nmt");
-    }
+    @Mock
+    private DTOUtil dtoUtil;
+    @Mock
+    private Translation translation;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         // by default backend is created with dev mode false and a fake existing
         // credential file
-        backend = new GoogleTranslatorBackend(translate, credentialFile, false);
+        backend = new GoogleTranslatorBackend(translate, credentialFile, false, dtoUtil);
+        when(dtoUtil.toJSON(translate)).thenReturn("{}");
+        when(translation.getTranslatedText()).thenReturn("你好");
     }
 
     @Test
     public void canNotCreateIfCredentialFileDoesNotExist() {
         assertThatThrownBy(() -> new GoogleTranslatorBackend(translate,
-                new File("not-exist-file"), false))
+                new File("not-exist-file"), false, dtoUtil))
                         .isInstanceOf(ZanataMTException.class).hasMessage(
                                 "google application default credential is not defined");
     }
@@ -67,7 +59,7 @@ public class GoogleTranslatorBackendTest {
     @Test
     public void canCreateIfDevModeIsTrueEvenCredentialFileDoesNotExist() {
         GoogleTranslatorBackend backend = new GoogleTranslatorBackend(translate,
-                new File("not-exist-file"), true);
+                new File("not-exist-file"), true, dtoUtil);
         assertThat(backend.getId()).isEqualTo(BackendID.GOOGLE);
     }
 

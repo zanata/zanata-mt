@@ -62,6 +62,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             );
 
     private String clientSubscriptionKey;
+    private DTOUtil dtoUtil;
 
     private MicrosoftTranslatorClient api;
 
@@ -73,8 +74,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey) {
+    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey, DTOUtil dtoUtil) {
         this.clientSubscriptionKey = msAPIKey;
+        this.dtoUtil = dtoUtil;
     }
 
     public void onInit(
@@ -85,7 +87,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             throw new ZanataMTException(
                     "Missing system properties of " + AZURE_KEY);
         }
-        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
+        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient, dtoUtil);
     }
 
     @Override
@@ -110,10 +112,10 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
             String rawResponse = api.requestTranslations(req);
             MSTranslateArrayResp resp =
-                    DTOUtil.toObject(rawResponse, MSTranslateArrayResp.class);
+                    dtoUtil.toObject(rawResponse, MSTranslateArrayResp.class);
             return resp.getResponse().stream().map(
                     res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
-                            DTOUtil.toXML(res)))
+                            dtoUtil.toXML(res)))
                     .collect(Collectors.toList());
         } catch (JAXBException e) {
             throw new ZanataMTException("Unable to get translations from MS API", e);
