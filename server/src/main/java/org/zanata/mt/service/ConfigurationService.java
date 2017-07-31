@@ -29,6 +29,7 @@ import static org.zanata.mt.api.APIConstant.GOOGLE_CREDENTIAL_CONTENT;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Properties;
 
 import javax.ejb.Startup;
@@ -47,7 +48,7 @@ import org.zanata.mt.model.BackendID;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.io.Files;
+import com.google.common.collect.Lists;
 
 /**
  * This service will startup in eager loading in application. It is used to
@@ -114,9 +115,11 @@ public class ConfigurationService {
                         && googleADCFile.canRead(),
                 "%s is not a valid file path", googleADCFile);
 
-        googleADCFile.getParentFile().mkdirs();
+        boolean mkdirs = googleADCFile.getParentFile().mkdirs();
+        LOG.info("{} parent dir created: {}", googleADCFile, mkdirs);
         try {
-            Files.write(googleADCContent, googleADCFile, Charsets.UTF_8);
+
+            Files.write(googleADCFile.toPath(), Lists.newArrayList(googleADCContent));
         } catch (IOException e) {
             throw new RuntimeException(
                     "failed to write Google Application Default Credentials file to "
@@ -126,7 +129,7 @@ public class ConfigurationService {
 
     private boolean hasNoGoogleApplicationCredential() {
         try {
-            return Files.readLines(googleADCFile, Charsets.UTF_8).isEmpty();
+            return Files.readAllLines(googleADCFile.toPath(), Charsets.UTF_8).isEmpty();
         } catch (IOException e) {
             throw new RuntimeException(
                     "can not read Google Application Default Credentials file");
