@@ -38,8 +38,16 @@ import org.zanata.mt.model.Locale;
  */
 @Stateless
 public class DocumentService {
-    @Inject
     private DocumentDAO documentDAO;
+
+    @Inject
+    public DocumentService(DocumentDAO documentDAO) {
+        this.documentDAO = documentDAO;
+    }
+
+    @SuppressWarnings("unused")
+    public DocumentService() {
+    }
 
     @TransactionAttribute
     public Document getOrCreateByUrl(String url, Locale fromLocale, Locale toLocale) {

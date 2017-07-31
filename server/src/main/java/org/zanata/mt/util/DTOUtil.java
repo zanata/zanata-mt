@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+// TODO turn this into a CDI bean so that it can be mocked in test
 public final class DTOUtil {
     private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);
 

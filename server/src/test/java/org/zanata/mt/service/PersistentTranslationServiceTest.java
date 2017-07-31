@@ -180,11 +180,11 @@ public class PersistentTranslationServiceTest {
         MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(Optional.of(fromLocaleCode));
+                .thenReturn(fromLocaleCode);
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(Optional.of(toLocaleCode));
+                .thenReturn(toLocaleCode);
 
-        when(msBackend.translate(sources, Optional.of(fromLocaleCode), toLocaleCode,
+        when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"))).thenReturn(expectedTranslations);
 
         List<String> translations =
@@ -192,7 +192,7 @@ public class PersistentTranslationServiceTest {
                         toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
                         Optional.of("tech"));
 
-        verify(msBackend).translate(sources, Optional.of(fromLocaleCode), toLocaleCode,
+        verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -234,12 +234,12 @@ public class PersistentTranslationServiceTest {
         MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(Optional.of(fromLocaleCode));
+                .thenReturn(fromLocaleCode);
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(Optional.of(toLocaleCode));
+                .thenReturn(toLocaleCode);
 
         when(msBackend
-                .translate(sources.subList(0, 1), Optional.of(fromLocaleCode), toLocaleCode,
+                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
                 .thenReturn(expectedTranslations);
 
@@ -249,7 +249,7 @@ public class PersistentTranslationServiceTest {
                         Optional.of("tech"));
 
         verify(msBackend)
-                .translate(sources.subList(0, 1), Optional.of(fromLocaleCode), toLocaleCode,
+                .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
         verify(textFlowDAO, times(2)).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
@@ -281,7 +281,7 @@ public class PersistentTranslationServiceTest {
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.of(expectedTf));
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(Optional.of(new MSLocaleCode(toLocale.getLocaleCode())));
+                .thenReturn(new MSLocaleCode(toLocale.getLocaleCode()));
 
         List<String> translations =
                 persistentTranslationService

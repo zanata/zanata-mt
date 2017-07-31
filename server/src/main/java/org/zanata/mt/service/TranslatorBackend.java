@@ -20,20 +20,11 @@ import org.zanata.mt.model.BackendID;
 public interface TranslatorBackend {
 
     /**
-     * Return translation from MT provider
-     * @throws ZanataMTException
-     */
-    AugmentedTranslation translate(String content, BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType,
-            Optional<String> category)
-            throws ZanataMTException;
-
-    /**
      * Return translations (same index as request) from MT provider
      * @throws ZanataMTException
      */
     List<AugmentedTranslation> translate(List<String> contents,
-            Optional<BackendLocaleCode> srcLocale,
+            BackendLocaleCode srcLocale,
             BackendLocaleCode targetLocale, MediaType mediaType,
             Optional<String> category)
             throws ZanataMTException;
@@ -42,7 +33,7 @@ public interface TranslatorBackend {
      * Return mapped locale for the backend
      * @param localeCode
      */
-    Optional<BackendLocaleCode> getMappedLocale(@NotNull LocaleCode localeCode);
+    BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode);
 
     /**
      * @return

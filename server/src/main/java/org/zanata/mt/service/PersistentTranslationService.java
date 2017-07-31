@@ -112,14 +112,10 @@ public class PersistentTranslationService {
         // get translator backend for MT engine by requested backend id
         TranslatorBackend translatorBackend = getTranslatorBackend(backendID);
 
-        Optional<BackendLocaleCode> mappedFromLocaleCode =
+        BackendLocaleCode mappedFromLocaleCode =
                 translatorBackend.getMappedLocale(fromLocale.getLocaleCode());
-        Optional<BackendLocaleCode> mappedToLocaleCode =
+        BackendLocaleCode mappedToLocaleCode =
                 translatorBackend.getMappedLocale(toLocale.getLocaleCode());
-
-        if (!mappedToLocaleCode.isPresent()) {
-            throw new BadRequestException("can not map " + toLocale + " to provider " + backendID + " locale");
-        }
 
         List<String> results = new ArrayList<>(sourceStrings);
         Multimap<String, Integer> untranslatedIndexMap = ArrayListMultimap.create();
@@ -171,7 +167,7 @@ public class PersistentTranslationService {
         List<String> sourcesToTranslate = Lists.newArrayList(untranslatedIndexMap.keySet());
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,
-                        mappedToLocaleCode.get(), mediaType, category);
+                        mappedToLocaleCode, mediaType, category);
 
         for (int i = 0; i < sourcesToTranslate.size(); i++) {
             String source = sourcesToTranslate.get(i);

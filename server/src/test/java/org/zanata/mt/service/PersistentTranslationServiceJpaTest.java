@@ -12,7 +12,6 @@ import java.util.Optional;
 import javax.enterprise.inject.Instance;
 import javax.ws.rs.core.MediaType;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -79,10 +78,10 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
                 new MockTranslatorBackend.MockLocaleCode(
                         toLocale.getLocaleCode());
         when(devBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(Optional.of(devFromLocale));
+                .thenReturn(devFromLocale);
         when(devBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(Optional.of(devToLocale));
-        when(devBackend.translate(sourceString, Optional.of(devFromLocale),
+                .thenReturn(devToLocale);
+        when(devBackend.translate(sourceString, devFromLocale,
                 devToLocale, mediaType, category))
                         .thenReturn(newArrayList(
                                 new AugmentedTranslation("hola", "hola")));
@@ -95,10 +94,10 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
         assertThat(getAllTextFlowTargets()).hasSize(1);
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
-                .thenReturn(Optional.of(devFromLocale));
+                .thenReturn(devFromLocale);
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(Optional.of(devToLocale));
-        when(msBackend.translate(sourceString, Optional.of(devFromLocale),
+                .thenReturn(devToLocale);
+        when(msBackend.translate(sourceString, devFromLocale,
                 devToLocale, mediaType, category))
                 .thenReturn(newArrayList(
                         new AugmentedTranslation("hola", "hola")));

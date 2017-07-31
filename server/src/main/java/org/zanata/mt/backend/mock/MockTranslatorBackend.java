@@ -39,17 +39,8 @@ public class MockTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public AugmentedTranslation translate(String content,
-            BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType, Optional<String> category)
-            throws ZanataMTException {
-        return new AugmentedTranslation(wrapContentInBlock(content),
-                wrapContentInBlock(content));
-    }
-
-    @Override
     public List<AugmentedTranslation> translate(List<String> contents,
-            Optional<BackendLocaleCode> srcLocale, BackendLocaleCode targetLocale,
+            BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional<String> category)
             throws ZanataMTException {
         List<AugmentedTranslation> translations = contents.stream()
@@ -64,8 +55,8 @@ public class MockTranslatorBackend implements TranslatorBackend {
      * Return same localeCode as parsed in
      */
     @Override
-    public Optional<BackendLocaleCode> getMappedLocale(LocaleCode localeCode) {
-        return Optional.of(new MockLocaleCode(localeCode));
+    public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
+        return new MockLocaleCode(localeCode);
     }
 
     @Override

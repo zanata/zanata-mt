@@ -30,8 +30,6 @@ import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
 
-import com.google.common.collect.Lists;
-
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
 /**
@@ -40,8 +38,7 @@ import static org.zanata.mt.api.APIConstant.AZURE_KEY;
  * {@link org.zanata.mt.api.APIConstant#AZURE_KEY} during startup.
  *
  * See
- * {@link #translate(String, BackendLocaleCode, BackendLocaleCode, MediaType)}
- * {@link #translate(List, BackendLocaleCode, BackendLocaleCode, MediaType)}
+ * {@link #translate(List, BackendLocaleCode, BackendLocaleCode, MediaType, Optional)}
  *
  * See {@link MicrosoftTranslatorClient} for MS translator configuration.
  *
@@ -92,25 +89,14 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public AugmentedTranslation translate(String content,
-            BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType,
-            Optional<String> category)
-            throws ZanataMTException {
-        return translate(Lists.newArrayList(content), Optional.of(srcLocale), targetLocale,
-                mediaType, category).get(0);
-    }
-
-    @Override
     public List<AugmentedTranslation> translate(List<String> contents,
-            Optional<BackendLocaleCode> fromLocale,
+            BackendLocaleCode fromLocale,
             BackendLocaleCode toLocale, MediaType mediaType,
             Optional<String> category)
             throws ZanataMTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
-            // see getMappedLocale() we always return what's provided by the user
-            req.setSrcLanguage(fromLocale.get().getLocaleCode());
+            req.setSrcLanguage(fromLocale.getLocaleCode());
             req.setTransLanguage(toLocale.getLocaleCode());
             for (String content: contents) {
                 req.getTexts().add(new MSString(content));
@@ -135,9 +121,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Override
-    public Optional<BackendLocaleCode> getMappedLocale(@NotNull LocaleCode localeCode) {
+    public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
         MSLocaleCode from = new MSLocaleCode(localeCode);
-        return Optional.of(LOCALE_MAP.getOrDefault(localeCode, from));
+        return LOCALE_MAP.getOrDefault(localeCode, from);
     }
 
     @Override

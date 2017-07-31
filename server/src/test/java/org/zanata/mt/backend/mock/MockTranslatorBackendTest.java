@@ -1,5 +1,6 @@
 package org.zanata.mt.backend.mock;
 
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleCode;
@@ -29,12 +30,12 @@ public class MockTranslatorBackendTest {
     public void testGetMappedLocale() {
         LocaleCode localeCode = LocaleCode.ZH_HANS;
         BackendLocaleCode backendLocaleCode =
-                mockBackend.getMappedLocale(localeCode).get();
+                mockBackend.getMappedLocale(localeCode);
         assertThat(backendLocaleCode.getLocaleCode())
                 .isEqualTo(localeCode.getId());
 
         localeCode = LocaleCode.DE;
-        backendLocaleCode = mockBackend.getMappedLocale(localeCode).get();
+        backendLocaleCode = mockBackend.getMappedLocale(localeCode);
         assertThat(backendLocaleCode.getLocaleCode())
                 .isEqualTo(localeCode.getId());
     }
@@ -43,15 +44,15 @@ public class MockTranslatorBackendTest {
     public void testTranslate() {
         String content = "testing";
         BackendLocaleCode fromLocale =
-                mockBackend.getMappedLocale(LocaleCode.EN).get();
+                mockBackend.getMappedLocale(LocaleCode.EN);
         BackendLocaleCode toLocale =
-                mockBackend.getMappedLocale(LocaleCode.DE).get();
+                mockBackend.getMappedLocale(LocaleCode.DE);
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
         AugmentedTranslation translation =
-                mockBackend.translate(content, fromLocale, toLocale, mediaType,
+                mockBackend.translate(Lists.newArrayList(content), fromLocale, toLocale, mediaType,
                         Optional
-                                .of("tech"));
+                                .of("tech")).get(0);
         assertThat(translation.getRawTranslation())
                 .contains(content, PREFIX_MOCK_STRING, UNICODE_SUPPLEMENTARY);
         assertThat(translation.getPlainTranslation())

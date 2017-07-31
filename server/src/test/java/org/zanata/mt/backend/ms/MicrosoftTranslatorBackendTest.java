@@ -1,5 +1,6 @@
 package org.zanata.mt.backend.ms;
 
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -62,11 +63,11 @@ public class MicrosoftTranslatorBackendTest {
     public void testMappedLocale() {
         LocaleCode from = LocaleCode.ZH_HANS;
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
-        BackendLocaleCode to = msBackend.getMappedLocale(from).get();
+        BackendLocaleCode to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
         from = LocaleCode.PT;
-        to = msBackend.getMappedLocale(from).get();
+        to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isEqualTo(from.getId());
     }
 
@@ -88,9 +89,12 @@ public class MicrosoftTranslatorBackendTest {
 
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         msBackend.setApi(api);
-        AugmentedTranslation translation = msBackend
-                .translate(content, srcLocale, transLocale,
+        List<AugmentedTranslation> translations = msBackend
+                .translate(Lists.newArrayList(content), srcLocale, transLocale,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
+
+        assertThat(translations).hasSize(1);
+        AugmentedTranslation translation = translations.get(0);
         assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
         assertThat(translation.getRawTranslation())
                 .isEqualTo(DTOUtil.toXML(resp.getResponse().get(0)));
