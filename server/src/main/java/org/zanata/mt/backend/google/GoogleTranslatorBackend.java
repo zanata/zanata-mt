@@ -72,7 +72,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 
     @Inject
     public GoogleTranslatorBackend(
-            @Credentials(BackendID.GOOGLE) File googleCredential,
+            @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential,
             @DevMode boolean isDevMode, DTOUtil dtoUtil) {
         this.dtoUtil = dtoUtil;
         if (!isDevMode && !googleCredential.exists()) {
@@ -83,7 +83,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     }
 
     @VisibleForTesting
-    protected GoogleTranslatorBackend(Translate translate, File googleCredential,
+    protected GoogleTranslatorBackend(Translate translate, GoogleCredential googleCredential,
             boolean isDevMode, DTOUtil dtoUtil) {
         this(googleCredential, isDevMode, dtoUtil);
         this.translate = translate;

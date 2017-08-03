@@ -43,7 +43,7 @@ public class GoogleTranslatorBackendTest {
         MockitoAnnotations.initMocks(this);
         // by default backend is created with dev mode false and a fake existing
         // credential file
-        backend = new GoogleTranslatorBackend(translate, credentialFile, false, dtoUtil);
+        backend = new GoogleTranslatorBackend(translate, new GoogleCredential(credentialFile), false, dtoUtil);
         when(dtoUtil.toJSON(translate)).thenReturn("{}");
         when(translation.getTranslatedText()).thenReturn("你好");
     }
@@ -51,7 +51,7 @@ public class GoogleTranslatorBackendTest {
     @Test
     public void canNotCreateIfCredentialFileDoesNotExist() {
         assertThatThrownBy(() -> new GoogleTranslatorBackend(translate,
-                new File("not-exist-file"), false, dtoUtil))
+                GoogleCredential.ABSENT, false, dtoUtil))
                         .isInstanceOf(ZanataMTException.class).hasMessage(
                                 "google application default credential is not defined");
     }
@@ -59,7 +59,7 @@ public class GoogleTranslatorBackendTest {
     @Test
     public void canCreateIfDevModeIsTrueEvenCredentialFileDoesNotExist() {
         GoogleTranslatorBackend backend = new GoogleTranslatorBackend(translate,
-                new File("not-exist-file"), true, dtoUtil);
+                GoogleCredential.ABSENT, true, dtoUtil);
         assertThat(backend.getId()).isEqualTo(BackendID.GOOGLE);
     }
 

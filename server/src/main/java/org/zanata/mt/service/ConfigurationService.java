@@ -44,6 +44,7 @@ import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.annotation.EnvVariable;
 import org.zanata.mt.api.APIConstant;
+import org.zanata.mt.backend.google.GoogleCredential;
 import org.zanata.mt.model.BackendID;
 
 import com.google.common.base.Charsets;
@@ -61,11 +62,11 @@ import com.google.common.collect.Lists;
 public class ConfigurationService {
     private static final Logger LOG =
             LoggerFactory.getLogger(ConfigurationService.class);
+    private GoogleCredential googleCredential;
 
     private String version;
     private String buildDate;
     private String msAPIKey;
-    private File googleADCFile;
     private boolean isDevMode;
 
     private String id;
@@ -86,15 +87,12 @@ public class ConfigurationService {
         this.id = id;
         this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
-        this.googleADCFile = new File(googleADC);
+
+        this.googleCredential = GoogleCredential.from(googleADC, googleADCContent);
 
         defaultTranslationProvider = BackendID.fromString(defaultProvider);
 
-        if (!isBlank(googleADCContent)) {
-            writeGoogleADCFile(googleADCFile, googleADCContent);
-        }
-
-        isDevMode = isBlank(msAPIKey) && hasNoGoogleApplicationCredential();
+        isDevMode = isBlank(msAPIKey) && !googleCredential.exists();
 
         Properties properties = new Properties();
         try (InputStream is = getClass().getClassLoader()
@@ -105,34 +103,6 @@ public class ConfigurationService {
 
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
-        }
-    }
-
-    private static void writeGoogleADCFile(File googleADCFile,
-            String googleADCContent) {
-        Preconditions.checkArgument(
-                googleADCFile.exists() && googleADCFile.isFile()
-                        && googleADCFile.canRead(),
-                "%s is not a valid file path", googleADCFile);
-
-        boolean mkdirs = googleADCFile.getParentFile().mkdirs();
-        LOG.info("{} parent dir created: {}", googleADCFile, mkdirs);
-        try {
-
-            Files.write(googleADCFile.toPath(), Lists.newArrayList(googleADCContent));
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "failed to write Google Application Default Credentials file to "
-                            + googleADCFile);
-        }
-    }
-
-    private boolean hasNoGoogleApplicationCredential() {
-        try {
-            return Files.readAllLines(googleADCFile.toPath(), Charsets.UTF_8).isEmpty();
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "can not read Google Application Default Credentials file");
         }
     }
 
@@ -159,8 +129,8 @@ public class ConfigurationService {
 
     @Produces
     @Credentials(BackendID.GOOGLE)
-    protected File googleDefaultCredentialFile() {
-        return googleADCFile;
+    protected GoogleCredential googleDefaultCredential() {
+        return googleCredential;
     }
 
     public String getId() {
