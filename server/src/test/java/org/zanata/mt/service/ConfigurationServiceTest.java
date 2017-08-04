@@ -1,7 +1,6 @@
 package org.zanata.mt.service;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +8,7 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.zanata.mt.backend.google.GoogleCredential;
 import org.zanata.mt.model.BackendID;
 
 /**
@@ -38,28 +38,36 @@ public class ConfigurationServiceTest {
     @Test
     public void isDevModeIfNoAzureKeyAndGoogleCredential() throws IOException {
         File googkeADC = temporaryFolder.newFile();
-        ConfigurationService config =
-                new ConfigurationService("id", "key", "",
-                        googkeADC.getAbsolutePath(), "", "ms");
+        ConfigurationService config = new ConfigurationService("id", "key", "",
+                googkeADC.getAbsolutePath(), "", "ms");
         assertThat(config.isDevMode()).isTrue();
     }
 
     @Test
-    public void googleCredentialFileMustExistIfGivingCredentialContent() {
-        assertThatThrownBy(() -> new ConfigurationService("id", "key", "msKey", "/Non/exist/file/path", "{}", "ms"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("/Non/exist/file/path is not a valid file path");
-    }
+    public void testAvailableProviders() throws IOException {
+        File googkeADC = temporaryFolder.newFile();
 
-    @Test
-    public void googleCredentialFileMayNotExistIfNoCredentialContent() {
         ConfigurationService config =
-                new ConfigurationService("id", "key", "msKey",
-                        "/Non/exist/file/path", "", "ms");
+                new ConfigurationService("id", "key", "clientSubscriptionKey",
+                        googkeADC.getAbsolutePath(), "{}", "ms");
 
-        assertThat(config.isDevMode()).isFalse();
-//        assertThat(config.googleDefaultCredentialFile()).doesNotExist();
-        assertThat(config.getMsAPIKey()).isEqualTo("msKey");
-
+        assertThat(
+                config.availableProviders(GoogleCredential.ABSENT, "", false))
+                        .isEmpty();
+        assertThat(config.availableProviders(config.googleDefaultCredential(),
+                "", false)).containsExactly(BackendID.GOOGLE);
+        assertThat(config.availableProviders(config.googleDefaultCredential(),
+                "msKey", false)).containsExactlyInAnyOrder(BackendID.GOOGLE,
+                        BackendID.MS);
+        assertThat(config.availableProviders(GoogleCredential.ABSENT, "msKey",
+                false)).containsExactly(BackendID.MS);
+        assertThat(config.availableProviders(GoogleCredential.ABSENT, "msKey",
+                true)).containsExactlyInAnyOrder(BackendID.MS, BackendID.DEV);
+        assertThat(config.availableProviders(config.googleDefaultCredential(),
+                "msKey", true)).containsExactlyInAnyOrder(BackendID.GOOGLE, BackendID.MS,
+                        BackendID.DEV);
+        assertThat(config.availableProviders(config.googleDefaultCredential(),
+                "msKey", false)).containsExactlyInAnyOrder(BackendID.GOOGLE,
+                        BackendID.MS);
     }
 }

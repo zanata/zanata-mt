@@ -27,7 +27,7 @@ public interface BackendResource {
     String MS_ATTRIBUTION_IMAGE =
             "/images/MS_attribution.png";
     String GOOGLE_ATTRIBUTION_IMAGE =
-                    "/images/google_attribution.svg";
+                    "/images/google_attribution.png";
     String DEV_ATTRIBUTION_IMAGE =
                             "/images/logo-256.png";
 

@@ -2,6 +2,7 @@ package org.zanata.mt.api.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.BackEndProviders;
 import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.APIResponse;
@@ -49,6 +51,7 @@ public class DocumentResourceImpl implements DocumentResource {
     private DocumentProcessManager docProcessManager;
     private boolean isDevMode;
     private BackendID defaultProvider;
+    private Set<BackendID> availableProviders;
 
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
@@ -60,7 +63,8 @@ public class DocumentResourceImpl implements DocumentResource {
             LocaleDAO localeDAO, DocumentService documentService,
             DocumentProcessManager docProcessManager,
             @DevMode boolean isDevMode,
-            @DefaultProvider BackendID defaultProvider) {
+            @DefaultProvider BackendID defaultProvider,
+            @BackEndProviders Set<BackendID> availableProviders) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
@@ -68,6 +72,7 @@ public class DocumentResourceImpl implements DocumentResource {
         this.docProcessManager = docProcessManager;
         this.isDevMode = isDevMode;
         this.defaultProvider = defaultProvider;
+        this.availableProviders = availableProviders;
     }
 
     @Override
@@ -126,6 +131,14 @@ public class DocumentResourceImpl implements DocumentResource {
         final BackendID backendID = isDevMode ? BackendID.DEV
                 : fromStringWithDefault(docContent.getBackendId(),
                         defaultProvider);
+
+        // check if this backend is available
+        if (!availableProviders.contains(backendID)) {
+            LOG.warn("requested machine translation provider is not set up (no credential)");
+            return Response.status(Response.Status.NOT_IMPLEMENTED)
+                    .entity(new APIResponse(Response.Status.NOT_IMPLEMENTED,
+                            "Error: backendId " + docContent.getBackendId() + " not available")).build();
+        }
 
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());

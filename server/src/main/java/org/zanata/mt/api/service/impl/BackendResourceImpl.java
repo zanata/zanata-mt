@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -17,6 +19,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.BackEndProviders;
 import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.api.InputStreamStreamingOutput;
 import org.zanata.mt.api.dto.APIResponse;
@@ -34,19 +37,15 @@ public class BackendResourceImpl implements BackendResource {
 
     private static final Logger LOG =
             LoggerFactory.getLogger(BackendResourceImpl.class);
-
-    private GoogleCredential googleCredentials;
-    private String msCredentials;
+    private Set<BackendID> availableProviders;
 
     @SuppressWarnings("unused")
     public BackendResourceImpl() {
     }
 
     @Inject
-    public BackendResourceImpl(@Credentials(BackendID.GOOGLE)
-            GoogleCredential googleCredentials, @Credentials(BackendID.MS) String msCredentials) {
-        this.googleCredentials = googleCredentials;
-        this.msCredentials = msCredentials;
+    public BackendResourceImpl(@BackEndProviders Set<BackendID> availableProviders) {
+        this.availableProviders = availableProviders;
     }
 
     @Override
@@ -72,16 +71,10 @@ public class BackendResourceImpl implements BackendResource {
 
     @Override
     public Response getAvailableBackends() {
-        List<String> providers = Lists.newLinkedList();
-        if (googleCredentials.exists()) {
-            providers.add(BackendID.GOOGLE.getId());
-        }
-        if (!isBlank(msCredentials)) {
-            providers.add(BackendID.MS.getId());
-        }
-        providers.add(BackendID.DEV.getId());
+        Set<String> providers = availableProviders.stream().map(BackendID::getId)
+                .collect(Collectors.toSet());
         return Response.ok()
-                .entity(new GenericEntity<List<String>>(providers) {}).build();
+                .entity(new GenericEntity<Set<String>>(providers) {}).build();
     }
 
     private String getAttributionImageResource(BackendID backendID) {

@@ -4,6 +4,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +57,8 @@ public class DocumentResourceImplTest {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService, docProcessLock,
-                        false, defaultProvider);
+                        false, defaultProvider,
+                        Sets.newHashSet(BackendID.values()));
         when(documentContentTranslatorService
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
@@ -347,7 +349,8 @@ public class DocumentResourceImplTest {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService, docProcessLock,
-                        true, BackendID.GOOGLE);
+                        true, BackendID.GOOGLE,
+                        Sets.newHashSet(BackendID.values()));
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 

@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -45,6 +46,7 @@ public class GoogleCredential {
     public static final GoogleCredential ABSENT = new GoogleCredential(null);
     private final File credentialsFile;
 
+    @VisibleForTesting
     public GoogleCredential(File credentialsFile) {
         this.credentialsFile = credentialsFile;
     }
@@ -77,7 +79,7 @@ public class GoogleCredential {
             String googleADCContent) {
         Preconditions.checkArgument(
                 googleADCFile.exists() && googleADCFile.isFile()
-                        && googleADCFile.canRead(),
+                        && googleADCFile.canWrite(),
                 "%s is not a valid file path", googleADCFile);
 
         boolean mkdirs = googleADCFile.getParentFile().mkdirs();

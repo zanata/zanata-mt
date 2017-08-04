@@ -2,6 +2,7 @@ package org.zanata.mt.model;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
 
 import com.google.common.base.Strings;
 
@@ -57,7 +58,7 @@ public enum  BackendID implements Serializable {
         if (value.equalsIgnoreCase("dev")) {
             return DEV;
         }
-        throw new IllegalArgumentException(
+        throw new BadRequestException(
                 "can not parse [" + value + "] to a BackendID");
     }
 

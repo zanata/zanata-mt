@@ -26,11 +26,10 @@ import static org.zanata.mt.api.APIConstant.DEFAULT_PROVIDER;
 import static org.zanata.mt.api.APIConstant.GOOGLE_ADC;
 import static org.zanata.mt.api.APIConstant.GOOGLE_CREDENTIAL_CONTENT;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
@@ -43,13 +42,12 @@ import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.annotation.DefaultProvider;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.annotation.EnvVariable;
+import org.zanata.mt.annotation.BackEndProviders;
 import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.backend.google.GoogleCredential;
 import org.zanata.mt.model.BackendID;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * This service will startup in eager loading in application. It is used to
@@ -145,6 +143,25 @@ public class ConfigurationService {
     @Credentials(BackendID.MS)
     protected String getMsAPIKey() {
         return msAPIKey;
+    }
+
+    @Produces
+    @BackEndProviders
+    protected Set<BackendID> availableProviders(
+            @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential,
+            @Credentials(BackendID.MS) String msCredential,
+            @DevMode boolean isDevMode) {
+        Set<BackendID> providers = Sets.newHashSet();
+        if (googleCredential.exists()) {
+            providers.add(BackendID.GOOGLE);
+        }
+        if (!isBlank(msCredential)) {
+            providers.add(BackendID.MS);
+        }
+        if (isDevMode) {
+            providers.add(BackendID.DEV);
+        }
+        return providers;
     }
 
 }
