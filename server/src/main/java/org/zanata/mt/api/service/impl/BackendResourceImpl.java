@@ -1,33 +1,50 @@
+/*
+ * Copyright 2017, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.zanata.mt.api.service.impl;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.mt.annotation.BackEndProviders;
-import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.api.InputStreamStreamingOutput;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.service.BackendResource;
-import org.zanata.mt.backend.google.GoogleCredential;
 import org.zanata.mt.model.BackendID;
-
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -53,20 +70,33 @@ public class BackendResourceImpl implements BackendResource {
         Optional<APIResponse> response = validateId(id);
         if (response.isPresent()) {
             return Response.status(response.get().getStatus())
-                    .entity(response.get()).build();
+                    .entity(response.get())
+                    .type(MediaType.APPLICATION_JSON_TYPE).build();
         }
 
         BackendID backendID = BackendID.fromString(id);
         String imageResource = getAttributionImageResource(backendID);
         String docName = new File(imageResource).getName();
 
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        InputStream is = classLoader.getResourceAsStream(imageResource);
+        InputStream is = getResourceAsStream(imageResource);
+        if (is == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new APIResponse(Response.Status.NOT_FOUND,
+                            "attribution image can not be found:" + imageResource))
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .build();
+        }
         StreamingOutput output =
                 new InputStreamStreamingOutput(is);
         return Response.ok().header("Content-Disposition",
                 "attachment; filename=\"" + docName + "\"")
-                .entity(output).build();
+                .entity(output).type("image/png").build();
+    }
+
+    @VisibleForTesting
+    protected InputStream getResourceAsStream(String imageResource) {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        return classLoader.getResourceAsStream(imageResource);
     }
 
     @Override
@@ -94,13 +124,15 @@ public class BackendResourceImpl implements BackendResource {
                     new APIResponse(Response.Status.BAD_REQUEST, "Invalid id");
             return Optional.of(response);
         }
-        if (!StringUtils.equalsIgnoreCase(id, BackendID.MS.getId()) &&
-                !StringUtils.equalsIgnoreCase(id, BackendID.DEV.getId())) {
+        try {
+            BackendID.fromString(id);
+        } catch (BadRequestException e) {
             APIResponse response =
                     new APIResponse(Response.Status.NOT_FOUND,
                             "Not supported id:" + id);
             return Optional.of(response);
         }
+
         return Optional.empty();
     }
 }

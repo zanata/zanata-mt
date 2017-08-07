@@ -1,5 +1,7 @@
 package org.zanata.mt.model;
 
+import javax.ws.rs.BadRequestException;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +23,7 @@ public class BackendIDTest {
         assertThat(BackendID.fromString("")).isNull();
         assertThat(BackendID.fromString(null)).isNull();
         assertThatThrownBy(() -> BackendID.fromString("unknown"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(BadRequestException.class)
                 .hasMessage("can not parse [unknown] to a BackendID");
     }
 }
