@@ -39,7 +39,7 @@ public class GoogleTranslatorBackendRealTest {
 
     @Before
     public void setUp() {
-        translatorBackend = new GoogleTranslatorBackend(new GoogleCredential(credentialFile), false, new DTOUtil());
+        translatorBackend = new GoogleTranslatorBackend(new DTOUtil());
     }
 
     @Test

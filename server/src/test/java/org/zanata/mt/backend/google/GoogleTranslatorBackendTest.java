@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.assertj.core.util.Lists;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -31,7 +28,6 @@ import com.google.cloud.translate.Translation;
 public class GoogleTranslatorBackendTest {
     @Mock
     private Translate translate;
-    private File credentialFile = new File(System.getProperty("user.home"));
     private GoogleTranslatorBackend backend;
     @Mock
     private DTOUtil dtoUtil;
@@ -41,25 +37,17 @@ public class GoogleTranslatorBackendTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        // by default backend is created with dev mode false and a fake existing
-        // credential file
-        backend = new GoogleTranslatorBackend(translate, new GoogleCredential(credentialFile), false, dtoUtil);
+
+        backend = new GoogleTranslatorBackend(translate,
+                dtoUtil);
         when(dtoUtil.toJSON(translate)).thenReturn("{}");
         when(translation.getTranslatedText()).thenReturn("你好");
     }
 
     @Test
-    public void canNotCreateIfCredentialFileDoesNotExist() {
-        assertThatThrownBy(() -> new GoogleTranslatorBackend(translate,
-                GoogleCredential.ABSENT, false, dtoUtil))
-                        .isInstanceOf(ZanataMTException.class).hasMessage(
-                                "google application default credential is not defined");
-    }
-
-    @Test
     public void canCreateIfDevModeIsTrueEvenCredentialFileDoesNotExist() {
         GoogleTranslatorBackend backend = new GoogleTranslatorBackend(translate,
-                GoogleCredential.ABSENT, true, dtoUtil);
+                dtoUtil);
         assertThat(backend.getId()).isEqualTo(BackendID.GOOGLE);
     }
 

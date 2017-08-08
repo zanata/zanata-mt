@@ -42,25 +42,6 @@ public class MicrosoftTranslatorBackendTest {
     }
 
     @Test
-    public void testVerifyKeyInvalid() {
-        msBackend = new MicrosoftTranslatorBackend(null, dtoUtil);
-        assertThatThrownBy(() -> msBackend.onInit(null, false))
-                .isInstanceOf(ZanataMTException.class);
-    }
-
-    @Test
-    public void testVerifyKey() {
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
-        msBackend.onInit(null, false);
-    }
-
-    @Test
-    public void testIgnoreKeyCheckingInDevMode() {
-        msBackend = new MicrosoftTranslatorBackend(null, dtoUtil);
-        msBackend.onInit(null, true);
-    }
-
-    @Test
     public void testMappedLocale() {
         LocaleCode from = LocaleCode.ZH_HANS;
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);

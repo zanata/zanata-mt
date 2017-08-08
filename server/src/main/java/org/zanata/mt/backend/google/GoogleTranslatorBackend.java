@@ -71,21 +71,15 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     private DTOUtil dtoUtil;
 
     @Inject
-    public GoogleTranslatorBackend(
-            @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential,
-            @DevMode boolean isDevMode, DTOUtil dtoUtil) {
+    public GoogleTranslatorBackend(DTOUtil dtoUtil) {
         this.dtoUtil = dtoUtil;
-        if (!isDevMode && !googleCredential.exists()) {
-            throw new ZanataMTException(
-                    "google application default credential is not defined");
-        }
         translate = TranslateOptions.getDefaultInstance().getService();
     }
 
     @VisibleForTesting
-    protected GoogleTranslatorBackend(Translate translate, GoogleCredential googleCredential,
-            boolean isDevMode, DTOUtil dtoUtil) {
-        this(googleCredential, isDevMode, dtoUtil);
+    protected GoogleTranslatorBackend(Translate translate,
+            DTOUtil dtoUtil) {
+        this(dtoUtil);
         this.translate = translate;
     }
 

@@ -2,6 +2,7 @@ package org.zanata.mt.backend.ms;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,6 +16,7 @@ import javax.xml.bind.JAXBException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.annotation.BackEndProviders;
 import org.zanata.mt.annotation.Credentials;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
@@ -80,13 +82,8 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     public void onInit(
-            @Observes @Initialized(ApplicationScoped.class) Object init, @DevMode boolean isDevMode)
+            @Observes @Initialized(ApplicationScoped.class) Object init)
             throws ZanataMTException {
-        if (!isDevMode &&
-                StringUtils.isBlank(clientSubscriptionKey)) {
-            throw new ZanataMTException(
-                    "Missing system properties of " + AZURE_KEY);
-        }
         api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient, dtoUtil);
     }
 
@@ -105,9 +102,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
             options.setContentType(mediaType.toString());
-            if (category.isPresent()) {
-                options.setCategory(category.get());
-            }
+            category.ifPresent(options::setCategory);
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);
