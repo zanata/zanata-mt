@@ -95,11 +95,15 @@ public class GoogleCredential {
     }
 
     private static boolean hasNoContent(@Nonnull File googleADCFile) {
-        try {
-            return Files.readAllLines(googleADCFile.toPath(), Charsets.UTF_8).isEmpty();
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "can not read Google Application Default Credentials file");
+        if (googleADCFile.isFile() && googleADCFile.canRead()) {
+            try {
+                return Files.readAllLines(googleADCFile.toPath(), Charsets.UTF_8).isEmpty();
+            } catch (IOException e) {
+                log.error("unable to read Google Application Default Credentials file", e);
+                return false;
+            }
         }
+        log.warn("{} is not a file or not readable", googleADCFile);
+        return false;
     }
 }
