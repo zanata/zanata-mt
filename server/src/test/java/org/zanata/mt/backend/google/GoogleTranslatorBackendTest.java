@@ -39,16 +39,9 @@ public class GoogleTranslatorBackendTest {
         MockitoAnnotations.initMocks(this);
 
         backend = new GoogleTranslatorBackend(translate,
-                dtoUtil);
+                dtoUtil, new GoogleCredential(new File(".")));
         when(dtoUtil.toJSON(translate)).thenReturn("{}");
         when(translation.getTranslatedText()).thenReturn("你好");
-    }
-
-    @Test
-    public void canCreateIfDevModeIsTrueEvenCredentialFileDoesNotExist() {
-        GoogleTranslatorBackend backend = new GoogleTranslatorBackend(translate,
-                dtoUtil);
-        assertThat(backend.getId()).isEqualTo(BackendID.GOOGLE);
     }
 
     @Test

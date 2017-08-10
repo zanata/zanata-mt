@@ -134,7 +134,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
         // check if this backend is available
         if (!availableProviders.contains(backendID)) {
-            LOG.warn("requested machine translation provider is not set up (no credential)");
+            LOG.warn("requested machine translation provider {} is not set up (no credential)", backendID);
             return Response.status(Response.Status.NOT_IMPLEMENTED)
                     .entity(new APIResponse(Response.Status.NOT_IMPLEMENTED,
                             "Error: backendId " + docContent.getBackendId() + " not available")).build();

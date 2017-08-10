@@ -22,6 +22,7 @@
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <GOOGLE_APPLICATION_CREDENTIALS>${build.testOutputDirectory}/zanata-mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
   </properties>
 
   <build>

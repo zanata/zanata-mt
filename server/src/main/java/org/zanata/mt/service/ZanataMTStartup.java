@@ -1,5 +1,6 @@
 package org.zanata.mt.service;
 
+import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
@@ -8,9 +9,11 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.BackEndProviders;
 import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.APIConstant;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.servlet.APISecurityFilter;
 
 /**
@@ -34,7 +37,8 @@ public class ZanataMTStartup {
 
     public void onStartUp(
         @Observes @Initialized(ApplicationScoped.class) Object init,
-            @DevMode boolean isDevMode)
+            @DevMode boolean isDevMode, @BackEndProviders
+            Set<BackendID> availableProviders)
         throws ZanataMTException {
         LOG.info("===================================");
         LOG.info("===================================");
@@ -46,6 +50,7 @@ public class ZanataMTStartup {
         if (isDevMode) {
             LOG.warn("THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION");
         }
+        LOG.info("Available backend providers: {}", availableProviders);
         verifyCredentials();
     }
 

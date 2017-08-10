@@ -69,17 +69,20 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                     LocaleCode.ZH_HANT, new GoogleLocaleCode("zh-TW")
             );
     private DTOUtil dtoUtil;
+    private GoogleCredential googleCredential;
 
     @Inject
-    public GoogleTranslatorBackend(DTOUtil dtoUtil) {
+    public GoogleTranslatorBackend(DTOUtil dtoUtil,
+            @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential) {
         this.dtoUtil = dtoUtil;
+        this.googleCredential = googleCredential;
         translate = TranslateOptions.getDefaultInstance().getService();
     }
 
     @VisibleForTesting
     protected GoogleTranslatorBackend(Translate translate,
-            DTOUtil dtoUtil) {
-        this(dtoUtil);
+            DTOUtil dtoUtil, GoogleCredential googleCredential) {
+        this(dtoUtil, googleCredential);
         this.translate = translate;
     }
 

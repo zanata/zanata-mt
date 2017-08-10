@@ -7,6 +7,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.zanata.mt.exception.ZanataMTException;
+import org.zanata.mt.model.BackendID;
+
+import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -22,7 +25,7 @@ public class ZanataMTStartupTest {
     public void testEmptyCredentials() {
         ConfigurationService config = new ConfigurationService();
         ZanataMTStartup app = new ZanataMTStartup(config);
-        assertThatThrownBy(() -> app.onStartUp(null, false))
+        assertThatThrownBy(() -> app.onStartUp(null, false, Sets.newHashSet()))
                 .isInstanceOf(ZanataMTException.class);
     }
 
@@ -32,6 +35,6 @@ public class ZanataMTStartupTest {
         ConfigurationService config =
                 new ConfigurationService("id", "key", "azureKey", googleADC.getAbsolutePath(), "{}", "ms");
         ZanataMTStartup app = new ZanataMTStartup(config);
-        app.onStartUp(null, false);
+        app.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
     }
 }
