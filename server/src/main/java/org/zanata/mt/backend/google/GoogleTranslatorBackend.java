@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
 import org.zanata.mt.annotation.Credentials;
@@ -96,6 +97,9 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                 .targetLanguage(
                         targetLocale.getLocaleCode()));
         options.add(Translate.TranslateOption.format(format));
+        if (!googleCredential.exists()) {
+            throw new BadRequestException("Google Default Credential file is not setup");
+        }
         // google can detect source locale if omitted
         // TODO we should probably retrieve and cache a google supported language list and check if the given locale code is supported or not
 //        srcLocale.ifPresent(l -> options.add(
