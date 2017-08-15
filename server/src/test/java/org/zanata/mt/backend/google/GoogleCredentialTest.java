@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 public class GoogleCredentialTest {
-    private static final String CREDENTIAL_FILE_CONTENT = "{}";
+    private static final String CREDENTIAL_FILE_CONTENT = "{\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"type\":\"service_account\"}";
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -59,6 +59,15 @@ public class GoogleCredentialTest {
         assertThat(credential.getCredentialsFile()).isEqualTo(file);
         assertThat(credential.getCredentialsFile()).hasContent(
                 CREDENTIAL_FILE_CONTENT);
+    }
+
+    @Test
+    public void canHandleInvalidCredentialFileContent() throws IOException {
+        File file = temporaryFolder.newFile();
+        GoogleCredential credential =
+                GoogleCredential.from(file.getAbsolutePath(),
+                        "{}");
+        assertThat(credential.exists()).isFalse();
     }
 
 }
