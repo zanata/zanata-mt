@@ -66,6 +66,7 @@ public class GoogleCredential {
             writeGoogleADCFile(googleADCFile, credentialFileContent);
         }
         boolean validCredentialFile = googleADCFile.exists()
+                && !googleADCFile.isDirectory()
                 && isValidGoogleCredentialFile(googleADCFile);
         if (!validCredentialFile) {
             return ABSENT;
