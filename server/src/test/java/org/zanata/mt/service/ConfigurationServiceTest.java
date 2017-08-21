@@ -5,6 +5,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -20,15 +21,16 @@ public class ConfigurationServiceTest {
 
     @Test
     public void testConstructor() throws IOException {
-        File googkeADC = temporaryFolder.newFile();
+        File googleADC = temporaryFolder.newFile();
         ConfigurationService config =
                 new ConfigurationService("id", "key", "clientSubscriptionKey",
-                        googkeADC.getAbsolutePath(), "{}", "ms");
+                        googleADC.getAbsolutePath(), "{\"type\": \"service_account\"," +
+                        "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}", "ms");
         assertThat(config.getId()).isEqualTo("id");
         assertThat(config.getApiKey()).isEqualTo("key");
         assertThat(config.getMsAPIKey()).isEqualTo("clientSubscriptionKey");
         assertThat(config.googleDefaultCredential().getCredentialsFile())
-                .isEqualTo(googkeADC);
+                .isEqualTo(googleADC);
         assertThat(config.getBuildDate()).isNotBlank();
         assertThat(config.getVersion()).isNotBlank();
         assertThat(config.getDefaultTranslationProvider(false))
@@ -37,19 +39,22 @@ public class ConfigurationServiceTest {
 
     @Test
     public void isDevModeIfNoAzureKeyAndGoogleCredential() throws IOException {
-        File googkeADC = temporaryFolder.newFile();
+        File googleADC = temporaryFolder.newFile();
         ConfigurationService config = new ConfigurationService("id", "key", "",
-                googkeADC.getAbsolutePath(), "", "ms");
+                googleADC.getAbsolutePath(), "", "ms");
         assertThat(config.isDevMode()).isTrue();
     }
 
     @Test
     public void testAvailableProviders() throws IOException {
-        File googkeADC = temporaryFolder.newFile();
+        File googleADC = temporaryFolder.newFile();
 
         ConfigurationService config =
                 new ConfigurationService("id", "key", "clientSubscriptionKey",
-                        googkeADC.getAbsolutePath(), "{}", "ms");
+                        googleADC.getAbsolutePath(),
+                        "{\"type\": \"service_account\"," +
+                                "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}",
+                        "ms");
 
         assertThat(
                 config.availableProviders(GoogleCredential.ABSENT, "", false))
