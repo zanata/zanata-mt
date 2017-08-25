@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -35,10 +36,10 @@ import org.zanata.mt.util.ShortString;
  *
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">@Stateless</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">@Stateless</span>
 public class DocumentContentTranslatorService {
-<span class="fc" id="L40">    private static final Logger LOG =</span>
-<span class="fc" id="L41">            LoggerFactory.getLogger(DocumentContentTranslatorService.class);</span>
+<span class="fc" id="L41">    private static final Logger LOG =</span>
+<span class="fc" id="L42">            LoggerFactory.getLogger(DocumentContentTranslatorService.class);</span>
 
     // set MT category for translation
     private static final String CATEGORY = &quot;tech&quot;;
@@ -46,14 +47,14 @@ public class DocumentContentTranslatorService {
     private PersistentTranslationService persistentTranslationService;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="fc" id="L49">    public DocumentContentTranslatorService() {</span>
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L50">    public DocumentContentTranslatorService() {</span>
+<span class="fc" id="L51">    }</span>
 
     @Inject
     public DocumentContentTranslatorService(
-<span class="fc" id="L54">            PersistentTranslationService persistentTranslationService) {</span>
-<span class="fc" id="L55">        this.persistentTranslationService = persistentTranslationService;</span>
-<span class="fc" id="L56">    }</span>
+<span class="fc" id="L55">            PersistentTranslationService persistentTranslationService) {</span>
+<span class="fc" id="L56">        this.persistentTranslationService = persistentTranslationService;</span>
+<span class="fc" id="L57">    }</span>
 
     /**
      * Translate a Document and send in for machine translation request.
@@ -70,65 +71,65 @@ public class DocumentContentTranslatorService {
      * {@link DocumentContent}
      **/
     public DocumentContent translateDocument(Document doc,
-            DocumentContent documentContent, BackendID backendID, int maxLength)
+            DocumentContent documentContent, BackendID backendID)
             throws BadRequestException, ZanataMTException {
+<span class="fc" id="L76">        Map&lt;Integer, TypeString&gt; indexTextMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L77">        Map&lt;Integer, TypeString&gt; indexHTMLMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L78">        int maxLength = persistentTranslationService.getMaxLength(backendID);</span>
 
-<span class="fc" id="L76">        LinkedHashMap&lt;Integer, TypeString&gt; indexTextMap = new LinkedHashMap&lt;&gt;();</span>
-<span class="fc" id="L77">        LinkedHashMap&lt;Integer, TypeString&gt; indexHTMLMap = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L80">        List&lt;APIResponse&gt; warnings = Lists.newArrayList();</span>
+<span class="fc" id="L81">        List&lt;TypeString&gt; results =</span>
+<span class="fc" id="L82">                Lists.newArrayList(documentContent.getContents());</span>
 
-<span class="fc" id="L79">        List&lt;APIResponse&gt; warnings = Lists.newArrayList();</span>
-<span class="fc" id="L80">        List&lt;TypeString&gt; results =</span>
-<span class="fc" id="L81">                Lists.newArrayList(documentContent.getContents());</span>
-
-<span class="fc" id="L83">        int index = 0;</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (TypeString typeString: results) {</span>
-<span class="fc" id="L85">            MediaType mediaType = getMediaType(typeString.getType());</span>
-<span class="fc" id="L86">            String source = typeString.getValue();</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {</span>
-<span class="fc bfc" id="L88" title="All 2 branches covered.">                if (source.length() &lt;= maxLength) {</span>
-<span class="fc" id="L89">                    indexTextMap.put(index, typeString);</span>
+<span class="fc" id="L84">        int index = 0;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (TypeString typeString: results) {</span>
+<span class="fc" id="L86">            MediaType mediaType = getMediaType(typeString.getType());</span>
+<span class="fc" id="L87">            String source = typeString.getValue();</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                if (source.length() &lt;= maxLength) {</span>
+<span class="fc" id="L90">                    indexTextMap.put(index, typeString);</span>
                 } else {
-<span class="fc" id="L91">                    String translatedString =</span>
-<span class="fc" id="L92">                            translateLargeString(doc, backendID,</span>
+<span class="fc" id="L92">                    String translatedString =</span>
+<span class="fc" id="L93">                            translateLargeString(doc, backendID,</span>
                                     mediaType, source, maxLength, warnings);
-<span class="fc" id="L94">                   typeString.setValue(translatedString);</span>
-<span class="fc" id="L95">                }</span>
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {</span>
+<span class="fc" id="L95">                   typeString.setValue(translatedString);</span>
+<span class="fc" id="L96">                }</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {</span>
                 // put placeholder on all non-translatable html
-<span class="fc" id="L98">                TranslatableHTMLNode translatableHTMLNode =</span>
-<span class="fc" id="L99">                        ArticleUtil.replaceNonTranslatableNode(index, source);</span>
-<span class="fc" id="L100">                String html = translatableHTMLNode.getHtml();</span>
+<span class="fc" id="L99">                TranslatableHTMLNode translatableHTMLNode =</span>
+<span class="fc" id="L100">                        ArticleUtil.replaceNonTranslatableNode(index, source);</span>
+<span class="fc" id="L101">                String html = translatableHTMLNode.getHtml();</span>
 
-<span class="fc bfc" id="L102" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
-<span class="fc" id="L103">                    indexHTMLMap.put(index, typeString);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
+<span class="fc" id="L104">                    indexHTMLMap.put(index, typeString);</span>
                 } else {
-<span class="fc" id="L105">                    String translatedString =</span>
-<span class="fc" id="L106">                            translateLargeHTMLElement(doc, backendID, mediaType,</span>
+<span class="fc" id="L106">                    String translatedString =</span>
+<span class="fc" id="L107">                            translateLargeHTMLElement(doc, backendID, mediaType,</span>
                                     maxLength, html, warnings);
                     // replace placeholder with original node
-<span class="fc" id="L109">                    translatedString = ArticleUtil</span>
-<span class="fc" id="L110">                            .replacePlaceholderWithNode(</span>
-<span class="fc" id="L111">                                    translatableHTMLNode.getPlaceholderIdMap(),</span>
+<span class="fc" id="L110">                    translatedString = ArticleUtil</span>
+<span class="fc" id="L111">                            .replacePlaceholderWithNode(</span>
+<span class="fc" id="L112">                                    translatableHTMLNode.getPlaceholderIdMap(),</span>
                                     translatedString);
-<span class="fc" id="L113">                    typeString.setValue(translatedString);</span>
+<span class="fc" id="L114">                    typeString.setValue(translatedString);</span>
                 }
             }
-<span class="fc" id="L116">            index++;</span>
-<span class="fc" id="L117">        }</span>
+<span class="fc" id="L117">            index++;</span>
+<span class="fc" id="L118">        }</span>
 
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (!indexTextMap.isEmpty()) {</span>
-<span class="fc" id="L120">            translateAndMergeStringsInBatch(doc, backendID,</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (!indexTextMap.isEmpty()) {</span>
+<span class="fc" id="L121">            translateAndMergeStringsInBatch(doc, backendID,</span>
                     MediaType.TEXT_PLAIN_TYPE,
                     maxLength, indexTextMap, results);
         }
 
-<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (!indexHTMLMap.isEmpty()) {</span>
-<span class="fc" id="L126">            translateAndMergeStringsInBatch(doc, backendID,</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (!indexHTMLMap.isEmpty()) {</span>
+<span class="fc" id="L127">            translateAndMergeStringsInBatch(doc, backendID,</span>
                     MediaType.TEXT_HTML_TYPE,
                     maxLength, indexHTMLMap, results);
         }
-<span class="fc" id="L130">        return new DocumentContent(results, documentContent.getUrl(),</span>
-<span class="fc" id="L131">                doc.getToLocale().getLocaleCode().getId(), backendID.getId(),</span>
+<span class="fc" id="L131">        return new DocumentContent(results, documentContent.getUrl(),</span>
+<span class="fc" id="L132">                doc.getToLocale().getLocaleCode().getId(), backendID.getId(),</span>
                 warnings);
     }
 
@@ -138,49 +139,49 @@ public class DocumentContentTranslatorService {
     private String translateLargeString(Document doc, BackendID backendID,
             MediaType mediaType, String source, int maxLength,
             List&lt;APIResponse&gt; warnings) {
-<span class="fc" id="L141">        List&lt;String&gt; segmentedStrings =</span>
-<span class="fc" id="L142">                SegmentString.segmentString(source,</span>
-<span class="fc" id="L143">                        Optional.of(doc.getFromLocale().getLocaleCode()));</span>
-<span class="fc" id="L144">        List&lt;String&gt; results = new ArrayList&lt;&gt;(segmentedStrings);</span>
+<span class="fc" id="L142">        List&lt;String&gt; segmentedStrings =</span>
+<span class="fc" id="L143">                SegmentString.segmentString(source,</span>
+<span class="fc" id="L144">                        Optional.of(doc.getFromLocale().getLocaleCode()));</span>
+<span class="fc" id="L145">        List&lt;String&gt; results = new ArrayList&lt;&gt;(segmentedStrings);</span>
 
-<span class="fc" id="L146">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
-<span class="fc" id="L147">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
-<span class="fc" id="L148">        List&lt;String&gt; translatedStrings = Lists.newArrayList();</span>
-<span class="fc" id="L149">        int charCount = 0;</span>
-<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (int index = 0; index &lt; segmentedStrings.size(); index++) {</span>
-<span class="fc" id="L151">            String string = segmentedStrings.get(index);</span>
+<span class="fc" id="L147">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L148">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
+<span class="fc" id="L149">        List&lt;String&gt; translatedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L150">        int charCount = 0;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (int index = 0; index &lt; segmentedStrings.size(); index++) {</span>
+<span class="fc" id="L152">            String string = segmentedStrings.get(index);</span>
             // ignore string if length is longer the maxLength
-<span class="fc bfc" id="L153" title="All 2 branches covered.">            if (string.length() &gt; maxLength) {</span>
-<span class="fc" id="L154">                addMaxLengthWarnings(string, warnings, maxLength);</span>
-<span class="fc" id="L155">                continue;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            if (string.length() &gt; maxLength) {</span>
+<span class="fc" id="L155">                addMaxLengthWarnings(string, warnings, maxLength);</span>
+<span class="fc" id="L156">                continue;</span>
             }
-<span class="fc bfc" id="L157" title="All 2 branches covered.">            if (charCount + string.length() &gt; maxLength) {</span>
-<span class="fc" id="L158">                List&lt;String&gt; translated = persistentTranslationService</span>
-<span class="fc" id="L159">                        .translate(doc, batchedStrings, doc.getFromLocale(),</span>
-<span class="fc" id="L160">                                doc.getToLocale(), backendID, mediaType,</span>
-<span class="fc" id="L161">                                Optional.of(CATEGORY));</span>
-<span class="fc" id="L162">                translatedStrings.addAll(translated);</span>
-<span class="pc bpc" id="L163" title="2 of 4 branches missed.">                assert batchedStrings.size() == translated.size();</span>
-<span class="fc" id="L164">                charCount = 0;</span>
-<span class="fc" id="L165">                batchedStrings.clear();</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">            if (charCount + string.length() &gt; maxLength) {</span>
+<span class="fc" id="L159">                List&lt;String&gt; translated = persistentTranslationService</span>
+<span class="fc" id="L160">                        .translate(doc, batchedStrings, doc.getFromLocale(),</span>
+<span class="fc" id="L161">                                doc.getToLocale(), backendID, mediaType,</span>
+<span class="fc" id="L162">                                Optional.of(CATEGORY));</span>
+<span class="fc" id="L163">                translatedStrings.addAll(translated);</span>
+<span class="pc bpc" id="L164" title="2 of 4 branches missed.">                assert batchedStrings.size() == translated.size();</span>
+<span class="fc" id="L165">                charCount = 0;</span>
+<span class="fc" id="L166">                batchedStrings.clear();</span>
             }
-<span class="fc" id="L167">            batchedStrings.add(string);</span>
-<span class="fc" id="L168">            indexOrderList.add(index);</span>
-<span class="fc" id="L169">            charCount += string.length();</span>
+<span class="fc" id="L168">            batchedStrings.add(string);</span>
+<span class="fc" id="L169">            indexOrderList.add(index);</span>
+<span class="fc" id="L170">            charCount += string.length();</span>
         }
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (!batchedStrings.isEmpty()) {</span>
-<span class="fc" id="L172">            List&lt;String&gt; translated = persistentTranslationService</span>
-<span class="fc" id="L173">                    .translate(doc, batchedStrings, doc.getFromLocale(),</span>
-<span class="fc" id="L174">                            doc.getToLocale(), backendID, mediaType,</span>
-<span class="fc" id="L175">                            Optional.of(CATEGORY));</span>
-<span class="fc" id="L176">            translatedStrings.addAll(translated);</span>
-<span class="pc bpc" id="L177" title="2 of 4 branches missed.">            assert batchedStrings.size() == translated.size();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (!batchedStrings.isEmpty()) {</span>
+<span class="fc" id="L173">            List&lt;String&gt; translated = persistentTranslationService</span>
+<span class="fc" id="L174">                    .translate(doc, batchedStrings, doc.getFromLocale(),</span>
+<span class="fc" id="L175">                            doc.getToLocale(), backendID, mediaType,</span>
+<span class="fc" id="L176">                            Optional.of(CATEGORY));</span>
+<span class="fc" id="L177">            translatedStrings.addAll(translated);</span>
+<span class="pc bpc" id="L178" title="2 of 4 branches missed.">            assert batchedStrings.size() == translated.size();</span>
         }
 
-<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
-<span class="fc" id="L181">            results.set(indexOrderList.get(index), translatedStrings.get(index));</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
+<span class="fc" id="L182">            results.set(indexOrderList.get(index), translatedStrings.get(index));</span>
         }
-<span class="fc" id="L183">        return String.join(&quot;&quot;, results);</span>
+<span class="fc" id="L184">        return String.join(&quot;&quot;, results);</span>
     }
 
     /**
@@ -188,72 +189,72 @@ public class DocumentContentTranslatorService {
      */
     private void translateAndMergeStringsInBatch(Document doc, BackendID backendID,
             MediaType mediaType, int maxLength,
-            LinkedHashMap&lt;Integer, TypeString&gt; indexTypeStringMap,
+            Map&lt;Integer, TypeString&gt; indexTypeStringMap,
             List&lt;TypeString&gt; results) {
-<span class="fc" id="L193">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
-<span class="fc" id="L194">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
-<span class="fc" id="L195">        Map&lt;Integer, TranslatableHTMLNode&gt; htmlNodeCache = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L194">        List&lt;String&gt; batchedStrings = Lists.newArrayList();</span>
+<span class="fc" id="L195">        List&lt;Integer&gt; indexOrderList = Lists.newArrayList();</span>
+<span class="fc" id="L196">        Map&lt;Integer, TranslatableHTMLNode&gt; htmlNodeCache = new HashMap&lt;&gt;();</span>
 
-<span class="fc" id="L197">        int charCount = 0;</span>
-<span class="fc" id="L198">        Iterator iter = indexTypeStringMap.entrySet().iterator();</span>
-<span class="fc bfc" id="L199" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
-<span class="fc" id="L200">            Map.Entry&lt;Integer, TypeString&gt; entry =</span>
-<span class="fc" id="L201">                    (Map.Entry&lt;Integer, TypeString&gt;) iter.next();</span>
-<span class="fc" id="L202">            String stringToTranslate = entry.getValue().getValue();</span>
-<span class="fc bfc" id="L203" title="All 2 branches covered.">            if (mediaType == MediaType.TEXT_HTML_TYPE) {</span>
-<span class="fc" id="L204">                int index = entry.getKey();</span>
-<span class="fc" id="L205">                TranslatableHTMLNode translatableHTMLNode =</span>
-<span class="fc" id="L206">                        ArticleUtil.replaceNonTranslatableNode(index,</span>
+<span class="fc" id="L198">        int charCount = 0;</span>
+<span class="fc" id="L199">        Iterator&lt;Map.Entry&lt;Integer, TypeString&gt;&gt; iter =</span>
+<span class="fc" id="L200">                indexTypeStringMap.entrySet().iterator();</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L202">            Map.Entry&lt;Integer, TypeString&gt; entry = iter.next();</span>
+<span class="fc" id="L203">            String stringToTranslate = entry.getValue().getValue();</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            if (mediaType == MediaType.TEXT_HTML_TYPE) {</span>
+<span class="fc" id="L205">                int index = entry.getKey();</span>
+<span class="fc" id="L206">                TranslatableHTMLNode translatableHTMLNode =</span>
+<span class="fc" id="L207">                        ArticleUtil.replaceNonTranslatableNode(index,</span>
                                 stringToTranslate);
-<span class="fc" id="L208">                htmlNodeCache.put(index, translatableHTMLNode);</span>
-<span class="fc" id="L209">                stringToTranslate = translatableHTMLNode.getHtml();</span>
+<span class="fc" id="L209">                htmlNodeCache.put(index, translatableHTMLNode);</span>
+<span class="fc" id="L210">                stringToTranslate = translatableHTMLNode.getHtml();</span>
             }
 
-<span class="fc bfc" id="L212" title="All 2 branches covered.">            if (charCount + stringToTranslate.length() &gt; maxLength) {</span>
-<span class="fc" id="L213">                translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">            if (charCount + stringToTranslate.length() &gt; maxLength) {</span>
+<span class="fc" id="L214">                translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
                         indexOrderList, results);
-<span class="fc" id="L215">                charCount = 0;</span>
-<span class="fc" id="L216">                batchedStrings.clear();</span>
-<span class="fc" id="L217">                indexOrderList.clear();</span>
+<span class="fc" id="L216">                charCount = 0;</span>
+<span class="fc" id="L217">                batchedStrings.clear();</span>
+<span class="fc" id="L218">                indexOrderList.clear();</span>
             }
-<span class="fc" id="L219">            batchedStrings.add(stringToTranslate);</span>
-<span class="fc" id="L220">            indexOrderList.add(entry.getKey());</span>
-<span class="fc" id="L221">            charCount += stringToTranslate.length();</span>
-<span class="fc" id="L222">        }</span>
-<span class="fc" id="L223">        translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
+<span class="fc" id="L220">            batchedStrings.add(stringToTranslate);</span>
+<span class="fc" id="L221">            indexOrderList.add(entry.getKey());</span>
+<span class="fc" id="L222">            charCount += stringToTranslate.length();</span>
+<span class="fc" id="L223">        }</span>
+<span class="fc" id="L224">        translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,</span>
                 indexOrderList, results);
 
         // restore placeholder into html
-<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (!htmlNodeCache.isEmpty()) {</span>
-<span class="fc bfc" id="L228" title="All 2 branches covered.">            for (Map.Entry&lt;Integer, TranslatableHTMLNode&gt; entry: htmlNodeCache.entrySet()) {</span>
-<span class="fc" id="L229">                int index = entry.getKey();</span>
-<span class="fc" id="L230">                TypeString typeString = results.get(index);</span>
-<span class="fc" id="L231">                String translatedString = ArticleUtil</span>
-<span class="fc" id="L232">                        .replacePlaceholderWithNode(</span>
-<span class="fc" id="L233">                                entry.getValue().getPlaceholderIdMap(),</span>
-<span class="fc" id="L234">                                typeString.getValue());</span>
-<span class="fc" id="L235">                typeString.setValue(translatedString);</span>
-<span class="fc" id="L236">                results.set(index, typeString);</span>
-<span class="fc" id="L237">            }</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (!htmlNodeCache.isEmpty()) {</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            for (Map.Entry&lt;Integer, TranslatableHTMLNode&gt; entry: htmlNodeCache.entrySet()) {</span>
+<span class="fc" id="L230">                int index = entry.getKey();</span>
+<span class="fc" id="L231">                TypeString typeString = results.get(index);</span>
+<span class="fc" id="L232">                String translatedString = ArticleUtil</span>
+<span class="fc" id="L233">                        .replacePlaceholderWithNode(</span>
+<span class="fc" id="L234">                                entry.getValue().getPlaceholderIdMap(),</span>
+<span class="fc" id="L235">                                typeString.getValue());</span>
+<span class="fc" id="L236">                typeString.setValue(translatedString);</span>
+<span class="fc" id="L237">                results.set(index, typeString);</span>
+<span class="fc" id="L238">            }</span>
         }
-<span class="fc" id="L239">    }</span>
+<span class="fc" id="L240">    }</span>
 
     // perform translation on list of string and merge into results
     private void translateAndMergeStrings(Document doc, BackendID backendID,
             MediaType mediaType, List&lt;String&gt; strings,
             List&lt;Integer&gt; indexOrderList, List&lt;TypeString&gt; results) {
 
-<span class="fc" id="L246">        List&lt;String&gt; translatedStrings = persistentTranslationService</span>
-<span class="fc" id="L247">                .translate(doc, strings, doc.getFromLocale(),</span>
-<span class="fc" id="L248">                        doc.getToLocale(), backendID, mediaType,</span>
-<span class="fc" id="L249">                        Optional.of(CATEGORY));</span>
-<span class="pc bpc" id="L250" title="2 of 4 branches missed.">        assert translatedStrings.size() == strings.size();</span>
+<span class="fc" id="L247">        List&lt;String&gt; translatedStrings = persistentTranslationService</span>
+<span class="fc" id="L248">                .translate(doc, strings, doc.getFromLocale(),</span>
+<span class="fc" id="L249">                        doc.getToLocale(), backendID, mediaType,</span>
+<span class="fc" id="L250">                        Optional.of(CATEGORY));</span>
+<span class="pc bpc" id="L251" title="2 of 4 branches missed.">        assert translatedStrings.size() == strings.size();</span>
 
-<span class="fc bfc" id="L252" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
-<span class="fc" id="L253">            results.get(indexOrderList.get(index))</span>
-<span class="fc" id="L254">                    .setValue(translatedStrings.get(index));</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (int index = 0; index &lt; translatedStrings.size(); index++) {</span>
+<span class="fc" id="L254">            results.get(indexOrderList.get(index))</span>
+<span class="fc" id="L255">                    .setValue(translatedStrings.get(index));</span>
         }
-<span class="fc" id="L256">    }</span>
+<span class="fc" id="L257">    }</span>
 
     /**
      * Translate all html tree nodes from top to bottom.
@@ -266,67 +267,67 @@ public class DocumentContentTranslatorService {
             MediaType mediaType, int maxLength, String source,
             List&lt;APIResponse&gt; warnings) {
 
-<span class="fc" id="L269">        List&lt;Element&gt; contents =</span>
-<span class="fc" id="L270">                ArticleUtil.unwrapAsElements(ArticleUtil.wrapHTML(source));</span>
+<span class="fc" id="L270">        List&lt;Element&gt; contents =</span>
+<span class="fc" id="L271">                ArticleUtil.unwrapAsElements(ArticleUtil.wrapHTML(source));</span>
 
-<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (int i = 0; i &lt; contents.size(); i++) {</span>
-<span class="fc" id="L273">            Element content = contents.get(i);</span>
-<span class="fc" id="L274">            int size = content.getAllElements().size();</span>
-<span class="fc" id="L275">            int index = 0;</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        for (int i = 0; i &lt; contents.size(); i++) {</span>
+<span class="fc" id="L274">            Element content = contents.get(i);</span>
+<span class="fc" id="L275">            int size = content.getAllElements().size();</span>
+<span class="fc" id="L276">            int index = 0;</span>
 
-<span class="fc bfc" id="L277" title="All 2 branches covered.">            while (index &lt; size) {</span>
-<span class="fc" id="L278">                Element child = content.getAllElements().get(index);</span>
-<span class="fc" id="L279">                String html = child.outerHtml();</span>
-<span class="fc bfc" id="L280" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
-<span class="fc" id="L281">                    List&lt;String&gt; translated =</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">            while (index &lt; size) {</span>
+<span class="fc" id="L279">                Element child = content.getAllElements().get(index);</span>
+<span class="fc" id="L280">                String html = child.outerHtml();</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                if (html.length() &lt;= maxLength) {</span>
+<span class="fc" id="L282">                    List&lt;String&gt; translated =</span>
                             persistentTranslationService
-<span class="fc" id="L283">                                    .translate(doc, Lists.newArrayList(html),</span>
-<span class="fc" id="L284">                                            doc.getFromLocale(),</span>
-<span class="fc" id="L285">                                            doc.getToLocale(), backendID,</span>
-<span class="fc" id="L286">                                            mediaType, Optional.of(CATEGORY));</span>
-<span class="pc bpc" id="L287" title="2 of 4 branches missed.">                    assert translated.size() == 1;</span>
-<span class="fc" id="L288">                    Element replacement = ArticleUtil.asElement(translated.get(0));</span>
-<span class="fc bfc" id="L289" title="All 2 branches covered.">                    if (child == content) {</span>
+<span class="fc" id="L284">                                    .translate(doc, Lists.newArrayList(html),</span>
+<span class="fc" id="L285">                                            doc.getFromLocale(),</span>
+<span class="fc" id="L286">                                            doc.getToLocale(), backendID,</span>
+<span class="fc" id="L287">                                            mediaType, Optional.of(CATEGORY));</span>
+<span class="pc bpc" id="L288" title="2 of 4 branches missed.">                    assert translated.size() == 1;</span>
+<span class="fc" id="L289">                    Element replacement = ArticleUtil.asElement(translated.get(0));</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">                    if (child == content) {</span>
                         //replace this item in contents list, exit while loop
-<span class="fc" id="L291">                        contents.set(i, replacement);</span>
-<span class="fc" id="L292">                        break;</span>
+<span class="fc" id="L292">                        contents.set(i, replacement);</span>
+<span class="fc" id="L293">                        break;</span>
                     } else {
-<span class="fc" id="L294">                        child.replaceWith(replacement);</span>
+<span class="fc" id="L295">                        child.replaceWith(replacement);</span>
                     }
-<span class="fc" id="L296">                } else {</span>
+<span class="fc" id="L297">                } else {</span>
                     // show warning if there is no more children under this node
-<span class="fc" id="L298">                    addMaxLengthWarnings(html, warnings, maxLength);</span>
+<span class="fc" id="L299">                    addMaxLengthWarnings(html, warnings, maxLength);</span>
                 }
                 // size changes if child node is being translated
-<span class="fc" id="L301">                size = content.getAllElements().size();</span>
-<span class="fc" id="L302">                index++;</span>
-<span class="fc" id="L303">            }</span>
+<span class="fc" id="L302">                size = content.getAllElements().size();</span>
+<span class="fc" id="L303">                index++;</span>
+<span class="fc" id="L304">            }</span>
         }
-<span class="fc" id="L305">        return contents.stream().map(node -&gt; node.outerHtml())</span>
-<span class="fc" id="L306">                .collect(Collectors.joining());</span>
+<span class="fc" id="L306">        return contents.stream().map(node -&gt; node.outerHtml())</span>
+<span class="fc" id="L307">                .collect(Collectors.joining());</span>
     }
 
     private void addMaxLengthWarnings(String source, List&lt;APIResponse&gt; warnings,
             int maxLength) {
-<span class="fc" id="L311">        String title =</span>
+<span class="fc" id="L312">        String title =</span>
                 &quot;Warning: translation skipped: String length is over &quot; +
                         maxLength;
-<span class="fc" id="L314">        String shortenString = ShortString.shorten(source);</span>
-<span class="fc" id="L315">        LOG.warn(title + &quot; - &quot; + shortenString);</span>
-<span class="fc" id="L316">        warnings.add(new APIResponse(</span>
+<span class="fc" id="L315">        String shortenString = ShortString.shorten(source);</span>
+<span class="fc" id="L316">        LOG.warn(title + &quot; - &quot; + shortenString);</span>
+<span class="fc" id="L317">        warnings.add(new APIResponse(</span>
                 Response.Status.BAD_REQUEST, new Exception(shortenString),
                 title));
-<span class="fc" id="L319">    }</span>
+<span class="fc" id="L320">    }</span>
 
     public MediaType getMediaType(String mediaType) throws BadRequestException {
-<span class="fc bfc" id="L322" title="All 2 branches covered.">        if (isMediaTypeSupported(mediaType)) {</span>
-<span class="fc" id="L323">            return MediaType.valueOf(mediaType);</span>
+<span class="fc bfc" id="L323" title="All 2 branches covered.">        if (isMediaTypeSupported(mediaType)) {</span>
+<span class="fc" id="L324">            return MediaType.valueOf(mediaType);</span>
         }
-<span class="fc" id="L325">        throw new BadRequestException(&quot;Unsupported media type:&quot; + mediaType);</span>
+<span class="fc" id="L326">        throw new BadRequestException(&quot;Unsupported media type:&quot; + mediaType);</span>
     }
 
     public boolean isMediaTypeSupported(String mediaType) {
-<span class="fc" id="L329">        return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,</span>
+<span class="fc" id="L330">        return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,</span>
                 MediaType.TEXT_PLAIN);
     }
 }

@@ -3,6 +3,7 @@
 import java.util.List;
 import java.util.Optional;
 import javax.ejb.Stateless;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
 import org.zanata.mt.api.dto.LocaleCode;
@@ -13,30 +14,30 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-@Stateless
+@RequestScoped
 public class TextFlowDAO extends AbstractDAO&lt;TextFlow&gt; {
     private static final long serialVersionUID = -4593105065135284822L;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="fc" id="L21">    public TextFlowDAO() {</span>
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L22">    public TextFlowDAO() {</span>
+<span class="fc" id="L23">    }</span>
 
     @VisibleForTesting
-<span class="fc" id="L25">    TextFlowDAO(EntityManager entityManager) {</span>
-<span class="fc" id="L26">        setEntityManager(entityManager);</span>
-<span class="fc" id="L27">    }</span>
+<span class="fc" id="L26">    public TextFlowDAO(EntityManager entityManager) {</span>
+<span class="fc" id="L27">        setEntityManager(entityManager);</span>
+<span class="fc" id="L28">    }</span>
 
     public Optional&lt;TextFlow&gt; getLatestByContentHash(LocaleCode localeCode,
             String contentHash) {
-<span class="fc" id="L31">        String query =</span>
+<span class="fc" id="L32">        String query =</span>
                 &quot;FROM TextFlow WHERE contentHash =:contentHash AND locale.localeCode =:localeCode ORDER BY lastChanged DESC&quot;;
-<span class="fc" id="L33">        List&lt;TextFlow&gt; tfs = getEntityManager()</span>
-<span class="fc" id="L34">                .createQuery(query)</span>
-<span class="fc" id="L35">                .setParameter(&quot;contentHash&quot;, contentHash)</span>
-<span class="fc" id="L36">                .setParameter(&quot;localeCode&quot;, localeCode)</span>
-<span class="fc" id="L37">                .getResultList();</span>
-<span class="pc bpc" id="L38" title="1 of 4 branches missed.">        return (tfs == null || tfs.isEmpty()) ? Optional.empty() :</span>
-<span class="fc" id="L39">                Optional.of(tfs.get(0));</span>
+<span class="fc" id="L34">        List&lt;TextFlow&gt; tfs = getEntityManager()</span>
+<span class="fc" id="L35">                .createQuery(query)</span>
+<span class="fc" id="L36">                .setParameter(&quot;contentHash&quot;, contentHash)</span>
+<span class="fc" id="L37">                .setParameter(&quot;localeCode&quot;, localeCode)</span>
+<span class="fc" id="L38">                .getResultList();</span>
+<span class="pc bpc" id="L39" title="1 of 4 branches missed.">        return (tfs == null || tfs.isEmpty()) ? Optional.empty() :</span>
+<span class="fc" id="L40">                Optional.of(tfs.get(0));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

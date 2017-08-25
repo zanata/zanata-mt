@@ -21,14 +21,17 @@ import javax.persistence.EntityManager;
 <span class="fc" id="L21">        return entityManager;</span>
     }
 
-    @TransactionAttribute
     public T persist(T entity) {
-<span class="fc" id="L26">        return getEntityManager().merge(entity);</span>
+<span class="fc" id="L25">        getEntityManager().persist(entity);</span>
+<span class="fc" id="L26">        return entity;</span>
     }
 
-    @TransactionAttribute
     public void flush() {
-<span class="fc" id="L31">        getEntityManager().flush();</span>
-<span class="fc" id="L32">    }</span>
+<span class="fc" id="L30">        getEntityManager().flush();</span>
+<span class="fc" id="L31">    }</span>
+
+    public T merge(T entity) {
+<span class="nc" id="L34">        return getEntityManager().merge(entity);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

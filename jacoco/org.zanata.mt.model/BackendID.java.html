@@ -2,49 +2,69 @@
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
+
+import com.google.common.base.Strings;
 
 /**
  * Backend type
  *
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-public class BackendID implements Serializable {
+<span class="pc" id="L14">public enum  BackendID implements Serializable {</span>
 
     // Microsoft translators service
-<span class="fc" id="L14">    public static final BackendID MS = new BackendID(&quot;MS&quot;);</span>
+<span class="fc" id="L17">    MS(&quot;MS&quot;),</span>
+    // Google translation service
+<span class="fc" id="L19">    GOOGLE(&quot;GOOGLE&quot;),</span>
 
     // DEV translators service
-<span class="fc" id="L17">    public static final BackendID DEV = new BackendID(&quot;DEV&quot;);</span>
+<span class="fc" id="L22">    DEV(&quot;DEV&quot;);</span>
 
     @NotNull
     private final String id;
 
-<span class="fc" id="L22">    public BackendID(String id) {</span>
-<span class="fc" id="L23">        this.id = id;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L27">    BackendID(String id) {</span>
+<span class="fc" id="L28">        this.id = id;</span>
+<span class="fc" id="L29">    }</span>
 
     public String getId() {
-<span class="fc" id="L27">        return id;</span>
-    }
-
-    @Override
-    public String toString() {
 <span class="fc" id="L32">        return id;</span>
     }
 
     @Override
-    public boolean equals(Object o) {
-<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (this == o) return true;</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (!(o instanceof BackendID)) return false;</span>
-
-<span class="fc" id="L40">        BackendID backendID = (BackendID) o;</span>
-
-<span class="fc" id="L42">        return id.equals(backendID.id);</span>
+    public String toString() {
+<span class="fc" id="L37">        return id;</span>
     }
 
-    @Override
-    public int hashCode() {
-<span class="fc" id="L47">        return id.hashCode();</span>
+    /**
+     * JAX-RS will use this method to marshall between string and this enum.
+     * Supports abbreviation. e.g. 'm' will map to 'MS'.
+     *
+     * @param value
+     *            string representation of the enum constants
+     * @return the enum constant
+     */
+    public static BackendID fromString(String value) {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (Strings.isNullOrEmpty(value)) {</span>
+<span class="fc" id="L50">            return null;</span>
+        }
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (value.toLowerCase().startsWith(&quot;m&quot;)) {</span>
+<span class="fc" id="L53">            return MS;</span>
+        }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (value.toLowerCase().startsWith(&quot;g&quot;)) {</span>
+<span class="fc" id="L56">            return GOOGLE;</span>
+        }
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (value.equalsIgnoreCase(&quot;dev&quot;)) {</span>
+<span class="fc" id="L59">            return DEV;</span>
+        }
+<span class="fc" id="L61">        throw new BadRequestException(</span>
+                &quot;can not parse [&quot; + value + &quot;] to a BackendID&quot;);
+    }
+
+    public static BackendID fromStringWithDefault(String value, BackendID defaultProvider) {
+<span class="fc" id="L66">        BackendID backendID = fromString(value);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        return backendID == null ? defaultProvider : backendID;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

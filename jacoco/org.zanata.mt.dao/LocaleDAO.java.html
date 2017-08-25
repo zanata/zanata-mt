@@ -3,6 +3,7 @@
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
 import com.ibm.icu.util.ULocale;
@@ -14,28 +15,27 @@ import com.google.common.annotations.VisibleForTesting;
 /**
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-@Stateless
+@RequestScoped
 public class LocaleDAO extends AbstractDAO&lt;Locale&gt; {
     private static final long serialVersionUID = -1640472923498327999L;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="fc" id="L22">    public LocaleDAO() {</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L23">    public LocaleDAO() {</span>
+<span class="fc" id="L24">    }</span>
 
     @VisibleForTesting
-<span class="fc" id="L26">    LocaleDAO(EntityManager entityManager) {</span>
-<span class="fc" id="L27">        setEntityManager(entityManager);</span>
-<span class="fc" id="L28">    }</span>
+<span class="fc" id="L27">    LocaleDAO(EntityManager entityManager) {</span>
+<span class="fc" id="L28">        setEntityManager(entityManager);</span>
+<span class="fc" id="L29">    }</span>
 
     public Locale getByLocaleCode(LocaleCode localeCode) {
-<span class="fc" id="L31">        List&lt;Locale&gt; locales = getEntityManager()</span>
-<span class="fc" id="L32">                .createQuery(&quot;from Locale where lower(localeCode) = :localeCode&quot;)</span>
-<span class="fc" id="L33">                .setParameter(&quot;localeCode&quot;, localeCode)</span>
-<span class="fc" id="L34">                .getResultList();</span>
-<span class="fc bfc" id="L35" title="All 2 branches covered.">        return locales.isEmpty() ? null : locales.get(0);</span>
+<span class="fc" id="L32">        List&lt;Locale&gt; locales = getEntityManager()</span>
+<span class="fc" id="L33">                .createQuery(&quot;from Locale where lower(localeCode) = :localeCode&quot;)</span>
+<span class="fc" id="L34">                .setParameter(&quot;localeCode&quot;, localeCode)</span>
+<span class="fc" id="L35">                .getResultList();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        return locales.isEmpty() ? null : locales.get(0);</span>
     }
 
-    @TransactionAttribute
     public Locale getOrCreateByLocaleCode(LocaleCode localeCode) {
 <span class="fc" id="L40">        Locale locale = getByLocaleCode(localeCode);</span>
 

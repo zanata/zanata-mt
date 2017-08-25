@@ -4,6 +4,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -16,66 +17,63 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public final class DTOUtil {
-<span class="fc" id="L20">    private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);</span>
-
-    @SuppressWarnings(&quot;unused&quot;)
-<span class="nc" id="L23">    private DTOUtil() {</span>
-<span class="nc" id="L24">    }</span>
+@ApplicationScoped
+<span class="fc" id="L21">public class DTOUtil {</span>
+<span class="fc" id="L22">    private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);</span>
 
     @SuppressWarnings({ &quot;unchecked&quot; })
-    public static &lt;T&gt; String toXML(T obj) {
+    public &lt;T&gt; String toXML(T obj) {
         try {
-<span class="fc" id="L29">            JAXBContext jc = JAXBContext.newInstance(obj.getClass());</span>
-<span class="fc" id="L30">            Marshaller m = jc.createMarshaller();</span>
-<span class="fc" id="L31">            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);</span>
-<span class="fc" id="L32">            m.setProperty(Marshaller.JAXB_FRAGMENT, true);</span>
-<span class="fc" id="L33">            StringWriter writer = new StringWriter();</span>
+<span class="fc" id="L27">            JAXBContext jc = JAXBContext.newInstance(obj.getClass());</span>
+<span class="fc" id="L28">            Marshaller m = jc.createMarshaller();</span>
+<span class="fc" id="L29">            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);</span>
+<span class="fc" id="L30">            m.setProperty(Marshaller.JAXB_FRAGMENT, true);</span>
+<span class="fc" id="L31">            StringWriter writer = new StringWriter();</span>
 
             /*
              * Marshal objects into a string differently depending on whether
              * they are root elements or not
              */
-<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (obj.getClass().getAnnotation(XmlRootElement.class) != null) {</span>
-<span class="fc" id="L40">                m.marshal(obj, writer);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">            if (obj.getClass().getAnnotation(XmlRootElement.class) != null) {</span>
+<span class="fc" id="L38">                m.marshal(obj, writer);</span>
             } else {
-<span class="fc" id="L42">                m.marshal(new JAXBElement&lt;T&gt;(new QName(&quot;&quot;, obj.getClass()</span>
-<span class="fc" id="L43">                        .getSimpleName()), (Class&lt;T&gt;) obj.getClass(), obj),</span>
+<span class="fc" id="L40">                m.marshal(new JAXBElement&lt;T&gt;(new QName(&quot;&quot;, obj.getClass()</span>
+<span class="fc" id="L41">                        .getSimpleName()), (Class&lt;T&gt;) obj.getClass(), obj),</span>
                         writer);
             }
-<span class="fc" id="L46">            return writer.toString();</span>
-<span class="nc" id="L47">        } catch (Exception e) {</span>
-<span class="nc" id="L48">            LOG.error(&quot;toXML failed&quot;, e);</span>
-<span class="nc" id="L49">            return obj.getClass().getName() + &quot;@&quot;</span>
-<span class="nc" id="L50">                    + Integer.toHexString(obj.hashCode());</span>
+<span class="fc" id="L44">            return writer.toString();</span>
+<span class="nc" id="L45">        } catch (Exception e) {</span>
+<span class="nc" id="L46">            LOG.error(&quot;toXML failed&quot;, e);</span>
+<span class="nc" id="L47">            return obj.getClass().getName() + &quot;@&quot;</span>
+<span class="nc" id="L48">                    + Integer.toHexString(obj.hashCode());</span>
         }
     }
 
-    public static &lt;T&gt; T toObject(String xml, Class&lt;T&gt; clazz)
+    public &lt;T&gt; T toObject(String xml, Class&lt;T&gt; clazz)
             throws JAXBException {
-<span class="fc" id="L56">        JAXBContext jc = JAXBContext.newInstance(clazz);</span>
-<span class="fc" id="L57">        Unmarshaller um = jc.createUnmarshaller();</span>
-<span class="fc" id="L58">        StringReader reader = new StringReader(xml);</span>
-<span class="fc" id="L59">        StreamSource source = new StreamSource(reader);</span>
-<span class="fc" id="L60">        JAXBElement&lt;T&gt; elem = um.unmarshal(source, clazz);</span>
-<span class="fc" id="L61">        return elem.getValue();</span>
+<span class="fc" id="L54">        JAXBContext jc = JAXBContext.newInstance(clazz);</span>
+<span class="fc" id="L55">        Unmarshaller um = jc.createUnmarshaller();</span>
+<span class="fc" id="L56">        StringReader reader = new StringReader(xml);</span>
+<span class="fc" id="L57">        StreamSource source = new StreamSource(reader);</span>
+<span class="fc" id="L58">        JAXBElement&lt;T&gt; elem = um.unmarshal(source, clazz);</span>
+<span class="fc" id="L59">        return elem.getValue();</span>
     }
 
-    public static String toJSON(Object obj) {
-<span class="fc" id="L65">        ObjectMapper mapper = new ObjectMapper();</span>
+    public String toJSON(Object obj) {
+<span class="fc" id="L63">        ObjectMapper mapper = new ObjectMapper();</span>
         try {
-<span class="fc" id="L67">            return mapper.writeValueAsString(obj);</span>
-<span class="nc" id="L68">        } catch (IOException e) {</span>
-<span class="nc" id="L69">            LOG.error(&quot;toJSON failed&quot;, e);</span>
-<span class="nc" id="L70">            return obj.getClass().getName() + &quot;@&quot;</span>
-<span class="nc" id="L71">                    + Integer.toHexString(obj.hashCode());</span>
+<span class="fc" id="L65">            return mapper.writeValueAsString(obj);</span>
+<span class="nc" id="L66">        } catch (IOException e) {</span>
+<span class="nc" id="L67">            LOG.error(&quot;toJSON failed&quot;, e);</span>
+<span class="nc" id="L68">            return obj.getClass().getName() + &quot;@&quot;</span>
+<span class="nc" id="L69">                    + Integer.toHexString(obj.hashCode());</span>
         }
     }
 
     public static &lt;T&gt; T fromJSONToObject(String json, Class&lt;T&gt; clazz)
         throws IOException {
-<span class="fc" id="L77">        ObjectMapper mapper = new ObjectMapper();</span>
-<span class="fc" id="L78">        return mapper.readValue(json, clazz);</span>
+<span class="fc" id="L75">        ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L76">        return mapper.readValue(json, clazz);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -4,6 +4,7 @@ import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,33 +28,27 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class MockTranslatorBackend implements TranslatorBackend {
 
+    // Max length per request for mock service
+    private final static int MAX_LENGTH = 10000;
+
     public final static String PREFIX_MOCK_STRING = &quot;translated[&quot;;
     public final static String UNICODE_SUPPLEMENTARY = &quot;\uD843\uDFB4&quot;;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="fc" id="L34">    public MockTranslatorBackend() {</span>
-<span class="fc" id="L35">    }</span>
-
-    @Override
-    public AugmentedTranslation translate(String content,
-            BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType, Optional&lt;String&gt; category)
-            throws ZanataMTException {
-<span class="fc" id="L42">        return new AugmentedTranslation(wrapContentInBlock(content),</span>
-<span class="fc" id="L43">                wrapContentInBlock(content));</span>
-    }
+<span class="fc" id="L38">    public MockTranslatorBackend() {</span>
+<span class="fc" id="L39">    }</span>
 
     @Override
     public List&lt;AugmentedTranslation&gt; translate(List&lt;String&gt; contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional&lt;String&gt; category)
             throws ZanataMTException {
-<span class="fc" id="L51">        List&lt;AugmentedTranslation&gt; translations = contents.stream()</span>
-<span class="fc" id="L52">                .map(source -&gt; new AugmentedTranslation(</span>
-<span class="fc" id="L53">                        wrapContentInBlock(source),</span>
-<span class="fc" id="L54">                        wrapContentInBlock(source)))</span>
-<span class="fc" id="L55">                .collect(Collectors.toList());</span>
-<span class="fc" id="L56">        return translations;</span>
+<span class="fc" id="L46">        List&lt;AugmentedTranslation&gt; translations = contents.stream()</span>
+<span class="fc" id="L47">                .map(source -&gt; new AugmentedTranslation(</span>
+<span class="fc" id="L48">                        wrapContentInBlock(source),</span>
+<span class="fc" id="L49">                        wrapContentInBlock(source)))</span>
+<span class="fc" id="L50">                .collect(Collectors.toList());</span>
+<span class="fc" id="L51">        return translations;</span>
     }
 
     /**
@@ -61,24 +56,34 @@ public class MockTranslatorBackend implements TranslatorBackend {
      */
     @Override
     public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
-<span class="fc" id="L64">        return new MockLocaleCode(localeCode);</span>
+<span class="fc" id="L59">        return new MockLocaleCode(localeCode);</span>
+    }
+
+    @Override
+    public int getCharLimitPerRequest() {
+<span class="nc" id="L64">        return MAX_LENGTH;</span>
+    }
+
+    @Override
+    public BackendID getId() {
+<span class="fc" id="L69">        return BackendID.DEV;</span>
     }
 
     public static class MockLocaleCode implements BackendLocaleCode {
         private String localeCode;
 
-<span class="fc" id="L70">        public MockLocaleCode(@NotNull LocaleCode localeCode) {</span>
-<span class="fc" id="L71">            this.localeCode = localeCode.getId();</span>
-<span class="fc" id="L72">        }</span>
+<span class="fc" id="L75">        public MockLocaleCode(@NotNull LocaleCode localeCode) {</span>
+<span class="fc" id="L76">            this.localeCode = localeCode.getId();</span>
+<span class="fc" id="L77">        }</span>
 
         @Override
         public String getLocaleCode() {
-<span class="fc" id="L76">            return localeCode;</span>
+<span class="fc" id="L81">            return localeCode;</span>
         }
     }
 
     private String wrapContentInBlock(String content) {
-<span class="fc" id="L81">        return PREFIX_MOCK_STRING + UNICODE_SUPPLEMENTARY + &quot; &quot; + content +</span>
+<span class="fc" id="L86">        return PREFIX_MOCK_STRING + UNICODE_SUPPLEMENTARY + &quot; &quot; + content +</span>
                 &quot; &quot; + UNICODE_SUPPLEMENTARY + &quot;]&quot;;
     }
 }

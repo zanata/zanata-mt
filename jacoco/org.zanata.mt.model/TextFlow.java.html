@@ -107,10 +107,10 @@ public class TextFlow extends ModelEntity {
 
     @Transient
     public List&lt;TextFlowTarget&gt; getTargetsByLocaleCode(LocaleCode localeCode) {
-<span class="fc" id="L110">        return getTargets().stream()</span>
-<span class="fc" id="L111">                .filter(textFlowTarget -&gt; textFlowTarget.getLocale()</span>
-<span class="fc" id="L112">                        .getLocaleCode().equals(localeCode))</span>
-<span class="fc" id="L113">                .collect(Collectors.toList());</span>
+<span class="nc" id="L110">        return getTargets().stream()</span>
+<span class="nc" id="L111">                .filter(textFlowTarget -&gt; textFlowTarget.getLocale()</span>
+<span class="nc" id="L112">                        .getLocaleCode().equals(localeCode))</span>
+<span class="nc" id="L113">                .collect(Collectors.toList());</span>
     }
 
     @Override
