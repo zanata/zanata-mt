@@ -2,24 +2,29 @@ package org.zanata.mt.model;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
+
+import com.google.common.base.Strings;
 
 /**
  * Backend type
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class BackendID implements Serializable {
+public enum  BackendID implements Serializable {
 
     // Microsoft translators service
-    public static final BackendID MS = new BackendID("MS");
+    MS("MS"),
+    // Google translation service
+    GOOGLE("GOOGLE"),
 
     // DEV translators service
-    public static final BackendID DEV = new BackendID("DEV");
+    DEV("DEV");
 
     @NotNull
     private final String id;
 
-    public BackendID(String id) {
+    BackendID(String id) {
         this.id = id;
     }
 
@@ -32,18 +37,33 @@ public class BackendID implements Serializable {
         return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BackendID)) return false;
-
-        BackendID backendID = (BackendID) o;
-
-        return id.equals(backendID.id);
+    /**
+     * JAX-RS will use this method to marshall between string and this enum.
+     * Supports abbreviation. e.g. 'm' will map to 'MS'.
+     *
+     * @param value
+     *            string representation of the enum constants
+     * @return the enum constant
+     */
+    public static BackendID fromString(String value) {
+        if (Strings.isNullOrEmpty(value)) {
+            return null;
+        }
+        if (value.toLowerCase().startsWith("m")) {
+            return MS;
+        }
+        if (value.toLowerCase().startsWith("g")) {
+            return GOOGLE;
+        }
+        if (value.equalsIgnoreCase("dev")) {
+            return DEV;
+        }
+        throw new BadRequestException(
+                "can not parse [" + value + "] to a BackendID");
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
+    public static BackendID fromStringWithDefault(String value, BackendID defaultProvider) {
+        BackendID backendID = fromString(value);
+        return backendID == null ? defaultProvider : backendID;
     }
 }

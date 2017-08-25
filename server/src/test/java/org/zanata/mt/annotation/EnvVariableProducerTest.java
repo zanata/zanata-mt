@@ -36,8 +36,7 @@ public class EnvVariableProducerTest {
     @Test
     public void testFindPropertyNotFound() {
         when(envVariable.value()).thenReturn("value");
-        assertThatThrownBy(() -> producer.findProperty(ip))
-                .isInstanceOf(IllegalStateException.class);
+        assertThat(producer.findProperty(ip)).isEqualTo("");
     }
 
     @Test

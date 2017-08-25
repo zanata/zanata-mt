@@ -1,15 +1,27 @@
 package org.zanata.mt.api.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.BackEndProviders;
+import org.zanata.mt.annotation.DefaultProvider;
+import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.APIResponse;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.DocumentResource;
-import org.zanata.mt.dao.DocumentDAO;
 import org.zanata.mt.dao.LocaleDAO;
 import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
@@ -18,16 +30,10 @@ import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DateRange;
 import org.zanata.mt.service.DocumentContentTranslatorService;
-import org.zanata.mt.service.ConfigurationService;
+import org.zanata.mt.service.DocumentService;
 import org.zanata.mt.util.UrlUtil;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Optional;
+import static org.zanata.mt.model.BackendID.fromStringWithDefault;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -41,11 +47,11 @@ public class DocumentResourceImpl implements DocumentResource {
 
     private LocaleDAO localeDAO;
 
-    private DocumentDAO documentDAO;
-
+    private DocumentService documentService;
     private DocumentProcessManager docProcessManager;
-
-    private ConfigurationService configurationService;
+    private boolean isDevMode;
+    private BackendID defaultProvider;
+    private Set<BackendID> availableProviders;
 
     @SuppressWarnings("unused")
     public DocumentResourceImpl() {
@@ -54,15 +60,19 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentDAO documentDAO,
+            LocaleDAO localeDAO, DocumentService documentService,
             DocumentProcessManager docProcessManager,
-            ConfigurationService configurationService) {
+            @DevMode boolean isDevMode,
+            @DefaultProvider BackendID defaultProvider,
+            @BackEndProviders Set<BackendID> availableProviders) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
-        this.documentDAO = documentDAO;
+        this.documentService = documentService;
         this.docProcessManager = docProcessManager;
-        this.configurationService = configurationService;
+        this.isDevMode = isDevMode;
+        this.defaultProvider = defaultProvider;
+        this.availableProviders = availableProviders;
     }
 
     @Override
@@ -81,7 +91,7 @@ public class DocumentResourceImpl implements DocumentResource {
                 StringUtils.isBlank(dateRangeParam) ? Optional.empty() :
                         Optional.of(DateRange.from(dateRangeParam));
 
-        List<Document> documents = documentDAO
+        List<Document> documents = documentService
                 .getByUrl(url, Optional.ofNullable(fromLocaleCode),
                         Optional.ofNullable(toLocaleCode), dateParam);
 
@@ -110,15 +120,24 @@ public class DocumentResourceImpl implements DocumentResource {
     public Response translate(DocumentContent docContent,
             @QueryParam("toLocaleCode") LocaleCode toLocaleCode) {
 
-        // Default to MS engine for translation if not DEV mode
-        final BackendID backendID =
-                configurationService.isDevMode() ? BackendID.DEV : BackendID.MS;
-
         Optional<APIResponse> errorResp =
                 validateTranslateRequest(docContent, toLocaleCode);
         if (errorResp.isPresent()) {
             return Response.status(errorResp.get().getStatus())
                     .entity(errorResp.get()).build();
+        }
+
+        // use dev backend if it's DEV mode
+        final BackendID backendID = isDevMode ? BackendID.DEV
+                : fromStringWithDefault(docContent.getBackendId(),
+                        defaultProvider);
+
+        // check if this backend is available
+        if (!availableProviders.contains(backendID)) {
+            LOG.warn("requested machine translation provider {} is not set up (no credential)", backendID);
+            return Response.status(Response.Status.NOT_IMPLEMENTED)
+                    .entity(new APIResponse(Response.Status.NOT_IMPLEMENTED,
+                            "Error: backendId " + docContent.getBackendId() + " not available")).build();
         }
 
         // if source locale == target locale, return docContent
@@ -140,14 +159,13 @@ public class DocumentResourceImpl implements DocumentResource {
             Locale fromLocale = getLocale(fromLocaleCode);
             Locale toLocale = getLocale(toLocaleCode);
 
-            Document doc = documentDAO
+            Document doc = documentService
                     .getOrCreateByUrl(docContent.getUrl(), fromLocale,
                             toLocale);
+            documentService.incrementDocRequestCount(doc);
 
             DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, backendID, MAX_LENGTH);
-            doc.incrementCount();
-            documentDAO.persist(doc);
+                    .translateDocument(doc, docContent, backendID);
             return Response.ok().entity(newDocContent).build();
         });
     }

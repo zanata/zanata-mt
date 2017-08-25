@@ -10,6 +10,7 @@ import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
+import org.zanata.mt.model.BackendID;
 
 /**
  * Interface for machine translation provider
@@ -17,15 +18,6 @@ import org.zanata.mt.model.AugmentedTranslation;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public interface TranslatorBackend {
-
-    /**
-     * Return translation from MT provider
-     * @throws ZanataMTException
-     */
-    AugmentedTranslation translate(String content, BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType,
-            Optional<String> category)
-            throws ZanataMTException;
 
     /**
      * Return translations (same index as request) from MT provider
@@ -42,4 +34,13 @@ public interface TranslatorBackend {
      * @param localeCode
      */
     BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode);
+
+    /**
+     * @return
+     *      max length for request for this backend. Contents will be segmented
+     *      if the length of over limit
+     */
+    int getCharLimitPerRequest();
+
+    BackendID getId();
 }

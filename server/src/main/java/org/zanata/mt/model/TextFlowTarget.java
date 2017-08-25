@@ -1,30 +1,32 @@
 package org.zanata.mt.model;
 
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.zanata.mt.model.type.BackendIdType;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Entity
 @Access(AccessType.FIELD)
-@TypeDefs({
-    @TypeDef(name = "backendIdType", typeClass = BackendIdType.class)
+@NamedQueries({
+        @NamedQuery(name = TextFlowTarget.QUERY_FIND_BY_LOCALE_BACKEND,
+                query = "from TextFlowTarget where textFlow = :textFlow and locale = :locale and backendId = :backendId")
 })
 public class TextFlowTarget extends ModelEntity {
     private static final long serialVersionUID = -64231181018123191L;
+    public static final String QUERY_FIND_BY_LOCALE_BACKEND = "findByLocaleAndBackEnd";
 
     @NaturalId
     @ManyToOne(optional = false)
@@ -45,8 +47,8 @@ public class TextFlowTarget extends ModelEntity {
     private String rawContent;
 
     @NaturalId
-    @Type(type = "backendIdType")
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private BackendID backendId;
 

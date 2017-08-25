@@ -6,6 +6,7 @@ import org.zanata.mt.model.Locale;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ import org.zanata.mt.util.HashUtil;
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Stateless
+@RequestScoped
 public class DocumentDAO extends AbstractDAO<Document> {
     private static final long serialVersionUID = -2806219348294855687L;
 
@@ -68,18 +69,6 @@ public class DocumentDAO extends AbstractDAO<Document> {
         List<Document> documents = getByUrl(url, Optional.of(fromLocale.getLocaleCode()),
                 Optional.of(toLocale.getLocaleCode()), Optional.empty());
         return documents.isEmpty() ? null : documents.get(0);
-    }
-
-    @TransactionAttribute
-    public Document getOrCreateByUrl(String url, Locale fromLocale, Locale toLocale) {
-        Document doc = getByUrl(url, fromLocale, toLocale);
-
-        if (doc == null) {
-            doc = new Document(url, fromLocale, toLocale);
-            doc = persist(doc);
-            flush();
-        }
-        return doc;
     }
 
     public List<String> getUrlList(Optional<DateRange> dateParam) {

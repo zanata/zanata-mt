@@ -1,5 +1,6 @@
 package org.zanata.mt.backend.mock;
 
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.mt.api.dto.LocaleCode;
@@ -49,9 +50,9 @@ public class MockTranslatorBackendTest {
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
         AugmentedTranslation translation =
-                mockBackend.translate(content, fromLocale, toLocale, mediaType,
+                mockBackend.translate(Lists.newArrayList(content), fromLocale, toLocale, mediaType,
                         Optional
-                                .of("tech"));
+                                .of("tech")).get(0);
         assertThat(translation.getRawTranslation())
                 .contains(content, PREFIX_MOCK_STRING, UNICODE_SUPPLEMENTARY);
         assertThat(translation.getPlainTranslation())

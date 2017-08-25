@@ -24,6 +24,13 @@ import javax.ws.rs.core.StreamingOutput;
 })
 @ResourceLabel("Backend")
 public interface BackendResource {
+    String MS_ATTRIBUTION_IMAGE =
+            "/images/MS_attribution.png";
+    String GOOGLE_ATTRIBUTION_IMAGE =
+                    "/images/google_attribution.png";
+    String DEV_ATTRIBUTION_IMAGE =
+                            "/images/logo-256.png";
+
     /**
      * Retrieve backend attribution (image) based on given id
      *
@@ -38,7 +45,19 @@ public interface BackendResource {
             @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
             @ResponseCode(code = 400, condition = "id parameter is missing.", type = @TypeHint(APIResponse.class)),
             @ResponseCode(code = 404, condition = "id not recognised.", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation.")
+            @ResponseCode(code = 500, condition = "Unexpected error.")
     })
     Response getAttribution(@QueryParam("id") String id);
+
+
+    /**
+     * Available machine translation providers.
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @StatusCodes({
+            @ResponseCode(code = 200, condition = "Available machine translation providers", type = @TypeHint(String[].class)),
+            @ResponseCode(code = 500, condition = "Unexpected error.")
+    })
+    Response getAvailableBackends();
 }

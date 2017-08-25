@@ -2,6 +2,7 @@ package org.zanata.mt.backend.ms;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,6 +16,9 @@ import javax.xml.bind.JAXBException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
+import org.zanata.mt.annotation.BackEndProviders;
+import org.zanata.mt.annotation.Credentials;
+import org.zanata.mt.annotation.DevMode;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.backend.BackendLocaleCode;
 import org.zanata.mt.backend.ms.internal.dto.MSLocaleCode;
@@ -24,11 +28,9 @@ import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
 import org.zanata.mt.exception.ZanataMTException;
 import org.zanata.mt.model.AugmentedTranslation;
-import org.zanata.mt.service.ConfigurationService;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.service.TranslatorBackend;
 import org.zanata.mt.util.DTOUtil;
-
-import com.google.common.collect.Lists;
 
 import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 
@@ -38,8 +40,7 @@ import static org.zanata.mt.api.APIConstant.AZURE_KEY;
  * {@link org.zanata.mt.api.APIConstant#AZURE_KEY} during startup.
  *
  * See
- * {@link #translate(String, BackendLocaleCode, BackendLocaleCode, MediaType)}
- * {@link #translate(List, BackendLocaleCode, BackendLocaleCode, MediaType)}
+ * {@link #translate(List, BackendLocaleCode, BackendLocaleCode, MediaType, Optional)}
  *
  * See {@link MicrosoftTranslatorClient} for MS translator configuration.
  *
@@ -48,7 +49,8 @@ import static org.zanata.mt.api.APIConstant.AZURE_KEY;
 @ApplicationScoped
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
-    private ConfigurationService configurationService;
+    // Max length per request for MS service
+    private final static int MAX_LENGTH = 10000;
 
     /**
      * Map from request locale to MS supported locale code
@@ -62,6 +64,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             );
 
     private String clientSubscriptionKey;
+    private DTOUtil dtoUtil;
 
     private MicrosoftTranslatorClient api;
 
@@ -73,32 +76,15 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(
-            ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-        this.clientSubscriptionKey =
-                configurationService.getClientSubscriptionKey();
+    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey, DTOUtil dtoUtil) {
+        this.clientSubscriptionKey = msAPIKey;
+        this.dtoUtil = dtoUtil;
     }
 
     public void onInit(
             @Observes @Initialized(ApplicationScoped.class) Object init)
             throws ZanataMTException {
-        if (!configurationService.isDevMode() &&
-                StringUtils.isBlank(clientSubscriptionKey)) {
-            throw new ZanataMTException(
-                    "Missing system properties of " + AZURE_KEY);
-        }
-        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
-    }
-
-    @Override
-    public AugmentedTranslation translate(String content,
-            BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType,
-            Optional<String> category)
-            throws ZanataMTException {
-        return translate(Lists.newArrayList(content), srcLocale, targetLocale,
-                mediaType, category).get(0);
+        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient, dtoUtil);
     }
 
     @Override
@@ -116,17 +102,15 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
             options.setContentType(mediaType.toString());
-            if (category.isPresent()) {
-                options.setCategory(category.get());
-            }
+            category.ifPresent(options::setCategory);
             req.setOptions(options);
 
             String rawResponse = api.requestTranslations(req);
             MSTranslateArrayResp resp =
-                    DTOUtil.toObject(rawResponse, MSTranslateArrayResp.class);
+                    dtoUtil.toObject(rawResponse, MSTranslateArrayResp.class);
             return resp.getResponse().stream().map(
                     res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
-                            DTOUtil.toXML(res)))
+                            dtoUtil.toXML(res)))
                     .collect(Collectors.toList());
         } catch (JAXBException e) {
             throw new ZanataMTException("Unable to get translations from MS API", e);
@@ -137,6 +121,16 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
         MSLocaleCode from = new MSLocaleCode(localeCode);
         return LOCALE_MAP.getOrDefault(localeCode, from);
+    }
+
+    @Override
+    public int getCharLimitPerRequest() {
+        return MAX_LENGTH;
+    }
+
+    @Override
+    public BackendID getId() {
+        return BackendID.MS;
     }
 
     @VisibleForTesting

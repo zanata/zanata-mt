@@ -28,9 +28,6 @@ import org.zanata.mt.api.dto.LocaleCode;
 @ResourceLabel("Document")
 public interface DocumentResource {
 
-    // Max length per request
-    int MAX_LENGTH = 10000;
-
     /**
      * Get request count for a document with given url
      *
@@ -95,7 +92,8 @@ public interface DocumentResource {
     @StatusCodes({
             @ResponseCode(code = 200, condition = "Document is translated with given locale", type = @TypeHint(DocumentContent.class)),
             @ResponseCode(code = 400, condition = "Missing toLocaleCode, invalid DocumentContent", type = @TypeHint(APIResponse.class)),
-            @ResponseCode(code = 500, condition = "Unexpected error during translation")
+            @ResponseCode(code = 500, condition = "Unexpected error during translation"),
+            @ResponseCode(code = 501, condition = "Requested translation provider is not set up")
     })
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,

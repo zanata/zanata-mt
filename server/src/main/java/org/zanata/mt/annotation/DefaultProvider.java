@@ -20,35 +20,17 @@
  */
 package org.zanata.mt.annotation;
 
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.google.common.base.Strings;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
 /**
- * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
+ * Qualifier for default translation provider if none is specified.
  */
-public class EnvVariableProducer {
-    private static final Logger log =
-            LoggerFactory.getLogger(EnvVariableProducer.class);
-    @Produces
-    @EnvVariable("")
-    String findProperty(InjectionPoint ip) {
-        EnvVariable annotation = ip.getAnnotated()
-                .getAnnotation(EnvVariable.class);
-
-        String name = annotation.value();
-        String found = getEnv(name);
-        if (found == null) {
-            log.warn(
-                    "Environment variable '{}' is not defined!", name);
-        }
-        return Strings.nullToEmpty(found);
-    }
-
-    String getEnv(String name) {
-        return System.getenv(name);
-    }
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+public @interface DefaultProvider {
 }

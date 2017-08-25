@@ -18,9 +18,11 @@
 5. Logs: `mvn docker:logs -Ddocker.follow`
 6. To stop and remove: `mvn docker:stop` (This will stop and remove both containers)
 
+Alternatively, go to `server` directory and run `restart.sh`. It will rebuild the package and redeploy to docker containers. 
+
 ### DEV mode
 
-DEV mode is enabled when **ZANATA_MT_AZURE_KEY** is not present in environment variable. The service will not use MS backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
+DEV mode is enabled when **ZANATA_MT_AZURE_KEY** or **GOOGLE_APPLICATION_CREDENTIALS** is not present in environment variable. The service will not use any paid service backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
 
 `ZANATA_MT_API_ID` = `devID`<br/>
 `ZANATA_MT_API_KEY` = `devKEY`
@@ -37,8 +39,11 @@ ID for /api request
 ### `ZANATA_MT_API_KEY` (required)
 Api key for /api request
 
-### `ZANATA_MT_AZURE_KEY` (required, otherwise DEV mode will be enabled)
+### `ZANATA_MT_AZURE_KEY` (if this and Google key are empty, DEV mode will be enabled)
 Subscription key for MS translators
+
+### `GOOGLE_APPLICATION_CREDENTIALS` (if this and AZURE key are empty, DEV mode will be enabled)
+Location to the Google service account credential json file
 
 ### `ZANATA_MT_ORIGIN_WHITELIST` (optional)
 Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.

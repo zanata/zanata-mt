@@ -21,13 +21,16 @@ public abstract class AbstractDAO<T> implements Serializable {
         return entityManager;
     }
 
-    @TransactionAttribute
     public T persist(T entity) {
-        return getEntityManager().merge(entity);
+        getEntityManager().persist(entity);
+        return entity;
     }
 
-    @TransactionAttribute
     public void flush() {
         getEntityManager().flush();
+    }
+
+    public T merge(T entity) {
+        return getEntityManager().merge(entity);
     }
 }

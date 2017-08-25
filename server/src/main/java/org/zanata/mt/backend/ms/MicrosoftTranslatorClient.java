@@ -41,11 +41,13 @@ class MicrosoftTranslatorClient {
     private final String clientSubscriptionKey;
 
     private final MicrosoftRestEasyClient restClient;
+    private final DTOUtil dtoUtil;
 
     protected MicrosoftTranslatorClient(String clientSubscriptionKey,
-            MicrosoftRestEasyClient restClient) {
+            MicrosoftRestEasyClient restClient, DTOUtil dtoUtil) {
         this.clientSubscriptionKey = clientSubscriptionKey;
         this.restClient = restClient;
+        this.dtoUtil = dtoUtil;
     }
 
     /**
@@ -71,7 +73,7 @@ class MicrosoftTranslatorClient {
             throws ZanataMTException {
         getTokenIfNeeded();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Source sending:" + DTOUtil.toXML(req));
+            LOG.debug("Source sending:" + dtoUtil.toXML(req));
         }
         ResteasyWebTarget webTarget =
                 restClient.getWebTarget(TRANSLATIONS_BASE_URL);
@@ -79,7 +81,7 @@ class MicrosoftTranslatorClient {
                 .header("Content-Type",
                         MediaType.TEXT_XML + "; charset=" + ENCODING)
                 .header("Authorization", token)
-                .post(Entity.xml(DTOUtil.toXML(req)));
+                .post(Entity.xml(dtoUtil.toXML(req)));
 
         if (response.getStatusInfo() != Response.Status.OK) {
             throw new ZanataMTException(

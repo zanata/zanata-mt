@@ -81,6 +81,9 @@ public class DocumentContentTranslatorServiceTest {
         String html = "<div><span>content1</span><span>content2</span></div>";
         String expectedHtml = "<div><span>translated</span><span>translated</span></div>";
 
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
@@ -92,7 +95,7 @@ public class DocumentContentTranslatorServiceTest {
 
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, BackendID.MS, maxLength);
+                .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
     }
 
@@ -107,6 +110,10 @@ public class DocumentContentTranslatorServiceTest {
         String html = "<span>content1</span><span>content2</span>";
         String expectedHtml = "<span>translated</span><span>translated</span>";
 
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
@@ -118,7 +125,7 @@ public class DocumentContentTranslatorServiceTest {
 
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, BackendID.MS, maxLength);
+                .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
     }
 
@@ -133,6 +140,9 @@ public class DocumentContentTranslatorServiceTest {
         String html = "<div><span>content1</span><span>content too long cannot be translated</span></div>";
         String expectedHtml = "<div><span>translated</span><span>content too long cannot be translated</span></div>";
 
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
                 .thenReturn(Lists.newArrayList("<span>translated</span>"));
@@ -144,7 +154,7 @@ public class DocumentContentTranslatorServiceTest {
 
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, BackendID.MS, maxLength);
+                .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents().get(0).getValue())
                 .isEqualTo(expectedHtml);
         assertThat(translatedDocContent.getWarnings()).hasSize(2);
@@ -152,7 +162,7 @@ public class DocumentContentTranslatorServiceTest {
 
     @Test
     public void testTranslateLongPlainText() {
-        int MAX_LENGTH = 50;
+        int maxLength = 50;
 
         // strings with 6 sentences
         String text = "Hurry! I am never at home on Sundays. The mysterious diary records the voice. She was too short to see over the fence. Everyone was busy, so I went to the movie alone. Sometimes it is better to just walk away from things and go back to them later when you’re in a better frame of mind.";
@@ -161,6 +171,9 @@ public class DocumentContentTranslatorServiceTest {
         Document document =
                 new Document("http://localhost", fromLocale, toLocale);
         List<String> strings = SegmentString.segmentString(text, Optional.empty());
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
 
         when(persistentTranslationService.translate(document,
                 strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
@@ -187,20 +200,20 @@ public class DocumentContentTranslatorServiceTest {
                         new TypeString(text, MediaType.TEXT_PLAIN, "meta")), "http://localhost", "en");
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, BackendID.MS, MAX_LENGTH);
+                .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents()).hasSize(1);
         assertThat(StringUtils.countMatches(translatedDocContent.getContents().get(0).getValue(), "Translated")).isEqualTo(5);
     }
 
     @Test
     public void testTranslateDocumentContent() {
-        int MAX_LENGTH = DocumentResource.MAX_LENGTH;
+        int maxLength = 10000;
 
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
 
-        String longText = StringUtils.repeat("5", MAX_LENGTH);
-        String maxString = StringUtils.repeat("t", MAX_LENGTH + 1);
+        String longText = StringUtils.repeat("5", maxLength);
+        String maxString = StringUtils.repeat("t", maxLength + 1);
 
         List<String> htmls =
                 Lists.newArrayList("<div>Entry 1</div>",
@@ -258,6 +271,9 @@ public class DocumentContentTranslatorServiceTest {
         Document document =
                 new Document("http://localhost", srcLocale, transLocale);
 
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
         when(persistentTranslationService.translate(document, processedHtmls,
                 srcLocale, transLocale, BackendID.MS,
                 MediaType.TEXT_HTML_TYPE, Optional.of("tech"))).thenReturn(translatedHtmls);
@@ -275,7 +291,7 @@ public class DocumentContentTranslatorServiceTest {
                 .thenReturn(translatedText.subList(2, 3));
 
         DocumentContent translatedDocContent = documentContentTranslatorService
-                .translateDocument(document, docContent, BackendID.MS, MAX_LENGTH);
+                .translateDocument(document, docContent, BackendID.MS);
 
         assertThat(translatedDocContent.getLocaleCode())
                 .isEqualTo(transLocale.getLocaleCode().getId());

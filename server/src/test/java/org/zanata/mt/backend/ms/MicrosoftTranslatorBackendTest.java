@@ -1,5 +1,6 @@
 package org.zanata.mt.backend.ms;
 
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,9 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MicrosoftTranslatorBackendTest {
     private MicrosoftTranslatorBackend msBackend = null;
-
-    @Mock
-    private ConfigurationService configurationService;
+    private DTOUtil dtoUtil = new DTOUtil();
 
     @Test
     public void testConstructor() {
@@ -43,37 +42,9 @@ public class MicrosoftTranslatorBackendTest {
     }
 
     @Test
-    public void testVerifyKeyInvalid() {
-        when(configurationService.isDevMode()).thenReturn(false);
-        when(configurationService.getClientSubscriptionKey()).thenReturn(null);
-        msBackend = new MicrosoftTranslatorBackend(configurationService);
-        assertThatThrownBy(() -> msBackend.onInit(null))
-                .isInstanceOf(ZanataMTException.class);
-    }
-
-    @Test
-    public void testVerifyKey() {
-        when(configurationService.isDevMode()).thenReturn(false);
-        when(configurationService.getClientSubscriptionKey())
-                .thenReturn("subscriptionKey");
-        msBackend = new MicrosoftTranslatorBackend(configurationService);
-        msBackend.onInit(null);
-    }
-
-    @Test
-    public void testIgnoreKeyCheckingInDevMode() {
-        when(configurationService.isDevMode()).thenReturn(true);
-        when(configurationService.getClientSubscriptionKey()).thenReturn(null);
-        msBackend = new MicrosoftTranslatorBackend(configurationService);
-        msBackend.onInit(null);
-    }
-
-    @Test
     public void testMappedLocale() {
-        when(configurationService.getClientSubscriptionKey())
-                .thenReturn("subscriptionKey");
         LocaleCode from = LocaleCode.ZH_HANS;
-        msBackend = new MicrosoftTranslatorBackend(configurationService);
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
         BackendLocaleCode to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
@@ -92,22 +63,23 @@ public class MicrosoftTranslatorBackendTest {
         respList.add(buildMSResponse("translation1"));
 
         resp.setResponse(respList);
-        String responseString = DTOUtil.toXML(resp);
+        String responseString = dtoUtil.toXML(resp);
 
         MicrosoftTranslatorClient api =
                 Mockito.mock(MicrosoftTranslatorClient.class);
         when(api.requestTranslations(any())).thenReturn(responseString);
-        when(configurationService.getClientSubscriptionKey())
-                .thenReturn("subscriptionKey");
 
-        msBackend = new MicrosoftTranslatorBackend(configurationService);
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
         msBackend.setApi(api);
-        AugmentedTranslation translation = msBackend
-                .translate(content, srcLocale, transLocale,
+        List<AugmentedTranslation> translations = msBackend
+                .translate(Lists.newArrayList(content), srcLocale, transLocale,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
+
+        assertThat(translations).hasSize(1);
+        AugmentedTranslation translation = translations.get(0);
         assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
         assertThat(translation.getRawTranslation())
-                .isEqualTo(DTOUtil.toXML(resp.getResponse().get(0)));
+                .isEqualTo(dtoUtil.toXML(resp.getResponse().get(0)));
     }
 
     private MSTranslateArrayResponse buildMSResponse(String message) {

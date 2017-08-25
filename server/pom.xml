@@ -22,6 +22,7 @@
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <GOOGLE_APPLICATION_CREDENTIALS>${build.testOutputDirectory}/zanata-mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
   </properties>
 
   <build>
@@ -114,8 +115,12 @@
                   <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
                   <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
                   <ZANATA_MT_AZURE_KEY>${ZANATA_MT_AZURE_KEY}</ZANATA_MT_AZURE_KEY>
+                  <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
+                  <!-- this need to match the volume binding below -->
+                  <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/zanata-mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
                   <ZANATA_MT_API_ID>devID</ZANATA_MT_API_ID>
                   <ZANATA_MT_API_KEY>devKEY</ZANATA_MT_API_KEY>
+                  <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
                 </env>
                 <dependsOn>
                   <container>zanataMTDB</container>
@@ -133,6 +138,11 @@
                   <!-- this is to expose DB container's env variables with prefix DB -->
                   <link>zanataMTDB:db</link>
                 </links>
+                <volumes>
+                  <bind>
+                    ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/jboss/google/zanata-mt-credential.json
+                  </bind>
+                </volumes>
                 <namingStrategy>alias</namingStrategy>
               </run>
             </image>
@@ -219,6 +229,16 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-translate</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client</artifactId>
     </dependency>
 
     <!-- resteasy -->
