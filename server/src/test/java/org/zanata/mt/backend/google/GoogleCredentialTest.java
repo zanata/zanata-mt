@@ -29,10 +29,11 @@ public class GoogleCredentialTest {
             throws IOException {
         File folder = temporaryFolder.newFolder();
         File destFile = new File(folder, "some/new/file.json");
-        GoogleCredential.from(destFile.getAbsolutePath(),
-                CREDENTIAL_FILE_CONTENT);
-        assertThat(destFile.exists()).isTrue();
-        assertThat(destFile).hasContent(CREDENTIAL_FILE_CONTENT);
+        GoogleCredential credential =
+                GoogleCredential.from(destFile.getAbsolutePath(),
+                        CREDENTIAL_FILE_CONTENT);
+        assertThat(credential.exists()).isTrue();
+        assertThat(credential.getCredentialsFile()).hasContent(CREDENTIAL_FILE_CONTENT);
     }
 
     @Test
