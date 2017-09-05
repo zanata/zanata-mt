@@ -25,11 +25,14 @@ public class GoogleCredentialTest {
     }
 
     @Test
-    public void googleCredentialFileMustExistIfGivingCredentialContent() {
-        assertThatThrownBy(() -> GoogleCredential.from("/Non/exist/file/path",
-                CREDENTIAL_FILE_CONTENT))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("/Non/exist/file/path is not a valid file path");
+    public void canWriteGoogleCredentialFileIfGivingCredentialContent()
+            throws IOException {
+        File folder = temporaryFolder.newFolder();
+        File destFile = new File(folder, "some/new/file.json");
+        GoogleCredential.from(destFile.getAbsolutePath(),
+                CREDENTIAL_FILE_CONTENT);
+        assertThat(destFile.exists()).isTrue();
+        assertThat(destFile).hasContent(CREDENTIAL_FILE_CONTENT);
     }
 
     @Test

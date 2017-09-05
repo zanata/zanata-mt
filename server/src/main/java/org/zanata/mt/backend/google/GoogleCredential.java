@@ -84,10 +84,6 @@ public class GoogleCredential {
 
     private static void writeGoogleADCFile(File googleADCFile,
             String googleADCContent) {
-        Preconditions.checkArgument(
-                googleADCFile.exists() && googleADCFile.isFile()
-                        && googleADCFile.canWrite(),
-                "%s is not a valid file path", googleADCFile);
 
         boolean mkdirs = googleADCFile.getParentFile().mkdirs();
         log.info("{} parent dir created: {}", googleADCFile, mkdirs);
