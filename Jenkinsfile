@@ -24,6 +24,7 @@
 import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
 
+import groovy.json.JsonSlurper
 import groovy.transform.Field
 
 milestone 0
@@ -103,7 +104,14 @@ timestamps {
 
                 def apiJson="{\"tag_name\": \"$tag\",\"target_commitish\": \"master\",\"name\": \"$tag\",\"body\": \"Release of version $tag\",\"draft\": false,\"prerelease\": false}"
                 echo "Create github release: $apiJson"
-                sh "curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN"
+
+                def response = sh script:"curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN", returnStdout: true
+                def releaseDetails = jsonParse(response)
+                def id = releaseDetails['id']
+
+                echo "Upload artifacts to release: $tag: $id"
+                sh "ls"
+                sh "curl --data-binary @'server/deployments/ROOT.war' -H 'Authorization: token $GITHUB_OAUTH2_TOKEN' -H 'Content-Type: application/octet-stream' https://uploads.github.com/repos/zanata/zanata-mt/releases/$id/assets?name=server.war"
               }
             } else {
               currentBuild.result = 'FAILURE'
@@ -359,5 +367,10 @@ void processTestCoverage() {
 
   // this should appear after all other static analysis steps
   step([$class: 'AnalysisPublisher'])
+}
+
+@NonCPS
+def jsonParse(def json) {
+  new JsonSlurper().parseText(json)
 }
 
