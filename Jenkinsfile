@@ -3,6 +3,8 @@
  * Jenkinsfile for zanata-mt
  *
  * Environment variables:
+ * MT_OPENSHIFT_DOCKERFILE: URL for Openshift Dockerfile
+ *
  * MT_DOCKER_REGISTRY_URL - docker registry url to upload image
  * MT_OPENSHIFT_URL - openshift url for stage and prod
  * MT_GIT_URL - git url
@@ -144,6 +146,7 @@ timestamps {
 
   if (branchName == 'master') {
     final String DOCKER_IMAGE = 'zanata-mt/server'
+    final String DOCKER_IMAGE_MNG_PLATFORM = 'machine-translations/mt-server'
 
     lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
       milestone 500
@@ -153,6 +156,11 @@ timestamps {
                 "DOCKER_BUILD_RELEASE": {
                   dockerBuildAndDeploy("$DOCKER_IMAGE")
                   deployToStage("$DOCKER_IMAGE")
+                },
+                // New platform for Docker and Openshift deployment
+                "DOCKER_BUILD_RELEASE_MNG_PLATFORM": {
+                  dockerBuildAndDeploy_MNG_PLATFORM("$DOCKER_IMAGE_MNG_PLATFORM")
+                  deployToStage_MNG_PLATFORM("$DOCKER_IMAGE_MNG_PLATFORM")
                 }
         ]
         parallel tasks
@@ -160,6 +168,7 @@ timestamps {
     }
     if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
       deployToProduction("$DOCKER_IMAGE")
+      //TODO: deploy to new production platform
     }
   }
 }
@@ -182,6 +191,59 @@ void mavenSite() {
 }
 
 /**
+ * New platform for Openshift docker image build
+ * To replace dockerBuildAndDeploy()
+ */
+void dockerBuildAndDeploy_MNG_PLATFORM(String dockerImage) {
+  final String DOCKER_WORKSPACE = 'server/target/docker_workspace_MNG_PLATFORM'
+  node(defaultNodeLabel) {
+    echo "running on node ${env.NODE_NAME}"
+    checkout scm
+    // Clean the workspace
+    sh "git clean -fdx"
+    unstash 'generated-files'
+
+    echo "Copy Dockerfile, ROOT.war and zanata-mt-config.cli to $DOCKER_WORKSPACE/"
+    sh "mkdir -p $DOCKER_WORKSPACE"
+    sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
+    sh "cp server/docker/zanata-mt-config.cli $DOCKER_WORKSPACE/"
+    sh "curl $MT_OPENSHIFT_DOCKERFILE > $DOCKER_WORKSPACE/Dockerfile"
+
+    /**
+     * Driver and Cert is downloaded in host as workaround for connection issue in container
+     * TODO: move download task to Dockerfile when docker host is stable
+     */
+    sh "curl -L https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar > $DOCKER_WORKSPACE/postgresql-connector.jar"
+    def certName = 'rds-combined-ca-bundle.pem'
+    sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
+
+    echo "Building docker MT $version..."
+    sh "docker build -f $DOCKER_WORKSPACE/Dockerfile -t $dockerImage:$version $DOCKER_WORKSPACE"
+
+    sh "echo Creating tag for $version..."
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version"
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+
+    echo "Docker login.."
+    withCredentials([string(credentialsId: 'MT-DOCKER-REGISTRY-TOKEN',
+            variable: 'MT_REGISTRY_TOKEN')]) {
+      sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM"
+
+      echo "Pushing to docker registry..."
+      sh "docker push $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version"
+      sh "docker push $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+
+      echo "Docker logout.."
+      sh "docker logout $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM"
+
+      echo "Remove local docker image $dockerImage:$version"
+      sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+    }
+  }
+}
+
+/**
+ * TODO: replace with dockerBuildAndDeploy_MNG_PLATFORM()
  * Build docker image and deploy to docker registry
  *
  * @param dockerImage - docker image name
@@ -239,14 +301,14 @@ void dockerBuildAndDeploy(String dockerImage) {
  * }
  */
 String getOpenshiftClient() {
-    def name = "openshift-origin-client-tools-v3.6.0-alpha.2-3c221d5-linux-64bit"
+    def name = "openshift-origin-client-tools-v3.6.0-c4dd4cf-linux-64bit"
     def fileName = name + ".tar.gz"
     def downloadDest = "/tmp/" + fileName
 
     if (!fileExists("/tmp/$name")) {
       // Download client if there's not downloaded yet
       if (!fileExists("$downloadDest")) {
-        sh "wget https://github.com/openshift/origin/releases/download/v3.6.0-alpha.2/$fileName -O $downloadDest"
+        sh "wget https://github.com/openshift/origin/releases/download/v3.6.0/$fileName -O $downloadDest"
       }
       sh "tar -xvzf $downloadDest -C /tmp"
     }
@@ -254,7 +316,7 @@ String getOpenshiftClient() {
 }
 
 /**
- * Deploy docker image to openshift staging
+ * Deploy docker image to Openshift staging
  * @param dockerImage
  */
 void deployToStage(String dockerImage) {
@@ -267,11 +329,35 @@ void deployToStage(String dockerImage) {
       withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
               variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
         sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME"
-      }
 
-      echo "Update 'latest' tag to $version"
-      sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
-      sh "$ocClient logout"
+        echo "Update 'latest' tag to $version"
+        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
+        sh "$ocClient logout"
+      }
+    }
+  }
+}
+
+/**
+ * Deploy docker image to New Openshift staging platform
+ * @param dockerImage
+ */
+void deployToStage_MNG_PLATFORM(String dockerImage) {
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+    node(defaultNodeLabel) {
+      def ocClient = getOpenshiftClient();
+
+      echo "Login to OPENSHIFT with token"
+
+      withCredentials(
+        [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'Jenkins-Token-managed-paas-STAGE',
+          usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        sh "$ocClient login $MT_OPENSHIFT_URL_MNG_PLATFORM --username=$USERNAME --password=$PASSWORD --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME_MNG_PLATFORM"
+
+        echo "Update 'latest' tag to $version"
+        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version mt-server:latest"
+        sh "$ocClient logout"
+      }
     }
   }
 }
