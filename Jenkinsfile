@@ -21,7 +21,7 @@
  * checkout -> maven build -> process test coverage
  */
 
-@Library('zanata-pipeline-library@master')
+@Library('zanata-pipeline-library@v0.2.0')
 
 import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
