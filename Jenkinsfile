@@ -5,17 +5,20 @@
  * Environment variables:
  * MT_OPENSHIFT_DOCKERFILE: URL for Openshift Dockerfile
  *
- * MT_DOCKER_REGISTRY_URL - docker registry url to upload image
- * MT_OPENSHIFT_URL - openshift url for stage and prod
+ * MT_DOCKER_REGISTRY_URL - Managed Platform docker registry url to upload image
+ * MT_DOCKER_REGISTRY_URL_OPEN - OPEN Platform docker registry url to upload image
+ * MT_OPENSHIFT_URL - Managed Platform url
+ * MT_OPENSHIFT_URL_OPEN - OPEN Platform url
  * MT_GIT_URL - git url
- * MT_STAGE_PROJECT_NAME - Openshift project name for stage
- * MT_PROD_PROJECT_NAME - Openshift project name for production
+ * MT_DEV_PROJECT_NAME - Managed Platform project name for DEV
+ * MT_STAGE_PROJECT_NAME_OPEN - OPEN Platform project name for stage
+ * MT_PROD_PROJECT_NAME_OPEN - OPEN Platform project name for production
  *
  *
  * Master (documentation will be build on separate job):
  * checkout -> maven build and release -> process test coverage
  *  -> maven site
- *  -> docker image build -> deploy docker registry -> deploy to stage (openshift)
+ *  -> docker image build -> deploy docker registry -> deploy to dev (openshift)
  *
  * PR:
  * checkout -> maven build -> process test coverage
@@ -144,31 +147,48 @@ timestamps {
     }
   }
 
+  /**
+   * TODO: Migrate all to Managed Platform only
+   *
+   * Current state:
+   *  OPEN Platform - STAGE and PROD
+   *  Managed Platform - DEV
+   *
+   * DEV deployment:
+   *  Managed Platform - DEV
+   *
+   * STAGE deployment:
+   *  OPEN Platform - STAGE
+   *
+   * PROD deployment:
+   *  OPEN Platform - PROD
+   */
   if (branchName == 'master') {
-    final String DOCKER_IMAGE = 'zanata-mt/server'
-    final String DOCKER_IMAGE_MNG_PLATFORM = 'machine-translations/mt-server'
+    final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+    final String DOCKER_IMAGE = 'machine-translations/mt-server'
 
-    lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
-      milestone 500
-      stage('Deploy to STAGE') {
+    stage('Deploy to DEV') {
+      lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
+        milestone 600
         def tasks = [
-                "DOCUMENTATION": { mavenSite() },
-                "DOCKER_BUILD_RELEASE": {
-                  dockerBuildAndDeploy("$DOCKER_IMAGE")
-                  deployToStage("$DOCKER_IMAGE")
-                },
-                // New platform for Docker and Openshift deployment
-                "DOCKER_BUILD_RELEASE_MNG_PLATFORM": {
-                  dockerBuildAndDeploy_MNG_PLATFORM("$DOCKER_IMAGE_MNG_PLATFORM")
-                  deployToStage_MNG_PLATFORM("$DOCKER_IMAGE_MNG_PLATFORM")
-                }
+          "DOCUMENTATION"            : { mavenSite() },
+          "DOCKER_BUILD_RELEASE": {
+            dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+            dockerBuildAndDeploy("$DOCKER_IMAGE")
+            deployToDEV("$DOCKER_IMAGE")
+          }
         ]
         parallel tasks
       }
     }
     if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-      deployToProduction("$DOCKER_IMAGE")
-      //TODO: deploy to new production platform
+      deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
+      // TODO: deploy to managed platform stage
+
+      if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+        deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
+        // TODO: deploy to managed platform production
+      }
     }
   }
 }
@@ -191,11 +211,11 @@ void mavenSite() {
 }
 
 /**
- * New platform for Openshift docker image build
- * To replace dockerBuildAndDeploy()
+ * Build docker image and deploy to docker registry for Managed Platform
+ * To replace dockerBuildAndDeploy_OPEN()
  */
-void dockerBuildAndDeploy_MNG_PLATFORM(String dockerImage) {
-  final String DOCKER_WORKSPACE = 'server/target/docker_workspace_MNG_PLATFORM'
+void dockerBuildAndDeploy(String dockerImage) {
+  final String DOCKER_WORKSPACE = 'server/target/docker_workspace'
   node(defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
     checkout scm
@@ -221,35 +241,34 @@ void dockerBuildAndDeploy_MNG_PLATFORM(String dockerImage) {
     sh "docker build -f $DOCKER_WORKSPACE/Dockerfile -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'MT-DOCKER-REGISTRY-TOKEN',
             variable: 'MT_REGISTRY_TOKEN')]) {
-      sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM"
+      sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused $MT_DOCKER_REGISTRY_URL"
 
       echo "Pushing to docker registry..."
-      sh "docker push $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version"
-      sh "docker push $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+      sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
+      sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
 
       echo "Docker logout.."
-      sh "docker logout $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM"
+      sh "docker logout $MT_DOCKER_REGISTRY_URL"
 
       echo "Remove local docker image $dockerImage:$version"
-      sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:latest"
+      sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
     }
   }
 }
 
 /**
- * TODO: replace with dockerBuildAndDeploy_MNG_PLATFORM()
- * Build docker image and deploy to docker registry
+ * Build docker image and deploy to docker registry for OPEN Platform
  *
  * @param dockerImage - docker image name
  */
-void dockerBuildAndDeploy(String dockerImage) {
-  final String DOCKER_WORKSPACE = 'server/target/docker_workspace'
+void dockerBuildAndDeploy_OPEN(String dockerImage) {
+  final String DOCKER_WORKSPACE = 'server/target/docker_workspace_open'
 
   node(defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
@@ -274,24 +293,24 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "docker build -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version"
+    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'DOCKER-REGISTRY-TOKEN',
             variable: 'MT_REGISTRY_TOKEN')]) {
-      sh "docker login -p $MT_REGISTRY_TOKEN -u unused $MT_DOCKER_REGISTRY_URL"
+      sh "docker login -p $MT_REGISTRY_TOKEN -u unused $MT_DOCKER_REGISTRY_URL_OPEN"
     }
 
     echo "Pushing to docker registry..."
-    sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
-    sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+    sh "docker push $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version"
+    sh "docker push $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
 
     echo "Docker logout.."
-    sh "docker logout $MT_DOCKER_REGISTRY_URL"
+    sh "docker logout $MT_DOCKER_REGISTRY_URL_OPEN"
 
     echo "Remove local docker image $dockerImage:$version"
-    sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+    sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
   }
 }
 
@@ -316,33 +335,36 @@ String getOpenshiftClient() {
 }
 
 /**
- * Deploy docker image to Openshift staging
+ * Deploy docker image to OPEN Platform Stage
  * @param dockerImage
  */
-void deployToStage(String dockerImage) {
-  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-    node(defaultNodeLabel) {
-      def ocClient = getOpenshiftClient();
+void deployToStage_OPEN(String dockerImage) {
+  stage('Deploy to STAGE') {
+    lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
+      milestone 700
+      node(defaultNodeLabel) {
+        def ocClient = getOpenshiftClient();
 
-      echo "Login to OPENSHIFT with token"
+        echo "Login to OPENSHIFT with token"
 
-      withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
-              variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
-        sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME"
+        withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
+                variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
+          sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME_OPEN"
 
-        echo "Update 'latest' tag to $version"
-        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
-        sh "$ocClient logout"
+          echo "Update 'latest' tag to $version"
+          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version server:latest"
+          sh "$ocClient logout"
+        }
       }
     }
   }
 }
 
 /**
- * Deploy docker image to New Openshift staging platform
+ * Deploy docker image to Managed Platform DEV
  * @param dockerImage
  */
-void deployToStage_MNG_PLATFORM(String dockerImage) {
+void deployToDEV(String dockerImage) {
   if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
     node(defaultNodeLabel) {
       def ocClient = getOpenshiftClient();
@@ -350,12 +372,12 @@ void deployToStage_MNG_PLATFORM(String dockerImage) {
       echo "Login to OPENSHIFT with token"
 
       withCredentials(
-        [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'Jenkins-Token-managed-paas-STAGE',
+        [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'Jenkins-Token-managed-paas-DEV',
           usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        sh "$ocClient login $MT_OPENSHIFT_URL_MNG_PLATFORM --username=$USERNAME --password=$PASSWORD --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME_MNG_PLATFORM"
+        sh "$ocClient login $MT_OPENSHIFT_URL --username=$USERNAME --password=$PASSWORD --insecure-skip-tls-verify --namespace=$MT_DEV_PROJECT_NAME"
 
         echo "Update 'latest' tag to $version"
-        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_MNG_PLATFORM/$dockerImage:$version mt-server:latest"
+        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version mt-server:latest"
         sh "$ocClient logout"
       }
     }
@@ -363,11 +385,12 @@ void deployToStage_MNG_PLATFORM(String dockerImage) {
 }
 
 /**
+ * Deploy to OPEN Platform PROD
  * Pending permission to deploy to production. 14 days before timeout
  *
  * @param dockerImage
  */
-void deployToProduction(String dockerImage) {
+void deployToProduction_OPEN(String dockerImage) {
   stage('Deploy to PRODUCTION') {
     lock(resource: 'MT-DEPLOY-TO-PROD', inversePrecedence: true) {
       milestone 800
@@ -386,11 +409,11 @@ void deployToProduction(String dockerImage) {
           withCredentials(
                   [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
                           variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
-            sh "$ocClient login $MT_OPENSHIFT_URL --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify --namespace=$MT_PROD_PROJECT_NAME"
+            sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify --namespace=$MT_PROD_PROJECT_NAME_OPEN"
           }
 
           echo "Update 'latest' tag to $version"
-          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version server:latest"
+          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version server:latest"
           sh "$ocClient logout"
         }
       }
