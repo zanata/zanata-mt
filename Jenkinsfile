@@ -21,10 +21,17 @@
  * checkout -> maven build -> process test coverage
  */
 
-@Library('zanata-pipeline-library@master')
+@Field
+public static final String PROJ_URL = 'https://github.com/zanata/zanata-mt'
 
+@Field
+public static final String PIPELINE_LIBRARY_BRANCH = 'ZNTA-2234-tag'
+
+@Library('github.com/zanata/zanata-pipeline-library@ZNTA-2234-tag')
 import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
+import static org.zanata.jenkins.Reporting.codecov
+import static org.zanata.jenkins.StackTraces.getStackTrace
 
 import groovy.json.JsonSlurper
 import groovy.transform.Field
@@ -35,7 +42,9 @@ PullRequests.ensureJobDescription(env, manager, steps)
 @Field
 def notify
 // initialiser must be run separately (bindings not available during compilation phase)
-notify = new Notifier(env, steps)
+notify = new Notifier(env, steps, currentBuild,
+    PROJ_URL, 'Jenkinsfile', PIPELINE_LIBRARY_BRANCH,
+)
 
 @Field
 def defaultNodeLabel
@@ -60,6 +69,10 @@ node {
 /* Only keep the 10 most recent builds. */
 def projectProperties = [
   [
+    $class: 'GithubProjectProperty',
+    projectUrlStr: PROJ_URL
+  ],
+  [
     $class: 'BuildDiscarderProperty',
     strategy: [$class: 'LogRotator', numToKeepStr: '10']
   ],
@@ -80,6 +93,7 @@ timestamps {
           sh "./mvnw --version"
         }
 
+        notify.startBuilding()
         if (branchName == 'master') {
           def POM = readMavenPom file: 'pom.xml'
           version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
@@ -171,6 +185,7 @@ timestamps {
       //TODO: deploy to new production platform
     }
   }
+  notify.finish()
 }
 
 // Run maven site to build documentation
@@ -406,21 +421,8 @@ void processTestCoverage() {
   junit testResults: "**/${surefireTestReports}"
 
   // send test coverage data to codecov.io
-  try {
-    withCredentials(
-            [[$class: 'StringBinding',
-              credentialsId: 'codecov_zanata-mt',
-              variable: 'CODECOV_TOKEN']]) {
-      // NB the codecov script uses CODECOV_TOKEN
-      sh "curl -s https://codecov.io/bash | bash -s - -K"
-    }
-  } catch (InterruptedException e) {
-    throw e
-  } catch (hudson.AbortException e) {
-    throw e
-  } catch (e) {
-    echo "[WARNING] Ignoring codecov error: $e"
-  }
+  codecov(env, steps, PROJ_URL)
+
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
   archive "**/target/*.war"
