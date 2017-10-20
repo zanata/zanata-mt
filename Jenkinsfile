@@ -33,6 +33,7 @@ public static final String PIPELINE_LIBRARY_BRANCH = 'ZNTA-2234-tag'
 @Library('github.com/zanata/zanata-pipeline-library@ZNTA-2234-tag')
 import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
+import org.zanata.jenkins.ScmGit
 import static org.zanata.jenkins.Reporting.codecov
 import static org.zanata.jenkins.StackTraces.getStackTrace
 
@@ -43,11 +44,14 @@ milestone 0
 PullRequests.ensureJobDescription(env, manager, steps)
 
 @Field
+def pipelineLibraryScmGit
+
+@Field
+def mainScmGit
+
+@Field
 def notify
 // initialiser must be run separately (bindings not available during compilation phase)
-notify = new Notifier(env, steps, currentBuild,
-    PROJ_URL, 'Jenkinsfile', PIPELINE_LIBRARY_BRANCH,
-)
 
 @Field
 def defaultNodeLabel
@@ -86,6 +90,13 @@ properties(projectProperties)
 timestamps {
   node (defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
+    pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
+    pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
+    mainScmGit = new ScmGit(env, steps, PROJ_URL)
+    mainScmGit.init(env.BRANCH_NAME)
+    notify = new Notifier(env, steps, currentBuild,
+        pipelineLibraryScmGit, mainScmGit, 'Jenkinsfile',
+    )
     ansicolor {
       try {
         stage('Checkout') {
@@ -98,48 +109,7 @@ timestamps {
 
         notify.startBuilding()
         if (branchName == 'master') {
-          def POM = readMavenPom file: 'pom.xml'
-          version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
-
-          stage('Maven build and release') {
-            echo "Update project version to $version"
-            sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
-
-            echo "Run maven build"
-            sh """./mvnw -e clean verify \
-                       --batch-mode \
-                       --update-snapshots \
-                       -DstaticAnalysis \
-             """
-            if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-              def tag="MT-$version"
-              sh "shopt -s globstar && git commit **/pom.xml pom.xml -m 'MT release: $tag' && git tag $tag"
-              processTestCoverage()
-
-              withCredentials(
-                      [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
-                        usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-                sh "git push https://$GIT_USERNAME:$GITHUB_OAUTH2_TOKEN@$MT_GIT_URL $tag"
-
-                def apiJson="{\"tag_name\": \"$tag\",\"target_commitish\": \"master\",\"name\": \"$tag\",\"body\": \"Release of version $tag\",\"draft\": false,\"prerelease\": false}"
-                echo "Create github release: $apiJson"
-
-                def response = sh script:"curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN", returnStdout: true
-                def releaseDetails = jsonParse(response)
-                def id = releaseDetails['id']
-
-                echo "Upload artifacts to release: $tag: $id"
-                sh "curl --data-binary @'./server/target/deployments/ROOT.war' -H 'Authorization: token $GITHUB_OAUTH2_TOKEN' -H 'Content-Type: application/octet-stream' https://uploads.github.com/repos/zanata/zanata-mt/releases/$id/assets?name=server.war"
-              }
-            } else {
-              currentBuild.result = 'FAILURE'
-              error('Build failure.')
-            }
-          }
-          stage('Stash') {
-            stash name: 'generated-files',
-                    includes: '**/target/**'
-          }
+          buildAndDeploy()
         } else {
           stage('Build') {
             sh """./mvnw -e clean verify \
@@ -150,8 +120,9 @@ timestamps {
             processTestCoverage()
           }
         }
-        // Artifacts is in docker registry, reduce workspace size
+        // Artifacts are in docker registry, so reduce workspace size
         sh "git clean -fdx"
+        notify.finish()
       } catch (e) {
         echo("Caught exception: " + e)
         notify.failed()
@@ -160,52 +131,97 @@ timestamps {
       }
     }
   }
+}
 
-  /**
-   * TODO: Migrate all to Managed Platform only
-   *
-   * Current state:
-   *  OPEN Platform - STAGE and PROD
-   *  Managed Platform - DEV
-   *
-   * DEV deployment:
-   *  Managed Platform - DEV
-   *
-   * STAGE deployment:
-   *  OPEN Platform - STAGE
-   *
-   * PROD deployment:
-   *  OPEN Platform - PROD
-   */
-  if (branchName == 'master') {
-    final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
-    final String DOCKER_IMAGE = 'machine-translations/mt-server'
+private void buildAndDeploy() {
+  def POM = readMavenPom file: 'pom.xml'
+  version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
 
-    stage('Deploy to DEV') {
-      lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
-        milestone 600
-        def tasks = [
-          "DOCUMENTATION"            : { mavenSite() },
-          "DOCKER_BUILD_RELEASE": {
-            dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
-            dockerBuildAndDeploy("$DOCKER_IMAGE")
-            deployToDEV("$DOCKER_IMAGE")
-          }
-        ]
-        parallel tasks
-      }
-    }
+  stage('Maven build and release') {
+    echo "Update project version to $version"
+    sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
+
+    echo "Run maven build"
+    sh """./mvnw -e clean verify \
+                       --batch-mode \
+                       --update-snapshots \
+                       -DstaticAnalysis \
+             """
     if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-      deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
-      // TODO: deploy to managed platform stage
+      String tag = "MT-$version"
+      sh "shopt -s globstar && git commit **/pom.xml pom.xml -m 'MT release: $tag' && git tag $tag"
+      processTestCoverage()
 
-      if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-        deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
-        // TODO: deploy to managed platform production
+      withCredentials(
+              [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
+                usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
+        sh "git push https://$GIT_USERNAME:$GITHUB_OAUTH2_TOKEN@$MT_GIT_URL $tag"
+
+        String apiJson = "{\"tag_name\": \"$tag\",\"target_commitish\": \"master\",\"name\": \"$tag\",\"body\": \"Release of version $tag\",\"draft\": false,\"prerelease\": false}"
+        echo "Create github release: $apiJson"
+
+        def response = sh script: "curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN",
+                returnStdout: true
+        def releaseDetails = jsonParse(response)
+        def id = releaseDetails['id']
+
+        echo "Upload artifacts to release: $tag: $id"
+        sh "curl --data-binary @'./server/target/deployments/ROOT.war' -H 'Authorization: token $GITHUB_OAUTH2_TOKEN' -H 'Content-Type: application/octet-stream' https://uploads.github.com/repos/zanata/zanata-mt/releases/$id/assets?name=server.war"
+
+
+        /**
+         * TODO: Migrate all to Managed Platform only
+         *
+         * Current state:
+         *  OPEN Platform - STAGE and PROD
+         *  Managed Platform - DEV
+         *
+         * DEV deployment:
+         *  Managed Platform - DEV
+         *
+         * STAGE deployment:
+         *  OPEN Platform - STAGE
+         *
+         * PROD deployment:
+         *  OPEN Platform - PROD
+         */
+
+        final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+        final String DOCKER_IMAGE = 'machine-translations/mt-server'
+
+        stage('Deploy to DEV') {
+          lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
+            milestone 600
+            def tasks = [
+                    "DOCUMENTATION"            : { mavenSite() },
+                    "DOCKER_BUILD_RELEASE": {
+                      dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+                      dockerBuildAndDeploy("$DOCKER_IMAGE")
+                      deployToDEV("$DOCKER_IMAGE")
+                    }
+            ]
+            parallel tasks
+          }
+        }
+        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+          deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
+          // TODO: deploy to managed platform stage
+
+          if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+            deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
+            // TODO: deploy to managed platform production
+          }
+        }
       }
+    } else {
+      currentBuild.result = 'FAILURE'
+      error('Build failure.')
     }
   }
-  notify.finish()
+  stage('Stash') {
+    stash name: 'generated-files',
+            includes: '**/target/**'
+  }
 }
 
 // Run maven site to build documentation
@@ -444,7 +460,7 @@ void processTestCoverage() {
   junit testResults: "**/${surefireTestReports}"
 
   // send test coverage data to codecov.io
-  codecov(env, steps, PROJ_URL)
+  codecov(env, steps, mainScmGit)
 
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
