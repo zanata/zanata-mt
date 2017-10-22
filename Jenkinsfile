@@ -238,7 +238,7 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
 
     echo "Building docker MT $version..."
-    sh "docker build -f $DOCKER_WORKSPACE/Dockerfile -t $dockerImage:$version $DOCKER_WORKSPACE"
+    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
     sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
@@ -290,7 +290,7 @@ void dockerBuildAndDeploy_OPEN(String dockerImage) {
     sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
 
     echo "Building docker MT $version..."
-    sh "docker build -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
+    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
     sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version"
