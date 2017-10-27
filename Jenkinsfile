@@ -111,14 +111,7 @@ timestamps {
         if (branchName == 'master') {
           buildAndDeploy()
         } else {
-          stage('Build') {
-            sh """./mvnw -e clean verify \
-                       --batch-mode \
-                       --update-snapshots \
-                       -DstaticAnalysis \
-             """
-            processTestCoverage()
-          }
+          buildOnly()
         }
         // Artifacts are in docker registry, so reduce workspace size
         sh "git clean -fdx"
@@ -136,21 +129,17 @@ timestamps {
 private void buildAndDeploy() {
   def POM = readMavenPom file: 'pom.xml'
   version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
+  echo "Update project version to $version"
+  sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
 
-  stage('Maven build and release') {
-    echo "Update project version to $version"
-    sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
-
-    echo "Run maven build"
-    sh """./mvnw -e clean verify \
-                       --batch-mode \
-                       --update-snapshots \
-                       -DstaticAnalysis \
-             """
-    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+  buildOnly()
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+    stage('Stash') {
+      stash name: 'generated-files', includes: '**/target/**'
+    }
+    stage('Tag and upload') {
       String tag = "MT-$version"
       sh "shopt -s globstar && git commit **/pom.xml pom.xml -m 'MT release: $tag' && git tag $tag"
-      processTestCoverage()
 
       withCredentials(
               [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
@@ -167,63 +156,69 @@ private void buildAndDeploy() {
 
         echo "Upload artifacts to release: $tag: $id"
         sh "curl --data-binary @'./server/target/deployments/ROOT.war' -H 'Authorization: token $GITHUB_OAUTH2_TOKEN' -H 'Content-Type: application/octet-stream' https://uploads.github.com/repos/zanata/zanata-mt/releases/$id/assets?name=server.war"
+
       }
-    } else {
-      currentBuild.result = 'FAILURE'
-      error('Build failure.')
     }
-  }
+    /**
+     * TODO: Migrate all to Managed Platform only
+     *
+     * Current state:
+     *  OPEN Platform - STAGE and PROD
+     *  Managed Platform - DEV
+     *
+     * DEV deployment:
+     *  Managed Platform - DEV
+     *
+     * STAGE deployment:
+     *  OPEN Platform - STAGE
+     *
+     * PROD deployment:
+     *  OPEN Platform - PROD
+     */
 
-  stage('Stash') {
-    stash name: 'generated-files',
-      includes: '**/target/**'
-  }
+    final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+    final String DOCKER_IMAGE = 'machine-translations/mt-server'
 
-  /**
-   * TODO: Migrate all to Managed Platform only
-   *
-   * Current state:
-   *  OPEN Platform - STAGE and PROD
-   *  Managed Platform - DEV
-   *
-   * DEV deployment:
-   *  Managed Platform - DEV
-   *
-   * STAGE deployment:
-   *  OPEN Platform - STAGE
-   *
-   * PROD deployment:
-   *  OPEN Platform - PROD
-   */
-
-  final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
-  final String DOCKER_IMAGE = 'machine-translations/mt-server'
-
-  stage('Deploy to DEV') {
-    lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
-      milestone 600
-      def tasks = [
-        "DOCUMENTATION"       : { mavenSite() },
-        "DOCKER_BUILD_RELEASE": {
-          dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
-          dockerBuildAndDeploy("$DOCKER_IMAGE")
-          deployToDEV("$DOCKER_IMAGE")
-        }
-      ]
-      parallel tasks
+    stage('Deploy to DEV; Maven site') {
+      lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
+        milestone 600
+        def tasks = [
+                "DOCUMENTATION"       : { mavenSite() },
+                "DOCKER_BUILD_RELEASE": {
+                  dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+                  dockerBuildAndDeploy("$DOCKER_IMAGE")
+                  deployToDEV("$DOCKER_IMAGE")
+                }
+        ]
+        parallel tasks
+      }
     }
-  }
-  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-    deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
-    // TODO: deploy to managed platform stage
-
     if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-      deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
-      // TODO: deploy to managed platform production
+      deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
+      // TODO: deploy to managed platform stage
+
+      if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+        deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
+        // TODO: deploy to managed platform production
+      }
     }
   } else {
-    currentBuild.result = 'UNSTABLE'
-    error('Deploy failure.')
+    currentBuild.result = 'FAILURE'
+    error('Build failure.')
+  }
+}
+
+// Marks build as unstable if any tests fail.
+private void buildOnly() {
+  stage('Build') {
+    echo "Run maven build"
+    sh """./mvnw -e clean verify \
+                       --batch-mode \
+                       --update-snapshots \
+                       -DstaticAnalysis \
+                       -Dmaven.test.failure.ignore \
+             """
+    processTestResults()
   }
 }
 
@@ -456,14 +451,12 @@ void deployToProduction_OPEN(String dockerImage) {
 }
 
 /**
- * Process test coverage after build
+ * Process test results/coverage after build. Marks build as unstable if any tests fail.
  */
-void processTestCoverage() {
+void processTestResults() {
   def surefireTestReports = 'target/surefire-reports/TEST-*.xml'
+  // Marks build as unstable if any tests fail.
   junit testResults: "**/${surefireTestReports}"
-
-  // send test coverage data to codecov.io
-  codecov(env, steps, mainScmGit)
 
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
@@ -496,6 +489,9 @@ void processTestCoverage() {
 
   // this should appear after all other static analysis steps
   step([$class: 'AnalysisPublisher'])
+
+  // send test coverage data to codecov.io
+  codecov(env, steps, mainScmGit)
 }
 
 @NonCPS
