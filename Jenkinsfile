@@ -167,60 +167,63 @@ private void buildAndDeploy() {
 
         echo "Upload artifacts to release: $tag: $id"
         sh "curl --data-binary @'./server/target/deployments/ROOT.war' -H 'Authorization: token $GITHUB_OAUTH2_TOKEN' -H 'Content-Type: application/octet-stream' https://uploads.github.com/repos/zanata/zanata-mt/releases/$id/assets?name=server.war"
-
-
-        /**
-         * TODO: Migrate all to Managed Platform only
-         *
-         * Current state:
-         *  OPEN Platform - STAGE and PROD
-         *  Managed Platform - DEV
-         *
-         * DEV deployment:
-         *  Managed Platform - DEV
-         *
-         * STAGE deployment:
-         *  OPEN Platform - STAGE
-         *
-         * PROD deployment:
-         *  OPEN Platform - PROD
-         */
-
-        final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
-        final String DOCKER_IMAGE = 'machine-translations/mt-server'
-
-        stage('Deploy to DEV') {
-          lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
-            milestone 600
-            def tasks = [
-                    "DOCUMENTATION"            : { mavenSite() },
-                    "DOCKER_BUILD_RELEASE": {
-                      dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
-                      dockerBuildAndDeploy("$DOCKER_IMAGE")
-                      deployToDEV("$DOCKER_IMAGE")
-                    }
-            ]
-            parallel tasks
-          }
-        }
-        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-          deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
-          // TODO: deploy to managed platform stage
-
-          if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-            deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
-            // TODO: deploy to managed platform production
-          }
-        }
       }
     } else {
       currentBuild.result = 'FAILURE'
       error('Build failure.')
     }
   }
+
   stage('Stash') {
     stash name: 'generated-files',
-            includes: '**/target/**'
+      includes: '**/target/**'
+  }
+
+  /**
+   * TODO: Migrate all to Managed Platform only
+   *
+   * Current state:
+   *  OPEN Platform - STAGE and PROD
+   *  Managed Platform - DEV
+   *
+   * DEV deployment:
+   *  Managed Platform - DEV
+   *
+   * STAGE deployment:
+   *  OPEN Platform - STAGE
+   *
+   * PROD deployment:
+   *  OPEN Platform - PROD
+   */
+
+  final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+  final String DOCKER_IMAGE = 'machine-translations/mt-server'
+
+  stage('Deploy to DEV') {
+    lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
+      milestone 600
+      def tasks = [
+        "DOCUMENTATION"       : { mavenSite() },
+        "DOCKER_BUILD_RELEASE": {
+          dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+          dockerBuildAndDeploy("$DOCKER_IMAGE")
+          deployToDEV("$DOCKER_IMAGE")
+        }
+      ]
+      parallel tasks
+    }
+  }
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+    deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
+    // TODO: deploy to managed platform stage
+
+    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+      deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
+      // TODO: deploy to managed platform production
+    }
+  } else {
+    currentBuild.result = 'UNSTABLE'
+    error('Deploy failure.')
   }
 }
 
