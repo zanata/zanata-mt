@@ -255,8 +255,7 @@ void dockerBuildAndDeploy(String dockerImage) {
     echo "Copy Dockerfile, ROOT.war and zanata-mt-config.cli to $DOCKER_WORKSPACE/"
     sh "mkdir -p $DOCKER_WORKSPACE"
     sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
-    sh "cp server/docker/zanata-mt-config.cli $DOCKER_WORKSPACE/"
-    sh "curl $MT_OPENSHIFT_DOCKERFILE > $DOCKER_WORKSPACE/Dockerfile"
+    sh "cp server/docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
 
     /**
      * Driver and Cert is downloaded in host as workaround for connection issue in container
@@ -267,7 +266,7 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
 
     echo "Building docker MT $version..."
-    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile -t $dockerImage:$version $DOCKER_WORKSPACE"
+    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
     sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"

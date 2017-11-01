@@ -5,7 +5,7 @@
 # - ROOT.war - packaged war file
 #
 # https://access.redhat.com/containers/?tab=tech-details#/registry.access.redhat.com/jboss-eap-7/eap70-openshift
-FROM registry.access.redhat.com/jboss-eap-7/eap70-openshift:1.4-36
+FROM registry.access.redhat.com/jboss-eap-7/eap70-openshift:latest
 
 MAINTAINER "Alex Eng" <aeng@redhat.com>
 
