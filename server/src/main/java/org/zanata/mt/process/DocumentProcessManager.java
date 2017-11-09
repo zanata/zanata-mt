@@ -11,6 +11,8 @@ import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.eviction.EvictionType;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.concurrent.locks.StripedLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +125,9 @@ public class DocumentProcessManager {
                 .eviction()
                 .strategy(EvictionStrategy.LRU)
                 .type(EvictionType.COUNT).size(150)
+                .transaction()
+                .transactionMode(TransactionMode.TRANSACTIONAL)
+                .lockingMode(LockingMode.PESSIMISTIC)
                 .build();
         return new DefaultCacheManager(g, cfg);
     }
