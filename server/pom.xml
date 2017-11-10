@@ -307,6 +307,20 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jboss.marshalling</groupId>
+      <artifactId>jboss-marshalling</artifactId>
+      <version>1.4.11.Final</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.marshalling</groupId>
+      <artifactId>jboss-marshalling-river</artifactId>
+      <version>1.4.11.Final</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>

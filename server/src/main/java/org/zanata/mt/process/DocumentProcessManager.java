@@ -16,6 +16,7 @@ import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.concurrent.locks.StripedLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.mt.annotation.ClusteredCache;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.LocaleCode;
 
@@ -50,11 +51,9 @@ import java.util.function.Supplier;
 public class DocumentProcessManager {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentProcessManager.class);
+    public static final String DOC_PROCESS_CACHE = "docProcessCache";
 
 //    private final StripedLock lock = new StripedLock();
-
-    @Inject
-    private EmbeddedCacheManager cacheManager;
 
     private Cache<DocumentProcessKey, Boolean> docProcessCache;
 
@@ -64,10 +63,10 @@ public class DocumentProcessManager {
     public DocumentProcessManager() {
     }
 
-    @PostConstruct
-    public void init() {
-        docProcessCache = cacheManager.getCache("docProcessCache");
-        tm = docProcessCache.getAdvancedCache().getTransactionManager();
+    @Inject
+    public DocumentProcessManager(@ClusteredCache(DOC_PROCESS_CACHE) Cache<DocumentProcessKey, Boolean> cache, @ClusteredCache(DOC_PROCESS_CACHE) TransactionManager txManager) {
+        docProcessCache = cache;
+        tm = txManager;
     }
 
     private void lock(@NotNull DocumentProcessKey key)
@@ -98,7 +97,7 @@ public class DocumentProcessManager {
             lock(key);
             return function.get();
         } catch (Exception e) {
-            LOG.error("Unable to lock request process:" + key);
+            LOG.error("Unable to lock request process:" + key, e);
             return Response.serverError().build();
         } finally {
             unlock(key);
@@ -111,24 +110,4 @@ public class DocumentProcessManager {
 //        lock.getTotalLockCount();
     }
 
-    @Produces
-    @ApplicationScoped
-    public EmbeddedCacheManager defaultClusteredCacheManager() {
-        GlobalConfiguration g = new GlobalConfigurationBuilder()
-                .clusteredDefault()
-                .transport()
-                .clusterName("MachineTranslationsCluster")
-                .build();
-        Configuration cfg = new ConfigurationBuilder()
-                .clustering()
-                .cacheMode(CacheMode.DIST_ASYNC)
-                .eviction()
-                .strategy(EvictionStrategy.LRU)
-                .type(EvictionType.COUNT).size(150)
-                .transaction()
-                .transactionMode(TransactionMode.TRANSACTIONAL)
-                .lockingMode(LockingMode.PESSIMISTIC)
-                .build();
-        return new DefaultCacheManager(g, cfg);
-    }
 }
