@@ -72,6 +72,7 @@
     <download.dir>${user.home}/Downloads</download.dir>
     <failsafe.version>2.19.1</failsafe.version>
     <kotlin.version>1.1.51</kotlin.version>
+    <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -571,6 +572,11 @@
               <artifactId>enunciate-jaxrs</artifactId>
               <version>${enunciate.version}</version>
             </dependency>
+            <dependency>
+              <groupId>org.jboss.spec.javax.annotation</groupId>
+              <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+              <version>1.0.0.Final</version>
+            </dependency>
           </dependencies>
         </plugin>
         <plugin>
@@ -707,6 +713,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
           <executions>
             <!-- Replacing default-compile as it is treated specially by Maven.
                  We need kotlin-maven-plugin to compile first. -->

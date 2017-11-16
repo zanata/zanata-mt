@@ -22,7 +22,7 @@
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <GOOGLE_APPLICATION_CREDENTIALS>${build.testOutputDirectory}/zanata-mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
+    <GOOGLE_APPLICATION_CREDENTIALS>${project.build.testOutputDirectory}/zanata-mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
     <kotlin.version>1.1.51</kotlin.version>
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
