@@ -70,6 +70,8 @@
     <findbugs.failOnError>true</findbugs.failOnError>
 
     <download.dir>${user.home}/Downloads</download.dir>
+    <failsafe.version>2.19.1</failsafe.version>
+    <kotlin.version>1.1.51</kotlin.version>
   </properties>
 
   <dependencyManagement>
@@ -409,6 +411,34 @@
         </exclusions>
       </dependency>
 
+      <!-- kotlin -->
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-reflect</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-jre7</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib-jre8</artifactId>
+        <version>${kotlin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-test-junit</artifactId>
+        <version>${kotlin.version}</version>
+        <scope>test</scope>
+      </dependency>
+
       <!-- Test -->
       <dependency>
         <groupId>junit</groupId>
@@ -611,6 +641,98 @@
                 <goal>site</goal>
               </goals>
               <phase>site</phase>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-maven-plugin</artifactId>
+          <version>${kotlin.version}</version>
+          <!-- kotlin-maven-plugin gets .kt files from src/main/java and
+               src/test/java, as recommended by JetBrains:
+               https://youtrack.jetbrains.com/issue/KT-15889#comment=27-1866699
+          -->
+          <executions>
+            <execution>
+              <id>compile</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>test-compile</id>
+              <phase>test-compile</phase>
+              <goals>
+                <goal>test-compile</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <jvmTarget>1.8</jvmTarget>
+            <compilerPlugins>
+              <plugin>all-open</plugin>
+              <plugin>no-arg</plugin>
+            </compilerPlugins>
+            <pluginOptions>
+              <!-- Mark classes with certain annotations as non-final: -->
+
+              <!-- CDI beans (so they can be proxied) -->
+              <option>all-open:annotation=javax.enterprise.context.NormalScope</option>
+              <!-- Hibernate/JPA entities -->
+              <option>all-open:annotation=javax.persistence.Entity</option>
+              <!-- JUnit tests (CDI-Unit or Mockito) -->
+              <option>all-open:annotation=org.junit.runner.RunWith</option>
+
+              <!-- Create synthetic no-arg constructors for JPA entities and CDI beans: -->
+              <option>no-arg:annotation=javax.persistence.Entity</option>
+              <option>no-arg:annotation=javax.enterprise.context.NormalScope</option>
+            </pluginOptions>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.jetbrains.kotlin</groupId>
+              <artifactId>kotlin-maven-allopen</artifactId>
+              <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jetbrains.kotlin</groupId>
+              <artifactId>kotlin-maven-noarg</artifactId>
+              <version>${kotlin.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <executions>
+            <!-- Replacing default-compile as it is treated specially by Maven.
+                 We need kotlin-maven-plugin to compile first. -->
+            <execution>
+              <id>default-compile</id>
+              <phase>none</phase>
+            </execution>
+            <!-- Replacing default-testCompile as it is treated specially by Maven.
+                 We need kotlin-maven-plugin to compile first. -->
+            <execution>
+              <id>default-testCompile</id>
+              <phase>none</phase>
+            </execution>
+            <execution>
+              <id>java-compile</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>java-test-compile</id>
+              <phase>test-compile</phase>
+              <goals>
+                <goal>testCompile</goal>
+              </goals>
             </execution>
           </executions>
         </plugin>

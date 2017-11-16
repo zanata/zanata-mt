@@ -1,40 +1,44 @@
 package org.zanata.mt.api.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
+import javax.transaction.TransactionManager;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import org.infinispan.AdvancedCache;
+import org.infinispan.Cache;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import org.zanata.mt.api.dto.DocumentContent;
 import org.zanata.mt.api.dto.DocumentStatistics;
 import org.zanata.mt.api.dto.LocaleCode;
 import org.zanata.mt.api.dto.TypeString;
 import org.zanata.mt.api.service.impl.DocumentResourceImpl;
 import org.zanata.mt.dao.LocaleDAO;
+import org.zanata.mt.model.BackendID;
 import org.zanata.mt.model.Document;
 import org.zanata.mt.model.Locale;
-import org.zanata.mt.model.BackendID;
+import org.zanata.mt.process.DocumentProcessKey;
 import org.zanata.mt.process.DocumentProcessManager;
 import org.zanata.mt.service.DocumentContentTranslatorService;
 import org.zanata.mt.service.DocumentService;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DocumentResourceImplTest {
 
     private DocumentResource documentResource;
@@ -48,12 +52,16 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentService documentService;
 
-    private DocumentProcessManager docProcessLock =
-            new DocumentProcessManager();
+    @Mock private Cache<DocumentProcessKey, Boolean> cache;
+    @Mock private TransactionManager txManager;
+    private DocumentProcessManager docProcessLock;
     private BackendID defaultProvider = BackendID.GOOGLE;
+    @Mock private AdvancedCache<DocumentProcessKey, Boolean> advancedCache;
 
     @Before
     public void beforeTest() {
+        MockitoAnnotations.initMocks(this);
+        docProcessLock = new DocumentProcessManager(cache, txManager);
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService, docProcessLock,
@@ -63,6 +71,7 @@ public class DocumentResourceImplTest {
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
                 .thenReturn(true);
+        when(cache.getAdvancedCache()).thenReturn(advancedCache);
     }
 
     @Test

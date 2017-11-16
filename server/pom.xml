@@ -23,6 +23,9 @@
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <GOOGLE_APPLICATION_CREDENTIALS>${build.testOutputDirectory}/zanata-mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
+    <kotlin.version>1.1.51</kotlin.version>
+    <jboss.http.port>8080</jboss.http.port>
+    <jboss.debug.port>8787</jboss.debug.port>
   </properties>
 
   <build>
@@ -102,10 +105,6 @@
               <alias>zanataMT</alias>
               <build>
                 <dockerFileDir>${project.basedir}</dockerFileDir>
-                <ports>
-                  <port>8080:8080</port>
-                  <port>8787:8787</port>
-                </ports>
               </build>
               <run>
                 <env>
@@ -126,9 +125,15 @@
                   <container>zanataMTDB</container>
                 </dependsOn>
                 <ports>
-                  <port>8080:8080</port>
-                  <port>8787:8787</port>
+                  <port>${jboss.http.port}:8080</port>
+                  <port>${jboss.debug.port}:8787</port>
                 </ports>
+                <wait>
+                  <http>
+                    <url>http://localhost:${jboss.http.port}/health.html</url>
+                  </http>
+                  <time>60000</time>
+                </wait>
                 <log>
                   <date>default</date>
                   <prefix>WF</prefix>
@@ -148,6 +153,24 @@
             </image>
           </images>
         </configuration>
+        <executions>
+          <execution>
+            <id>start-container</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>build</goal>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-container</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+              <goal>remove</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -158,6 +181,38 @@
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
         </configuration>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${failsafe.version}</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*ITCase.kt</include>
+                <include>**/*ITCase.java</include>
+              </includes>
+              <forkCount>1</forkCount>
+              <reuseForks>true</reuseForks>
+              <runOrder>alphabetical</runOrder>
+              <testNGArtifactName>none:none</testNGArtifactName>
+              <systemProperties>
+                <http.port>${jboss.http.port}</http.port>
+              </systemProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
@@ -165,6 +220,13 @@
       <plugin>
         <groupId>com.github.github</groupId>
         <artifactId>site-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
@@ -390,6 +452,17 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-jre8</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test-junit</artifactId>
+      <version>${kotlin.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
