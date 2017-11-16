@@ -37,7 +37,9 @@ import org.zanata.jenkins.ScmGit
 import static org.zanata.jenkins.Reporting.codecov
 import static org.zanata.jenkins.StackTraces.getStackTrace
 
-import groovy.json.JsonSlurper
+// JsonSluper does not work
+// https://stackoverflow.com/questions/37864542/jenkins-pipeline-notserializableexception-groovy-json-internal-lazymap/38439681#38439681
+import groovy.json.JsonSlurperClassic
 import groovy.transform.Field
 
 milestone 0
@@ -495,6 +497,6 @@ void processTestResults() {
 
 @NonCPS
 def jsonParse(def json) {
-  new JsonSlurper().parseText(json)
+  new JsonSlurperClassic().parseText(json)
 }
 
