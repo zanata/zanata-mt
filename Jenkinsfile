@@ -169,7 +169,7 @@ private void buildAndDeploy() {
 
         def response = sh script: "curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN",
                 returnStdout: true
-        def releaseDetails = readJSON text: "response"
+        def releaseDetails = readJSON text: response
         def id = releaseDetails['id']
 
         echo "Upload artifacts to release: $tag: $id"
