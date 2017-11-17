@@ -37,9 +37,6 @@ import org.zanata.jenkins.ScmGit
 import static org.zanata.jenkins.Reporting.codecov
 import static org.zanata.jenkins.StackTraces.getStackTrace
 
-// JsonSluper does not work
-// https://stackoverflow.com/questions/37864542/jenkins-pipeline-notserializableexception-groovy-json-internal-lazymap/38439681#38439681
-import groovy.json.JsonSlurperClassic
 import groovy.transform.Field
 
 milestone 0
@@ -66,12 +63,44 @@ def version
 
 node {
   echo "running on node ${env.NODE_NAME}"
-
-  /**
-   * Set to master until jenkins slaves is ready
-   * defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
-   */
-  defaultNodeLabel = 'master'
+  echo "running on node ${env.NODE_NAME}"
+  pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
+  pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
+  mainScmGit = new ScmGit(env, steps, PROJ_URL)
+  mainScmGit.init(env.BRANCH_NAME)
+  notify = new Notifier(env, steps, currentBuild,
+      pipelineLibraryScmGit, mainScmGit, 'Jenkinsfile',
+  )
+  defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
+  // eg github-zanata-org/zanata-platform/update-Jenkinsfile
+  jobName = env.JOB_NAME
+  def projectProperties = [
+    [$class: 'BuildDiscarderProperty',
+      strategy:
+        [$class: 'LogRotator',
+          numToKeepStr: '10',        // keep records for at most X builds
+        ]
+    ],
+    [$class: 'GithubProjectProperty',
+      projectUrlStr: PROJ_URL
+    ],
+    [$class: 'ParametersDefinitionProperty',
+      parameterDefinitions: [
+        [$class: 'LabelParameterDefinition',
+          // Specify the default node in Jenkins env var DEFAULT_NODE
+          // (eg kvm), or leave blank to build on any node.
+          defaultValue: defaultNodeLabel,
+          description: 'Jenkins node label to use for build',
+          name: 'LABEL'
+        ],
+        [$class: 'BooleanParameterDefinition',
+          defaultValue: true,
+          description: 'Make release',
+          name: 'isReleasing'
+        ],
+      ]
+    ]
+  ]
   branchName = env.BRANCH_NAME
 }
 
@@ -110,7 +139,7 @@ timestamps {
         }
 
         notify.startBuilding()
-        if (branchName == 'master') {
+        if (branchName == 'master' && isReleasing) {
           buildAndDeploy()
         } else {
           buildOnly()
@@ -153,7 +182,7 @@ private void buildAndDeploy() {
 
         def response = sh script: "curl --data '$apiJson' https://api.github.com/repos/zanata/zanata-mt/releases?access_token=$GITHUB_OAUTH2_TOKEN",
                 returnStdout: true
-        def releaseDetails = jsonParse(response)
+        def releaseDetails = readJSON text: "response"
         def id = releaseDetails['id']
 
         echo "Upload artifacts to release: $tag: $id"
@@ -221,6 +250,7 @@ private void buildOnly() {
                        --update-snapshots \
                        -DstaticAnalysis \
                        -Dmaven.test.failure.ignore \
+                       -Djavax.net.debug=all \
              """
     processTestResults()
   }
@@ -238,7 +268,7 @@ void mavenSite() {
     withCredentials(
             [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
               usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-      sh "./mvnw -e site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode"
+      sh "./mvnw -e site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode -Djavax.net.debug=all"
     }
   }
 }
@@ -496,9 +526,3 @@ void processTestResults() {
   // send test coverage data to codecov.io
   codecov(env, steps, mainScmGit)
 }
-
-@NonCPS
-def jsonParse(def json) {
-  new JsonSlurperClassic().parseText(json)
-}
-
