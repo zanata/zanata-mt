@@ -102,21 +102,8 @@ node {
     ]
   ]
   branchName = env.BRANCH_NAME
+  properties(projectProperties)
 }
-
-/* Only keep the 10 most recent builds. */
-def projectProperties = [
-  [
-    $class: 'GithubProjectProperty',
-    projectUrlStr: PROJ_URL
-  ],
-  [
-    $class: 'BuildDiscarderProperty',
-    strategy: [$class: 'LogRotator', numToKeepStr: '10']
-  ],
-]
-
-properties(projectProperties)
 
 timestamps {
   node (defaultNodeLabel) {
@@ -139,7 +126,7 @@ timestamps {
         }
 
         notify.startBuilding()
-        if (branchName == 'master' && isReleasing) {
+        if (branchName == 'master' && params.isReleasing) {
           buildAndDeploy()
         } else {
           buildOnly()
