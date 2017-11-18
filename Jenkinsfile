@@ -63,7 +63,6 @@ def version
 
 node {
   echo "running on node ${env.NODE_NAME}"
-  echo "running on node ${env.NODE_NAME}"
   pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
   pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
   mainScmGit = new ScmGit(env, steps, PROJ_URL)
@@ -108,6 +107,10 @@ node {
 timestamps {
   node (defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
+    // See if we are affected by JENKINS-28921 (Can't access Jenkins Global Properties from Pipeline DSL)
+    // Also note that envinject plugin is
+    assert env.MT_DOCKER_REGISTRY_URL
+    assert env.MT_DOCKER_REGISTRY_URL_OPEN
     pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
     pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
     mainScmGit = new ScmGit(env, steps, PROJ_URL)
