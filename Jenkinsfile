@@ -288,23 +288,23 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
+    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'MT-DOCKER-REGISTRY-TOKEN',
             variable: 'MT_REGISTRY_TOKEN')]) {
-      sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused $MT_DOCKER_REGISTRY_URL"
+      sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused ${env.MT_DOCKER_REGISTRY_URL}"
 
       echo "Pushing to docker registry..."
-      sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:$version"
-      sh "docker push $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
+      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
 
       echo "Docker logout.."
-      sh "docker logout $MT_DOCKER_REGISTRY_URL"
+      sh "docker logout ${env.MT_DOCKER_REGISTRY_URL}"
 
       echo "Remove local docker image $dockerImage:$version"
-      sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL/$dockerImage:latest"
+      sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
     }
   }
 }
@@ -340,24 +340,24 @@ void dockerBuildAndDeploy_OPEN(String dockerImage) {
     sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
 
     sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
+    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
+    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'DOCKER-REGISTRY-TOKEN',
             variable: 'MT_REGISTRY_TOKEN')]) {
-      sh "docker login -p $MT_REGISTRY_TOKEN -u unused $MT_DOCKER_REGISTRY_URL_OPEN"
+      sh "docker login -p $MT_REGISTRY_TOKEN -u unused ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
     }
 
     echo "Pushing to docker registry..."
-    sh "docker push $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version"
-    sh "docker push $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
+    sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
+    sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
 
     echo "Docker logout.."
-    sh "docker logout $MT_DOCKER_REGISTRY_URL_OPEN"
+    sh "docker logout ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
 
     echo "Remove local docker image $dockerImage:$version"
-    sh "docker rmi $dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version; docker rmi $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:latest"
+    sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
   }
 }
 
@@ -399,7 +399,7 @@ void deployToStage_OPEN(String dockerImage) {
           sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME_OPEN"
 
           echo "Update 'latest' tag to $version"
-          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version server:latest"
+          sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version server:latest"
           sh "$ocClient logout"
         }
       }
@@ -424,7 +424,7 @@ void deployToDEV(String dockerImage) {
         sh "$ocClient login $MT_OPENSHIFT_URL --username=$USERNAME --password=$PASSWORD --insecure-skip-tls-verify --namespace=$MT_DEV_PROJECT_NAME"
 
         echo "Update 'latest' tag to $version"
-        sh "$ocClient tag $MT_DOCKER_REGISTRY_URL/$dockerImage:$version mt-server:latest"
+        sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version mt-server:latest"
         sh "$ocClient logout"
       }
     }
@@ -460,7 +460,7 @@ void deployToProduction_OPEN(String dockerImage) {
           }
 
           echo "Update 'latest' tag to $version"
-          sh "$ocClient tag $MT_DOCKER_REGISTRY_URL_OPEN/$dockerImage:$version server:latest"
+          sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version server:latest"
           sh "$ocClient logout"
         }
       }
