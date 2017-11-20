@@ -25,6 +25,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -102,6 +103,10 @@ public class GoogleCredential {
             isValidGoogleCredentialFile(@Nonnull File googleADCFile) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
+            List<String> lines = Files.readAllLines(googleADCFile.toPath());
+            if (lines.isEmpty()) {
+                return false;
+            }
             GoogleCredentialBasic value =
                     objectMapper.readerFor(GoogleCredentialBasic.class)
                             .readValue(googleADCFile);

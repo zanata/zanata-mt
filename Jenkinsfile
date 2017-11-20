@@ -232,6 +232,8 @@ private void buildAndDeploy() {
 // Marks build as unstable if any tests fail.
 private void buildOnly() {
   stage('Build') {
+    // install docker for integration test
+//    tool name: 'docker-1.13.1', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
     echo "Run maven build"
     sh """./mvnw -e clean verify \
                        --batch-mode \

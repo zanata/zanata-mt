@@ -5,7 +5,7 @@
 # POSTGRESQL_USER - DB username
 # POSTGRESQL_PASSWORD - DB password
 
-embed-server --std-out=echo --server-config=standalone.xml
+embed-server --std-out=echo --server-config=standalone-full.xml
 
 batch
 

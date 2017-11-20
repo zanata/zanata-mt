@@ -18,7 +18,7 @@ COPY docker/zanata-mt-config.cli /tmp/
 RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/zanata-mt-config.cli
 
 # use standalone.xml
-CMD $JBOSS_HOME/bin/standalone.sh -c  standalone.xml -b 0.0.0.0 --debug
+CMD $JBOSS_HOME/bin/standalone.sh -c  standalone-full.xml -b 0.0.0.0 --debug
 
 # copy war file
 COPY target/deployments/ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war
