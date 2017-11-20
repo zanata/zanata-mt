@@ -48,13 +48,16 @@ import static org.zanata.mt.process.DocumentProcessManager.DOC_PROCESS_CACHE;
 @ApplicationScoped
 public class ResourceProducer {
 
+    static final String MACHINE_TRANSLATIONS_CLUSTER =
+            "MachineTranslationsCluster";
+
     @Produces
     @ApplicationScoped
     public EmbeddedCacheManager defaultClusteredCacheManager() {
         GlobalConfiguration g = new GlobalConfigurationBuilder()
                 .clusteredDefault()
                 .transport()
-                .clusterName("MachineTranslationsCluster")
+                .clusterName(MACHINE_TRANSLATIONS_CLUSTER)
                 .build();
         Configuration cfg = new ConfigurationBuilder()
                 .clustering()
