@@ -68,7 +68,7 @@ node {
   mainScmGit = new ScmGit(env, steps, PROJ_URL)
   mainScmGit.init(env.BRANCH_NAME)
   notify = new Notifier(env, steps, currentBuild,
-      pipelineLibraryScmGit, mainScmGit, 'Jenkinsfile',
+    pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
   )
   defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
   // eg github-zanata-org/zanata-platform/update-Jenkinsfile
