@@ -58,25 +58,27 @@ import static org.zanata.mt.process.DocumentProcessManager.DOC_PROCESS_CACHE;
 <span class="fc" id="L58">                .clusteredDefault()</span>
 <span class="fc" id="L59">                .transport()</span>
 <span class="fc" id="L60">                .clusterName(MACHINE_TRANSLATIONS_CLUSTER)</span>
-<span class="fc" id="L61">                .build();</span>
-<span class="fc" id="L62">        Configuration cfg = new ConfigurationBuilder()</span>
-<span class="fc" id="L63">                .clustering()</span>
-<span class="fc" id="L64">                .cacheMode(CacheMode.DIST_ASYNC)</span>
-<span class="fc" id="L65">                .eviction()</span>
-<span class="fc" id="L66">                .strategy(EvictionStrategy.LRU)</span>
-<span class="fc" id="L67">                .type(EvictionType.COUNT).size(150)</span>
-<span class="fc" id="L68">                .transaction()</span>
-<span class="fc" id="L69">                .transactionMode(TransactionMode.TRANSACTIONAL)</span>
-<span class="fc" id="L70">                .lockingMode(LockingMode.PESSIMISTIC)</span>
-<span class="fc" id="L71">                .build();</span>
-<span class="fc" id="L72">        return new DefaultCacheManager(g, cfg);</span>
+<span class="fc" id="L61">                .globalJmxStatistics()</span>
+<span class="fc" id="L62">                .allowDuplicateDomains(true)</span>
+<span class="fc" id="L63">                .build();</span>
+<span class="fc" id="L64">        Configuration cfg = new ConfigurationBuilder()</span>
+<span class="fc" id="L65">                .clustering()</span>
+<span class="fc" id="L66">                .cacheMode(CacheMode.DIST_ASYNC)</span>
+<span class="fc" id="L67">                .eviction()</span>
+<span class="fc" id="L68">                .strategy(EvictionStrategy.LRU)</span>
+<span class="fc" id="L69">                .type(EvictionType.COUNT).size(150)</span>
+<span class="fc" id="L70">                .transaction()</span>
+<span class="fc" id="L71">                .transactionMode(TransactionMode.TRANSACTIONAL)</span>
+<span class="fc" id="L72">                .lockingMode(LockingMode.PESSIMISTIC)</span>
+<span class="fc" id="L73">                .build();</span>
+<span class="fc" id="L74">        return new DefaultCacheManager(g, cfg);</span>
     }
 
     @Produces
     @ClusteredCache(DOC_PROCESS_CACHE)
     public Cache&lt;DocumentProcessKey, Boolean&gt; docProcessCache(
             EmbeddedCacheManager cacheManager) {
-<span class="fc" id="L79">        return cacheManager.getCache(DOC_PROCESS_CACHE);</span>
+<span class="fc" id="L81">        return cacheManager.getCache(DOC_PROCESS_CACHE);</span>
     }
 
     @Produces
@@ -84,7 +86,7 @@ import static org.zanata.mt.process.DocumentProcessManager.DOC_PROCESS_CACHE;
     public TransactionManager cacheTransactionManager(
             @ClusteredCache(DOC_PROCESS_CACHE)
                     Cache&lt;DocumentProcessKey, Boolean&gt; cache) {
-<span class="fc" id="L87">        return cache.getAdvancedCache().getTransactionManager();</span>
+<span class="fc" id="L89">        return cache.getAdvancedCache().getTransactionManager();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
