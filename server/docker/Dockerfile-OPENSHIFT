@@ -12,11 +12,9 @@ MAINTAINER "Alex Eng" <aeng@redhat.com>
 EXPOSE 8080
 
 USER root
-# TODO: Download cert from net when docker host is stable
-# RUN cd /etc/pki/ca-trust/source/anchors/ && curl http://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem -O && update-ca-trust
 
-# copy rds-combined-ca-bundle.pem, assuming the file is in the same directory
-COPY rds-combined-ca-bundle.pem /etc/pki/ca-trust/source/anchors/rds-combined-ca-bundle.pem
+# copy all certs from certs/ directory
+COPY certs/ /etc/pki/ca-trust/source/anchors/
 RUN update-ca-trust
 
 
