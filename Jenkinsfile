@@ -276,25 +276,7 @@ void dockerBuildAndDeploy(String dockerImage) {
     sh "git clean -fdx"
     unstash 'generated-files'
 
-    echo "Copy Dockerfile, ROOT.war and zanata-mt-config.cli to $DOCKER_WORKSPACE/"
-    sh "mkdir -p $DOCKER_WORKSPACE"
-    sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
-    sh "cp server/docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
-
-    /**
-     * Driver and Cert is downloaded in host as workaround for connection issue in container
-     * TODO: move download task to Dockerfile when docker host is stable
-     */
-    sh "curl -L https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar > $DOCKER_WORKSPACE/postgresql-connector.jar"
-    def certName = 'rds-combined-ca-bundle.pem'
-    sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
-
-    echo "Building docker MT $version..."
-    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
-
-    sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
+    buildAndTagDockerImage(DOCKER_WORKSPACE, dockerImage, "${env.MT_DOCKER_REGISTRY_URL}")
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'MT-DOCKER-REGISTRY-TOKEN',
@@ -329,24 +311,7 @@ void dockerBuildAndDeploy_OPEN(String dockerImage) {
     sh "git clean -fdx"
     unstash 'generated-files'
 
-    echo "Copy Dockerfile-OPENSHIFT and ROOT.war to $DOCKER_WORKSPACE/"
-    sh "mkdir -p $DOCKER_WORKSPACE"
-    sh "cp server/target/deployments/ROOT.war $DOCKER_WORKSPACE/"
-    sh "cp server/docker/Dockerfile-OPENSHIFT $DOCKER_WORKSPACE/"
-
-    /**
-     * Cert is downloaded in host as workaround for connection issue in container
-     * TODO: move download cert task to Dockerfile when docker host is stable
-     */
-    def certName = 'rds-combined-ca-bundle.pem'
-    sh "curl -o $DOCKER_WORKSPACE/$certName http://s3.amazonaws.com/rds-downloads/$certName"
-
-    echo "Building docker MT $version..."
-    sh "docker build --pull -f $DOCKER_WORKSPACE/Dockerfile-OPENSHIFT -t $dockerImage:$version $DOCKER_WORKSPACE"
-
-    sh "echo Creating tag for $version..."
-    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
-    sh "docker tag $dockerImage:$version ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+    buildAndTagDockerImage(DOCKER_WORKSPACE, dockerImage, "${env.MT_DOCKER_REGISTRY_URL_OPEN}")
 
     echo "Docker login.."
     withCredentials([string(credentialsId: 'DOCKER-REGISTRY-TOKEN',
@@ -515,4 +480,28 @@ void processTestResults() {
 
   // send test coverage data to codecov.io
   codecov(env, steps, mainScmGit)
+}
+
+void buildAndTagDockerImage(workspace, dockerImage, dockerRegistryUrl) {
+  echo "Copy Dockerfile-OPENSHIFT and ROOT.war to $workspace/"
+
+  sh "mkdir -p $workspace/certs"
+  sh "cp server/target/deployments/ROOT.war $workspace/"
+  sh "cp server/docker/Dockerfile-OPENSHIFT $workspace/"
+
+  /**
+   * Cert is downloaded in host as workaround for connection issue in container
+   * TODO: move download cert task to Dockerfile when docker host is stable
+   */
+  def certName = 'rds-combined-ca-bundle.pem'
+  def caCertName = 'RH-IT-Root-CA.crt'
+  sh "curl -o $workspace/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
+  sh "curl -o $workspace/certs/$caCertName $env.SSL_CA_CERT"
+
+  echo "Building docker MT $version..."
+  sh "docker build --pull -f $workspace/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace"
+
+  sh "echo Creating tag for $version..."
+  sh "docker tag $dockerImage:$version $dockerRegistryUrl/$dockerImage:$version"
+  sh "docker tag $dockerImage:$version $dockerRegistryUrl/$dockerImage:latest"
 }

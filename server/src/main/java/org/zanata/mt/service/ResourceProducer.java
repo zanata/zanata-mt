@@ -58,6 +58,8 @@ public class ResourceProducer {
                 .clusteredDefault()
                 .transport()
                 .clusterName(MACHINE_TRANSLATIONS_CLUSTER)
+                .globalJmxStatistics()
+                .allowDuplicateDomains(true)
                 .build();
         Configuration cfg = new ConfigurationBuilder()
                 .clustering()
