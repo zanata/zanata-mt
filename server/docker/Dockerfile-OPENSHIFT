@@ -16,9 +16,7 @@ USER root
 # copy all certs from certs/ directory
 COPY certs/ /etc/pki/ca-trust/source/anchors/
 
-# copy certs to postgresql default directory as root.crt
-COPY certs/RH-IT-Root-CA.crt /home/jboss/.postgresql/root.crt
-RUN update-ca-trust
+RUN update-ca-trust extract
 
 
 USER jboss

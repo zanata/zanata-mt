@@ -494,9 +494,9 @@ void buildAndTagDockerImage(workspace, dockerImage, dockerRegistryUrl) {
    * TODO: move download cert task to Dockerfile when docker host is stable
    */
   def certName = 'rds-combined-ca-bundle.pem'
-  def caCertName = 'RH-IT-Root-CA.crt'
   sh "curl -o $workspace/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
-  sh "curl -o $workspace/certs/$caCertName $env.SSL_CA_CERT"
+  sh "curl -o $workspace/certs/RH-IT-Root-CA.crt $env.SSL_CA_CERT"
+  sh "curl -o $workspace/certs/newca.crt $env.OLD_SSL_CA_CERT"
 
   echo "Building docker MT $version..."
   sh "docker build --pull -f $workspace/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace"
