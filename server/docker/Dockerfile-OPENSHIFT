@@ -18,8 +18,9 @@ COPY certs/ /etc/pki/ca-trust/source/anchors/
 
 RUN update-ca-trust extract
 
-
-USER jboss
+# need to use numeric uid so it's more suitable in Openshift
+# 185 is used in parent image and it's reserved for jboss as
+USER 185
 
 # copy war file
 # assuming war file is in the same directory
