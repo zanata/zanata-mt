@@ -1,0 +1,9 @@
+<jboss-web xmlns="http://www.jboss.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee http://www.jboss.org/j2ee/schema/jboss-web_10_0.xsd">
+  <replication-config>
+    <!-- default is to replicate the session. We could change it to ATTRIBUTE
+    (only replicate dirty attributes) to improve performance.-->
+    <replication-granularity>ATTRIBUTE</replication-granularity>
+  </replication-config>
+</jboss-web>
