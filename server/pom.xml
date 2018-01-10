@@ -264,7 +264,7 @@
   <dependencies>
     <!--
     <dependency>
-      <groupId>org.magpie.mt</groupId>
+      <groupId>org.zanata.magpie.mt</groupId>
       <artifactId>mt-frontend</artifactId>
     </dependency>
     -->
