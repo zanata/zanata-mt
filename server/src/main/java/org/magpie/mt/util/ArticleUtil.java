@@ -114,7 +114,7 @@ public final class ArticleUtil {
     }
 
     /**
-     * Wrap given html around ZANATA-MT wrapper for easy extraction
+     * Wrap given html around MT wrapper for easy extraction
      *
      * IMPORTANT: This assumes the html is wrap in single html node
      */
@@ -130,7 +130,7 @@ public final class ArticleUtil {
     }
 
     /**
-     * Unwrap a wrapped element inside ZANATA-MT wrapper.
+     * Unwrap a wrapped element inside MT wrapper.
      */
     public static List<Node> unwrapAsNodes(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
@@ -141,7 +141,7 @@ public final class ArticleUtil {
     }
 
     /**
-     * Unwrap a wrapped element inside ZANATA-MT wrapper.
+     * Unwrap a wrapped element inside MT wrapper.
      */
     public static List<Element> unwrapAsElements(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();

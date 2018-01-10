@@ -30,7 +30,7 @@ mvn clean package -DskipTests
 mvn docker:build -DskipTests
 mvn docker:start \
  -DGOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_CREDENTIAL_FILE} \
- -DZANATA_MT_AZURE_KEY=$2
+ -DMT_AZURE_KEY=$2
 
 docker logs --follow zanataMT
 

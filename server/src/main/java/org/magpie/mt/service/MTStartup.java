@@ -12,26 +12,26 @@ import org.slf4j.LoggerFactory;
 import org.magpie.mt.annotation.BackEndProviders;
 import org.magpie.mt.annotation.DevMode;
 import org.magpie.mt.api.APIConstant;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.BackendID;
 import org.magpie.mt.servlet.APISecurityFilter;
 
 /**
- * Startup monitor for Zanata MT.
+ * Startup monitor for MT.
  *
  * Insert any check needed when startup.
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationScoped
-public class ZanataMTStartup {
+public class MTStartup {
     private static final Logger LOG =
-        LoggerFactory.getLogger(ZanataMTStartup.class);
+        LoggerFactory.getLogger(MTStartup.class);
 
     private ConfigurationService configurationService;
 
     @Inject
-    public ZanataMTStartup(ConfigurationService configurationService) {
+    public MTStartup(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 
@@ -39,7 +39,7 @@ public class ZanataMTStartup {
         @Observes @Initialized(ApplicationScoped.class) Object init,
             @DevMode boolean isDevMode, @BackEndProviders
             Set<BackendID> availableProviders)
-        throws ZanataMTException {
+        throws MTException {
         LOG.info("===================================");
         LOG.info("===================================");
         LOG.info("=== Machine Translation Service ===");
@@ -62,7 +62,7 @@ public class ZanataMTStartup {
     public void verifyCredentials() {
         if (StringUtils.isBlank(configurationService.getId()) ||
                 StringUtils.isBlank(configurationService.getApiKey())) {
-            throw new ZanataMTException(
+            throw new MTException(
                     "Missing credentials of " + APIConstant.API_ID + " and " +
                             APIConstant.API_KEY);
         }

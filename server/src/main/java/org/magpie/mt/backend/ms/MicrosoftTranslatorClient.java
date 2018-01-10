@@ -6,7 +6,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.magpie.mt.backend.ms.internal.dto.MSTranslateArrayReq;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.util.DTOUtil;
 
 import javax.ws.rs.client.Entity;
@@ -70,7 +70,7 @@ class MicrosoftTranslatorClient {
      * Return raw response from Microsoft API
      */
     protected String requestTranslations(MSTranslateArrayReq req)
-            throws ZanataMTException {
+            throws MTException {
         getTokenIfNeeded();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Source sending:" + dtoUtil.toXML(req));
@@ -84,7 +84,7 @@ class MicrosoftTranslatorClient {
                 .post(Entity.xml(dtoUtil.toXML(req)));
 
         if (response.getStatusInfo() != Response.Status.OK) {
-            throw new ZanataMTException(
+            throw new MTException(
                     "Error from Microsoft Translator API:"
                             + response.getStatusInfo().getReasonPhrase());
         }
@@ -97,7 +97,7 @@ class MicrosoftTranslatorClient {
     /**
      * Get access token from MS API
      */
-    protected String getToken() throws ZanataMTException {
+    protected String getToken() throws MTException {
         Response response = null;
         try {
             LOG.info("Getting token for Microsoft Engine");
@@ -110,7 +110,7 @@ class MicrosoftTranslatorClient {
             response = builder.build("POST").invoke();
 
             if (response.getStatusInfo() != Response.Status.OK) {
-                throw new ZanataMTException(
+                throw new MTException(
                         "Error getting token:" + response.getStatusInfo().getReasonPhrase());
             }
             return response.readEntity(String.class);

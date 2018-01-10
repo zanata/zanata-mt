@@ -14,7 +14,7 @@ public class MTExceptionMapperTest {
 
     @Test
     public void testToResponse() {
-        ZanataMTException ex = new ZanataMTException("testing");
+        MTException ex = new MTException("testing");
         int internalErrorCode = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
         MTExceptionMapper mapper = new MTExceptionMapper();
         Response response = mapper.toResponse(ex);

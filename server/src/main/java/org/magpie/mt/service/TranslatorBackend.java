@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.magpie.mt.api.dto.LocaleCode;
 import org.magpie.mt.backend.BackendLocaleCode;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.AugmentedTranslation;
 import org.magpie.mt.model.BackendID;
 
@@ -21,13 +21,13 @@ public interface TranslatorBackend {
 
     /**
      * Return translations (same index as request) from MT provider
-     * @throws ZanataMTException
+     * @throws MTException
      */
     List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale,
             BackendLocaleCode targetLocale, MediaType mediaType,
             Optional<String> category)
-            throws ZanataMTException;
+            throws MTException;
 
     /**
      * Return mapped locale for the backend

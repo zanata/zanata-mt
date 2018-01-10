@@ -2,7 +2,7 @@ package org.magpie.mt.backend.mock;
 
 import org.magpie.mt.api.dto.LocaleCode;
 import org.magpie.mt.backend.BackendLocaleCode;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.AugmentedTranslation;
 import org.magpie.mt.model.BackendID;
 import org.magpie.mt.service.TranslatorBackend;
@@ -42,7 +42,7 @@ public class MockTranslatorBackend implements TranslatorBackend {
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
             MediaType mediaType, Optional<String> category)
-            throws ZanataMTException {
+            throws MTException {
         List<AugmentedTranslation> translations = contents.stream()
                 .map(source -> new AugmentedTranslation(
                         wrapContentInBlock(source),

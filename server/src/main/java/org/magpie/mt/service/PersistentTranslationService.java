@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.magpie.mt.backend.BackendLocaleCode;
 import org.magpie.mt.dao.TextFlowDAO;
 import org.magpie.mt.dao.TextFlowTargetDAO;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.AugmentedTranslation;
 import org.magpie.mt.model.BackendID;
 import org.magpie.mt.model.Document;
@@ -103,7 +103,7 @@ public class PersistentTranslationService {
             @NotNull Locale fromLocale, @NotNull Locale toLocale,
             @NotNull BackendID backendID, @NotNull MediaType mediaType,
             Optional<String> category)
-            throws BadRequestException, ZanataMTException {
+            throws BadRequestException, MTException {
         if (sourceStrings == null || sourceStrings.isEmpty() || fromLocale == null
                 || toLocale == null || backendID == null) {
             throw new BadRequestException();

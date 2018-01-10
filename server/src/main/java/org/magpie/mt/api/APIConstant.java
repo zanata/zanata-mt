@@ -9,16 +9,16 @@ public interface APIConstant {
 
 
     // list of url to allow access to /api. White space separated
-    String ORIGIN_WHITELIST = "ZANATA_MT_ORIGIN_WHITELIST";
-    // see org.zanata.mt.servlet.APISecurityFilter
+    String ORIGIN_WHITELIST = "MT_ORIGIN_WHITELIST";
+    // see org.magpie.mt.servlet.APISecurityFilter
     // API_ID to be used for API request (for authentication purpose)
-    String API_ID = "ZANATA_MT_API_ID";
+    String API_ID = "MT_API_ID";
     // API Key to be used for API request (for authentication purpose)
-    String API_KEY = "ZANATA_MT_API_KEY";
+    String API_KEY = "MT_API_KEY";
 
 
     // AZURE Subscription key for MS backend
-    String AZURE_KEY = "ZANATA_MT_AZURE_KEY";
+    String AZURE_KEY = "MT_AZURE_KEY";
 
     /**
      * Google Application Default Credentials content for google backend.

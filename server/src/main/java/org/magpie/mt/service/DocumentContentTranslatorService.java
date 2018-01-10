@@ -24,7 +24,7 @@ import org.magpie.mt.api.dto.TypeString;
 import org.magpie.mt.model.Document;
 import org.magpie.mt.model.TranslatableHTMLNode;
 import org.magpie.mt.util.ArticleUtil;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.BackendID;
 
 import com.google.common.collect.Lists;
@@ -71,7 +71,7 @@ public class DocumentContentTranslatorService {
      **/
     public DocumentContent translateDocument(Document doc,
             DocumentContent documentContent, BackendID backendID)
-            throws BadRequestException, ZanataMTException {
+            throws BadRequestException, MTException {
         Map<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
         Map<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         int maxLength = persistentTranslationService.getMaxLength(backendID);

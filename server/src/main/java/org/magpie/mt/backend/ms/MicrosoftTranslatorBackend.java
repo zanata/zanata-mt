@@ -22,7 +22,7 @@ import org.magpie.mt.backend.ms.internal.dto.MSString;
 import org.magpie.mt.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.magpie.mt.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.magpie.mt.backend.ms.internal.dto.MSTranslateArrayReqOptions;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.AugmentedTranslation;
 import org.magpie.mt.model.BackendID;
 import org.magpie.mt.service.TranslatorBackend;
@@ -77,7 +77,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     public void onInit(
             @Observes @Initialized(ApplicationScoped.class) Object init)
-            throws ZanataMTException {
+            throws MTException {
         api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient, dtoUtil);
     }
 
@@ -86,7 +86,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             BackendLocaleCode fromLocale,
             BackendLocaleCode toLocale, MediaType mediaType,
             Optional<String> category)
-            throws ZanataMTException {
+            throws MTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
             req.setSrcLanguage(fromLocale.getLocaleCode());
@@ -107,7 +107,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                             dtoUtil.toXML(res)))
                     .collect(Collectors.toList());
         } catch (JAXBException e) {
-            throw new ZanataMTException("Unable to get translations from MS API", e);
+            throw new MTException("Unable to get translations from MS API", e);
         }
     }
 

@@ -32,7 +32,7 @@ import org.magpie.mt.annotation.Credentials;
 import org.magpie.mt.api.dto.LocaleCode;
 import org.magpie.mt.backend.BackendLocaleCode;
 import org.magpie.mt.backend.google.internal.dto.GoogleLocaleCode;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.model.AugmentedTranslation;
 import org.magpie.mt.model.BackendID;
 import org.magpie.mt.service.TranslatorBackend;
@@ -88,7 +88,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType, Optional<String> category) throws ZanataMTException {
+            MediaType mediaType, Optional<String> category) throws MTException {
         String format = MediaType.TEXT_HTML_TYPE.isCompatible(mediaType) ? "html" : "text";
         List<Translate.TranslateOption> options = Lists.newLinkedList();
         options.add(Translate.TranslateOption
@@ -113,7 +113,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                             dtoUtil.toJSON(translation))).collect(
                             Collectors.toList());
         } catch (Exception e) {
-            throw new ZanataMTException(
+            throw new MTException(
                     "Unable to get translations from Google API", e);
         }
     }

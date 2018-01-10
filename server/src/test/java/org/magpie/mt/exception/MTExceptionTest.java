@@ -7,12 +7,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ZanataMTExceptionTest {
+public class MTExceptionTest {
 
     @Test
     public void testExceptionMessage() {
         String message = "error message";
-        ZanataMTException exception = new ZanataMTException(message);
+        MTException exception = new MTException(message);
         assertThat(exception.getMessage()).isEqualTo(message);
     }
 
@@ -22,7 +22,7 @@ public class ZanataMTExceptionTest {
         String cause = "cause of error";
         Throwable t = new Throwable(cause);
 
-        ZanataMTException exception = new ZanataMTException(message, t);
+        MTException exception = new MTException(message, t);
         assertThat(exception.getMessage()).isEqualTo(message);
         assertThat(exception.getCause()).isEqualTo(t);
     }

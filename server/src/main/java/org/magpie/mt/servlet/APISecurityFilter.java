@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.magpie.mt.service.MTStartup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class APISecurityFilter implements Filter {
 
     /**
      * Nonnull value. Verified during startup
-     * {@link org.magpie.mt.service.ZanataMTStartup#verifyCredentials
+     * {@link MTStartup#verifyCredentials
      */
     private static RestCredentials REST_CREDENTIALS;
 

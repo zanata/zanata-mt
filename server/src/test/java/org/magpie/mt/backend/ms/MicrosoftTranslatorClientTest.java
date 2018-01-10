@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.magpie.mt.backend.ms.internal.dto.MSTranslateArrayReq;
-import org.magpie.mt.exception.ZanataMTException;
+import org.magpie.mt.exception.MTException;
 import org.magpie.mt.util.DTOUtil;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -82,7 +82,7 @@ public class MicrosoftTranslatorClientTest {
         when(invocation.invoke()).thenReturn(response);
 
         assertThatThrownBy(() -> api.getToken())
-                .isInstanceOf(ZanataMTException.class);
+                .isInstanceOf(MTException.class);
     }
 
     @Test
