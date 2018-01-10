@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import '../src/styles/index.less';
 
 import { Hello } from "./components/Hello";
 
