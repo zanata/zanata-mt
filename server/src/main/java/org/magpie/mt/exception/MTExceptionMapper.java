@@ -18,10 +18,10 @@ import javax.ws.rs.ext.Provider;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @Provider
-public class ZanataMTExceptionMapper
+public class MTExceptionMapper
         implements ExceptionMapper<ZanataMTException> {
     private static final Logger LOG =
-            LoggerFactory.getLogger(ZanataMTExceptionMapper.class);
+            LoggerFactory.getLogger(MTExceptionMapper.class);
 
     @Override
     public Response toResponse(ZanataMTException exception) {

@@ -11,18 +11,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ZanataMTApplicationTest {
+public class MTApplicationTest {
 
-    private ZanataMTApplication zanataMTApplication;
+    private MTApplication MTApplication;
 
     @Before
     public void setup() {
-        zanataMTApplication = new ZanataMTApplication();
+        MTApplication = new MTApplication();
     }
 
     @Test
     public void testApplicationPath() {
-        Class clazz = zanataMTApplication.getClass();
+        Class clazz = MTApplication.getClass();
         assertThat(clazz.isAnnotationPresent(ApplicationPath.class)).isTrue();
 
         ApplicationPath annotation =
@@ -32,7 +32,7 @@ public class ZanataMTApplicationTest {
 
     @Test
     public void testGetClasses() {
-        Set<Class<?>> classes = zanataMTApplication.getClasses();
+        Set<Class<?>> classes = MTApplication.getClasses();
         assertThat(classes).isNotEmpty();
     }
 }

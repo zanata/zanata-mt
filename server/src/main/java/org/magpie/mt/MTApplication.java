@@ -10,13 +10,13 @@ import org.magpie.mt.api.service.impl.DocumentResourceImpl;
 import org.magpie.mt.api.service.impl.DocumentsResourceImpl;
 import org.magpie.mt.api.service.impl.LanguagesResourceImpl;
 import org.magpie.mt.exception.BadRequestExceptionMapper;
-import org.magpie.mt.exception.ZanataMTExceptionMapper;
+import org.magpie.mt.exception.MTExceptionMapper;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationPath("api")
-public class ZanataMTApplication extends Application {
+public class MTApplication extends Application {
     private Set<Class<?>> classes = buildResources();
 
     private static Set<Class<?>> buildResources() {
@@ -40,7 +40,7 @@ public class ZanataMTApplication extends Application {
     private static Set<Class<?>> buildExceptionMapperResource() {
         return ImmutableSet.<Class<?>>builder()
                 .add(BadRequestExceptionMapper.class)
-                .add(ZanataMTExceptionMapper.class)
+                .add(MTExceptionMapper.class)
                 .build();
     }
 

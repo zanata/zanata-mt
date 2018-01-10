@@ -10,13 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class ZanataMTExceptionMapperTest {
+public class MTExceptionMapperTest {
 
     @Test
     public void testToResponse() {
         ZanataMTException ex = new ZanataMTException("testing");
         int internalErrorCode = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-        ZanataMTExceptionMapper mapper = new ZanataMTExceptionMapper();
+        MTExceptionMapper mapper = new MTExceptionMapper();
         Response response = mapper.toResponse(ex);
 
         assertThat(response).isNotNull();
