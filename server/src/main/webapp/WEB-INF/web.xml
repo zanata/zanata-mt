@@ -45,7 +45,7 @@
     <!-- This name must match the web-fragment.xml in javamelody's jar,
          so that we can override it. -->
     <filter-name>javamelody</filter-name>
-    <filter-class>org.magpie.mt.servlet.JavaMelodyFilter</filter-class>
+    <filter-class>org.zanata.magpie.servlet.JavaMelodyFilter</filter-class>
     <!--<async-supported>true</async-supported>-->
   </filter>
   <filter-mapping>
