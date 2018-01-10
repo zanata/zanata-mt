@@ -107,7 +107,7 @@
             <images>
               <!-- Postgres image is used 'as-is' and is linked into the service image -->
               <image>
-                <alias>zanataMTDB</alias>
+                <alias>MTDB</alias>
                 <name>postgres:9.5</name>
                 <run>
                   <env>
@@ -135,14 +135,14 @@
                 </run>
               </image>
               <image>
-                <name>zanata/zanata-mt:latest</name>
-                <alias>zanataMT</alias>
+                <name>zanata/mt:latest</name>
+                <alias>MT</alias>
                 <build>
                   <dockerFileDir>${project.basedir}</dockerFileDir>
                 </build>
                 <run>
                   <env>
-                    <POSTGRESQL_URL>zanataMTDB</POSTGRESQL_URL>
+                    <POSTGRESQL_URL>MTDB</POSTGRESQL_URL>
                     <POSTGRESQL_PORT>${postgresql.port}</POSTGRESQL_PORT>
                     <POSTGRESQL_DATABASE>${db.name}</POSTGRESQL_DATABASE>
                     <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
@@ -156,7 +156,7 @@
                     <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
                   </env>
                   <dependsOn>
-                    <container>zanataMTDB</container>
+                    <container>MTDB</container>
                   </dependsOn>
                   <ports>
                     <port>${jboss.http.port}:8080</port>
@@ -175,7 +175,7 @@
                   </log>
                   <links>
                     <!-- this is to expose DB container's env variables with prefix DB -->
-                    <link>zanataMTDB:db</link>
+                    <link>MTDB:db</link>
                   </links>
                   <volumes>
                     <bind>
