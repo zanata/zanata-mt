@@ -46,7 +46,7 @@
         <groupId>com.webcohesion.enunciate</groupId>
         <artifactId>enunciate-slim-maven-plugin</artifactId>
         <configuration>
-          <enunciateArtifactId>zanataMT</enunciateArtifactId>
+          <enunciateArtifactId>MT</enunciateArtifactId>
           <docsDir>${project.build.directory}/site</docsDir>
           <!-- The subdirectory of the site where the documentation will be put. -->
           <!-- Note that if this isn't set, the documentation will overwrite the site. -->
