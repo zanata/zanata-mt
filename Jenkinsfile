@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 /**
- * Jenkinsfile for zanata-mt
+ * Jenkinsfile for mt
  *
  * Environment variables:
  * MT_OPENSHIFT_DOCKERFILE: URL for Openshift Dockerfile
