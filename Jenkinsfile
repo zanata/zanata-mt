@@ -31,11 +31,11 @@ public static final String PROJ_URL = 'https://github.com/zanata/zanata-mt'
 public static final String PIPELINE_LIBRARY_BRANCH = 'v0.3.1'
 
 @Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
-import org.zanata.jenkins.Notifier
-import org.zanata.jenkins.PullRequests
-import org.zanata.jenkins.ScmGit
-import static org.zanata.jenkins.Reporting.codecov
-import static org.zanata.jenkins.StackTraces.getStackTrace
+import org.magpie.jenkins.Notifier
+import org.magpie.jenkins.PullRequests
+import org.magpie.jenkins.ScmGit
+import static org.magpie.jenkins.Reporting.codecov
+import static org.magpie.jenkins.StackTraces.getStackTrace
 
 import groovy.transform.Field
 
