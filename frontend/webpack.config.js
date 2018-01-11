@@ -8,6 +8,7 @@ var postcssColorFunction = require('postcss-color-function')
 var postcssCustomMedia = require('postcss-custom-media')
 var postcssEsplit = require('postcss-esplit')
 
+//Fallback postcss loader
 var postCssLoader = {
   loader: 'postcss-loader',
   options: {
@@ -63,6 +64,7 @@ module.exports = {
               loader: 'postcss-loader',
               options: {
                 plugins: [
+                  // import, lint then minify less
                   require("postcss-import"),
                   require("stylelint"),
                   require("postcss-cssnext")({warnForDuplicates: false}),
@@ -78,7 +80,7 @@ module.exports = {
 
     ]
   },
-  
+
   plugins: _.compact([
     /* Outputs css to a separate file per entry-point.
        Note the call to .extract above */
