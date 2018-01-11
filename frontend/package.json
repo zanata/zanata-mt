@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "js": "webpack",
-    "build": "node scripts/build"
+    "js": "webpack"
   },
   "keywords": [
     "zanata-mt",
@@ -16,22 +15,16 @@
   "dependencies": {
     "@types/react": "^16.0.34",
     "@types/react-dom": "^16.0.3",
-    "autoprefixer": "^7.2.4",
     "css-loader": "^0.28.8",
-    "cssnano": "^3.10.0",
     "csso-loader": "^0.3.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
-    "postcss-calc": "^6.0.1",
-    "postcss-color-function": "^4.0.1",
     "postcss-cssnext": "^3.0.2",
-    "postcss-custom-media": "^6.0.0",
-    "postcss-custom-properties": "^6.2.0",
-    "postcss-discard-duplicates": "^2.1.0",
     "postcss-esplit": "^0.1.2",
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.10",
+    "postcss-reporter": "^5.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "style-loader": "^0.19.1",

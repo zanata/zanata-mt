@@ -1,17 +1,26 @@
-var stylelint = require('stylelint')
-var postcssDiscardDuplicates = require('postcss-discard-duplicates')
-var postcssImport = require('postcss-import')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var _ = require('lodash')
+var stylelint = require('stylelint')
+var postcssImport = require('postcss-import')
+var postcssCustomProperties = require('postcss-custom-properties')
+var postcssCalc = require('postcss-calc')
+var postcssColorFunction = require('postcss-color-function')
+var postcssCustomMedia = require('postcss-custom-media')
+var postcssEsplit = require('postcss-esplit')
 
 var postCssLoader = {
   loader: 'postcss-loader',
   options: {
     plugins: [
-      postcssDiscardDuplicates(),
-      postcssImport()
-    ]
-  }
+      postcssImport(),
+      postcssCustomProperties,
+      postcssCalc,
+      postcssColorFunction,
+      postcssCustomMedia,
+      postcssEsplit({
+        quiet: true
+      }),
+  ]}
 }
 
 module.exports = {
@@ -40,13 +49,12 @@ module.exports = {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use: _.compact([
+          use: [
             {
               loader: 'css-loader'
             },
-            'csso-loader',
-            postCssLoader
-          ])
+            'csso-loader'
+          ]
         })
       },
 
@@ -63,12 +71,14 @@ module.exports = {
               loader: 'postcss-loader',
               options: {
                 plugins: [
-                  require('stylelint'),
-                  require('postcss-discard-duplicates')
+                  require("postcss-import"),
+                  require("stylelint"),
+                  require("postcss-cssnext")({warnForDuplicates: false}),
+                  require("postcss-reporter"),
+                  require("cssnano")
                 ]
               }
-            },
-            postCssLoader,
+            }, postCssLoader,
             'less-loader'
           ]
         })
