@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MSTranslateArrayReq.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.backend.ms.internal.dto</a> &gt; <span class="el_source">MSTranslateArrayReq.java</span></div><h1>MSTranslateArrayReq.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.backend.ms.internal.dto;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+/**
+ * https://msdn.microsoft.com/en-us/library/ff512422.aspx
+ * Sample xml:
+ *
+ * &lt;TranslateArrayRequest&gt;
+ *  &lt;AppId /&gt;
+ *  &lt;From&gt;language-code&lt;/From&gt;
+ *  &lt;Options&gt;
+ *    &lt;Category xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot; &gt;string-value&lt;/Category&gt;
+ *    &lt;ContentType xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot;&gt;text/plain&lt;/ContentType&gt;
+ *    &lt;ReservedFlags xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot; /&gt;
+ *    &lt;State xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot; &gt;int-value&lt;/State&gt;
+ *    &lt;Uri xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot; &gt;string-value&lt;/Uri&gt;
+ *    &lt;User xmlns=&quot;http://schemas.datacontract.org/2004/07/Microsoft.MT.Web.Service.V2&quot; &gt;string-value&lt;/User&gt;
+ *  &lt;/Options&gt;
+ *  &lt;Texts&gt;
+ *    &lt;string xmlns=&quot;http://schemas.microsoft.com/2003/10/Serialization/Arrays&quot;&gt;string-value&lt;/string&gt;
+ *    &lt;string xmlns=&quot;http://schemas.microsoft.com/2003/10/Serialization/Arrays&quot;&gt;string-value&lt;/string&gt;
+ *  &lt;/Texts&gt;
+ *  &lt;To&gt;language-code&lt;/To&gt;
+ * &lt;/TranslateArrayRequest&gt;
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@XmlRootElement(name = &quot;TranslateArrayRequest&quot;)
+@XmlType(propOrder = {&quot;appId&quot;, &quot;srcLanguage&quot;, &quot;options&quot;, &quot;texts&quot;, &quot;transLanguage&quot;})
+public class MSTranslateArrayReq implements Serializable {
+    private static final long serialVersionUID = 3821282850166291221L;
+
+    private String appId;
+    private String srcLanguage;
+    private MSTranslateArrayReqOptions options;
+<span class="fc" id="L43">    private List&lt;MSString&gt; texts = new ArrayList&lt;&gt;();</span>
+    private String transLanguage;
+
+<span class="fc" id="L46">    public MSTranslateArrayReq() {</span>
+<span class="fc" id="L47">    }</span>
+
+    @XmlElement(name = &quot;AppId&quot;, nillable = true)
+    public String getAppId() {
+<span class="fc" id="L51">        return appId;</span>
+    }
+
+    public void setAppId(String appId) {
+<span class="fc" id="L55">        this.appId = appId;</span>
+<span class="fc" id="L56">    }</span>
+
+    @XmlElement(name = &quot;From&quot;, required = true)
+    public String getSrcLanguage() {
+<span class="fc" id="L60">        return srcLanguage;</span>
+    }
+
+    public void setSrcLanguage(String srcLanguage) {
+<span class="fc" id="L64">        this.srcLanguage = srcLanguage;</span>
+<span class="fc" id="L65">    }</span>
+
+    @XmlElement(name = &quot;Options&quot;)
+    public MSTranslateArrayReqOptions getOptions() {
+<span class="fc" id="L69">        return options;</span>
+    }
+
+    public void setOptions(MSTranslateArrayReqOptions options) {
+<span class="fc" id="L73">        this.options = options;</span>
+<span class="fc" id="L74">    }</span>
+
+    @XmlElementWrapper(name = &quot;Texts&quot;, required = true)
+    @XmlElement(name = &quot;string&quot;, namespace = &quot;http://schemas.microsoft.com/2003/10/Serialization/Arrays&quot;)
+    public List&lt;MSString&gt; getTexts() {
+<span class="fc" id="L79">        return texts;</span>
+    }
+
+    public void setTexts(List&lt;MSString&gt; texts) {
+<span class="fc" id="L83">        this.texts = texts;</span>
+<span class="fc" id="L84">    }</span>
+
+    @XmlElement(name = &quot;To&quot;, required = true)
+    public String getTransLanguage() {
+<span class="fc" id="L88">        return transLanguage;</span>
+    }
+
+    public void setTransLanguage(String transLanguage) {
+<span class="fc" id="L92">        this.transLanguage = transLanguage;</span>
+<span class="fc" id="L93">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L98" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L100">        MSTranslateArrayReq that = (MSTranslateArrayReq) o;</span>
+
+<span class="pc bpc" id="L102" title="1 of 6 branches missed.">        if (appId != null ? !appId.equals(that.appId) : that.appId != null)</span>
+<span class="fc" id="L103">            return false;</span>
+<span class="pc bpc" id="L104" title="3 of 6 branches missed.">        if (srcLanguage != null ? !srcLanguage.equals(that.srcLanguage) :</span>
+<span class="fc" id="L105">            that.srcLanguage != null) return false;</span>
+<span class="pc bpc" id="L106" title="3 of 6 branches missed.">        if (options != null ? !options.equals(that.options) :</span>
+            that.options != null)
+<span class="fc" id="L108">            return false;</span>
+<span class="pc bpc" id="L109" title="3 of 6 branches missed.">        if (transLanguage != null ? !transLanguage.equals(that.transLanguage) :</span>
+<span class="fc" id="L110">            that.transLanguage != null) return false;</span>
+<span class="pc bpc" id="L111" title="3 of 4 branches missed.">        return texts != null ? texts.equals(that.texts) : that.texts == null;</span>
+
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        int result = appId != null ? appId.hashCode() : 0;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        result =</span>
+<span class="fc" id="L119">            31 * result + (srcLanguage != null ? srcLanguage.hashCode() : 0);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        result = 31 * result + (options != null ? options.hashCode() : 0);</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        result =</span>
+            31 * result +
+<span class="fc" id="L123">                (transLanguage != null ? transLanguage.hashCode() : 0);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        result = 31 * result + (texts != null ? texts.hashCode() : 0);</span>
+<span class="fc" id="L125">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

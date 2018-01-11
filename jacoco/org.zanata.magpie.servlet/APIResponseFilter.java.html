@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>APIResponseFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.servlet</a> &gt; <span class="el_source">APIResponseFilter.java</span></div><h1>APIResponseFilter.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.servlet;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+
+import static org.zanata.magpie.api.APIConstant.ORIGIN_WHITELIST;
+
+/**
+ * This filter is for REST API requests.
+ * It supports &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS&quot;&gt;
+ * Cross-Origin resource sharing (CORS)&lt;/a&gt; by adding {@code Access-Control}
+ * headers to REST responses. CORS is needed for requests from different
+ * domains.
+ *
+ * This is needed if API call is triggered from browser from different domains.
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@WebFilter(filterName = &quot;APIResponseFilter&quot;, value = { &quot;/api/*&quot; })
+<span class="fc" id="L39">public class APIResponseFilter implements Filter {</span>
+    private static final String ALLOW_METHODS =
+        &quot;PUT, POST, DELETE, GET, OPTIONS&quot;;
+
+    private static ImmutableList&lt;String&gt; originWhitelist;
+
+    static {
+<span class="fc" id="L46">        String whitelist = System.getenv(ORIGIN_WHITELIST);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :</span>
+<span class="pc" id="L48">                ImmutableList.copyOf(whitelist.split(&quot; +&quot;));</span>
+<span class="fc" id="L49">    }</span>
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (originWhitelist.isEmpty()) {</span>
+<span class="fc" id="L59">            chain.doFilter(request, response);</span>
+<span class="fc" id="L60">            return;</span>
+        }
+
+<span class="fc" id="L63">        HttpServletResponse servletResponse = (HttpServletResponse) response;</span>
+<span class="fc" id="L64">        HttpServletRequest servletRequest = (HttpServletRequest) request;</span>
+
+        // Response will be different if Origin request header is different:
+<span class="fc" id="L67">        servletResponse.addHeader(&quot;Vary&quot;, &quot;Origin&quot;);</span>
+
+        // Allow the specified Origin, but only if it is whitelisted.
+<span class="fc" id="L70">        String origin = servletRequest.getHeader(&quot;Origin&quot;);</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (!StringUtils.isBlank(origin) &amp;&amp; originWhitelist.contains(origin)) {</span>
+<span class="fc" id="L72">            servletResponse.addHeader(&quot;Access-Control-Allow-Origin&quot;,</span>
+<span class="fc" id="L73">                    URLEncoder.encode(origin,</span>
+                            CharEncoding.UTF_8));
+
+            // Allow standard HTTP methods.
+<span class="fc" id="L77">            servletResponse</span>
+<span class="fc" id="L78">                .addHeader(&quot;Access-Control-Allow-Methods&quot;, ALLOW_METHODS);</span>
+
+            // Allow credentials in requests (eg session cookie).
+            // This is potentially very dangerous, so check your Origin!
+<span class="fc" id="L82">            servletResponse</span>
+<span class="fc" id="L83">                .addHeader(&quot;Access-Control-Allow-Credentials&quot;, &quot;true&quot;);</span>
+
+            // Client will use these headers for the next request (assuming this is
+            // a pre-flight request).
+
+<span class="fc" id="L88">            Enumeration&lt;String&gt; enumList =</span>
+<span class="fc" id="L89">                    servletRequest.getHeaders(&quot;Access-Control-Request-Headers&quot;);</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (enumList.hasMoreElements()) {</span>
+<span class="nc" id="L91">                List&lt;String&gt; nextRequestHeaders = Collections.list(enumList);</span>
+                // Allow any requested headers. Again, check your Origin!
+<span class="nc" id="L93">                servletResponse.addHeader(&quot;Access-Control-Allow-Headers&quot;,</span>
+<span class="nc" id="L94">                        Joiner.on(&quot;,&quot;).join(nextRequestHeaders));</span>
+            }
+        }
+<span class="fc" id="L97">        chain.doFilter(request, response);</span>
+<span class="fc" id="L98">    }</span>
+
+    @Override
+    public void destroy() {
+<span class="fc" id="L102">    }</span>
+
+    @VisibleForTesting
+    protected void setOriginWhitelist(String whitelist) {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :</span>
+<span class="fc" id="L107">                ImmutableList.copyOf(whitelist.split(&quot; +&quot;));</span>
+<span class="fc" id="L108">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

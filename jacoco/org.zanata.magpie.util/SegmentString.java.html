@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SegmentString.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.util</a> &gt; <span class="el_source">SegmentString.java</span></div><h1>SegmentString.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.util;
+
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.zanata.magpie.api.dto.LocaleCode;
+
+import javax.validation.constraints.NotNull;
+import java.text.BreakIterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
+/**
+ * @author Alex Eng&lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+<span class="nc" id="L16">public final class SegmentString {</span>
+
+    /**
+     * Segment a paragraph into sentences
+     */
+    public static List&lt;String&gt; segmentString(@NotNull String text,
+            Optional&lt;LocaleCode&gt; localeCode) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (StringUtils.isBlank(text)) {</span>
+<span class="nc" id="L24">            return Lists.newArrayList();</span>
+        }
+
+<span class="fc" id="L27">        Locale locale =</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">                localeCode.isPresent() ? new Locale(localeCode.get().getId()) :</span>
+<span class="fc" id="L29">                        Locale.getDefault();</span>
+<span class="fc" id="L30">        BreakIterator boundary = BreakIterator.getSentenceInstance(locale);</span>
+<span class="fc" id="L31">        boundary.setText(text);</span>
+<span class="fc" id="L32">        return extractList(boundary, text);</span>
+    }
+
+    private static List&lt;String&gt; extractList(BreakIterator boundary,
+            String source) {
+<span class="fc" id="L37">        List&lt;String&gt; strings = Lists.newArrayList();</span>
+<span class="fc" id="L38">        int start = boundary.first();</span>
+<span class="fc" id="L39">        for (int end = boundary.next();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">                end != BreakIterator.DONE;</span>
+<span class="fc" id="L41">                start = end, end = boundary.next()) {</span>
+<span class="fc" id="L42">            strings.add(source.substring(start, end));</span>
+        }
+<span class="fc" id="L44">        return strings;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

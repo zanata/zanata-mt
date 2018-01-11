@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ArticleUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.util</a> &gt; <span class="el_source">ArticleUtil.java</span></div><h1>ArticleUtil.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.util;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Tag;
+import org.zanata.magpie.model.TranslatableHTMLNode;
+
+import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Utility class for Article
+ *
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+public final class ArticleUtil {
+    private final static String ID_PREFIX = &quot;ZNTA&quot;;
+    private final static String WRAPPER_ID = &quot;WRAP&quot;;
+
+    // HTML tag that will not be translated
+<span class="fc" id="L30">    private final static ImmutableList&lt;String&gt; NON_TRANSLATABLE_NODE = ImmutableList</span>
+<span class="fc" id="L31">            .of(&quot;script&quot;, &quot;#text&quot;, &quot;code&quot;, &quot;col&quot;, &quot;colgroup&quot;, &quot;embed&quot;,</span>
+                    &quot;#comment&quot;, &quot;image&quot;, &quot;map&quot;, &quot;media&quot;, &quot;meta&quot;, &quot;source&quot;,
+                    &quot;xml&quot;);
+
+    // Node with attribute that will not be translated
+<span class="fc" id="L36">    private final static ImmutableMap&lt;String, String&gt; NON_TRANSLATABLE_ATTRIBUTE =</span>
+<span class="fc" id="L37">            ImmutableMap.of(&quot;translate&quot;, &quot;no&quot;);</span>
+
+    // Node with css class that wil not be translated
+<span class="fc" id="L40">    private final static ImmutableList&lt;String&gt; NON_TRANSLATABLE_CLASS =</span>
+<span class="fc" id="L41">            ImmutableList.of(&quot;notranslate&quot;);</span>
+
+    // Node with id prefix that will not be translated
+<span class="fc" id="L44">    private final static ImmutableList&lt;String&gt; NON_TRANSLATABLE_ID =</span>
+<span class="fc" id="L45">            ImmutableList.of(&quot;private-notes&quot;);</span>
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L48">    private ArticleUtil() {</span>
+<span class="nc" id="L49">    }</span>
+
+    /**
+     * Replace non-translatable node with placeholder
+     *
+     * @param index - index of the node, used to generate unique id for placeholder
+     * @param html - html string
+     */
+    public static TranslatableHTMLNode replaceNonTranslatableNode(int index,
+            String html) {
+<span class="fc" id="L59">        Element document = wrapHTML(html);</span>
+<span class="fc" id="L60">        Map&lt;String, Node&gt; placeholderIdMap = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L62">        int counter = 0;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : NON_TRANSLATABLE_ATTRIBUTE</span>
+<span class="fc" id="L64">                .entrySet()) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            for (Element element : document</span>
+<span class="fc" id="L66">                    .getElementsByAttributeValueContaining(</span>
+<span class="fc" id="L67">                            entry.getKey(), entry.getValue())) {</span>
+<span class="fc" id="L68">                replaceNodeWithPlaceholder(placeholderIdMap, index,</span>
+                        counter, element);
+<span class="fc" id="L70">                counter++;</span>
+<span class="fc" id="L71">            }</span>
+<span class="fc" id="L72">        }</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        for (String tag : NON_TRANSLATABLE_NODE) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            for (Element element : document.getElementsByTag(tag)) {</span>
+<span class="fc" id="L75">                replaceNodeWithPlaceholder(placeholderIdMap, index,</span>
+                        counter, element);
+<span class="fc" id="L77">                counter++;</span>
+<span class="fc" id="L78">            }</span>
+<span class="fc" id="L79">        }</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (String cssClass : NON_TRANSLATABLE_CLASS) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            for (Element element : document.getElementsByClass(cssClass)) {</span>
+<span class="fc" id="L82">                replaceNodeWithPlaceholder(placeholderIdMap, index,</span>
+                        counter, element);
+<span class="fc" id="L84">                counter++;</span>
+<span class="fc" id="L85">            }</span>
+<span class="fc" id="L86">        }</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (String id : NON_TRANSLATABLE_ID) {</span>
+<span class="fc" id="L88">            String cssQuery = &quot;[id^='&quot; + id + &quot;']&quot;;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            for (Element element : document.select(cssQuery)) {</span>
+<span class="fc" id="L90">                replaceNodeWithPlaceholder(placeholderIdMap, index,</span>
+                        counter, element);
+<span class="fc" id="L92">                counter++;</span>
+<span class="fc" id="L93">            }</span>
+<span class="fc" id="L94">        }</span>
+<span class="fc" id="L95">        return new TranslatableHTMLNode(unwrapAsNodes(document),</span>
+                placeholderIdMap);
+    }
+
+    /**
+     * Generate an unique id with prefix and index
+     */
+    public static String generatePlaceholderId(int prefix, int index) {
+<span class="fc" id="L103">        return ID_PREFIX + &quot;-&quot; + prefix + &quot;-&quot; + index;</span>
+    }
+
+    /**
+     * Generate a non-translatable element
+     */
+    public static Element generatePlaceholderNode(@NotNull String id) {
+<span class="fc" id="L110">        Attributes attrs = new Attributes();</span>
+<span class="fc" id="L111">        attrs.put(&quot;id&quot;, id);</span>
+<span class="fc" id="L112">        attrs.put(&quot;translate&quot;, &quot;no&quot;);</span>
+<span class="fc" id="L113">        return new Element(Tag.valueOf(&quot;var&quot;), &quot;&quot;, attrs);</span>
+    }
+
+    /**
+     * Wrap given html around MT wrapper for easy extraction
+     *
+     * IMPORTANT: This assumes the html is wrap in single html node
+     */
+    public static Element wrapHTML(String html) {
+<span class="fc" id="L122">        String wrapHTML = html;</span>
+<span class="pc bpc" id="L123" title="1 of 4 branches missed.">        if (!html.startsWith(&quot;&lt;html&gt;&quot;) &amp;&amp; !html.startsWith(&quot;&lt;body&gt;&quot;)) {</span>
+<span class="fc" id="L124">            wrapHTML = &quot;&lt;div id='&quot; + getWrapperId() + &quot;'&gt;&quot; + html + &quot;&lt;/div&gt;&quot;;</span>
+        }
+<span class="fc" id="L126">        Document doc = Jsoup.parseBodyFragment(wrapHTML);</span>
+<span class="fc" id="L127">        doc.outputSettings().indentAmount(0).prettyPrint(false)</span>
+<span class="fc" id="L128">                .syntax(Document.OutputSettings.Syntax.html);</span>
+<span class="fc" id="L129">        return doc;</span>
+    }
+
+    /**
+     * Unwrap a wrapped element inside MT wrapper.
+     */
+    public static List&lt;Node&gt; unwrapAsNodes(@NotNull Element element) {
+<span class="fc" id="L136">        Element wrapper = element.select(&quot;#&quot; + getWrapperId()).first();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (wrapper != null) {</span>
+<span class="fc" id="L138">            return wrapper.childNodes();</span>
+        }
+<span class="fc" id="L140">        return Lists.newArrayList(element);</span>
+    }
+
+    /**
+     * Unwrap a wrapped element inside MT wrapper.
+     */
+    public static List&lt;Element&gt; unwrapAsElements(@NotNull Element element) {
+<span class="fc" id="L147">        Element wrapper = element.select(&quot;#&quot; + getWrapperId()).first();</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (wrapper != null) {</span>
+<span class="fc" id="L149">            return wrapper.children();</span>
+        }
+<span class="fc" id="L151">        return Lists.newArrayList(element);</span>
+    }
+
+    // parse html string into element
+    public static Element asElement(String html) {
+<span class="fc" id="L156">        return unwrapAsElements(wrapHTML(html)).get(0);</span>
+    }
+
+    /**
+     * Replace node in given html with id and element from nodeIdMap
+     */
+    public static String replacePlaceholderWithNode(
+            Map&lt;String, Node&gt; nodeIdMap, String html) {
+<span class="fc" id="L164">        Element element = wrapHTML(html);</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (Map.Entry&lt;String, Node&gt; entry : nodeIdMap.entrySet()) {</span>
+<span class="fc" id="L166">            String id = entry.getKey();</span>
+<span class="fc" id="L167">            Node replacementNode = entry.getValue();</span>
+<span class="fc" id="L168">            element.select(&quot;#&quot; + id).first().replaceWith(replacementNode);</span>
+<span class="fc" id="L169">        }</span>
+<span class="fc" id="L170">        return unwrapAsNodes(element).stream().map(node -&gt; node.outerHtml())</span>
+<span class="fc" id="L171">                .collect(Collectors.joining());</span>
+    }
+
+    private static String getWrapperId() {
+<span class="fc" id="L175">        return ID_PREFIX + &quot;-&quot; + WRAPPER_ID;</span>
+    }
+
+    private static void replaceNodeWithPlaceholder(
+            Map&lt;String, Node&gt; placeholderIdMap, int index,
+            int counter, Element element) {
+<span class="fc" id="L181">        String id = generatePlaceholderId(index, counter);</span>
+<span class="fc" id="L182">        placeholderIdMap.put(id, element.clone());</span>
+<span class="fc" id="L183">        Element placeholderElement = generatePlaceholderNode(id);</span>
+<span class="fc" id="L184">        element.replaceWith(placeholderElement);</span>
+<span class="fc" id="L185">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

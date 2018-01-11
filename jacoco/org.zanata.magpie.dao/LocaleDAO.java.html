@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocaleDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.dao</a> &gt; <span class="el_source">LocaleDAO.java</span></div><h1>LocaleDAO.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.dao;
+
+import java.util.List;
+import javax.enterprise.context.RequestScoped;
+import javax.persistence.EntityManager;
+
+import com.ibm.icu.util.ULocale;
+import org.zanata.magpie.api.dto.LocaleCode;
+import org.zanata.magpie.model.Locale;
+
+import com.google.common.annotations.VisibleForTesting;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@RequestScoped
+public class LocaleDAO extends AbstractDAO&lt;Locale&gt; {
+    private static final long serialVersionUID = -1640472923498327999L;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L21">    public LocaleDAO() {</span>
+<span class="fc" id="L22">    }</span>
+
+    @VisibleForTesting
+<span class="fc" id="L25">    LocaleDAO(EntityManager entityManager) {</span>
+<span class="fc" id="L26">        setEntityManager(entityManager);</span>
+<span class="fc" id="L27">    }</span>
+
+    public Locale getByLocaleCode(LocaleCode localeCode) {
+<span class="fc" id="L30">        List&lt;Locale&gt; locales = getEntityManager()</span>
+<span class="fc" id="L31">                .createQuery(&quot;from Locale where lower(localeCode) = :localeCode&quot;)</span>
+<span class="fc" id="L32">                .setParameter(&quot;localeCode&quot;, localeCode)</span>
+<span class="fc" id="L33">                .getResultList();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        return locales.isEmpty() ? null : locales.get(0);</span>
+    }
+
+    public Locale getOrCreateByLocaleCode(LocaleCode localeCode) {
+<span class="fc" id="L38">        Locale locale = getByLocaleCode(localeCode);</span>
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (locale == null) {</span>
+<span class="fc" id="L41">            ULocale uLocale = new ULocale(localeCode.getId());</span>
+<span class="fc" id="L42">            locale = new Locale(localeCode, uLocale.getDisplayName());</span>
+<span class="fc" id="L43">            locale = persist(locale);</span>
+<span class="fc" id="L44">            flush();</span>
+        }
+<span class="fc" id="L46">        return locale;</span>
+    }
+
+    public List&lt;Locale&gt; getSupportedLocales() {
+<span class="nc" id="L50">        return getEntityManager()</span>
+<span class="nc" id="L51">                .createQuery(&quot;from Locale&quot;).getResultList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

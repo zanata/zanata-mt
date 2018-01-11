@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BackendResourceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.api.service.impl</a> &gt; <span class="el_source">BackendResourceImpl.java</span></div><h1>BackendResourceImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2017, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.zanata.magpie.api.service.impl;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.magpie.annotation.BackEndProviders;
+import org.zanata.magpie.api.InputStreamStreamingOutput;
+import org.zanata.magpie.api.dto.APIResponse;
+import org.zanata.magpie.api.service.BackendResource;
+import org.zanata.magpie.model.BackendID;
+import com.google.common.annotations.VisibleForTesting;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@RequestScoped
+public class BackendResourceImpl implements BackendResource {
+
+<span class="fc" id="L55">    private static final Logger LOG =</span>
+<span class="fc" id="L56">            LoggerFactory.getLogger(BackendResourceImpl.class);</span>
+    private Set&lt;BackendID&gt; availableProviders;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L60">    public BackendResourceImpl() {</span>
+<span class="fc" id="L61">    }</span>
+
+    @Inject
+<span class="nc" id="L64">    public BackendResourceImpl(@BackEndProviders Set&lt;BackendID&gt; availableProviders) {</span>
+<span class="nc" id="L65">        this.availableProviders = availableProviders;</span>
+<span class="nc" id="L66">    }</span>
+
+    @Override
+    public Response getAttribution(@QueryParam(&quot;id&quot;) String id) {
+<span class="fc" id="L70">        Optional&lt;APIResponse&gt; response = validateId(id);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (response.isPresent()) {</span>
+<span class="fc" id="L72">            return Response.status(response.get().getStatus())</span>
+<span class="fc" id="L73">                    .entity(response.get())</span>
+<span class="fc" id="L74">                    .type(MediaType.APPLICATION_JSON_TYPE).build();</span>
+        }
+
+<span class="fc" id="L77">        BackendID backendID = BackendID.fromString(id);</span>
+<span class="fc" id="L78">        String imageResource = getAttributionImageResource(backendID);</span>
+<span class="fc" id="L79">        String docName = new File(imageResource).getName();</span>
+
+<span class="fc" id="L81">        InputStream is = getResourceAsStream(imageResource);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (is == null) {</span>
+<span class="fc" id="L83">            return Response.status(Response.Status.NOT_FOUND)</span>
+<span class="fc" id="L84">                    .entity(new APIResponse(Response.Status.NOT_FOUND,</span>
+                            &quot;attribution image can not be found:&quot; + imageResource))
+<span class="fc" id="L86">                    .type(MediaType.APPLICATION_JSON_TYPE)</span>
+<span class="fc" id="L87">                    .build();</span>
+        }
+<span class="fc" id="L89">        StreamingOutput output =</span>
+                new InputStreamStreamingOutput(is);
+<span class="fc" id="L91">        return Response.ok().header(&quot;Content-Disposition&quot;,</span>
+                &quot;attachment; filename=\&quot;&quot; + docName + &quot;\&quot;&quot;)
+<span class="fc" id="L93">                .entity(output).type(&quot;image/png&quot;).build();</span>
+    }
+
+    @VisibleForTesting
+    protected InputStream getResourceAsStream(String imageResource) {
+<span class="nc" id="L98">        ClassLoader classLoader = this.getClass().getClassLoader();</span>
+<span class="nc" id="L99">        return classLoader.getResourceAsStream(imageResource);</span>
+    }
+
+    @Override
+    public Response getAvailableBackends() {
+<span class="nc" id="L104">        Set&lt;String&gt; providers = availableProviders.stream().map(BackendID::getId)</span>
+<span class="nc" id="L105">                .collect(Collectors.toSet());</span>
+<span class="nc" id="L106">        return Response.ok()</span>
+<span class="nc" id="L107">                .entity(new GenericEntity&lt;Set&lt;String&gt;&gt;(providers) {}).build();</span>
+    }
+
+    private String getAttributionImageResource(BackendID backendID) {
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (backendID.equals(BackendID.MS)) {</span>
+<span class="fc" id="L112">            return MS_ATTRIBUTION_IMAGE;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        } else if (backendID.equals(BackendID.DEV)) {</span>
+<span class="fc" id="L114">            return DEV_ATTRIBUTION_IMAGE;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        } else if (backendID.equals(BackendID.GOOGLE)) {</span>
+<span class="fc" id="L116">            return GOOGLE_ATTRIBUTION_IMAGE;</span>
+        }
+<span class="nc" id="L118">        return &quot;&quot;;</span>
+    }
+
+    private Optional&lt;APIResponse&gt; validateId(String id) {
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (isBlank(id)) {</span>
+<span class="fc" id="L123">            APIResponse response =</span>
+                    new APIResponse(Response.Status.BAD_REQUEST, &quot;Invalid id&quot;);
+<span class="fc" id="L125">            return Optional.of(response);</span>
+        }
+        try {
+<span class="fc" id="L128">            BackendID.fromString(id);</span>
+<span class="fc" id="L129">        } catch (BadRequestException e) {</span>
+<span class="fc" id="L130">            APIResponse response =</span>
+                    new APIResponse(Response.Status.NOT_FOUND,
+                            &quot;Not supported id:&quot; + id);
+<span class="fc" id="L133">            return Optional.of(response);</span>
+<span class="fc" id="L134">        }</span>
+
+<span class="fc" id="L136">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
