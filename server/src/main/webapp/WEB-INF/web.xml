@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
   http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
   version="3.1">
-  <display-name>Zanata MT</display-name>
+  <display-name>Magpie MT</display-name>
 
   <!-- Welcome page -->
   <welcome-file-list>
@@ -45,7 +45,7 @@
     <!-- This name must match the web-fragment.xml in javamelody's jar,
          so that we can override it. -->
     <filter-name>javamelody</filter-name>
-    <filter-class>org.zanata.mt.servlet.JavaMelodyFilter</filter-class>
+    <filter-class>org.zanata.magpie.servlet.JavaMelodyFilter</filter-class>
     <!--<async-supported>true</async-supported>-->
   </filter>
   <filter-mapping>

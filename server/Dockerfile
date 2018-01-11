@@ -12,10 +12,10 @@ RUN curl -L -o $JBOSS_HOME/standalone/deployments/postgresql-connector.jar https
 ENV LANG=en_US.UTF-8
 
 # Copy config script
-COPY docker/zanata-mt-config.cli /tmp/
+COPY docker/mt-config.cli /tmp/
 
 # run config script to edit standalone-full.xml
-RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/zanata-mt-config.cli
+RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/mt-config.cli
 
 # use standalone.xml
 CMD $JBOSS_HOME/bin/standalone.sh -c  standalone-full-ha.xml -b 0.0.0.0 --debug

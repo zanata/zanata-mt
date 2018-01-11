@@ -10,7 +10,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.zanata.mt" level="info" additivity="false">
+  <logger name="org.zanata.magpie" level="info" additivity="false">
     <appender-ref ref="STDOUT" />
   </logger>
 

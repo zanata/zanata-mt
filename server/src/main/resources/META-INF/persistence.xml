@@ -9,10 +9,10 @@
     <jta-data-source>${datasource.name}</jta-data-source>
 
     <!-- This list should be in sync with test/resources/META-INF/persistence.xml -->
-    <class>org.zanata.mt.model.Document</class>
-    <class>org.zanata.mt.model.Locale</class>
-    <class>org.zanata.mt.model.TextFlow</class>
-    <class>org.zanata.mt.model.TextFlowTarget</class>
+    <class>org.zanata.magpie.model.Document</class>
+    <class>org.zanata.magpie.model.Locale</class>
+    <class>org.zanata.magpie.model.TextFlow</class>
+    <class>org.zanata.magpie.model.TextFlowTarget</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>
