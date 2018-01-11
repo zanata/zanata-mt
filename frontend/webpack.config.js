@@ -41,26 +41,18 @@ module.exports = {
   module: {
     rules: [
       // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-      { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
-
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
       {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader'
-            },
-            'csso-loader'
-          ]
-        })
+        test: /\.tsx?$/,
+        loader: "awesome-typescript-loader"
       },
 
-      /* Bundles bootstrap css into the same bundle as the other css.
-       * TODO look at running through csso, same as other css
-       */
+      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      {
+        enforce: "pre",
+        test: /\.js$/,
+        loader: "source-map-loader"
+      },
+
       {
         test: /\.less$/,
         exclude: /node_modules/,
@@ -83,9 +75,10 @@ module.exports = {
           ]
         })
       }
-    ]
-},
 
+    ]
+  },
+  
   plugins: _.compact([
     /* Outputs css to a separate file per entry-point.
        Note the call to .extract above */
