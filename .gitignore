@@ -30,4 +30,5 @@
 .mvn/timing.properties
 
 
-frontend/node_modules/
+node_modules/
+dist/

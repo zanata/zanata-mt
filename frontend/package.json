@@ -7,30 +7,32 @@
     "js": "webpack"
   },
   "keywords": [
-    "zanata-mt",
+    "magpie-mt",
     "repository:https://github.com/zanata/zanata-mt.git"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "LGPL-2.1",
   "dependencies": {
-    "@types/react": "^16.0.34",
-    "@types/react-dom": "^16.0.3",
-    "css-loader": "^0.28.8",
-    "csso-loader": "^0.3.1",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "less": "^2.7.3",
-    "less-loader": "^4.0.5",
-    "postcss-cssnext": "^3.0.2",
-    "postcss-loader": "^2.0.10",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "style-loader": "^0.19.1",
-    "stylelint": "^8.4.0",
-    "webpack": "^3.10.0"
+    "@types/react": "16.0.34",
+    "@types/react-dom": "16.0.3",
+    "css-loader": "0.28.8",
+    "csso-loader": "0.3.1",
+    "extract-text-webpack-plugin": "3.0.2",
+    "less": "2.7.3",
+    "less-loader": "4.0.5",
+    "postcss-cssnext": "3.0.2",
+    "postcss-esplit": "0.1.2",
+    "postcss-import": "11.0.0",
+    "postcss-loader": "2.0.10",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "style-loader": "0.19.1",
+    "stylelint": "8.4.0",
+    "webpack": "3.10.0"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^3.4.1",
-    "source-map-loader": "^0.2.3",
-    "typescript": "^2.6.2"
+    "awesome-typescript-loader": "3.4.1",
+    "source-map-loader": "0.2.3",
+    "typescript": "2.6.2"
   }
 }
