@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+  <property name="now" value="now()" dbms="postgresql"/>
+
+
+  <changeSet author="pahuang@redhat.com" id="1">
+    <comment>create Account table</comment>
+    <createTable tableName="Account">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="name" type="varchar(80)" />
+      <column name="email" type="varchar(100)">
+        <constraints nullable="false" />
+      </column>
+      <column name="accountType" type="char(1)">
+        <constraints nullable="false" />
+      </column>
+      <column name="creationDate" defaultValue="${now}" type="datetime"/>
+      <column name="lastChanged" type="datetime" />
+      <column name="enabled" type="boolean" valueBoolean="true" defaultValueBoolean="true"  />
+    </createTable>
+    <addUniqueConstraint tableName="Account" columnNames="email, accountType" />
+  </changeSet>
+
+  <changeSet id="2" author="pahuang@redhat.com">
+    <comment>create Credential table</comment>
+    <createTable tableName="Credential">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="creationDate" defaultValue="${now}" type="datetime"/>
+      <column name="lastChanged" type="datetime"/>
+      <column name="type" type="varchar(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="account_id" type="bigint" />
+      <column name="username" type="varchar(80)">
+        <constraints nullable="false" />
+      </column>
+      <column name="secret" type="char(50)" />
+    </createTable>
+    <addForeignKeyConstraint baseTableName="Credential" baseColumnNames="account_id"
+        constraintName="FK_Credential_Account" referencedTableName="Account"
+        referencedColumnNames="id" onDelete="CASCADE" />
+    <addUniqueConstraint tableName="Credential" columnNames="username" />
+  </changeSet>
+
+  <changeSet id="3" author="pahuang@redhat.com">
+    <createTable tableName="Account_roles">
+      <column name="account_id" type="bigint" />
+      <column name="roles" type="varchar(32)" />
+    </createTable>
+    <addForeignKeyConstraint baseTableName="Account_roles"
+        baseColumnNames="account_id"
+        constraintName="FK_User_roles" referencedTableName="Account"
+        referencedColumnNames="id" onDelete="CASCADE" />
+  </changeSet>
+
+</databaseChangeLog>
