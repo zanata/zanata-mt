@@ -46,14 +46,15 @@ import javax.validation.constraints.Size;
         discriminatorType = DiscriminatorType.STRING)
 @Table(name = "credential", uniqueConstraints = @UniqueConstraint(name = "CredentialUsernameUnique",
         columnNames = { "username" }))
-public class Credential extends ModelEntity {
+public abstract class Credential extends ModelEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
     private Account account;
 
     @NotNull
-    @Size(min = 2, max = 12)
+    @Size(min = 2, max = 20)
     private String username;
+    @Size(min = 50, max = 50)
     private String secret;
 
     public Account getAccount() {

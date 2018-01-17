@@ -35,6 +35,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.google.common.collect.Sets;
 
@@ -55,6 +56,7 @@ public class Account extends ModelEntity {
     public static final String QUERY_BY_USERNAME = "QUERY_BY_USERNAME";
 
     @NotNull
+    @Size(min = 1, max = 128)
     private String name;
     private String email;
     private AccountType accountType;
@@ -99,6 +101,26 @@ public class Account extends ModelEntity {
 
     public Set<Credential> getCredentials() {
         return credentials;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public void setCredentials(Set<Credential> credentials) {
+        this.credentials = credentials;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 
     public boolean isEnabled() {

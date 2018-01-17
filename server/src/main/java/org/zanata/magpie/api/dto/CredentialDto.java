@@ -18,24 +18,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.model;
+package org.zanata.magpie.api.dto;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang
+ * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Entity
-@DiscriminatorValue("local")
-public class LocalCredential extends Credential {
-    public LocalCredential(Account account, String username, String secret) {
-        setAccount(account);
-        setUsername(username);
-        setSecret(secret);
+public class CredentialDto {
+    private String username;
+    private char[] secret;
+
+    public CredentialDto(String username, char[] secret) {
+        this.username = username;
+        this.secret = secret;
     }
 
-    @SuppressWarnings("unused")
-    public LocalCredential() {
+    public CredentialDto() {
+    }
+
+    @NotNull
+    @Size(min = 2, max = 20)
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @NotNull
+    @Size(min = 6)
+    public char[] getSecret() {
+        return secret;
+    }
+
+    public void setSecret(char[] secret) {
+        this.secret = secret;
     }
 }

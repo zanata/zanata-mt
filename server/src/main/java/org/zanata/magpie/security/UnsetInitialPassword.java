@@ -18,24 +18,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.model;
+package org.zanata.magpie.security;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import org.zanata.magpie.api.dto.AccountDto;
 
 /**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * This is just a CDI event.
+ *
+ * @author Patrick Huang
+ *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *
+ * @see org.zanata.magpie.api.service.impl.AccountResourceImpl#registerNewAccount(AccountDto)
  */
-@Entity
-@DiscriminatorValue("local")
-public class LocalCredential extends Credential {
-    public LocalCredential(Account account, String username, String secret) {
-        setAccount(account);
-        setUsername(username);
-        setSecret(secret);
-    }
-
-    @SuppressWarnings("unused")
-    public LocalCredential() {
-    }
+public class UnsetInitialPassword {
 }

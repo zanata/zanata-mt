@@ -42,7 +42,7 @@ public class MTStartupTest {
     public void testOnStartup() throws IOException {
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config =
-                new ConfigurationService("id", "key", "azureKey", googleADC.getAbsolutePath(), "{}", "ms");
+                new ConfigurationService("azureKey", googleADC.getAbsolutePath(), "{}", "ms");
         MTStartup app = new MTStartup(config, accountService);
         app.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
     }

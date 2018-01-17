@@ -22,6 +22,10 @@ package org.zanata.magpie.api.dto;
 
 import java.util.Set;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.zanata.magpie.model.AccountType;
 
@@ -36,6 +40,18 @@ public class AccountDto {
     private String email;
     private AccountType accountType;
     private Set<String> roles;
+    private Set<CredentialDto> credentials;
+
+    public AccountDto(Long id, String name, String email,
+            AccountType accountType, Set<String> roles,
+            Set<CredentialDto> credentials) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.accountType = accountType;
+        this.roles = roles;
+        this.credentials = credentials;
+    }
 
     public AccountDto(Long id, String name, String email,
             AccountType accountType, Set<String> roles) {
@@ -57,6 +73,8 @@ public class AccountDto {
         this.id = id;
     }
 
+    @NotNull
+    @Size(min = 1, max = 128)
     public String getName() {
         return name;
     }
@@ -73,6 +91,7 @@ public class AccountDto {
         this.email = email;
     }
 
+    @NotNull
     public AccountType getAccountType() {
         return accountType;
     }
@@ -87,5 +106,17 @@ public class AccountDto {
 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    @Valid
+    @NotNull
+    @Size(min = 1, max = 10)
+    public Set<CredentialDto> getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(
+            Set<CredentialDto> credentials) {
+        this.credentials = credentials;
     }
 }

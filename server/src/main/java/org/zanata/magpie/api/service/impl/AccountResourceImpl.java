@@ -21,35 +21,60 @@
 package org.zanata.magpie.api.service.impl;
 
 import java.util.List;
+import java.util.Set;
+
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
+import org.zanata.magpie.annotation.CheckRole;
+import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
+import org.zanata.magpie.api.dto.CredentialDto;
+import org.zanata.magpie.security.UnsetInitialPassword;
 import org.zanata.magpie.service.AccountService;
+
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
 import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 
 /**
  * @author Patrick Huang
- * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Path("/account")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
-})
+        @RequestHeader(name = "X-Auth-User",
+                description = "The authentication user."),
+        @RequestHeader(name = "X-Auth-Token",
+                description = "The authentication token.") })
 @ResourceLabel("Account")
+@Produces(MediaType.APPLICATION_JSON)
+@CheckRole("admin")
 public class AccountResourceImpl {
     private AccountService accountService;
+    private Validator validator;
+    private Event<UnsetInitialPassword> unsetInitialPasswordEvent;
+
+    @Context
+    UriInfo uriInfo;
 
     @Inject
-    public AccountResourceImpl(AccountService accountService) {
+    public AccountResourceImpl(AccountService accountService,
+            Validator validator, Event<UnsetInitialPassword> unsetInitialPasswordEvent) {
         this.accountService = accountService;
+        this.validator = validator;
+        this.unsetInitialPasswordEvent = unsetInitialPasswordEvent;
     }
 
     @SuppressWarnings("unused")
@@ -57,8 +82,33 @@ public class AccountResourceImpl {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<AccountDto> getAllAccounts(@QueryParam("enabledOnly") boolean enabledOnly) {
+    public List<AccountDto>
+            getAllAccounts(@QueryParam("enabledOnly") boolean enabledOnly) {
         return accountService.getAllAccounts(!enabledOnly);
+    }
+
+    @POST
+    public Response registerNewAccount(AccountDto accountDto) {
+        Set<ConstraintViolation<AccountDto>> violations =
+                validator.validate(accountDto);
+
+        if (!violations.isEmpty()) {
+            String message =
+                    violations.stream().map(
+                            v -> String.format("%s %s", v.getPropertyPath(), v.getMessage()))
+                            .reduce("error: ", (a, b) -> a + b + "; ");
+            return Response.status(Response.Status.BAD_REQUEST).entity(
+                    new APIResponse(Response.Status.BAD_REQUEST, message))
+                    .build();
+        }
+        // TODO only support one credential for now
+        CredentialDto credentialDto = accountDto.getCredentials().iterator().next();
+        AccountDto dto = accountService.registerNewAccount(accountDto,
+                credentialDto.getUsername(), credentialDto.getSecret());
+
+        // as soon as we have a user, we should remove initial password
+        unsetInitialPasswordEvent.fire(new UnsetInitialPassword());
+        return Response.created(uriInfo.getRequestUriBuilder().path("id")
+                .path(dto.getId().toString()).build()).build();
     }
 }

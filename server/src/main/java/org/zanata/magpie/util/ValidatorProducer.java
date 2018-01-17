@@ -18,24 +18,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.model;
+package org.zanata.magpie.util;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 /**
- * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ * @author Patrick Huang
+ * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Entity
-@DiscriminatorValue("local")
-public class LocalCredential extends Credential {
-    public LocalCredential(Account account, String username, String secret) {
-        setAccount(account);
-        setUsername(username);
-        setSecret(secret);
-    }
+@ApplicationScoped
+public class ValidatorProducer {
 
-    @SuppressWarnings("unused")
-    public LocalCredential() {
+    @RequestScoped
+    public Validator getValidator() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        return factory.getValidator();
     }
 }

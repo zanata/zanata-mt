@@ -17,6 +17,7 @@ import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
+import org.zanata.magpie.security.UnsetInitialPassword;
 import org.zanata.magpie.util.PasswordUtil;
 
 /**
@@ -65,10 +66,11 @@ public class MTStartup {
     private void showInitialAdminCredentialIfNoAccountExists() {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
-            LOG.info("===== no account exists in the system =====");
-            LOG.info("===== use admin as username and below as password (without leading spaces) to authenticate =====");
+            LOG.info("=== no account exists in the system ===");
+            LOG.info("=== use admin as username and below as password (without leading spaces) to authenticate ===");
             initialPassword = new PasswordUtil().generateRandomPassword(32);
             LOG.info("      {}", initialPassword);
+            LOG.info("=======================================");
         }
     }
 
@@ -76,5 +78,9 @@ public class MTStartup {
     @InitialPassword
     protected String initialPassword() {
         return initialPassword;
+    }
+
+    protected void unsetInitialPassword(@Observes UnsetInitialPassword event) {
+        initialPassword = null;
     }
 }

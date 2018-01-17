@@ -67,8 +67,6 @@ public class ConfigurationService {
     private String msAPIKey;
     private boolean isDevMode;
 
-    private String id;
-    private String apiKey;
     private BackendID defaultTranslationProvider;
 
     @SuppressWarnings("unused")
@@ -76,14 +74,11 @@ public class ConfigurationService {
     }
 
     @Inject
-    public ConfigurationService(@EnvVariable(APIConstant.API_ID) String id,
-            @EnvVariable(APIConstant.API_KEY) String apiKey,
+    public ConfigurationService(
             @EnvVariable(AZURE_KEY) String msAPIKey,
             @EnvVariable(GOOGLE_ADC) String googleADC,
             @EnvVariable(GOOGLE_CREDENTIAL_CONTENT) String googleADCContent,
             @EnvVariable(DEFAULT_PROVIDER) String defaultProvider) {
-        this.id = id;
-        this.apiKey = apiKey;
         this.msAPIKey = msAPIKey;
 
         this.googleCredential = GoogleCredential.from(googleADC, googleADCContent);
@@ -129,14 +124,6 @@ public class ConfigurationService {
     @Credentials(BackendID.GOOGLE)
     protected GoogleCredential googleDefaultCredential() {
         return googleCredential;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getApiKey() {
-        return apiKey;
     }
 
     @Produces
