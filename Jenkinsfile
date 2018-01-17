@@ -151,14 +151,14 @@ private void buildAndDeploy() {
   def POM = readMavenPom file: 'pom.xml'
   def previousVersion = sh(returnStdout: true,
     script: "curl -q https://raw.githubusercontent.com/zanata/zanata-scripts/master/zanata-functions | bash -s  -- run detect_remote_repo_latest_version $PROJ_URL 'MT-*'"
-    )
+    ).trim()
   def targetXyzVersion = POM.version.replace('-SNAPSHOT', '.')
 
   if (previousVersion.startsWith(targetXyzVersion)) {
     // Still under the same target x.y.z version
     version = sh(returnStdout: true,
       script: "curl -q https://raw.githubusercontent.com/zanata/zanata-scripts/master/zanata-functions | bash -s  -- run version_next $previousVersion"
-    )
+    ).trim()
   } else {
     // New x.y.z version, start the serial number as 1
     version = targetXyzVersion + '1'
