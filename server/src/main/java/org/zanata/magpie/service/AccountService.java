@@ -20,6 +20,10 @@
  */
 package org.zanata.magpie.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
@@ -27,10 +31,12 @@ import javax.inject.Inject;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.dao.AccountDAO;
 import org.zanata.magpie.model.Account;
+import org.zanata.magpie.model.Credential;
+import org.zanata.magpie.util.PasswordUtil;
 
 /**
  * @author Patrick Huang
- * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Stateless
 public class AccountService {
@@ -46,14 +52,47 @@ public class AccountService {
     public AccountService() {
     }
 
-
     @TransactionAttribute
-    public AccountDto registerNewAccount(AccountDto accountDto, String username, char[] secret) {
-        Account account = accountDAO.saveLocalAccount(accountDto.getName(), accountDto
-                        .getEmail(),
-                accountDto.getAccountType(), accountDto.getRoles(), username, secret);
+    public AccountDto registerNewAccount(AccountDto accountDto, String username,
+            char[] secret) {
+        Account account = accountDAO.saveLocalAccount(accountDto.getName(),
+                accountDto.getEmail(), accountDto.getAccountType(),
+                accountDto.getRoles(), username, secret);
 
         accountDto.setId(account.getId());
         return accountDto;
+    }
+
+    /**
+     * Try to authenticate using given username and secret.
+     *
+     * @return the matching Account if there is a match on the username and
+     *         secret.
+     */
+    public Optional<Account> authenticate(String username, String secret) {
+        PasswordUtil passwordUtil = new PasswordUtil();
+        Optional<Account> account = accountDAO.findAccountByUsername(username);
+        Optional<Credential> credential = account.flatMap(acc -> acc
+                .getCredentials().stream().filter(c -> passwordUtil
+                        .authenticate(secret.toCharArray(), c.getSecret()))
+                .findAny());
+        if (credential.isPresent()) {
+            return account;
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public List<AccountDto> getAllAccounts(boolean showDisabled) {
+        List<Account> result;
+        if (showDisabled) {
+            result = accountDAO.findAll();
+        } else {
+            result = accountDAO.findAllEnabled();
+        }
+        return result.stream()
+                .map(a -> new AccountDto(a.getId(), a.getName(), a.getEmail(),
+                        a.getAccountType(), a.getRoles()))
+                .collect(Collectors.toList());
     }
 }

@@ -44,14 +44,15 @@ import com.google.common.collect.Sets;
 @Entity
 @Access(AccessType.FIELD)
 @NamedQueries(
-        @NamedQuery(name = Account.QUERY_BY_CREDENTIAL,
-                query = "select u from Account u join u.credentials c where c.username = :username and c.secret = :secret")
+        @NamedQuery(name = Account.QUERY_BY_USERNAME,
+                query = "select u from Account u join u.credentials c where c.username = :username")
 )
 @Table(
+        name = "account",
         uniqueConstraints = @UniqueConstraint(name = "AccountEmailAccountTypeUnqiue", columnNames = {"email", "accountType"})
 )
 public class Account extends ModelEntity {
-    public static final String QUERY_BY_CREDENTIAL = "QUERY_BY_CREDENTIAL";
+    public static final String QUERY_BY_USERNAME = "QUERY_BY_USERNAME";
 
     @NotNull
     private String name;
@@ -63,7 +64,7 @@ public class Account extends ModelEntity {
     private Set<Credential> credentials = Sets.newHashSet();
 
     @ElementCollection
-    @JoinTable(name = "Account_roles",
+    @JoinTable(name = "account_roles",
             joinColumns = { @JoinColumn(name = "account_id") })
     private Set<String> roles = Sets.newHashSet();
 

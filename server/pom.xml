@@ -375,6 +375,23 @@
       <artifactId>liquibase-slf4j</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-impl</artifactId>
+    </dependency>
+
     <!-- hibernate -->
     <dependency>
       <groupId>org.hibernate.common</groupId>

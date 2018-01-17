@@ -50,11 +50,10 @@ public class AccountDAO extends AbstractDAO<Account> {
         setEntityManager(entityManager);
     }
 
-    public Optional<Account> findUserWithCredential(String username, String secret) {
+    public Optional<Account> findAccountByUsername(String username) {
         List<Account> accounts = getEntityManager()
-                .createNamedQuery(Account.QUERY_BY_CREDENTIAL, Account.class)
+                .createNamedQuery(Account.QUERY_BY_USERNAME, Account.class)
                 .setParameter("username", username)
-                .setParameter("secret", secret)
                 .getResultList();
 
         if (accounts.isEmpty()) {
@@ -74,5 +73,17 @@ public class AccountDAO extends AbstractDAO<Account> {
         getEntityManager().persist(account);
         getEntityManager().persist(credential);
         return account;
+    }
+
+    public List<Account> findAll() {
+        return getEntityManager()
+                .createQuery("from Account order by creationDate", Account.class)
+                .getResultList();
+    }
+
+    public List<Account> findAllEnabled() {
+        return getEntityManager()
+                .createQuery("from Account where enabled = true order by creationDate", Account.class)
+                .getResultList();
     }
 }

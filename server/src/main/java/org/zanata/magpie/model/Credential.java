@@ -44,7 +44,7 @@ import javax.validation.constraints.Size;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type",
         discriminatorType = DiscriminatorType.STRING)
-@Table(uniqueConstraints = @UniqueConstraint(name = "CredentialUsernameUnique",
+@Table(name = "credential", uniqueConstraints = @UniqueConstraint(name = "CredentialUsernameUnique",
         columnNames = { "username" }))
 public class Credential extends ModelEntity {
     @ManyToOne(optional = false)

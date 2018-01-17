@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
@@ -23,6 +25,8 @@ import com.google.common.base.Preconditions;
  * @see <a href="http://stackoverflow.com/a/2861125/3474">StackOverflow</a>
  */
 public final class PasswordUtil {
+    private static final Logger log =
+            LoggerFactory.getLogger(PasswordUtil.class);
 
     /**
      * Each token produced by this class uses this identifier as a prefix.
@@ -74,6 +78,29 @@ public final class PasswordUtil {
     }
 
     /**
+     * Generates a random password of a given length, using letters and digits.
+     *
+     * @param length
+     *            the length of the password
+     *
+     * @return a random password
+     */
+    public String generateRandomPassword(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int c = random.nextInt(62);
+            if (c <= 9) {
+                sb.append(String.valueOf(c));
+            } else if (c < 36) {
+                sb.append((char) ('a' + c - 10));
+            } else {
+                sb.append((char) ('A' + c - 36));
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Hash a password for storage.
      *
      * @return a secure authentication token to be stored for later
@@ -95,10 +122,12 @@ public final class PasswordUtil {
      *
      * @return true if the password and token match
      */
-    public boolean authenticate(char[] password, String token) {
-        Matcher m = layout.matcher(token);
-        if (!m.matches())
-            throw new IllegalArgumentException("Invalid token format");
+    public boolean authenticate(char[] password, String storedToken) {
+        Matcher m = layout.matcher(storedToken);
+        if (!m.matches()) {
+            log.debug("Invalid token format");
+            return false;
+        }
         int iterations = iterations(Integer.parseInt(m.group(1)));
         byte[] hash = Base64.getUrlDecoder().decode(m.group(2));
         byte[] salt = Arrays.copyOfRange(hash, 0, SIZE / 8);

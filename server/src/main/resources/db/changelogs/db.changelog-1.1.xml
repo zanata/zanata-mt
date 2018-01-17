@@ -10,32 +10,32 @@
 
   <changeSet author="pahuang@redhat.com" id="1">
     <comment>create Account table</comment>
-    <createTable tableName="Account">
-      <column name="id" type="bigint" autoIncrement="true">
+    <createTable tableName="account">
+      <column name="id" type="SERIAL" autoIncrement="true">
         <constraints primaryKey="true" />
       </column>
       <column name="name" type="varchar(80)" />
       <column name="email" type="varchar(100)">
         <constraints nullable="false" />
       </column>
-      <column name="accountType" type="char(1)">
+      <column name="accounttype" type="char(1)">
         <constraints nullable="false" />
       </column>
-      <column name="creationDate" defaultValue="${now}" type="datetime"/>
-      <column name="lastChanged" type="datetime" />
+      <column name="creationdate" defaultValue="${now}" type="datetime"/>
+      <column name="lastchanged" type="datetime" />
       <column name="enabled" type="boolean" valueBoolean="true" defaultValueBoolean="true"  />
     </createTable>
-    <addUniqueConstraint tableName="Account" columnNames="email, accountType" />
+    <addUniqueConstraint tableName="account" columnNames="email, accounttype" />
   </changeSet>
 
   <changeSet id="2" author="pahuang@redhat.com">
     <comment>create Credential table</comment>
-    <createTable tableName="Credential">
-      <column name="id" type="bigint" autoIncrement="true">
+    <createTable tableName="credential">
+      <column name="id" type="SERIAL" autoIncrement="true">
         <constraints primaryKey="true" />
       </column>
-      <column name="creationDate" defaultValue="${now}" type="datetime"/>
-      <column name="lastChanged" type="datetime"/>
+      <column name="creationdate" defaultValue="${now}" type="datetime"/>
+      <column name="lastchanged" type="datetime"/>
       <column name="type" type="varchar(10)">
         <constraints nullable="false"/>
       </column>
@@ -45,20 +45,20 @@
       </column>
       <column name="secret" type="char(50)" />
     </createTable>
-    <addForeignKeyConstraint baseTableName="Credential" baseColumnNames="account_id"
-        constraintName="FK_Credential_Account" referencedTableName="Account"
+    <addForeignKeyConstraint baseTableName="credential" baseColumnNames="account_id"
+        constraintName="FK_Credential_Account" referencedTableName="account"
         referencedColumnNames="id" onDelete="CASCADE" />
-    <addUniqueConstraint tableName="Credential" columnNames="username" />
+    <addUniqueConstraint tableName="credential" columnNames="username" />
   </changeSet>
 
   <changeSet id="3" author="pahuang@redhat.com">
-    <createTable tableName="Account_roles">
+    <createTable tableName="account_roles">
       <column name="account_id" type="bigint" />
       <column name="roles" type="varchar(32)" />
     </createTable>
-    <addForeignKeyConstraint baseTableName="Account_roles"
+    <addForeignKeyConstraint baseTableName="account_roles"
         baseColumnNames="account_id"
-        constraintName="FK_User_roles" referencedTableName="Account"
+        constraintName="FK_User_roles" referencedTableName="account"
         referencedColumnNames="id" onDelete="CASCADE" />
   </changeSet>
 

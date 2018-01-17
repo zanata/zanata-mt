@@ -37,6 +37,18 @@ public class AccountDto {
     private AccountType accountType;
     private Set<String> roles;
 
+    public AccountDto(Long id, String name, String email,
+            AccountType accountType, Set<String> roles) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.accountType = accountType;
+        this.roles = roles;
+    }
+
+    public AccountDto() {
+    }
+
     public Long getId() {
         return id;
     }

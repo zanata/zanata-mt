@@ -1,5 +1,6 @@
 package org.zanata.magpie.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -34,11 +35,23 @@ public class AccountDAOTest extends JPATest {
     }
 
     @Test
-    public void canFindUserByCredential() {
+    public void canFindAccountByCredentialUsername() {
         Optional<Account> account =
-                accountDAO.findUserWithCredential("admin", "secret");
+                accountDAO.findAccountByUsername("admin");
 
         assertThat(account.isPresent()).isTrue();
+    }
+
+    @Test
+    public void canFindAllAccounts() {
+        List<Account> all = accountDAO.findAll();
+        assertThat(all).hasSize(1);
+    }
+
+    @Test
+    public void canFindAllEnabledAccounts() {
+        List<Account> all = accountDAO.findAllEnabled();
+        assertThat(all).hasSize(1);
     }
 
     @Test
