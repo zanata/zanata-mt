@@ -45,7 +45,7 @@ public class MTApplication extends Application {
         return ImmutableSet.<Class<?>>builder()
                 .addAll(buildAPIResource())
                 .addAll(buildExceptionMapperResource())
-//                .addAll(buildOtherProviders())
+                .addAll(buildOtherProviders())
                 .build();
     }
 

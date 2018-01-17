@@ -8,18 +8,15 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.BackEndProviders;
 import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.InitialPassword;
-import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
-import org.zanata.magpie.servlet.APISecurityFilter;
 import org.zanata.magpie.util.PasswordUtil;
 
 /**
@@ -63,7 +60,6 @@ public class MTStartup {
 
         showInitialAdminCredentialIfNoAccountExists();
 
-        verifyCredentials();
     }
 
     private void showInitialAdminCredentialIfNoAccountExists() {
@@ -73,20 +69,6 @@ public class MTStartup {
             LOG.info("===== use admin as username and below as password (without leading spaces) to authenticate =====");
             initialPassword = new PasswordUtil().generateRandomPassword(32);
             LOG.info("      {}", initialPassword);
-        }
-    }
-
-    /**
-     * This method validates the environment is set up properly with basic
-     * authentication.
-     * @see APISecurityFilter
-     */
-    public void verifyCredentials() {
-        if (StringUtils.isBlank(configurationService.getId()) ||
-                StringUtils.isBlank(configurationService.getApiKey())) {
-            throw new MTException(
-                    "Missing credentials of " + APIConstant.API_ID + " and " +
-                            APIConstant.API_KEY);
         }
     }
 

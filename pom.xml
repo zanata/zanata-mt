@@ -56,6 +56,7 @@
     <cdi-api.version>1.2</cdi-api.version>
     <site-maven-plugin.version>0.12</site-maven-plugin.version>
     <frontend-maven-plugin.version>1.4</frontend-maven-plugin.version>
+    <deltaspike.version>1.7.0</deltaspike.version>
 
     <!-- checkstyle/findbugs -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
@@ -277,6 +278,32 @@
         <groupId>com.mattbertolini</groupId>
         <artifactId>liquibase-slf4j</artifactId>
         <version>2.0.0</version>
+      </dependency>
+
+      <!-- deltaspike -->
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-api</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-impl</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-servlet-module-api</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-servlet-module-impl</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>runtime</scope>
       </dependency>
 
       <!-- hibernate -->

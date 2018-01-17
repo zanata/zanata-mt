@@ -23,21 +23,12 @@ Alternatively, go to `server` directory and run `restart.sh`. It will rebuild th
 ### DEV mode
 
 DEV mode is enabled when **MT_AZURE_KEY** or **GOOGLE_APPLICATION_CREDENTIALS** is not present in environment variable. The service will not use any paid service backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
-
-`MT_API_ID` = `devID`<br/>
-`MT_API_KEY` = `devKEY`
                   
 ----
 
 ## Environment Variables
 
 List of Environment variables that are used in the application.
-
-### `MT_API_ID` (required)
-ID for /api request
-
-### `MT_API_KEY` (required)
-Api key for /api request
 
 ### `MT_AZURE_KEY` (if this and Google key are empty, DEV mode will be enabled)
 Subscription key for MS translators

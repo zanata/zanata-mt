@@ -67,10 +67,10 @@ public class SecurityInterceptor implements ContainerRequestFilter {
             if (account.isPresent()) {
                 log.debug("authenticated {}", username);
                 authenticatedAccount.setAuthenticatedAccount(account.get());
+                return;
             }
-        } else {
-            requestContext.abortWith(Response.status(Status.UNAUTHORIZED).build());
         }
+        requestContext.abortWith(Response.status(Status.UNAUTHORIZED).build());
     }
 
     private Optional<Account> tryAuthenticate(String username, String token) {
