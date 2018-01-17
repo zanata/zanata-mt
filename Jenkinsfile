@@ -149,7 +149,21 @@ timestamps {
 
 private void buildAndDeploy() {
   def POM = readMavenPom file: 'pom.xml'
-  version = POM.version.replace('-SNAPSHOT', '.' + env.BUILD_NUMBER)
+  def previousVersion = sh(returnStdout: true,
+    script: "curl -q https://raw.githubusercontent.com/zanata/zanata-scripts/master/zanata-functions | bash -s  -- run detect_remote_repo_latest_version $PROJ_URL 'MT-*'"
+    )
+  def targetXyzVersion = POM.version.replace('-SNAPSHOT', '.')
+
+  if (previousVersion.startsWith(targetXyzVersion)) {
+    // Still under the same target x.y.z version
+    version = sh(returnStdout: true,
+      script: "curl -q https://raw.githubusercontent.com/zanata/zanata-scripts/master/zanata-functions | bash -s  -- run version_next $previousVersion"
+    )
+  } else {
+    // New x.y.z version, start the serial number as 1
+    version = targetXyzVersion + '1'
+  }
+
   echo "Update project version to $version"
   sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
 
