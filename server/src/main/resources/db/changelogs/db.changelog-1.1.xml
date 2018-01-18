@@ -54,7 +54,7 @@
   <changeSet id="3" author="pahuang@redhat.com">
     <createTable tableName="account_roles">
       <column name="account_id" type="bigint" />
-      <column name="roles" type="varchar(32)" />
+      <column name="roles" type="int" />
     </createTable>
     <addForeignKeyConstraint baseTableName="account_roles"
         baseColumnNames="account_id"

@@ -1,5 +1,9 @@
 package org.zanata.magpie.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
@@ -19,6 +23,8 @@ import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.security.UnsetInitialPassword;
 import org.zanata.magpie.util.PasswordUtil;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 /**
  * Startup monitor for MT.
@@ -66,11 +72,21 @@ public class MTStartup {
     private void showInitialAdminCredentialIfNoAccountExists() {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
-            LOG.info("=== no account exists in the system ===");
-            LOG.info("=== use admin as username and below as password (without leading spaces) to authenticate ===");
             initialPassword = new PasswordUtil().generateRandomPassword(32);
-            LOG.info("      {}", initialPassword);
+            Path initialPasswordFile =
+                    Paths.get(System.getProperty("user.home"),
+                            "initialPassword");
+            LOG.info("=== no account exists in the system ===");
+            LOG.info("=== to authenticate, use admin as username and ===");
+            LOG.info("=== initial password (without leading spaces):  {}", initialPassword);
+            LOG.info("=== initial password is also written to:  {}", initialPasswordFile);
             LOG.info("=======================================");
+            try {
+                Files.write(initialPasswordFile,
+                        Lists.newArrayList(this.initialPassword));
+            } catch (IOException e) {
+                LOG.warn("failed writing initial password to disk", e);
+            }
         }
     }
 

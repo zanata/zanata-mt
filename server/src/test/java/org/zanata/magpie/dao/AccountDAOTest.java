@@ -10,6 +10,7 @@ import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.Credential;
 import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.model.Account;
+import org.zanata.magpie.model.Role;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -23,7 +24,7 @@ public class AccountDAOTest extends JPATest {
     @Override
     protected void setupTestData() {
         Account account = new Account("John Smith", "admin@example.com", AccountType.Normal,
-                Sets.newHashSet("admin"));
+                Sets.newHashSet(Role.admin));
         LocalCredential localCredential = new LocalCredential(account, "admin", Strings.repeat("abcde", 10));
 
         getEm().persist(account);
@@ -58,7 +59,7 @@ public class AccountDAOTest extends JPATest {
     @Test
     public void canSaveLocalUser() {
         Account account = accountDAO.saveLocalAccount("user", "user@example.com",
-                AccountType.Normal, Sets.newHashSet("user"), "username",
+                AccountType.Normal, Sets.newHashSet(Role.user), "username",
                 "password".toCharArray());
 
         assertThat(account.getId()).isNotNull();

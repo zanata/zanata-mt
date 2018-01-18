@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
+import org.zanata.magpie.model.Role;
 import org.zanata.magpie.service.AccountService;
 import com.google.common.collect.Sets;
 
@@ -81,7 +82,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
             log.info("authenticating using initial password");
             Account initialAdmin = new Account("initial", "magpie@zanata.org",
                     AccountType.Normal,
-                    Sets.newHashSet("admin"));
+                    Sets.newHashSet(Role.admin));
             return Optional.of(initialAdmin);
         }
         return Optional.empty();

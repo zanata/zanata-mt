@@ -30,6 +30,7 @@ import javax.persistence.EntityManager;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.model.Account;
+import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -63,7 +64,7 @@ public class AccountDAO extends AbstractDAO<Account> {
         }
     }
 
-    public Account saveLocalAccount(String name, String email, AccountType accountType, Set<String> roles,
+    public Account saveLocalAccount(String name, String email, AccountType accountType, Set<Role> roles,
             String username, char[] secret) {
         PasswordUtil passwordUtil = new PasswordUtil();
         Account account = new Account(name, email, accountType, roles);

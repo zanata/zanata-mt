@@ -59,7 +59,7 @@ public class CheckRoleDecisionVoter extends AbstractAccessDecisionVoter {
         if (account == null) {
             violations.add(newSecurityViolation("Not authenticated"));
         }
-        if (!account.getRoles().contains(hasRole.value())) {
+        if (!account.hasRole(hasRole.value())) {
             violations.add(newSecurityViolation("You don't have the necessary access"));
         }
 

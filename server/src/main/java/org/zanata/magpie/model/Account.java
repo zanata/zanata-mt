@@ -27,6 +27,7 @@ import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
@@ -65,15 +66,15 @@ public class Account extends ModelEntity {
             orphanRemoval = true)
     private Set<Credential> credentials = Sets.newHashSet();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @JoinTable(name = "account_roles",
             joinColumns = { @JoinColumn(name = "account_id") })
-    private Set<String> roles = Sets.newHashSet();
+    private Set<Role> roles = Sets.newHashSet();
 
     private boolean enabled = true;
 
     public Account(String name, String email,
-            AccountType accountType, Set<String> roles) {
+            AccountType accountType, Set<Role> roles) {
         this.name = name;
         this.email = email;
         this.accountType = accountType;
@@ -95,7 +96,7 @@ public class Account extends ModelEntity {
         return accountType;
     }
 
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
@@ -119,7 +120,7 @@ public class Account extends ModelEntity {
         this.credentials = credentials;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
@@ -148,4 +149,7 @@ public class Account extends ModelEntity {
         return Objects.hash(name, email, accountType, roles);
     }
 
+    public boolean hasRole(String role) {
+        return getRoles().stream().anyMatch(r -> role.equals(r.name()));
+    }
 }

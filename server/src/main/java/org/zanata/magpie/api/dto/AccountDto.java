@@ -28,6 +28,7 @@ import javax.validation.constraints.Size;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.zanata.magpie.model.AccountType;
+import org.zanata.magpie.model.Role;
 
 /**
  * @author Patrick Huang
@@ -39,11 +40,11 @@ public class AccountDto {
     private String name;
     private String email;
     private AccountType accountType;
-    private Set<String> roles;
+    private Set<Role> roles;
     private Set<CredentialDto> credentials;
 
     public AccountDto(Long id, String name, String email,
-            AccountType accountType, Set<String> roles,
+            AccountType accountType, Set<Role> roles,
             Set<CredentialDto> credentials) {
         this.id = id;
         this.name = name;
@@ -54,7 +55,7 @@ public class AccountDto {
     }
 
     public AccountDto(Long id, String name, String email,
-            AccountType accountType, Set<String> roles) {
+            AccountType accountType, Set<Role> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -100,11 +101,11 @@ public class AccountDto {
         this.accountType = accountType;
     }
 
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
