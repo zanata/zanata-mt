@@ -11,6 +11,7 @@ import org.zanata.magpie.model.Credential;
 import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.model.Account;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +24,7 @@ public class AccountDAOTest extends JPATest {
     protected void setupTestData() {
         Account account = new Account("John Smith", "admin@example.com", AccountType.Normal,
                 Sets.newHashSet("admin"));
-        LocalCredential localCredential = new LocalCredential(account, "admin", "secret");
+        LocalCredential localCredential = new LocalCredential(account, "admin", Strings.repeat("abcde", 10));
 
         getEm().persist(account);
         getEm().persist(localCredential);

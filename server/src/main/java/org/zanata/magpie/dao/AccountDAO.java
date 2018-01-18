@@ -77,13 +77,13 @@ public class AccountDAO extends AbstractDAO<Account> {
 
     public List<Account> findAll() {
         return getEntityManager()
-                .createQuery("from Account order by creationDate", Account.class)
+                .createQuery("from Account a join fetch a.roles order by a.creationDate", Account.class)
                 .getResultList();
     }
 
     public List<Account> findAllEnabled() {
         return getEntityManager()
-                .createQuery("from Account where enabled = true order by creationDate", Account.class)
+                .createQuery("from Account a join fetch a.roles where enabled = true order by creationDate", Account.class)
                 .getResultList();
     }
 }

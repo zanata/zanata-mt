@@ -25,7 +25,7 @@
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
 
       <!-- Logging -->
-      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.show_sql" value="false" />
       <property name="hibernate.use_sql_comments" value="true" />
       <property name="hibernate.format_sql" value="true" />
 
