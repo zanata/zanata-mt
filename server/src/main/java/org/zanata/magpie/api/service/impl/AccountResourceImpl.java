@@ -37,6 +37,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
@@ -49,6 +51,7 @@ import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 
 /**
+ * This is an internal API for managing users in the system.
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
@@ -60,8 +63,9 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
                 description = "The authentication token.") })
 @ResourceLabel("Account")
 @Produces(MediaType.APPLICATION_JSON)
-@CheckRole("admin")
 public class AccountResourceImpl {
+    private static final Logger log =
+            LoggerFactory.getLogger(AccountResourceImpl.class);
     private AccountService accountService;
     private Validator validator;
     private Event<UnsetInitialPassword> unsetInitialPasswordEvent;
@@ -82,12 +86,14 @@ public class AccountResourceImpl {
     }
 
     @GET
+    @CheckRole("admin")
     public List<AccountDto>
             getAllAccounts(@QueryParam("enabledOnly") boolean enabledOnly) {
         return accountService.getAllAccounts(!enabledOnly);
     }
 
     @POST
+    @CheckRole("admin")
     public Response registerNewAccount(AccountDto accountDto) {
         Set<ConstraintViolation<AccountDto>> violations =
                 validator.validate(accountDto);

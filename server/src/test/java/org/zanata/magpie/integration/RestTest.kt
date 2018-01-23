@@ -20,15 +20,9 @@
  */
 package org.zanata.magpie.integration
 
-import org.assertj.core.api.Assertions
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
-import org.junit.Assume
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.util.concurrent.TimeUnit
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.MediaType
 
@@ -36,50 +30,29 @@ object RestTest {
     private val log: Logger = LoggerFactory.getLogger(RestTest::class.java)
     val port = System.getProperty("http.port", "8080")
     val baseUrl = "http://localhost:$port/api/"
-    val initialPassword by lazy { readInitialPasswordFromLog() }
+    val adminUsername = "admin"
+    val adminSecret = "secret"
 
     fun newClient(path: String) = ResteasyClientBuilder().build()
                 .target(RestTest.baseUrl).path(path)
 
-    fun setCommonHeaders(webTarget: WebTarget, username: String = "admin", token: String = "secret") = webTarget
+    fun setCommonHeaders(webTarget: WebTarget, username: String, token: String) = webTarget
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .header("X-Auth-User", username)
                 .header("X-Auth-Token", token)
 
-    private fun readInitialPasswordFromLog(): String {
-        val initialPasswordFile = File("/tmp/initialPassword")
-        // we will write the initial password to file
-        "docker cp MT:/opt/jboss/initialPassword $initialPasswordFile".runCommand(5)
+    fun setCommonHeadersAsAdmin(webTarget: WebTarget) = webTarget
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .accept(MediaType.APPLICATION_JSON_TYPE)
+            .header("X-Auth-User", adminUsername)
+            .header("X-Auth-Token", adminSecret)
 
-        Assume.assumeTrue("can copy initialPassword file",
-                initialPasswordFile.exists() && initialPasswordFile.canRead())
-
-        val lines = Files.readAllLines(initialPasswordFile.toPath())
-        Assume.assumeTrue("can read the file containing the initial password",
-                lines != null && lines.size == 1)
-
-        val initialPassword = lines[0]
-
-        Assertions.assertThat(initialPassword).hasSize(32)
-        return initialPassword
-    }
-
-    fun String.runCommand(timeout: Long, timeUnit: TimeUnit = TimeUnit.MINUTES) {
-        var proc: Process? = null
-        try {
-            val parts = this.split("\\s".toRegex())
-            proc = ProcessBuilder(*parts.toTypedArray())
-                    .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-
-            proc.waitFor(timeout, timeUnit)
-        } catch(e: IOException) {
-            log.error("error running command " + this, e)
-            throw RuntimeException(e)
-        } finally {
-            proc?.destroy()
-        }
-    }
+//    fun clearDatabaseTable(tableName: String) {
+////        "docker exec MTDB psql --username=root --dbname=zanataMT --command=truncate account".runCommand(1)
+//
+//        val command = listOf("docker", "exec", "MTDB", "psql", "--username=root", "--dbname=zanataMT", "--command=TRUNCATE $tableName CASCADE")
+//
+//        runCommand(command, 1)
+//    }
 }

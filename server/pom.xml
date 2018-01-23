@@ -243,6 +243,8 @@
                   <testNGArtifactName>none:none</testNGArtifactName>
                   <systemProperties>
                     <http.port>${jboss.http.port}</http.port>
+                    <pg.username>${postgresql.user}</pg.username>
+                    <pg.password>${postgresql.password}</pg.password>
                   </systemProperties>
                 </configuration>
               </execution>
