@@ -47,7 +47,7 @@ import com.google.common.collect.Sets;
 @Access(AccessType.FIELD)
 @NamedQueries(
         @NamedQuery(name = Account.QUERY_BY_USERNAME,
-                query = "select u from Account u fetch all properties join u.credentials c where c.username = :username")
+                query = "select u from Account u fetch all properties join u.credentials c where c.username = :username and u.enabled = true")
 )
 @Table(
         name = "account",

@@ -1,5 +1,6 @@
 package org.zanata.magpie.util;
 
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -24,7 +25,9 @@ import com.google.common.base.Preconditions;
  * @author erickson
  * @see <a href="http://stackoverflow.com/a/2861125/3474">StackOverflow</a>
  */
-public final class PasswordUtil {
+public final class PasswordUtil implements Serializable {
+    private static final long serialVersionUID = -350744732219701177L;
+
     private static final Logger log =
             LoggerFactory.getLogger(PasswordUtil.class);
 

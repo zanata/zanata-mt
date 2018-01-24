@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.dao.AccountDAO;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Credential;
+import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.util.PasswordUtil;
 
 /**
@@ -39,9 +41,11 @@ import org.zanata.magpie.util.PasswordUtil;
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Stateless
-public class AccountService {
+public class AccountService implements Serializable {
 
+    private static final long serialVersionUID = -7045985475911143937L;
     private AccountDAO accountDAO;
+    private final PasswordUtil passwordUtil = new PasswordUtil();
 
     @Inject
     public AccountService(AccountDAO accountDAO) {
@@ -55,9 +59,14 @@ public class AccountService {
     @TransactionAttribute
     public AccountDto registerNewAccount(AccountDto accountDto, String username,
             char[] secret) {
-        Account account = accountDAO.saveLocalAccount(accountDto.getName(),
-                accountDto.getEmail(), accountDto.getAccountType(),
-                accountDto.getRoles(), username, secret);
+        String secretToken = passwordUtil.hash(secret);
+
+        Account account =
+                new Account(accountDto.getName(), accountDto.getEmail(),
+                        accountDto.getAccountType(), accountDto.getRoles());
+        LocalCredential credential =
+                new LocalCredential(account, username, secretToken);
+        account = accountDAO.saveCredentialAndAccount(credential, account);
 
         accountDto.setId(account.getId());
         return accountDto;
@@ -70,7 +79,6 @@ public class AccountService {
      *         secret.
      */
     public Optional<Account> authenticate(String username, String secret) {
-        PasswordUtil passwordUtil = new PasswordUtil();
         Optional<Account> account = accountDAO.findAccountByUsername(username);
         Optional<Credential> credential = account.flatMap(acc -> acc
                 .getCredentials().stream().filter(c -> passwordUtil

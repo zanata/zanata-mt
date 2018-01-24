@@ -31,6 +31,7 @@ import org.zanata.magpie.api.service.impl.BackendResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentsResourceImpl;
 import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
+import org.zanata.magpie.exception.AccessDeniedExceptionMapper;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
 import org.zanata.magpie.exception.MTExceptionMapper;
 
@@ -64,6 +65,7 @@ public class MTApplication extends Application {
     private static Set<Class<?>> buildExceptionMapperResource() {
         return ImmutableSet.<Class<?>>builder()
                 .add(BadRequestExceptionMapper.class)
+                .add(AccessDeniedExceptionMapper.class)
                 .add(MTExceptionMapper.class)
                 .build();
     }

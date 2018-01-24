@@ -18,35 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.api;
+package org.zanata.magpie.exception;
 
-import java.io.Serializable;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-import org.zanata.magpie.model.Account;
+import org.apache.deltaspike.security.api.authorization.AccessDeniedException;
+import org.apache.deltaspike.security.api.authorization.SecurityViolation;
+import org.zanata.magpie.api.dto.APIResponse;
 
 /**
- * This is a mutable class that holds the authenticated account object.
  * @author Patrick Huang
  * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@RequestScoped
-public class AuthenticatedAccount implements Serializable {
-
-    private static final long serialVersionUID = -7986651568502749384L;
-    private Account account;
-
-    public void setAuthenticatedAccount(Account account) {
-        this.account = account;
-    }
-
-    public boolean hasAuthenticatedAccount() {
-        return account != null;
-    }
-
-    public Optional<Account> getAuthenticatedAccount() {
-        return Optional.ofNullable(account);
+@Provider
+public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException> {
+    @Override
+    public Response toResponse(AccessDeniedException exception) {
+        List<String> reasons = exception.getViolations().stream()
+                .map(SecurityViolation::getReason).collect(
+                        Collectors.toList());
+        return Response.status(Response.Status.FORBIDDEN).entity(new APIResponse(
+                Response.Status.FORBIDDEN, reasons.toString())).build();
     }
 }

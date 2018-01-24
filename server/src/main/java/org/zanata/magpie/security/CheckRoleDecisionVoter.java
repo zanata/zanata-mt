@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.security;
 
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.RequestScoped;
@@ -28,9 +29,8 @@ import javax.inject.Inject;
 import org.apache.deltaspike.security.api.authorization.AbstractAccessDecisionVoter;
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext;
 import org.apache.deltaspike.security.api.authorization.SecurityViolation;
-import org.zanata.magpie.annotation.Authenticated;
 import org.zanata.magpie.annotation.CheckRole;
-import org.zanata.magpie.model.Account;
+import org.zanata.magpie.api.AuthenticatedAccount;
 
 /**
  * @author Patrick Huang
@@ -40,9 +40,16 @@ import org.zanata.magpie.model.Account;
 public class CheckRoleDecisionVoter extends AbstractAccessDecisionVoter {
     private static final long serialVersionUID = -2225527674677560626L;
 
+    private AuthenticatedAccount authenticatedAccount;
+
+    @SuppressWarnings("unused")
+    public CheckRoleDecisionVoter() {
+    }
+
     @Inject
-    @Authenticated
-    private Account account;
+    public CheckRoleDecisionVoter(AuthenticatedAccount authenticatedAccount) {
+        this.authenticatedAccount = authenticatedAccount;
+    }
 
     @Override
     protected void checkPermission(
@@ -53,15 +60,17 @@ public class CheckRoleDecisionVoter extends AbstractAccessDecisionVoter {
                 accessDecisionVoterContext
                         .getMetaDataFor(CheckRole.class.getName(),
                                 CheckRole.class);
-        if (hasRole == null) {
-            return;
-        }
-        if (account == null) {
+
+        if (!authenticatedAccount.hasAuthenticatedAccount()) {
             violations.add(newSecurityViolation("Not authenticated"));
-        }
-        if (!account.hasRole(hasRole.value())) {
+        } else if (hasRole != null && !authenticatedAccountHasRole(hasRole.value())) {
             violations.add(newSecurityViolation("You don't have the necessary access"));
         }
 
+    }
+
+    private boolean authenticatedAccountHasRole(String roleName) {
+        return authenticatedAccount.getAuthenticatedAccount().flatMap(a ->
+                a.hasRole(roleName) ? Optional.of(a) : Optional.empty()).isPresent();
     }
 }
