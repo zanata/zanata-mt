@@ -83,7 +83,7 @@ class SecurityInterceptorTest {
     }
 
     @Test
-    fun canAuthenticateUsingInitialPassword() {
+    fun canAuthenticateUsingInitialPasswordToCreateAccount() {
         BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
         BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
@@ -96,6 +96,23 @@ class SecurityInterceptorTest {
         Assertions.assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
         Assertions.assertThat(authenticatedAccount.authenticatedAccount).isPresent
         Assertions.assertThat(authenticatedAccount.authenticatedAccount.get().hasRole("admin")).isTrue()
+    }
+
+    @Test
+    fun canNotAuthenticateUsingInitialPasswordIfNotCreatingAccount() {
+        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
+        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
+        BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
+        BDDMockito.given(requestContext.uriInfo).willReturn(uriInfo)
+        BDDMockito.given(uriInfo.path).willReturn("/account")
+        BDDMockito.given(requestContext.method).willReturn("GET")
+
+        interceptor.filter(requestContext)
+
+
+        Mockito.verify(requestContext).abortWith(responseCaptor.capture())
+
+        Assertions.assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
     }
 
     @Test
