@@ -20,7 +20,10 @@
  */
 package org.zanata.magpie.security;
 
+import java.util.Set;
+
 import org.zanata.magpie.api.dto.AccountDto;
+import org.zanata.magpie.model.Role;
 
 /**
  * This is just a CDI event.
@@ -30,5 +33,21 @@ import org.zanata.magpie.api.dto.AccountDto;
  *
  * @see org.zanata.magpie.api.service.impl.AccountResourceImpl#registerNewAccount(AccountDto)
  */
-public class UnsetInitialPassword {
+public class AccountCreated {
+    private String email;
+    private Set<Role> roles;
+
+    public AccountCreated(String email,
+            Set<Role> roles) {
+        this.email = email;
+        this.roles = roles;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
 }

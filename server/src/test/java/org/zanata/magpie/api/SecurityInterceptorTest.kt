@@ -15,6 +15,7 @@ import java.util.*
 import javax.inject.Provider
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.UriInfo
 
 class SecurityInterceptorTest {
     @Mock
@@ -22,6 +23,8 @@ class SecurityInterceptorTest {
 
     @Mock
     private lateinit var accountService: AccountService
+
+    @Mock private lateinit var uriInfo: UriInfo
 
     private lateinit var authenticatedAccount: AuthenticatedAccount
 
@@ -84,6 +87,9 @@ class SecurityInterceptorTest {
         BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
         BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
+        BDDMockito.given(requestContext.uriInfo).willReturn(uriInfo)
+        BDDMockito.given(uriInfo.path).willReturn("/account")
+        BDDMockito.given(requestContext.method).willReturn("POST")
 
         interceptor.filter(requestContext)
 

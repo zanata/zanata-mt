@@ -29,6 +29,8 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue("local")
 public class LocalCredential extends Credential {
+    private static final long serialVersionUID = -1154951147928863384L;
+
     public LocalCredential(Account account, String username, String secret) {
         setAccount(account);
         setUsername(username);

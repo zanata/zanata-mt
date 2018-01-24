@@ -25,7 +25,7 @@
       <column name="lastchanged" type="datetime" />
       <column name="enabled" type="boolean" valueBoolean="true" defaultValueBoolean="true"  />
     </createTable>
-    <addUniqueConstraint tableName="account" columnNames="email, accounttype" />
+    <addUniqueConstraint constraintName="UK_account_email" tableName="account" columnNames="email" />
   </changeSet>
 
   <changeSet id="2" author="pahuang@redhat.com">
@@ -54,7 +54,7 @@
   <changeSet id="3" author="pahuang@redhat.com">
     <createTable tableName="account_roles">
       <column name="account_id" type="bigint" />
-      <column name="roles" type="int" />
+      <column name="roles" type="varchar(10)" />
     </createTable>
     <addForeignKeyConstraint baseTableName="account_roles"
         baseColumnNames="account_id"

@@ -27,6 +27,8 @@ import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -51,9 +53,10 @@ import com.google.common.collect.Sets;
 )
 @Table(
         name = "account",
-        uniqueConstraints = @UniqueConstraint(name = "AccountEmailAccountTypeUnqiue", columnNames = {"email", "accountType"})
+        uniqueConstraints = @UniqueConstraint(name = "UK_account_email", columnNames = {"email"})
 )
 public class Account extends ModelEntity {
+    private static final long serialVersionUID = -8177299694942674381L;
     public static final String QUERY_BY_USERNAME = "QUERY_BY_USERNAME";
 
     @NotNull
@@ -67,6 +70,7 @@ public class Account extends ModelEntity {
     private Set<Credential> credentials = Sets.newHashSet();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     @JoinTable(name = "account_roles",
             joinColumns = { @JoinColumn(name = "account_id") })
     private Set<Role> roles = Sets.newHashSet();

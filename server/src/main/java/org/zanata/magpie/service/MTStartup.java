@@ -21,9 +21,9 @@ import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
-import org.zanata.magpie.security.UnsetInitialPassword;
+import org.zanata.magpie.model.Role;
+import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 /**
@@ -41,6 +41,8 @@ public class MTStartup {
     private ConfigurationService configurationService;
     private AccountService accountService;
     private String initialPassword = null;
+    private static final Path INITIAL_PASSWORD_FILE = Paths.get(System.getProperty("user.home"),
+            "magpie_initial_password");
 
     @Inject
     public MTStartup(ConfigurationService configurationService, AccountService accountService) {
@@ -73,19 +75,26 @@ public class MTStartup {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
             initialPassword = new PasswordUtil().generateRandomPassword(32);
-            Path initialPasswordFile =
-                    Paths.get(System.getProperty("user.home"),
-                            "initialPassword");
             LOG.info("=== no account exists in the system ===");
             LOG.info("=== to authenticate, use admin as username and ===");
             LOG.info("=== initial password (without leading spaces):  {}", initialPassword);
-            LOG.info("=== initial password is also written to:  {}", initialPasswordFile);
+            LOG.info("=== initial password is also written to:  {}",
+                    INITIAL_PASSWORD_FILE);
             LOG.info("=======================================");
+
             try {
-                Files.write(initialPasswordFile,
+                Files.write(INITIAL_PASSWORD_FILE,
                         Lists.newArrayList(this.initialPassword));
             } catch (IOException e) {
                 LOG.warn("failed writing initial password to disk", e);
+            }
+            try {
+                Runtime.getRuntime()
+                        .exec(new String[] {"chmod", "400", INITIAL_PASSWORD_FILE
+                                .toAbsolutePath().toString()});
+            } catch (IOException e) {
+                LOG.info("unable to change permission on {}",
+                        INITIAL_PASSWORD_FILE);
             }
         }
     }
@@ -96,7 +105,15 @@ public class MTStartup {
         return initialPassword;
     }
 
-    protected void unsetInitialPassword(@Observes UnsetInitialPassword event) {
-        initialPassword = null;
+    protected void accountCreated(@Observes AccountCreated event) {
+        if (event.getRoles().contains(Role.admin) && initialPassword != null) {
+            try {
+                Files.delete(INITIAL_PASSWORD_FILE);
+            } catch (IOException e) {
+                LOG.warn("unable to delete {}. {}", INITIAL_PASSWORD_FILE, e.getMessage());
+            }
+            initialPassword = null;
+        }
+        LOG.info("account created: {} {}", event.getEmail(), event.getRoles());
     }
 }

@@ -47,6 +47,7 @@ import javax.validation.constraints.Size;
 @Table(name = "credential", uniqueConstraints = @UniqueConstraint(name = "CredentialUsernameUnique",
         columnNames = { "username" }))
 public abstract class Credential extends ModelEntity {
+    private static final long serialVersionUID = -3189660156961780354L;
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id")
     private Account account;

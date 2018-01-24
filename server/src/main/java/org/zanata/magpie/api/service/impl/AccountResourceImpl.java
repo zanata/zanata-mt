@@ -43,7 +43,7 @@ import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
-import org.zanata.magpie.security.UnsetInitialPassword;
+import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.service.AccountService;
 
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
@@ -68,17 +68,17 @@ public class AccountResourceImpl {
             LoggerFactory.getLogger(AccountResourceImpl.class);
     private AccountService accountService;
     private Validator validator;
-    private Event<UnsetInitialPassword> unsetInitialPasswordEvent;
+    private Event<AccountCreated> accountCreatedEvent;
 
     @Context
     UriInfo uriInfo;
 
     @Inject
     public AccountResourceImpl(AccountService accountService,
-            Validator validator, Event<UnsetInitialPassword> unsetInitialPasswordEvent) {
+            Validator validator, Event<AccountCreated> accountCreatedEvent) {
         this.accountService = accountService;
         this.validator = validator;
-        this.unsetInitialPasswordEvent = unsetInitialPasswordEvent;
+        this.accountCreatedEvent = accountCreatedEvent;
     }
 
     @SuppressWarnings("unused")
@@ -113,7 +113,7 @@ public class AccountResourceImpl {
                 credentialDto.getUsername(), credentialDto.getSecret());
 
         // as soon as we have a user, we should remove initial password
-        unsetInitialPasswordEvent.fire(new UnsetInitialPassword());
+        accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
         return Response.created(uriInfo.getRequestUriBuilder().path("id")
                 .path(dto.getId().toString()).build()).build();
     }

@@ -15,7 +15,7 @@ import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.model.AccountType;
-import org.zanata.magpie.security.UnsetInitialPassword;
+import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.service.AccountService;
 import org.zanata.magpie.util.ValidatorProducer;
 
@@ -24,7 +24,7 @@ public class AccountResourceImplTest {
 
     private AccountResourceImpl accountResource;
     @Mock private AccountService accountService;
-    @Mock private Event<UnsetInitialPassword> unsetInitialPasswordEvent;
+    @Mock private Event<AccountCreated> unsetInitialPasswordEvent;
 
     @Before
     public void setUp() {

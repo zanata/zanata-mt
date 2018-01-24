@@ -23,6 +23,7 @@ package org.zanata.magpie.api;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,6 +31,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
@@ -37,6 +39,7 @@ import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.service.AccountService;
+
 import com.google.common.collect.Sets;
 
 @javax.ws.rs.ext.Provider
@@ -64,7 +67,8 @@ public class SecurityInterceptor implements ContainerRequestFilter {
         String username = requestContext.getHeaderString("X-Auth-User");
         String token = requestContext.getHeaderString("X-Auth-Token");
         if (username != null && token != null) {
-            Optional<Account> account = tryAuthenticate(username, token);
+            Optional<Account> account =
+                    tryAuthenticate(username, token, requestContext);
             if (account.isPresent()) {
                 log.debug("authenticated {}", username);
                 authenticatedAccount.setAuthenticatedAccount(account.get());
@@ -74,20 +78,33 @@ public class SecurityInterceptor implements ContainerRequestFilter {
         requestContext.abortWith(Response.status(Status.UNAUTHORIZED).build());
     }
 
-    private Optional<Account> tryAuthenticate(String username, String token) {
+    private Optional<Account> tryAuthenticate(String username, String token,
+            ContainerRequestContext requestContext) {
         String initialPass = initialPassword.get();
         if (initialPass == null) {
             return accountService.authenticate(username, token);
-        } else if (Objects.equals("admin", username) && Objects.equals(token, initialPass)) {
+        } else if (Objects.equals("admin", username)
+                && Objects.equals(token, initialPass)) {
             log.info("authenticating using initial password");
-            Account initialAdmin = new Account("initial", "magpie@zanata.org",
-                    AccountType.Normal,
-                    Sets.newHashSet(Role.admin));
-            return Optional.of(initialAdmin);
+
+            if (isAccessingAccountCreation(requestContext)) {
+                Account initialAdmin = new Account("initial",
+                        "magpie@zanata.org", AccountType.Normal,
+                        Sets.newHashSet(Role.admin));
+                return Optional.of(initialAdmin);
+            } else {
+                log.warn(
+                        "initial password is only allowed to create account. Please create an admin account first.");
+            }
         }
         return Optional.empty();
     }
 
+    private boolean
+            isAccessingAccountCreation(ContainerRequestContext requestContext) {
+        return requestContext.getUriInfo().getPath().equals("/account")
+                && requestContext.getMethod().equals("POST");
+    }
 
     @SuppressWarnings("unused")
     public SecurityInterceptor() {

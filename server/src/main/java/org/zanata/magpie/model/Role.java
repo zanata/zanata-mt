@@ -20,10 +20,8 @@
  */
 package org.zanata.magpie.model;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public enum Role {
-    admin, user;
+    admin,
+    user;
 
 }
