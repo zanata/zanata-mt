@@ -20,10 +20,11 @@
  */
 package org.zanata.magpie.api;
 
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
+import java.io.Serializable;
+import java.util.Optional;
 
-import org.zanata.magpie.annotation.Authenticated;
+import javax.enterprise.context.RequestScoped;
+
 import org.zanata.magpie.model.Account;
 
 /**
@@ -32,18 +33,20 @@ import org.zanata.magpie.model.Account;
  * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @RequestScoped
-public class AuthenticatedAccount {
+public class AuthenticatedAccount implements Serializable {
 
+    private static final long serialVersionUID = -7986651568502749384L;
     private Account account;
 
-    public AuthenticatedAccount setAuthenticatedAccount(Account account) {
+    public void setAuthenticatedAccount(Account account) {
         this.account = account;
-        return this;
     }
 
-    @Produces
-    @Authenticated
-    protected Account getAuthenticatedAccount() {
-        return account;
+    public boolean hasAuthenticatedAccount() {
+        return account != null;
+    }
+
+    public Optional<Account> getAuthenticatedAccount() {
+        return Optional.ofNullable(account);
     }
 }

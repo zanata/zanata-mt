@@ -58,14 +58,16 @@ public class AccountDAOTest extends JPATest {
 
     @Test
     public void canSaveLocalUser() {
-        Account account = accountDAO.saveLocalAccount("user", "user@example.com",
-                AccountType.Normal, Sets.newHashSet(Role.user), "username",
-                "password".toCharArray());
+        Account account =
+                new Account("user", "user@example.com", AccountType.Normal,
+                        Sets.newHashSet(Role.user));
+        account = accountDAO.saveCredentialAndAccount(
+                new LocalCredential(account, "username", "$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I"),
+                account);
 
         assertThat(account.getId()).isNotNull();
         assertThat(account.getCredentials()).hasSize(1);
         Credential credential = account.getCredentials().iterator().next();
         assertThat(credential.getUsername()).isEqualTo("username");
-        assertThat(credential.getSecret()).isNotEqualTo("password");
     }
 }

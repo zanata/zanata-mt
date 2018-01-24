@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.api.dto;
 
+import java.util.Arrays;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -33,7 +34,7 @@ public class CredentialDto {
 
     public CredentialDto(String username, char[] secret) {
         this.username = username;
-        this.secret = secret;
+        this.secret = nullSafeArrayCopy(secret);
     }
 
     public CredentialDto() {
@@ -52,10 +53,17 @@ public class CredentialDto {
     @NotNull
     @Size(min = 6)
     public char[] getSecret() {
-        return secret;
+        return nullSafeArrayCopy(secret);
     }
 
     public void setSecret(char[] secret) {
-        this.secret = secret;
+        this.secret = nullSafeArrayCopy(secret);
+    }
+
+    private static char[] nullSafeArrayCopy(char[] arr) {
+        if (arr == null) {
+            return null;
+        }
+        return Arrays.copyOf(arr, arr.length);
     }
 }
