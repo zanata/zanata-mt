@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.webcohesion.enunciate.metadata.rs.*;
+import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.DocumentStatistics;
@@ -22,8 +23,8 @@ import org.zanata.magpie.api.dto.LocaleCode;
  */
 @Path("/document")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
+        @RequestHeader(name = APIConstant.HEADER_USERNAME, description = "The authentication user."),
+        @RequestHeader(name = APIConstant.HEADER_API_KEY, description = "The authentication token.")
 })
 @ResourceLabel("Document")
 public interface DocumentResource {

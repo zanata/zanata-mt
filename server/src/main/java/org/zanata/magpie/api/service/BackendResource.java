@@ -1,6 +1,7 @@
 package org.zanata.magpie.api.service;
 
 import com.webcohesion.enunciate.metadata.rs.*;
+import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
 
 import javax.ws.rs.Consumes;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.StreamingOutput;
  */
 @Path("/backend")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
+        @RequestHeader(name = APIConstant.HEADER_USERNAME, description = "The authentication user."),
+        @RequestHeader(name = APIConstant.HEADER_API_KEY, description = "The authentication token.")
 })
 @ResourceLabel("Backend")
 public interface BackendResource {

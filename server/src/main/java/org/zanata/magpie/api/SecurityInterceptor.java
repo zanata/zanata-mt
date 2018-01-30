@@ -64,8 +64,8 @@ public class SecurityInterceptor implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext)
             throws IOException {
-        String username = requestContext.getHeaderString("X-Auth-User");
-        String token = requestContext.getHeaderString("X-Auth-Token");
+        String username = requestContext.getHeaderString(APIConstant.HEADER_USERNAME);
+        String token = requestContext.getHeaderString(APIConstant.HEADER_API_KEY);
         if (username != null && token != null) {
             Optional<Account> account =
                     tryAuthenticate(username, token, requestContext);

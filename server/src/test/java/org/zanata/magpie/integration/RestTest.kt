@@ -23,6 +23,7 @@ package org.zanata.magpie.integration
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.zanata.magpie.api.APIConstant
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.MediaType
 
@@ -39,14 +40,14 @@ object RestTest {
     fun setCommonHeaders(webTarget: WebTarget, username: String, token: String) = webTarget
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header("X-Auth-User", username)
-                .header("X-Auth-Token", token)
+                .header(APIConstant.HEADER_USERNAME, username)
+                .header(APIConstant.HEADER_API_KEY, token)
 
     fun setCommonHeadersAsAdmin(webTarget: WebTarget) = webTarget
             .request(MediaType.APPLICATION_JSON_TYPE)
             .accept(MediaType.APPLICATION_JSON_TYPE)
-            .header("X-Auth-User", adminUsername)
-            .header("X-Auth-Token", adminSecret)
+            .header(APIConstant.HEADER_USERNAME, adminUsername)
+            .header(APIConstant.HEADER_API_KEY, adminSecret)
 
 //    fun clearDatabaseTable(tableName: String) {
 ////        "docker exec MTDB psql --username=root --dbname=zanataMT --command=truncate account".runCommand(1)

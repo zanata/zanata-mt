@@ -34,8 +34,8 @@ class SecurityInterceptorTest {
     @Captor
     private lateinit var responseCaptor: ArgumentCaptor<Response>
 
-    private val headerUser = "X-Auth-User"
-    private val headerToken = "X-Auth-Token"
+    private val headerUser = APIConstant.HEADER_USERNAME
+    private val headerToken = APIConstant.HEADER_API_KEY
 
     private lateinit var interceptor: SecurityInterceptor
 

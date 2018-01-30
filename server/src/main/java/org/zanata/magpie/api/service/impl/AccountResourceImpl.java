@@ -40,6 +40,7 @@ import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.CheckRole;
+import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
@@ -57,9 +58,9 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
  */
 @Path("/account")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User",
+        @RequestHeader(name = APIConstant.HEADER_USERNAME,
                 description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token",
+        @RequestHeader(name = APIConstant.HEADER_API_KEY,
                 description = "The authentication token.") })
 @ResourceLabel("Account")
 @Produces(MediaType.APPLICATION_JSON)
