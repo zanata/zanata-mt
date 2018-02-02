@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response
 object EnsureAdminAccountRule : TestRule {
     private val log: Logger = LoggerFactory.getLogger(EnsureAdminAccountRule::class.java)
 
-    val initialPassword by lazy { readInitialPasswordFromLog() }
+    val initialPassword by lazy { readInitialPasswordFromFile() }
 
     // this variable will be used by maven (so tests only create admin user once using initial password)
     private var adminUserCreated: Boolean = false
@@ -71,7 +71,7 @@ object EnsureAdminAccountRule : TestRule {
         }
     }
 
-    private fun readInitialPasswordFromLog(): String {
+    private fun readInitialPasswordFromFile(): String {
         val initialPasswordFile = File("/tmp/initialPassword")
         // we will write the initial password to file
         "docker cp MT:/opt/jboss/magpie_initial_password $initialPasswordFile".runCommand(5)

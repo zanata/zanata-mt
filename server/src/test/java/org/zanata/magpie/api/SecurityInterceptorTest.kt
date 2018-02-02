@@ -1,10 +1,10 @@
 package org.zanata.magpie.api
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.BDDMockito
+import org.mockito.BDDMockito.*
 import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.Mockito
@@ -49,85 +49,85 @@ class SecurityInterceptorTest {
 
     @Test
     fun requestWithoutUsernameIsUnauthenticated() {
-        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn(null)
+        given(requestContext.getHeaderString(headerUser)).willReturn(null)
 
         interceptor.filter(requestContext)
 
         Mockito.verify(requestContext).abortWith(responseCaptor.capture())
 
-        Assertions.assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
+        assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
     }
 
     @Test
     fun requestWithoutTokenIsUnauthenticated() {
-        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn(null)
+        given(requestContext.getHeaderString(headerToken)).willReturn(null)
 
         interceptor.filter(requestContext)
 
         Mockito.verify(requestContext).abortWith(responseCaptor.capture())
 
-        Assertions.assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
+        assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
     }
 
     @Test
     fun initialPasswordUnmatchIsUnauthenticated() {
-        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
-        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("unmatchedInitialPassword")
-        BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
+        given(requestContext.getHeaderString(headerUser)).willReturn("admin")
+        given(requestContext.getHeaderString(headerToken)).willReturn("unmatchedInitialPassword")
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
 
         interceptor.filter(requestContext)
 
         Mockito.verify(requestContext).abortWith(responseCaptor.capture())
 
-        Assertions.assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
+        assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
     }
 
     @Test
     fun canAuthenticateUsingInitialPasswordToCreateAccount() {
-        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
-        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
-        BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
-        BDDMockito.given(requestContext.uriInfo).willReturn(uriInfo)
-        BDDMockito.given(uriInfo.path).willReturn("/account")
-        BDDMockito.given(requestContext.method).willReturn("POST")
+        given(requestContext.getHeaderString(headerUser)).willReturn("admin")
+        given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
+        given(requestContext.uriInfo).willReturn(uriInfo)
+        given(uriInfo.path).willReturn("/account")
+        given(requestContext.method).willReturn("POST")
 
         interceptor.filter(requestContext)
 
-        Assertions.assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
-        Assertions.assertThat(authenticatedAccount.authenticatedAccount).isPresent
-        Assertions.assertThat(authenticatedAccount.authenticatedAccount.get().hasRole("admin")).isTrue()
+        assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
+        assertThat(authenticatedAccount.authenticatedAccount).isPresent
+        assertThat(authenticatedAccount.authenticatedAccount.get().hasRole("admin")).isTrue()
     }
 
     @Test
     fun canNotAuthenticateUsingInitialPasswordIfNotCreatingAccount() {
-        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
-        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
-        BDDMockito.given(initialPasswordProvider.get()).willReturn("initialPassword")
-        BDDMockito.given(requestContext.uriInfo).willReturn(uriInfo)
-        BDDMockito.given(uriInfo.path).willReturn("/account")
-        BDDMockito.given(requestContext.method).willReturn("GET")
+        given(requestContext.getHeaderString(headerUser)).willReturn("admin")
+        given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
+        given(requestContext.uriInfo).willReturn(uriInfo)
+        given(uriInfo.path).willReturn("/account")
+        given(requestContext.method).willReturn("GET")
 
         interceptor.filter(requestContext)
 
 
         Mockito.verify(requestContext).abortWith(responseCaptor.capture())
 
-        Assertions.assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
+        assertThat(responseCaptor.value.status).isEqualTo(Response.Status.UNAUTHORIZED.statusCode)
     }
 
     @Test
     fun canAuthenticateUsingDatabase() {
-        BDDMockito.given(requestContext.getHeaderString(headerUser)).willReturn("admin")
-        BDDMockito.given(requestContext.getHeaderString(headerToken)).willReturn("secret")
-        BDDMockito.given(initialPasswordProvider.get()).willReturn(null)
+        given(requestContext.getHeaderString(headerUser)).willReturn("admin")
+        given(requestContext.getHeaderString(headerToken)).willReturn("secret")
+        given(initialPasswordProvider.get()).willReturn(null)
         val account = Account()
-        BDDMockito.given(accountService.authenticate("admin", "secret"))
+        given(accountService.authenticate("admin", "secret"))
                 .willReturn(Optional.of(account))
 
         interceptor.filter(requestContext)
 
-        Assertions.assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
-        Assertions.assertThat(authenticatedAccount.authenticatedAccount).isPresent
-        Assertions.assertThat(authenticatedAccount.authenticatedAccount.get()).isSameAs(account)
+        assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
+        assertThat(authenticatedAccount.authenticatedAccount).isPresent
+        assertThat(authenticatedAccount.authenticatedAccount.get()).isSameAs(account)
     }
 }
