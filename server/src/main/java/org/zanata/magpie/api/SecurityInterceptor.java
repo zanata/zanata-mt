@@ -84,7 +84,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
         if (initialPass == null) {
             return accountService.authenticate(username, token);
         } else if ("admin".equals(username)
-                && token.equals(initialPass)) {
+                && Objects.equals(token, initialPass)) {
             log.info("authenticating using initial password");
 
             if (isAccessingAccountCreation(requestContext)) {

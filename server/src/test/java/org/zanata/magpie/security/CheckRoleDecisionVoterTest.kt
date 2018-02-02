@@ -2,10 +2,10 @@ package org.zanata.magpie.security
 
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext
 import org.apache.deltaspike.security.api.authorization.SecurityViolation
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.*
 import org.junit.Before
 import org.junit.Test
-import org.mockito.BDDMockito
+import org.mockito.BDDMockito.*
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.zanata.magpie.annotation.CheckRole
@@ -34,35 +34,37 @@ class CheckRoleDecisionVoterTest {
     @Test
     fun noViolationIfNoCheckRoleAnnotation() {
         authenticatedAccount.setAuthenticatedAccount(Account())
-        BDDMockito.given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(null)
+        given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(null)
 
         val violation = mutableSetOf<SecurityViolation>()
         checkRoleDecisionVoter.checkPermission(context, violation)
 
-        Assertions.assertThat(violation).isEmpty()
+        assertThat(violation).isEmpty()
     }
 
     @Test
     fun canReturnNotAuthenticated() {
-        BDDMockito.given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
+        given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
 
         val violation = mutableSetOf<SecurityViolation>()
         checkRoleDecisionVoter.checkPermission(context, violation)
 
-        Assertions.assertThat(violation).hasSize(1)
-        Assertions.assertThat(violation.iterator().next().reason).isEqualTo("Not authenticated")
+        assertThat(violation).hasSize(1)
+        assertThat(violation.iterator().next().reason).isEqualTo("Not authenticated")
     }
 
     @Test
     fun canReturnNoPermissionViolationIfAuthenticatedAccountHasNoRole() {
         authenticatedAccount.setAuthenticatedAccount(Account())
-        BDDMockito.given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
+        given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
 
         val violation = mutableSetOf<SecurityViolation>()
         checkRoleDecisionVoter.checkPermission(context, violation)
 
-        Assertions.assertThat(violation).hasSize(1)
-        Assertions.assertThat(violation.iterator().next().reason).isEqualTo("You don't have the necessary access")
+        assertThat(violation).hasSize(1)
+        assertThat(violation)
+                .extracting(SecurityViolation::getReason)
+                .containsExactly("You don't have the necessary access")
     }
 
     @Test
@@ -70,12 +72,12 @@ class CheckRoleDecisionVoterTest {
         val account = Account()
         account.roles.add(Role.admin)
         authenticatedAccount.setAuthenticatedAccount(account)
-        BDDMockito.given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
+        given(context.getMetaDataFor(CheckRole::class.java.name, CheckRole::class.java)).willReturn(checkRoleAnno)
 
         val violation = mutableSetOf<SecurityViolation>()
         checkRoleDecisionVoter.checkPermission(context, violation)
 
-        Assertions.assertThat(violation).isEmpty()
+        assertThat(violation).isEmpty()
     }
 
 }
