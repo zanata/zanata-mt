@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import org.zanata.magpie.api.service.impl.BackendResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentsResourceImpl;
+import org.zanata.magpie.api.service.impl.InfoResourceImpl;
 import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
 import org.zanata.magpie.exception.MTExceptionMapper;
@@ -33,6 +34,7 @@ public class MTApplication extends Application {
                 .add(BackendResourceImpl.class)
                 .add(LanguagesResourceImpl.class)
                 .add(DocumentsResourceImpl.class)
+                .add(InfoResourceImpl.class)
                 .build();
     }
 
