@@ -1,8 +1,8 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 mt-server,org.zanata.magpie.model.type,LocaleCodeTypeDescriptor,9,46,2,8,2,15,2,9,0,6
 mt-server,org.zanata.magpie.model.type,LocaleCodeType,0,21,0,0,0,4,0,3,0,3
-mt-server,org.zanata.magpie,MTApplication,0,34,0,0,0,17,0,5,0,5
-mt-server,org.zanata.magpie.process,DocumentProcessManager,19,86,2,2,4,22,3,6,1,6
+mt-server,org.zanata.magpie,MTApplication,0,36,0,0,0,18,0,5,0,5
+mt-server,org.zanata.magpie.process,DocumentProcessManager,19,86,2,2,5,22,3,6,1,6
 mt-server,org.zanata.magpie.process,DocumentProcessKey,2,91,1,7,0,16,1,7,0,4
 mt-server,org.zanata.magpie.service,MTStartup,3,68,2,4,1,20,2,5,0,4
 mt-server,org.zanata.magpie.service,DateRange,13,67,0,4,2,16,0,7,0,5
@@ -17,7 +17,7 @@ mt-server,org.zanata.magpie.exception,MTExceptionMapper,0,28,0,0,0,8,0,3,0,3
 mt-server,org.zanata.magpie.exception,MTException,0,9,0,0,0,4,0,2,0,2
 mt-server,org.zanata.magpie.exception,InvalidDateParamException,0,4,0,0,0,2,0,1,0,1
 mt-server,org.zanata.magpie.backend.ms,MicrosoftRestEasyClient,0,24,0,0,0,9,0,3,0,3
-mt-server,org.zanata.magpie.backend.ms,MicrosoftTranslatorClient,24,180,5,9,2,43,5,9,0,7
+mt-server,org.zanata.magpie.backend.ms,MicrosoftTranslatorClient,24,180,5,9,2,44,5,9,0,7
 mt-server,org.zanata.magpie.backend.ms,MicrosoftTranslatorBackend,23,146,0,2,6,30,3,7,3,6
 mt-server,org.zanata.magpie.backend.google,GoogleCredential.GoogleCredentialBasic,0,23,1,3,0,5,1,5,0,4
 mt-server,org.zanata.magpie.backend.google,GoogleCredential,20,111,1,15,5,33,1,14,0,7
@@ -51,8 +51,9 @@ mt-server,org.zanata.magpie.api.service.impl,DocumentResourceImpl,69,358,8,34,9,
 mt-server,org.zanata.magpie.api.service.impl,LanguagesResourceImpl,0,35,0,0,0,11,0,4,0,4
 mt-server,org.zanata.magpie.api.service.impl,BackendResourceImpl.new GenericEntity() {...},7,0,0,0,1,0,1,0,1,0
 mt-server,org.zanata.magpie.api.service.impl,BackendResourceImpl,34,141,1,11,10,36,4,10,3,5
+mt-server,org.zanata.magpie.api.service.impl,InfoResourceImpl,29,0,0,0,10,0,3,0,3,0
 mt-server,org.zanata.magpie.servlet,JavaMelodyFilter,24,0,2,0,6,0,3,0,2,0
-mt-server,org.zanata.magpie.servlet,APISecurityFilter,5,64,1,3,0,22,1,7,0,6
+mt-server,org.zanata.magpie.servlet,APISecurityFilter,5,76,2,4,0,26,2,8,0,7
 mt-server,org.zanata.magpie.servlet,APIResponseFilter,14,81,3,9,3,29,3,9,0,6
 mt-server,org.zanata.magpie.servlet,APISecurityFilter.RestCredentials,4,73,3,5,0,17,3,7,0,6
 mt-server,org.zanata.magpie.api.dto,TypeString,19,141,14,12,1,31,11,13,0,11
@@ -60,6 +61,7 @@ mt-server,org.zanata.magpie.api.dto,Locale,15,79,10,8,1,22,8,9,0,8
 mt-server,org.zanata.magpie.api.dto,DocumentStatistics,15,122,11,15,1,30,9,11,0,7
 mt-server,org.zanata.magpie.api.dto,TranslationRequestStatistics,17,120,12,12,0,29,10,11,0,9
 mt-server,org.zanata.magpie.api.dto,LocaleCode,2,131,1,5,1,29,1,11,0,9
+mt-server,org.zanata.magpie.api.dto,ApplicationInfo,4,111,3,11,0,28,3,16,0,12
 mt-server,org.zanata.magpie.api.dto,LocaleCodeAdapter,0,19,0,4,0,7,0,5,0,3
 mt-server,org.zanata.magpie.api.dto,DocumentContent,9,181,5,11,0,42,4,20,0,16
 mt-server,org.zanata.magpie.api.dto,APIResponse,0,62,0,2,0,25,0,13,0,12

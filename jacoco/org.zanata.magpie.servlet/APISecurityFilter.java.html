@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>APISecurityFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.servlet</a> &gt; <span class="el_source">APISecurityFilter.java</span></div><h1>APISecurityFilter.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import org.zanata.magpie.service.MTStartup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +35,10 @@ import static org.zanata.magpie.api.APIConstant.API_ID;
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
 @WebFilter(filterName = &quot;APISecurityFilter&quot;, value = { &quot;/api/*&quot; })
-<span class="fc" id="L35">public class APISecurityFilter implements Filter {</span>
+<span class="fc" id="L38">public class APISecurityFilter implements Filter {</span>
 
-<span class="fc" id="L37">    private static final Logger LOG =</span>
-<span class="fc" id="L38">        LoggerFactory.getLogger(APISecurityFilter.class);</span>
+<span class="fc" id="L40">    private static final Logger LOG =</span>
+<span class="fc" id="L41">        LoggerFactory.getLogger(APISecurityFilter.class);</span>
 
     /**
      * Nonnull value. Verified during startup
@@ -43,82 +46,94 @@ import static org.zanata.magpie.api.APIConstant.API_ID;
      */
     private static RestCredentials REST_CREDENTIALS;
 
+    private static ImmutableList&lt;String&gt; PUBLIC_API;
+
     static {
-<span class="fc" id="L47">        REST_CREDENTIALS = new RestCredentials(System.getenv(API_ID),</span>
-<span class="fc" id="L48">            System.getenv(API_KEY));</span>
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L52">        REST_CREDENTIALS = new RestCredentials(System.getenv(API_ID),</span>
+<span class="fc" id="L53">            System.getenv(API_KEY));</span>
+<span class="fc" id="L54">        PUBLIC_API = ImmutableList.of(&quot;/api/info&quot;);</span>
+<span class="fc" id="L55">    }</span>
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L59">    }</span>
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
 
-<span class="fc" id="L59">        HttpServletRequest servletRequest = (HttpServletRequest) request;</span>
-<span class="fc" id="L60">        HttpServletResponse servletResponse = (HttpServletResponse) response;</span>
+<span class="fc" id="L65">        HttpServletRequest servletRequest = (HttpServletRequest) request;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (!isPublicAPI(servletRequest.getRequestURI())) {</span>
+<span class="fc" id="L67">            HttpServletResponse servletResponse =</span>
+                    (HttpServletResponse) response;
 
-<span class="fc" id="L62">        RestCredentials requestCredentials = new RestCredentials(servletRequest);</span>
+<span class="fc" id="L70">            RestCredentials requestCredentials =</span>
+                    new RestCredentials(servletRequest);
 
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!REST_CREDENTIALS.equals(requestCredentials)) {</span>
-<span class="fc" id="L65">            String error = &quot;API key authentication failed for user. &quot; +</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                    (requestCredentials.hasUsername() ? requestCredentials.username.get() : &quot;&quot;);</span>
-<span class="fc" id="L67">            LOG.info(error);</span>
-<span class="fc" id="L68">            servletResponse</span>
-<span class="fc" id="L69">                    .sendError(HttpServletResponse.SC_UNAUTHORIZED, error);</span>
-<span class="fc" id="L70">            return;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (!REST_CREDENTIALS.equals(requestCredentials)) {</span>
+<span class="fc" id="L74">                String error = &quot;API key authentication failed for user. &quot; +</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">                        (requestCredentials.hasUsername() ?</span>
+<span class="pc" id="L76">                                requestCredentials.username.get() : &quot;&quot;);</span>
+<span class="fc" id="L77">                LOG.info(error);</span>
+<span class="fc" id="L78">                servletResponse</span>
+<span class="fc" id="L79">                        .sendError(HttpServletResponse.SC_UNAUTHORIZED, error);</span>
+<span class="fc" id="L80">                return;</span>
+            }
         }
-<span class="fc" id="L72">        chain.doFilter(request, response);</span>
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L83">        chain.doFilter(request, response);</span>
+<span class="fc" id="L84">    }</span>
 
     @Override
     public void destroy() {
-<span class="fc" id="L77">    }</span>
+<span class="fc" id="L88">    }</span>
+
+    private boolean isPublicAPI(String uri) {
+<span class="fc" id="L91">        return PUBLIC_API.contains(uri);</span>
+    }
 
     protected static class RestCredentials {
         private final @NotNull Optional&lt;String&gt; username;
         private final @NotNull Optional&lt;String&gt; apiKey;
 
-<span class="fc" id="L83">        RestCredentials(String username, String apiKey) {</span>
-<span class="fc" id="L84">            this.username = Optional.ofNullable(username);</span>
-<span class="fc" id="L85">            this.apiKey = Optional.ofNullable(apiKey);</span>
-<span class="fc" id="L86">        }</span>
+<span class="fc" id="L98">        RestCredentials(String username, String apiKey) {</span>
+<span class="fc" id="L99">            this.username = Optional.ofNullable(username);</span>
+<span class="fc" id="L100">            this.apiKey = Optional.ofNullable(apiKey);</span>
+<span class="fc" id="L101">        }</span>
 
-<span class="fc" id="L88">        RestCredentials(HttpServletRequest request) {</span>
-<span class="fc" id="L89">            this.username = Optional.ofNullable(request.getHeader(HEADER_USERNAME));</span>
-<span class="fc" id="L90">            this.apiKey = Optional.ofNullable(request.getHeader(HEADER_API_KEY));</span>
-<span class="fc" id="L91">        }</span>
+<span class="fc" id="L103">        RestCredentials(HttpServletRequest request) {</span>
+<span class="fc" id="L104">            this.username = Optional.ofNullable(request.getHeader(HEADER_USERNAME));</span>
+<span class="fc" id="L105">            this.apiKey = Optional.ofNullable(request.getHeader(HEADER_API_KEY));</span>
+<span class="fc" id="L106">        }</span>
 
         boolean hasUsername() {
-<span class="fc" id="L94">            return username.isPresent();</span>
+<span class="fc" id="L109">            return username.isPresent();</span>
         }
 
         boolean hasApiKey() {
-<span class="fc" id="L98">            return apiKey.isPresent();</span>
+<span class="fc" id="L113">            return apiKey.isPresent();</span>
         }
 
         @Override
         public boolean equals(Object o) {
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">            if (this == o) return true;</span>
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (!(o instanceof RestCredentials)) return false;</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">            if (this == o) return true;</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">            if (!(o instanceof RestCredentials)) return false;</span>
 
-<span class="fc" id="L106">            RestCredentials that = (RestCredentials) o;</span>
+<span class="fc" id="L121">            RestCredentials that = (RestCredentials) o;</span>
 
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">            return username.equals(that.username) &amp;&amp; apiKey.equals(that.apiKey);</span>
+<span class="pc bpc" id="L123" title="1 of 4 branches missed.">            return username.equals(that.username) &amp;&amp; apiKey.equals(that.apiKey);</span>
         }
 
         @Override
         public int hashCode() {
-<span class="fc" id="L113">            int result = username.hashCode();</span>
-<span class="fc" id="L114">            result = 31 * result + apiKey.hashCode();</span>
-<span class="fc" id="L115">            return result;</span>
+<span class="fc" id="L128">            int result = username.hashCode();</span>
+<span class="fc" id="L129">            result = 31 * result + apiKey.hashCode();</span>
+<span class="fc" id="L130">            return result;</span>
         }
     }
 
     @VisibleForTesting
     static void setAPIIdAndKey(String id, String key) {
-<span class="fc" id="L121">        REST_CREDENTIALS = new RestCredentials(id, key);</span>
-<span class="fc" id="L122">    }</span>
+<span class="fc" id="L136">        REST_CREDENTIALS = new RestCredentials(id, key);</span>
+<span class="fc" id="L137">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

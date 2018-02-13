@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InfoResourceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.api.service.impl</a> &gt; <span class="el_source">InfoResourceImpl.java</span></div><h1>InfoResourceImpl.java</h1><pre class="source lang-java linenums">package org.zanata.magpie.api.service.impl;
+
+import org.zanata.magpie.api.dto.ApplicationInfo;
+import org.zanata.magpie.api.service.InfoResource;
+import org.zanata.magpie.service.ConfigurationService;
+import org.zanata.magpie.service.MTStartup;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
+/**
+ * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
+ */
+@RequestScoped
+public class InfoResourceImpl implements InfoResource {
+
+    private ConfigurationService configurationService;
+
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L21">    public InfoResourceImpl() {</span>
+<span class="nc" id="L22">    }</span>
+
+    @Inject
+<span class="nc" id="L25">    public InfoResourceImpl(ConfigurationService configurationService) {</span>
+<span class="nc" id="L26">        this.configurationService = configurationService;</span>
+<span class="nc" id="L27">    }</span>
+
+    @Override
+    public Response getInfo() {
+<span class="nc" id="L31">        ApplicationInfo info = new ApplicationInfo(MTStartup.APPLICATION_NAME,</span>
+<span class="nc" id="L32">                configurationService.getVersion(),</span>
+<span class="nc" id="L33">                configurationService.getBuildDate(),</span>
+<span class="nc" id="L34">                configurationService.isDevMode());</span>
+<span class="nc" id="L35">        return Response.ok().entity(info).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

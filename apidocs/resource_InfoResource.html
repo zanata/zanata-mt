@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-  <title>mt-server: Data Types</title>
+  <title>mt-server: Info</title>
 
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +35,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">mt-server: Data Types</a>
+        <a class="navbar-brand" href="index.html">mt-server: Info</a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
@@ -50,7 +50,7 @@
     <div class="row">
       <div class="col-sm-3 col-md-2 sidebar" id="apinav">
         <ul class="nav nav-sidebar">
-          <li><a href="#syntax_json">JSON</a></li>
+          <li><a href="#resource_InfoResource_getInfo_GET">GET /info</a></li>
           <li class="divider"></li>
           <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
         </ul>
@@ -59,70 +59,92 @@
       <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <ol class="breadcrumb" id="top">
           <li class="active dropdown"><a href="index.html">Home</a></li>
-          <li class="dropdown"><a href="data.html">Data Types</a></li>
+          <li class="active dropdown"><a href="resources.html">Resources</a></li>
+          <li class="dropdown"><a href="resource_InfoResource.html">Info</a></li>
         </ol>
 
-  <h1 class="page-header" id="data">Data Types</h1>
+      <h1 class="page-header">Info <small>Resource</small></h1>
 
-  <h3 id="syntax_json">JSON</h3>
+      <p>API for information of the application</p>
 
-  <table class="table table-hover data-types">
-  <thead>
-    <tr>
-      <th align="center">type</th>
-      <th align="center">description</th>
-    </tr>
-  </thead>
-  <tbody data-link="row" class="rowlink">
-    <tr class="clickable-row" data-href="json_APIResponse.html">
-      <td>  <span class="datatype-name">APIResponse</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for HTTP API response</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_ApplicationInfo.html">
-      <td>  <span class="datatype-name">ApplicationInfo</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for information of the application</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_DocumentStatistics.html">
-      <td>  <span class="datatype-name">Document Statistics</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for Document usedCount getStatistics.</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_DocumentContent.html">
-      <td>  <span class="datatype-name">DocumentContent</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for a document translations request and response.
-This entity is used for generic translations by accepting array of strings with type.
+      <div id="resource_InfoResource_getInfo_GET">
+        <h3><span class="label label-default resource-method">GET</span> <span class="resource-path">/info <a href="../api/info" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
 
-Used in
-DocumentResource#translate(DocumentContent, LocaleCode)</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_Locale.html">
-      <td>  <span class="datatype-name">Locale</span>
-</td>
-      <td>  <span class="datatype-description"></span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_TranslationRequestStatistics.html">
-      <td>  <span class="datatype-name">TranslationRequestStatistics</span>
-</td>
-      <td>  <span class="datatype-description">Statistics entry for a single request with unique key
-fromLocaleCode, toLocaleCode, count</span>
-</td>
-    </tr>
-    <tr class="clickable-row" data-href="json_TypeString.html">
-      <td>  <span class="datatype-name">TypeString</span>
-</td>
-      <td>  <span class="datatype-description">JSON entity for source and translation string with specified #type</span>
-</td>
-    </tr>
-  </tbody>
-  </table>
+        <p></p>
+
+        <table class="table resource-response-codes">
+          <caption>Response Codes</caption>
+          <thead>
+          <tr>
+            <th>code</th>
+            <th>condition</th>
+            <th>type</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><span class="label label-success response-code">200</span></td>
+            <td><span class="response-condition">Application info</span></td>
+            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_ApplicationInfo.html">ApplicationInfo</a>
+ (JSON)</span></li></ul></td>
+          </tr>
+          <tr>
+            <td><span class="label label-danger response-code">500</span></td>
+            <td><span class="response-condition">Unexpected error</span></td>
+            <td><ul class="list-unstyled"></ul></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-response-body">
+          <caption>Response Body</caption>
+          <thead>
+          <tr>
+            <th>media type</th>
+            <th>data type</th>
+            <th>description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
+            <td><span class="datatype-reference"><a href="json_ApplicationInfo.html">ApplicationInfo</a>
+ (JSON)</span></td>
+            <td><span class="response-description">General information of the application</span></td>
+          </tr>
+          </tbody>
+        </table>
+        <h4>Example</h4>
+
+        <div class="container-fluid example panel">
+          <div class="row panel-body">
+            <div class="col-md-6">
+              <h5>Request</h5>
+              <pre>
+GET /info
+Accept: application/json
+
+              </pre>
+            </div>
+            <div class="col-md-6">
+              <h5>Response</h5>
+              <pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+                <code class="prettyprint language-js">
+{
+  &quot;name&quot; : &quot;...&quot;,
+  &quot;version&quot; : &quot;...&quot;,
+  &quot;buildDate&quot; : &quot;...&quot;,
+  &quot;devMode&quot; : true
+}
+                </code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
 
         <footer class="footer">
           <div class="container">

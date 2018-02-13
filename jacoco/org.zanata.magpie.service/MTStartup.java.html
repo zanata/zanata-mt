@@ -28,31 +28,33 @@ public class MTStartup {
 <span class="fc" id="L28">    private static final Logger LOG =</span>
 <span class="fc" id="L29">        LoggerFactory.getLogger(MTStartup.class);</span>
 
+    public static final String APPLICATION_NAME = &quot;Magpie (Machine Translation) service&quot;;
+
     private ConfigurationService configurationService;
 
     @Inject
-<span class="fc" id="L34">    public MTStartup(ConfigurationService configurationService) {</span>
-<span class="fc" id="L35">        this.configurationService = configurationService;</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L36">    public MTStartup(ConfigurationService configurationService) {</span>
+<span class="fc" id="L37">        this.configurationService = configurationService;</span>
+<span class="fc" id="L38">    }</span>
 
     public void onStartUp(
         @Observes @Initialized(ApplicationScoped.class) Object init,
             @DevMode boolean isDevMode, @BackEndProviders
             Set&lt;BackendID&gt; availableProviders)
         throws MTException {
-<span class="fc" id="L43">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L44">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L45">        LOG.info(&quot;=== Machine Translation Service ===&quot;);</span>
+<span class="fc" id="L45">        LOG.info(&quot;===================================&quot;);</span>
 <span class="fc" id="L46">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L47">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L48">        LOG.info(&quot;Build info: version-&quot; + configurationService.getVersion() +</span>
-<span class="fc" id="L49">                &quot; date-&quot; + configurationService.getBuildDate());</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (isDevMode) {</span>
-<span class="nc" id="L51">            LOG.warn(&quot;THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION&quot;);</span>
+<span class="fc" id="L47">        LOG.info(&quot;=== &quot; + APPLICATION_NAME + &quot; ===&quot;);</span>
+<span class="fc" id="L48">        LOG.info(&quot;===================================&quot;);</span>
+<span class="fc" id="L49">        LOG.info(&quot;===================================&quot;);</span>
+<span class="fc" id="L50">        LOG.info(&quot;Build info: version-&quot; + configurationService.getVersion() +</span>
+<span class="fc" id="L51">                &quot; date-&quot; + configurationService.getBuildDate());</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (isDevMode) {</span>
+<span class="nc" id="L53">            LOG.warn(&quot;THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION&quot;);</span>
         }
-<span class="fc" id="L53">        LOG.info(&quot;Available backend providers: {}&quot;, availableProviders);</span>
-<span class="fc" id="L54">        verifyCredentials();</span>
-<span class="fc" id="L55">    }</span>
+<span class="fc" id="L55">        LOG.info(&quot;Available backend providers: {}&quot;, availableProviders);</span>
+<span class="fc" id="L56">        verifyCredentials();</span>
+<span class="fc" id="L57">    }</span>
 
     /**
      * This method validates the environment is set up properly with basic
@@ -60,12 +62,12 @@ public class MTStartup {
      * @see APISecurityFilter
      */
     public void verifyCredentials() {
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (StringUtils.isBlank(configurationService.getId()) ||</span>
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                StringUtils.isBlank(configurationService.getApiKey())) {</span>
-<span class="fc" id="L65">            throw new MTException(</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (StringUtils.isBlank(configurationService.getId()) ||</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                StringUtils.isBlank(configurationService.getApiKey())) {</span>
+<span class="fc" id="L67">            throw new MTException(</span>
                     &quot;Missing credentials of &quot; + APIConstant.API_ID + &quot; and &quot; +
                             APIConstant.API_KEY);
         }
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L71">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
