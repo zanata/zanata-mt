@@ -28,6 +28,8 @@ public class MTStartup {
     private static final Logger LOG =
         LoggerFactory.getLogger(MTStartup.class);
 
+    public static final String APPLICATION_NAME = "Magpie (Machine Translation) service";
+
     private ConfigurationService configurationService;
 
     @Inject
@@ -42,7 +44,7 @@ public class MTStartup {
         throws MTException {
         LOG.info("===================================");
         LOG.info("===================================");
-        LOG.info("=== Machine Translation Service ===");
+        LOG.info("=== " + APPLICATION_NAME + " ===");
         LOG.info("===================================");
         LOG.info("===================================");
         LOG.info("Build info: version-" + configurationService.getVersion() +

@@ -1,6 +1,8 @@
 package org.zanata.magpie.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import org.zanata.magpie.service.MTStartup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +46,12 @@ public class APISecurityFilter implements Filter {
      */
     private static RestCredentials REST_CREDENTIALS;
 
+    private static ImmutableList<String> PUBLIC_API;
+
     static {
         REST_CREDENTIALS = new RestCredentials(System.getenv(API_ID),
             System.getenv(API_KEY));
+        PUBLIC_API = ImmutableList.of("/api/info");
     }
 
     @Override
@@ -57,23 +63,32 @@ public class APISecurityFilter implements Filter {
         FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-        HttpServletResponse servletResponse = (HttpServletResponse) response;
+        if (!isPublicAPI(servletRequest.getRequestURI())) {
+            HttpServletResponse servletResponse =
+                    (HttpServletResponse) response;
 
-        RestCredentials requestCredentials = new RestCredentials(servletRequest);
+            RestCredentials requestCredentials =
+                    new RestCredentials(servletRequest);
 
-        if (!REST_CREDENTIALS.equals(requestCredentials)) {
-            String error = "API key authentication failed for user. " +
-                    (requestCredentials.hasUsername() ? requestCredentials.username.get() : "");
-            LOG.info(error);
-            servletResponse
-                    .sendError(HttpServletResponse.SC_UNAUTHORIZED, error);
-            return;
+            if (!REST_CREDENTIALS.equals(requestCredentials)) {
+                String error = "API key authentication failed for user. " +
+                        (requestCredentials.hasUsername() ?
+                                requestCredentials.username.get() : "");
+                LOG.info(error);
+                servletResponse
+                        .sendError(HttpServletResponse.SC_UNAUTHORIZED, error);
+                return;
+            }
         }
         chain.doFilter(request, response);
     }
 
     @Override
     public void destroy() {
+    }
+
+    private boolean isPublicAPI(String uri) {
+        return PUBLIC_API.contains(uri);
     }
 
     protected static class RestCredentials {
