@@ -154,6 +154,7 @@
                     <MT_API_ID>devID</MT_API_ID>
                     <MT_API_KEY>devKEY</MT_API_KEY>
                     <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
+                    <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
                   </env>
                   <dependsOn>
                     <container>MTDB</container>

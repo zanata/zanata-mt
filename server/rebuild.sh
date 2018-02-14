@@ -32,5 +32,5 @@ mvn docker:start \
  -DGOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_CREDENTIAL_FILE} \
  -DMT_AZURE_KEY=$2
 
-docker logs --follow zanataMT
+docker logs --follow MT
 

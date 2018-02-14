@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import javax.annotation.Priority;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -14,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Priorities;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
@@ -36,6 +38,7 @@ import static org.zanata.magpie.api.APIConstant.ORIGIN_WHITELIST;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @WebFilter(filterName = "APIResponseFilter", value = { "/api/*" })
+@Priority(Priorities.HEADER_DECORATOR)
 public class APIResponseFilter implements Filter {
     private static final String ALLOW_METHODS =
         "PUT, POST, DELETE, GET, OPTIONS";
@@ -69,9 +72,7 @@ public class APIResponseFilter implements Filter {
         // Allow the specified Origin, but only if it is whitelisted.
         String origin = servletRequest.getHeader("Origin");
         if (!StringUtils.isBlank(origin) && originWhitelist.contains(origin)) {
-            servletResponse.addHeader("Access-Control-Allow-Origin",
-                    URLEncoder.encode(origin,
-                            CharEncoding.UTF_8));
+            servletResponse.addHeader("Access-Control-Allow-Origin", origin);
 
             // Allow standard HTTP methods.
             servletResponse

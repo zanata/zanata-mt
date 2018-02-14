@@ -17,8 +17,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <node.version>v8.1.2</node.version>
-    <yarn.version>v0.24.5</yarn.version>
+    <node.version>v8.1.3</node.version>
+    <yarn.version>v1.3.2</yarn.version>
     <!-- The location to download the correct version of Node and Yarn.
         ${download.dir} comes from parent pom.xml -->
     <yarn.install.directory>${download.dir}/zanata/node-${node.version}-yarn-${yarn.version}</yarn.install.directory>

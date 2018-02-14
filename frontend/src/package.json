@@ -1,52 +1,62 @@
 {
-  "name": "mt-frontend",
+  "name": "frontend",
   "version": "1.0.0",
-  "description": "MT frontend package",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --coverage"
+    "js": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --debug --devtool cheap-module-source-map --output-pathinfo --history-api-fallback --hot --inline --progress --colors --port 3000",
+    "build": "webpack -p --progress --colors"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zanata/zanata-mt.git"
-  },
-  "engines": {
-    "node": "8.1.2",
-    "yarn": "0.24.5"
-  },
+  "keywords": [
+    "magpie-mt",
+    "repository:https://github.com/zanata/zanata-mt.git"
+  ],
+  "author": "",
   "license": "LGPL-2.1",
   "devDependencies": {
-
+    "@types/classnames": "2.2.3",
+    "@types/history": "4.6.2",
+    "@types/node": "8.0.53",
+    "@types/react": "16.0.38",
+    "@types/react-dom": "16.0.4",
+    "@types/react-redux": "5.0.15",
+    "@types/react-router": "4.0.18",
+    "@types/redux-actions": "2.2.2",
+    "@types/webpack": "3.8.1",
+    "@types/webpack-env": "1.13.2",
+    "awesome-typescript-loader": "3.4.1",
+    "css-loader": "0.28.9",
+    "extract-text-webpack-plugin": "3.0.2",
+    "html-webpack-plugin": "2.30.1",
+    "less": "3.0.0",
+    "less-loader": "4.0.5",
+    "postcss": "6.0.17",
+    "postcss-browser-reporter": "0.5.0",
+    "postcss-cssnext": "3.1.0",
+    "postcss-import": "11.1.0",
+    "postcss-loader": "2.1.0",
+    "postcss-reporter": "5.0.0",
+    "postcss-url": "7.3.0",
+    "react-hot-loader": "3.1.3",
+    "redux-api-middleware": "2.2.0",
+    "redux-logger": "3.0.6",
+    "style-loader": "0.20.1",
+    "typescript": "2.6.2",
+    "webpack": "3.11.0",
+    "webpack-dev-server": "2.11.1"
   },
   "dependencies": {
-
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "app/**/*.{js,jsx}",
-      "!**/node_modules/**",
-      "!app/**/*.story.js"
-    ],
-    "coverageReporters": [
-      "cobertura",
-      "html",
-      "lcov",
-      "text"
-    ],
-    "transform": {
-      ".*": "./node_modules/babel-jest"
-    },
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/__tests__/mock"
-    ],
-    "unmockedModulePathPatterns": [
-      "/node_modules",
-      "/app"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "jsx"
-    ]
+    "classnames": "2.2.5",
+    "lodash": "4.17.5",
+    "prop-types": "15.6.0",
+    "react": "16.2.0",
+    "react-dom": "16.2.0",
+    "react-redux": "5.0.6",
+    "react-router": "4.2.0",
+    "redux": "3.7.2",
+    "redux-actions": "2.2.1",
+    "redux-thunk": "2.2.0"
   }
 }
