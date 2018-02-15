@@ -18,7 +18,8 @@ export namespace TodoTextInput {
 
 export class TodoTextInput extends React.Component<TodoTextInput.Props, TodoTextInput.State> {
 
-  constructor(props?: TodoTextInput.Props, context?: any) {
+    // tslint:disable-next-line:no-any
+    constructor(props?: TodoTextInput.Props, context?: any) {
     super(props, context);
     this.state = {
       text: this.props.text || ''

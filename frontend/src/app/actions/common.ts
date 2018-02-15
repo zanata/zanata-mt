@@ -1,6 +1,6 @@
 import { assign } from 'lodash'
 export const buildAPIRequest = (endpoint, method, headers, types, body) => {
-  let result = {
+  const result = {
     endpoint,
     method,
     headers,

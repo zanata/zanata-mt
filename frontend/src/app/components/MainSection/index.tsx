@@ -25,7 +25,8 @@ export namespace MainSection {
 
 export class MainSection extends React.Component<MainSection.Props, MainSection.State> {
 
-  constructor(props?: MainSection.Props, context?: any) {
+    // tslint:disable-next-line:no-any
+    constructor(props?: MainSection.Props, context?: any) {
     super(props, context);
     this.state = { filter: SHOW_ALL };
     this.handleClearCompleted = this.handleClearCompleted.bind(this);

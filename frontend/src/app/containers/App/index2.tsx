@@ -40,6 +40,7 @@ function mapStateToProps(state: RootState) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    // tslint:disable-next-line:no-any
     actions: bindActionCreators(TodoActions as any, dispatch)
   };
 }

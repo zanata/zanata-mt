@@ -19,6 +19,7 @@
     "ordered-imports": false,
     "object-literal-sort-keys": false,
     "only-arrow-functions": false,
+    // "no-any": true,
     "indent": [
       true,
       "spaces",

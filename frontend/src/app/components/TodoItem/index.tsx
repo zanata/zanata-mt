@@ -20,7 +20,8 @@ export namespace TodoItem {
 
 export class TodoItem extends React.Component<TodoItem.Props, TodoItem.State> {
 
-  constructor(props?: TodoItem.Props, context?: any) {
+    // tslint:disable-next-line:no-any
+    constructor(props?: TodoItem.Props, context?: any) {
     super(props, context);
     this.state = {
       editing: false

@@ -14,7 +14,9 @@ export namespace Footer {
     filter: TodoFilterType;
     activeCount: number;
     completedCount: number;
+    // tslint:disable-next-line:no-any
     onShow: (filter: TodoFilterType) => any;
+    // tslint:disable-next-line:no-any
     onClearCompleted: () => any;
   }
 
