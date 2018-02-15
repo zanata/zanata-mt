@@ -4,7 +4,7 @@ import info from './info';
 
 export interface RootState {
   todos: TodoStoreState
-  info:  InfoState
+  info: InfoState
 }
 
 export default combineReducers<RootState>({

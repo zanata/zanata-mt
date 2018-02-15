@@ -48,7 +48,13 @@ module.exports = {
     mainFields: ['browser', 'main']
   },
   module: {
-    loaders: [
+    rules: [
+      {
+        test: /\.tsx?$/,
+        enforce: 'pre',
+        loader: 'tslint-loader',
+        options: { /* Loader options go here */ }
+      },
       // .ts, .tsx
       {
         test: /\.tsx?$/,

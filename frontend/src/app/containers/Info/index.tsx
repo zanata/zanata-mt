@@ -20,11 +20,11 @@ export namespace Info {
 @connect(mapStateToProps, mapDispatchToProps)
 export class Info extends React.Component<Info.Props, Info.State> {
 
-  componentDidMount () {
+  public componentDidMount () {
     this.props.handleGetInfo()
   }
 
-  render() {
+  public render() {
     const { name, version, build, dev } = this.props;
 
     return (

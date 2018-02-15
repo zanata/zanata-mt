@@ -26,20 +26,19 @@ function configureStore(initialState?: RootState) {
     )
   )(createStore)
 
-
-  const store = ((initialState) => {
-    const store = finalCreateStore(rootReducer, initialState)
+  const store2 = ((initialState2) => {
+    const finalStore = finalCreateStore(rootReducer, initialState2)
     if (module.hot) {
       // Enable Webpack hot module replacement for reducers
       module.hot.accept('./reducers', () => {
         const nextRootReducer = require('./reducers')
-        store.replaceReducer(nextRootReducer)
+        finalStore.replaceReducer(nextRootReducer)
       })
     }
-    return store
+    return finalStore
   })()
 
-  return store
+  return store2
 }
 
 const store = configureStore();

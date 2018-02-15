@@ -4440,7 +4440,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@^2.2.8, rimraf@^2.5.1, rimraf@^2.6.1:
+rimraf@2, rimraf@^2.2.8, rimraf@^2.4.4, rimraf@^2.5.1, rimraf@^2.6.1:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
@@ -4989,6 +4989,16 @@ trim-newlines@^1.0.0:
 tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.0.tgz#e37a86fda8cbbaf23a057f473c9f4dc64e5fc2e8"
+
+tslint-loader@^3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/tslint-loader/-/tslint-loader-3.5.3.tgz#343f74122d94f356b689457d3f59f64a69ab606f"
+  dependencies:
+    loader-utils "^1.0.2"
+    mkdirp "^0.5.1"
+    object-assign "^4.1.1"
+    rimraf "^2.4.4"
+    semver "^5.3.0"
 
 tslint@^5.9.1:
   version "5.9.1"

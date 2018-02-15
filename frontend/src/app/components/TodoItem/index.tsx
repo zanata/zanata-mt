@@ -20,8 +20,8 @@ export namespace TodoItem {
 
 export class TodoItem extends React.Component<TodoItem.Props, TodoItem.State> {
 
-    // tslint:disable-next-line:no-any
-    constructor(props?: TodoItem.Props, context?: any) {
+  // tslint:disable-next-line:no-any
+  constructor(props?: TodoItem.Props, context?: any) {
     super(props, context);
     this.state = {
       editing: false
@@ -30,20 +30,7 @@ export class TodoItem extends React.Component<TodoItem.Props, TodoItem.State> {
     this.handleDoubleClick = this.handleDoubleClick.bind(this);
   }
 
-  handleDoubleClick() {
-    this.setState({ editing: true });
-  }
-
-  handleSave(id: number, text: string): void {
-    if (text.length === 0) {
-      this.props.deleteTodo(id);
-    } else {
-      this.props.editTodo({ id, text });
-    }
-    this.setState({ editing: false });
-  }
-
-  render() {
+  public render() {
     const { todo, completeTodo, deleteTodo } = this.props;
 
     let element;
@@ -83,4 +70,18 @@ export class TodoItem extends React.Component<TodoItem.Props, TodoItem.State> {
       </li>
     );
   }
+
+  private handleDoubleClick() {
+    this.setState({ editing: true });
+  }
+
+  private handleSave(id: number, text: string): void {
+    if (text.length === 0) {
+      this.props.deleteTodo(id);
+    } else {
+      this.props.editTodo({ id, text });
+    }
+    this.setState({ editing: false });
+  }
+
 }

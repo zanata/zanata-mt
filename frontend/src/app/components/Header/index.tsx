@@ -20,13 +20,7 @@ export class Header extends React.Component<Header.Props, Header.State> {
     this.handleSave = this.handleSave.bind(this);
   }
 
-  handleSave(text: string) {
-    if (text.length) {
-      this.props.addTodo({ text });
-    }
-  }
-
-  render() {
+  public render() {
     return (
       <header>
         <h1>Todos</h1>
@@ -37,4 +31,11 @@ export class Header extends React.Component<Header.Props, Header.State> {
       </header>
     );
   }
+
+  private handleSave(text: string) {
+    if (text.length) {
+      this.props.addTodo({ text });
+    }
+  }
+
 }
