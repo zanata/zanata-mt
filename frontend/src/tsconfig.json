@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    // import tslib instead of duplicating generated code
+    "importHelpers": true,
     "sourceMap": true,
     "target": "es5",
     "jsx": "react",
@@ -11,7 +15,8 @@
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "removeComments": true,
-    "strictNullChecks": false,
+    "skipLibCheck": true,
+    // "strictNullChecks": true,
     "outDir": "build",
     "lib": [
       "dom", "es6", "dom.iterable", "scripthost"
