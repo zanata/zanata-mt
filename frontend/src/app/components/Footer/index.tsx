@@ -9,23 +9,17 @@ export const FILTER_TITLES = {
   [SHOW_COMPLETED]: 'Completed'
 };
 
-export namespace Footer {
-  export interface Props {
-    filter: TodoFilterType;
-    activeCount: number;
-    completedCount: number;
-    // tslint:disable-next-line:no-any
-    onShow: (filter: TodoFilterType) => any;
-    // tslint:disable-next-line:no-any
-    onClearCompleted: () => any;
-  }
-
-  export interface State {
-    /* empty */
-  }
+export interface Props {
+  filter: TodoFilterType;
+  activeCount: number;
+  completedCount: number;
+  // tslint:disable-next-line:no-any
+  onShow: (filter: TodoFilterType) => any;
+  // tslint:disable-next-line:no-any
+  onClearCompleted: () => any;
 }
 
-export class Footer extends React.Component<Footer.Props, Footer.State> {
+export class Footer extends React.Component<Props, {}> {
 
   public render() {
     return (

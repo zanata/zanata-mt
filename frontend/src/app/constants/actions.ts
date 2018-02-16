@@ -8,3 +8,9 @@ export const CLEAR_COMPLETED = 'CLEAR_COMPLETED';
 export const GET_INFO_REQUEST = 'GET_INFO_REQUEST'
 export const GET_INFO_SUCCESS = 'GET_INFO_SUCCESS'
 export const GET_INFO_FAILED = 'GET_INFO_FAILED'
+
+export const MSG_TYPE = {
+  ERROR: 'ERROR',
+  WARNING: 'WARNING',
+  INFO: 'INFO'
+}

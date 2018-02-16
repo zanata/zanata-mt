@@ -50,10 +50,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         enforce: 'pre',
         loader: 'tslint-loader',
-        options: { /* Loader options go here */ }
+        options: {
+          tsConfigFile: 'tsconfig.json',
+
+          // tslint errors are displayed by default as warnings
+          // set emitErrors to true to display them as errors
+          emitErrors: false,
+        }
       },
       // .ts, .tsx
       {

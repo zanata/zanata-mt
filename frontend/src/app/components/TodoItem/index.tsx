@@ -5,23 +5,21 @@ import { TodoTextInput } from '../TodoTextInput';
 import { applyMiddleware } from 'redux';
 import {Action} from 'redux-actions';
 
-export namespace TodoItem {
-  export interface Props {
-    todo: TodoItemData;
-    editTodo: (todo: TodoItemData) => Action<TodoItemData>;
-    deleteTodo: (id: number) => Action<number>;
-    completeTodo: (id: number) => Action<number>;
-  }
-
-  export interface State {
-    editing: boolean;
-  }
+export interface Props {
+  todo: TodoItemData;
+  editTodo: (todo: TodoItemData) => Action<TodoItemData>;
+  deleteTodo: (id: number) => Action<number>;
+  completeTodo: (id: number) => Action<number>;
 }
 
-export class TodoItem extends React.Component<TodoItem.Props, TodoItem.State> {
+export interface State {
+  editing: boolean;
+}
+
+export class TodoItem extends React.Component<Props, State> {
 
   // tslint:disable-next-line:no-any
-  constructor(props?: TodoItem.Props, context?: any) {
+  constructor(props?: Props, context?: any) {
     super(props, context);
     this.state = {
       editing: false

@@ -12,11 +12,26 @@ declare type TodoFilterType = 'SHOW_ALL' | 'SHOW_ACTIVE' | 'SHOW_COMPLETED';
 
 declare type TodoStoreState = TodoItemData[];
 
+declare interface ErrorData {
+  summary?: string,
+  message?: string,
+  timestamp: number,
+  stack: string,
+  type: string
+}
+
+declare type ErrorData = ErrorData;
+
 declare interface InfoData {
-  name?: string,
-  version: string,
+  appName?: string,
+  version?: string,
   buildDate?: string,
-  devMode?: boolean
+  devMode?: boolean,
+  errorData?: ErrorData
+  // generic redux-middleware error fields
+  message?: string,
+  name?: string,
+  stack?: string
 }
 
 declare type InfoState = InfoData;

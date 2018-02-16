@@ -1,16 +1,19 @@
 import * as React from 'react';
 
-interface NoMatchProps {
-    // empty
-}
+// interface NoMatchProps {
+//     // empty
+// }
 
-const NoMatch: React.StatelessComponent<NoMatchProps> = ({
+const NoMatch: React.StatelessComponent<{}> = ({
   ...props
 }) => {
   return (
-    <div className='d-block mx-auto text-center'>
-      <div className='p-3 mb-2 mt-2 bg-danger text-white'>
-        This is an invalid URL
+    <div className='d-block justify-content-center'>
+      <div className='p-3 mt-3 bg-warning text-white text-center'>
+        <p>
+          Sorry, we cannot find the page you are looking for
+        </p>
+        <span className='display-1'>404</span>
       </div>
     </div>
   )

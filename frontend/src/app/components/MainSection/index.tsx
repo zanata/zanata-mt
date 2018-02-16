@@ -12,21 +12,19 @@ const TODO_FILTERS = {
   [SHOW_COMPLETED]: todo => todo.completed
 };
 
-export namespace MainSection {
-  export interface Props {
-    todos: TodoItemData[];
-    actions: typeof TodoActions;
-  }
-
-  export interface State {
-    filter: TodoFilterType;
-  }
+export interface Props {
+  todos: TodoItemData[];
+  actions: typeof TodoActions;
 }
 
-export class MainSection extends React.Component<MainSection.Props, MainSection.State> {
+export interface State {
+  filter: TodoFilterType;
+}
+
+export class MainSection extends React.Component<Props, State> {
 
   // tslint:disable-next-line:no-any
-  constructor(props?: MainSection.Props, context?: any) {
+  constructor(props?: Props, context?: any) {
     super(props, context);
     this.state = { filter: SHOW_ALL };
     this.handleClearCompleted = this.handleClearCompleted.bind(this);

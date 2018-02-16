@@ -2,69 +2,64 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../../reducers';
 import { getInfo } from '../../actions/info';
+import { Alert } from '../../components/Alert'
 
-export namespace Info {
-  export interface Props {
-    name?: string,
-    version: string,
-    build?: string,
-    dev?: boolean
-    handleGetInfo: typeof getInfo;
-  }
-
-  export interface State {
-    /* empty */
-  }
+export interface Props {
+  appName?: string,
+  version?: string,
+  build?: string,
+  dev?: boolean
+  handleGetInfo: typeof getInfo,
+  errorData?
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export class Info extends React.Component<Info.Props, Info.State> {
+export class Info extends React.Component<Props, {}> {
 
   public componentDidMount () {
     this.props.handleGetInfo()
   }
 
   public render() {
-    const { name, version, build, dev } = this.props;
+    const { appName, version, build, dev, errorData } = this.props;
+    const alert = errorData && <Alert data={errorData} dismissible={true}/>
 
     return (
-      <div className='d-flex justify-content-center'>
-        <div className='p-3 mb-2 mt-2'>
-          <table className='table'>
-            <thead>
-            <tr>
-              <th colSpan={2} className='text-center'>
-                Information
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>Name</td>
-              <td>
-                <span className='badge badge-info'>{name}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Version</td>
-              <td>
-                <span className='badge badge-info'>{version}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Build</td>
-              <td>
-                <span className='badge badge-info'>{build}</span>
-              </td>
-            </tr>
-            { dev && <tr>
-              <td>Dev Mode</td>
-              <td>
-                <span className='badge badge-warning text-white'>Yes</span>
-              </td>
-            </tr>}
-            </tbody>
-          </table>
+      <div className='container justify-content-center w-50'>
+        <h1>Information</h1>
+        <div className='p-3 mt-3'>
+          {errorData
+            ? alert
+            :
+            <table className='table'>
+              <tbody>
+              <tr>
+                <td>Name</td>
+                <td>
+                  <span className='badge badge-info'>{appName}</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Version</td>
+                <td>
+                  <span className='badge badge-info'>{version}</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Build</td>
+                <td>
+                  <span className='badge badge-info'>{build}</span>
+                </td>
+              </tr>
+              {dev && <tr>
+                <td>Dev Mode</td>
+                <td>
+                  <span className='badge badge-warning text-white'>Yes</span>
+                </td>
+              </tr>}
+              </tbody>
+            </table>
+          }
         </div>
       </div>
     )
@@ -72,12 +67,13 @@ export class Info extends React.Component<Info.Props, Info.State> {
 }
 
 function mapStateToProps(state: RootState) {
-  const { name, version, buildDate, devMode } = state.info;
+  const { appName, version, buildDate, devMode, errorData } = state.info;
   return {
-    name,
+    appName,
     version,
     build: buildDate,
-    dev: devMode
+    dev: devMode,
+    errorData
   };
 }
 

@@ -5,7 +5,7 @@ import {
   getJsonHeaders,
   getJsonHeadersWithoutAuth
 } from './common'
-import { CALL_API } from 'redux-api-middleware'
+import { RSAA } from 'redux-api-middleware'
 
 const getInfoAPI = () => {
   const endpoint = API_URL + '/info'
@@ -17,12 +17,15 @@ const getInfoAPI = () => {
         return res.json().then((json) => {
           return json
         })
+      },
+      meta: {
+        receivedAt: Date.now()
       }
     },
     Actions.GET_INFO_FAILED
   ]
   return {
-    [CALL_API]: buildAPIRequest(endpoint, 'GET', getJsonHeadersWithoutAuth(), apiTypes, undefined)
+    [RSAA]: buildAPIRequest(endpoint, 'GET', getJsonHeadersWithoutAuth(), apiTypes, undefined)
   }
 }
 

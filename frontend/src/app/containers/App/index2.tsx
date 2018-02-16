@@ -6,19 +6,13 @@ import { RouteComponentProps } from 'react-router';
 import { RootState } from '../../reducers';
 import { Header, MainSection } from '../../components';
 
-export namespace App {
-  export interface Props extends RouteComponentProps<void> {
-    todos: TodoItemData[];
-    actions: typeof TodoActions;
-  }
-
-  export interface State {
-    /* empty */
-  }
+export interface Props extends RouteComponentProps<void> {
+  todos: TodoItemData[];
+  actions: typeof TodoActions;
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export class App extends React.Component<App.Props, App.State> {
+export class App extends React.Component<Props, {}> {
 
   public render() {
     const { todos, actions, children } = this.props;

@@ -7,8 +7,10 @@ package org.zanata.magpie.api;
  */
 public interface APIConstant {
 
+    // prefix for all REST path
+    String API_CONTEXT = "api";
 
-    // list of url to allow access to /api. White space separated
+    // list of url to allow access to {@link #API_CONTEXT}. White space separated
     String ORIGIN_WHITELIST = "MT_ORIGIN_WHITELIST";
     // see org.zanata.magpie.mt.servlet.APISecurityFilter
     // API_ID to be used for API request (for authentication purpose)
