@@ -1,5 +1,5 @@
-import { API_URL } from "../config";
-import * as Actions from '../constants/actions';
+import { API_URL } from "../config"
+import * as Actions from '../constants/actions'
 import {
   buildAPIRequest,
   getJsonHeaders,

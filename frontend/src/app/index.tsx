@@ -7,8 +7,9 @@ import {apiMiddleware} from 'redux-api-middleware'
 import {createLogger} from 'redux-logger'
 import {createStore, applyMiddleware, compose} from 'redux'
 import rootReducer, {RootState} from './reducers'
-import {App, Info, NoMatch} from './containers'
+import {App, Info, NoMatch, Health, LoginForm} from './containers'
 import thunk from 'redux-thunk'
+import { default as NavBar } from './components/NavBar'
 
 import './styles/index.less'
 
@@ -47,11 +48,16 @@ const history = createBrowserHistory();
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <Switch>
-        <Route exact path="/" component={App}/>
-        <Route path="/info" component={Info}/>
-        <Route component={NoMatch}/>
-      </Switch>
+      <div>
+        <NavBar />
+        <Switch>
+          <Route exact path="/" component={App}/>
+          <Route path="/app/info" component={Info}/>
+          <Route path="/app/health" component={Health}/>
+          <Route path="/app/login" component={LoginForm}/>
+          <Route component={NoMatch}/>
+        </Switch>
+      </div>
     </Router>
   </Provider>,
   document.getElementById('root')

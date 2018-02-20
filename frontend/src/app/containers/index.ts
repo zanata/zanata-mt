@@ -1,3 +1,5 @@
 export { default as App } from './App'
-export { default as NoMatch } from './NoMatch'
+export { NoMatch } from './NoMatch'
+export { Health } from './Health'
 export { Info } from './Info'
+export { LoginForm } from './LoginForm'

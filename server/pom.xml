@@ -165,7 +165,7 @@
                   </ports>
                   <wait>
                     <http>
-                      <url>http://localhost:${jboss.http.port}/health.html</url>
+                      <url>http://localhost:${jboss.http.port}/app/health</url>
                     </http>
                     <time>60000</time>
                   </wait>
@@ -263,12 +263,17 @@
   </profiles>
 
   <dependencies>
-    <!--
+
     <dependency>
-      <groupId>org.zanata.magpie.mt</groupId>
+      <groupId>org.zanata.magpie</groupId>
       <artifactId>mt-frontend</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    -->
+
+    <dependency>
+      <groupId>org.tuckey</groupId>
+      <artifactId>urlrewritefilter</artifactId>
+    </dependency>
 
     <!-- enunciate -->
     <dependency>

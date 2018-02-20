@@ -52,6 +52,7 @@ public class LanguagesResourceTest {
         Response response = languagesResource.getSupportedLanguages();
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.OK.getStatusCode());
+        @SuppressWarnings("unchecked")
         List<org.zanata.magpie.api.dto.Locale> dtos = (List)response.getEntity();
         assertThat(dtos).isNotNull().hasSize(locales.size());
         assertThat(dtos.containsAll(expectedLocales)).isTrue();

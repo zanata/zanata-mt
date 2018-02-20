@@ -15,7 +15,7 @@ declare type TodoStoreState = TodoItemData[];
 declare interface ErrorData {
   summary?: string,
   message?: string,
-  timestamp: number,
+  timestamp: string,
   stack: string,
   type: string
 }
@@ -23,6 +23,7 @@ declare interface ErrorData {
 declare type ErrorData = ErrorData;
 
 declare interface InfoData {
+  loading?: boolean
   appName?: string,
   version?: string,
   buildDate?: string,

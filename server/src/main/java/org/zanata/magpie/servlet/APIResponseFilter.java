@@ -1,7 +1,7 @@
 package org.zanata.magpie.servlet;
 
 import java.io.IOException;
-import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -18,13 +18,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Priorities;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.zanata.magpie.api.APIConstant.ORIGIN_WHITELIST;
+import static org.zanata.magpie.servlet.APISecurityFilter.API_PATH;
 
 /**
  * This filter is for REST API requests.
@@ -37,11 +40,14 @@ import static org.zanata.magpie.api.APIConstant.ORIGIN_WHITELIST;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@WebFilter(filterName = "APIResponseFilter", value = { "/api/*" })
+@WebFilter(filterName = "APIResponseFilter", value = { API_PATH + "*" })
 @Priority(Priorities.HEADER_DECORATOR)
 public class APIResponseFilter implements Filter {
     private static final String ALLOW_METHODS =
         "PUT, POST, DELETE, GET, OPTIONS";
+
+    private static final Logger LOG =
+        LoggerFactory.getLogger(APIResponseFilter.class);
 
     private static ImmutableList<String> originWhitelist;
 
@@ -72,7 +78,13 @@ public class APIResponseFilter implements Filter {
         // Allow the specified Origin, but only if it is whitelisted.
         String origin = servletRequest.getHeader("Origin");
         if (!StringUtils.isBlank(origin) && originWhitelist.contains(origin)) {
-            servletResponse.addHeader("Access-Control-Allow-Origin", origin);
+            try {
+                URIBuilder ub = new URIBuilder(origin);
+                servletResponse
+                    .addHeader("Access-Control-Allow-Origin", ub.toString());
+            } catch (URISyntaxException e) {
+                LOG.error("Unable to include `Access-Control-Allow-Origin` in header");
+            }
 
             // Allow standard HTTP methods.
             servletResponse

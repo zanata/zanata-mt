@@ -37,3 +37,9 @@ export const getHeaders = () => {
     'x-auth-user': 'user'
   }
 }
+
+export const login = (username, pass) => {
+  return {
+
+  }
+}

@@ -1,13 +1,13 @@
 const Webpack = require('webpack');
 const Path = require('path');
+const _ = require('lodash')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin')
 
-const isProduction = process.argv.indexOf('-p') >= 0;
+const isProd = process.argv.indexOf('-p') >= 0;
 const outPath = Path.join(__dirname, './dist');
 const sourcePath = Path.join(__dirname, './');
-
-
 
 var postCssLoader = {
   loader: 'postcss-loader',
@@ -18,7 +18,7 @@ var postCssLoader = {
       require('postcss-url')(),
       require('postcss-cssnext')(),
       require('postcss-reporter')(),
-      require('postcss-browser-reporter')({ disabled: isProduction }),
+      require('postcss-browser-reporter')({ disabled: isProd }),
     ]
   }
 }
@@ -26,7 +26,7 @@ var postCssLoader = {
 module.exports = {
   context: sourcePath,
   entry: {
-    main: './app/index.tsx',
+    frontend: './app/index.tsx',
     vendor: [
       'react',
       'react-dom',
@@ -38,7 +38,10 @@ module.exports = {
   output: {
     path: outPath,
     publicPath: '/',
-    filename: '[name].js',
+    filename: isProd ? '[name].[chunkhash:8].cache.js' : '[name].js',
+    chunkFilename: isProd ? '[name].[chunkhash:8].cache.js' : '[name].js',
+    // includes comments in the generated code about where the code came from
+    pathinfo: !isProd,
   },
   target: 'web',
   resolve: {
@@ -55,16 +58,14 @@ module.exports = {
         loader: 'tslint-loader',
         options: {
           tsConfigFile: 'tsconfig.json',
-
-          // tslint errors are displayed by default as warnings
-          // set emitErrors to true to display them as errors
-          emitErrors: false,
+          emitErrors: true,
+          failOnHint: true
         }
       },
       // .ts, .tsx
       {
         test: /\.tsx?$/,
-        use: isProduction
+        use: isProd
           ? 'awesome-typescript-loader?module=es6'
           : [
             'react-hot-loader/webpack',
@@ -81,7 +82,7 @@ module.exports = {
               loader: 'css-loader',
               query: {
                 modules: true,
-                sourceMap: !isProduction,
+                sourceMap: !isProd,
                 importLoaders: 1,
                 localIdentName: '[local]__[hash:base64:5]'
               }
@@ -111,24 +112,33 @@ module.exports = {
       }
     ],
   },
-  plugins: [
+  plugins: _.compact([
     new Webpack.DefinePlugin({
-      'process.env.NODE_ENV': isProduction === true ? JSON.stringify('production') : JSON.stringify('development')
+      'process.env.NODE_ENV': isProd === true ? JSON.stringify('production') : JSON.stringify('development')
     }),
-    new Webpack.optimize.CommonsChunkPlugin({
-      name: 'frontend',
-      filename: 'frontend.bundle.js',
-      minChunks: Infinity
-    }),
+    isProd ? new Webpack.HashedModuleIdsPlugin() : undefined,
+    isProd
+      ? undefined
+      : new Webpack.optimize.CommonsChunkPlugin({
+        name: 'frontend',
+        filename: 'frontend.js',
+        minChunks: Infinity,
+      }),
     new Webpack.optimize.AggressiveMergingPlugin(),
     new ExtractTextPlugin({
-      filename: 'styles.css',
-      disable: !isProduction
+      filename: '[name].[chunkhash:8].cache.css'
     }),
-    new HtmlWebpackPlugin({
-      template: 'index.html'
-    })
-  ],
+    new Webpack.NoEmitOnErrorsPlugin(),
+    isProd
+      ? new Webpack.optimize.UglifyJsPlugin({ sourceMap: true })
+      : undefined,
+    isProd
+      ? undefined
+      : new HtmlWebpackPlugin({
+        template: 'index.html'
+      }),
+    new ManifestPlugin()
+  ]),
   devServer: {
     contentBase: sourcePath,
     hot: true,
@@ -141,5 +151,6 @@ module.exports = {
     // https://github.com/webpack/webpack-dev-server/issues/60#issuecomment-103411179
     fs: 'empty',
     net: 'empty'
-  }
+  },
+  devtool: isProd ? 'source-map' : 'eval-source-map'
 };

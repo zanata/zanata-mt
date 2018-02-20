@@ -1,8 +1,6 @@
 package org.zanata.magpie.servlet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -25,6 +23,7 @@ import static org.zanata.magpie.api.APIConstant.API_KEY;
 import static org.zanata.magpie.api.APIConstant.HEADER_API_KEY;
 import static org.zanata.magpie.api.APIConstant.HEADER_USERNAME;
 import static org.zanata.magpie.api.APIConstant.API_ID;
+import static org.zanata.magpie.servlet.APISecurityFilter.API_PATH;
 
 /**
  * Filter for handling auth in /api path.
@@ -34,8 +33,9 @@ import static org.zanata.magpie.api.APIConstant.API_ID;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@WebFilter(filterName = "APISecurityFilter", value = { "/api/*" })
+@WebFilter(filterName = "APISecurityFilter", value = { API_PATH + "*" })
 public class APISecurityFilter implements Filter {
+    public static final String API_PATH = "/api/";
 
     private static final Logger LOG =
         LoggerFactory.getLogger(APISecurityFilter.class);
@@ -51,7 +51,7 @@ public class APISecurityFilter implements Filter {
     static {
         REST_CREDENTIALS = new RestCredentials(System.getenv(API_ID),
             System.getenv(API_KEY));
-        PUBLIC_API = ImmutableList.of("/api/info");
+        PUBLIC_API = ImmutableList.of(API_PATH + "info");
     }
 
     @Override

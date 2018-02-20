@@ -1,14 +1,14 @@
 import * as React from 'react';
 
-// interface NoMatchProps {
-//     // empty
-// }
+interface NoMatchProps {
+    // empty
+}
 
-const NoMatch: React.StatelessComponent<{}> = ({
-  ...props
+export const NoMatch: React.StatelessComponent<NoMatchProps> = ({
+
 }) => {
   return (
-    <div className='d-block justify-content-center'>
+    <div className='d-block justify-content-center mt-3'>
       <div className='p-3 mt-3 bg-warning text-white text-center'>
         <p>
           Sorry, we cannot find the page you are looking for
@@ -18,9 +18,3 @@ const NoMatch: React.StatelessComponent<{}> = ({
     </div>
   )
 }
-
-NoMatch.propTypes = {
-    // empty
-}
-
-export default NoMatch

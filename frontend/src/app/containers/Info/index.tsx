@@ -5,6 +5,7 @@ import { getInfo } from '../../actions/info';
 import { Alert } from '../../components/Alert'
 
 export interface Props {
+  loading?: boolean,
   appName?: string,
   version?: string,
   build?: string,
@@ -21,45 +22,63 @@ export class Info extends React.Component<Props, {}> {
   }
 
   public render() {
-    const { appName, version, build, dev, errorData } = this.props;
+    const { loading, appName, version, build, dev, errorData } = this.props;
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
 
+    const emptyValue = <em className='badge badge-default'>Undefined</em>
+    const loadingComp = loading ? <span>loading</span> : undefined
     return (
-      <div className='container justify-content-center w-50'>
+      <div className='container justify-content-center w-50 mt-3'>
+        { alert }
         <h1>Information</h1>
         <div className='p-3 mt-3'>
-          {errorData
-            ? alert
-            :
-            <table className='table'>
-              <tbody>
+          <table className='table'>
+            <tbody>
               <tr>
                 <td>Name</td>
                 <td>
-                  <span className='badge badge-info'>{appName}</span>
+                  {loading
+                    ? loadingComp
+                    : appName
+                      ? <span className='badge badge-info'>{appName}</span>
+                      : emptyValue
+                  }
                 </td>
               </tr>
               <tr>
                 <td>Version</td>
                 <td>
-                  <span className='badge badge-info'>{version}</span>
+                  {loading
+                    ? loadingComp
+                    : version
+                      ? <span className='badge badge-info'>{version}</span>
+                      : emptyValue
+                  }
                 </td>
               </tr>
               <tr>
                 <td>Build</td>
                 <td>
-                  <span className='badge badge-info'>{build}</span>
+                  {loading
+                    ? loadingComp
+                    :build
+                      ? <span className='badge badge-info'>{build}</span>
+                      : emptyValue
+                  }
                 </td>
               </tr>
               {dev && <tr>
                 <td>Dev Mode</td>
                 <td>
-                  <span className='badge badge-warning text-white'>Yes</span>
+                  {loading
+                    ? loadingComp
+                    : <span
+                      className='badge badge-warning text-white'>Yes</span>
+                  }
                 </td>
               </tr>}
-              </tbody>
-            </table>
-          }
+            </tbody>
+          </table>
         </div>
       </div>
     )
@@ -67,8 +86,9 @@ export class Info extends React.Component<Props, {}> {
 }
 
 function mapStateToProps(state: RootState) {
-  const { appName, version, buildDate, devMode, errorData } = state.info;
+  const {loading, appName, version, buildDate, devMode, errorData} = state.info;
   return {
+    loading,
     appName,
     version,
     build: buildDate,

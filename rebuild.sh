@@ -2,7 +2,18 @@
 
 set -ex
 
+skipFrontend=false
+for i in "$@"
+do
+case $i in
+    -F)
+    skipFrontend=true
+    ;;
+esac
+done
+
 # Author: Patrick Huang
+# use `-F` for skipping frontend module
 
 # This script will:
 # - stop running containers
@@ -25,8 +36,20 @@ then
     echo "Using an empty file instead"
 fi
 
+cd server
 mvn docker:stop || true
-mvn clean package -DskipTests
+
+if $skipFrontend
+then
+    echo "Skipping frontend build..."
+    mvn clean install -DskipTests
+else
+    echo "Full build..."
+    cd ../
+    mvn clean install -DskipTests
+    cd server
+fi
+
 mvn docker:build -DskipTests
 mvn docker:start \
  -DGOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_CREDENTIAL_FILE} \

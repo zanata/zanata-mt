@@ -2,30 +2,54 @@ import * as React from 'react';
 import { MSG_TYPE } from '../../constants/actions';
 
 export interface Props {
-  data?,
+  data,
   dismissible: boolean
 }
 
 export class Alert extends React.Component<Props, {}> {
   public render() {
     const { dismissible, data } = this.props;
-    const className = this.getClassName(dismissible, data)
+    const className = this.getAlertClassName(dismissible, data)
     const button = dismissible &&
       (<button type="button" className="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>)
 
+    const buttonClass = this.getButtonClassName(data.type)
     return (
-      <div className={className} role='alert' title={data.summary}>
+      <div className={className} role='alert'>
         {button}
-        <div className='small'>{data.timestamp}</div>
-        <div><strong>{data.message}</strong></div>
-        <div>{data.stack}</div>
+        { data.summary && <h4>{data.summary}</h4> }
+        <p>{data.timestamp} {data.message}</p>
+
+        {data.stack &&
+        <button className={buttonClass} type='button' data-toggle='collapse'
+          data-target='#stack' aria-expanded='false' aria-controls="stack">
+          Stack trace
+        </button>
+        }
+        {data.stack &&
+        <div className='collapse' id='stack'>
+          <div className='card card-block'>
+            <em>{data.stack}</em>
+          </div>
+        </div>
+        }
       </div>
-    );
+    )
   }
 
-  private getClassName(dismissible, data) {
+  private getButtonClassName(type) {
+    if (type === MSG_TYPE.ERROR) {
+      return 'btn btn-danger'
+    } else if (type === MSG_TYPE.WARNING) {
+      return 'btn btn-warning'
+    } else {
+      return 'btn btn-info'
+    }
+  }
+
+  private getAlertClassName(dismissible, data) {
     let className = 'fade show alert' + (dismissible ? ' alert-dismissible' : '')
     if (data.type === MSG_TYPE.ERROR) {
       className += ' alert-danger'

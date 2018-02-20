@@ -1,17 +1,23 @@
 import * as React from 'react';
+import { Alert } from '../../components/Alert'
 
-const App: React.StatelessComponent<{}> = ({
-     ...props
- }) => {
-    return (
-      <div className='container justify-content-center'>
-        <h1>Home</h1>
-      </div>
-    )
+interface AppProps {
+  errorData?
 }
 
-App.propTypes = {
-    // empty
+const App: React.StatelessComponent<AppProps> = ({
+    errorData,
+     ...props
+ }) => {
+    const alert = errorData && <Alert data={errorData} dismissible={true}/>
+    return (
+      <div className='container justify-content-center mt-3'>
+        {alert}
+        <h1>Home</h1>
+        <div className='p-3 mt-3'>
+        </div>
+      </div>
+    )
 }
 
 export default App
