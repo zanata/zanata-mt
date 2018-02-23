@@ -6,8 +6,7 @@ interface AppProps {
 }
 
 const App: React.StatelessComponent<AppProps> = ({
-    errorData,
-     ...props
+    errorData
  }) => {
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
     return (

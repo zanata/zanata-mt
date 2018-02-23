@@ -9,6 +9,12 @@ export const GET_INFO_REQUEST = 'GET_INFO_REQUEST'
 export const GET_INFO_SUCCESS = 'GET_INFO_SUCCESS'
 export const GET_INFO_FAILED = 'GET_INFO_FAILED'
 
+export const LOGIN_REQUEST = 'LOGIN_REQUEST'
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
+export const LOGIN_FAILED = 'LOGIN_FAILED'
+
+export const LOGOUT = 'LOGOUT'
+
 export const MSG_TYPE = {
   ERROR: 'ERROR',
   WARNING: 'WARNING',

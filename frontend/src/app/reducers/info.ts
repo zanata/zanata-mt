@@ -57,5 +57,5 @@ export default handleActions<InfoState, InfoData>({
       ...initialState,
       errorData: getInfoFailed(action.payload)
     }
-  },
+  }
 }, initialState)

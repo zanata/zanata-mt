@@ -100,5 +100,5 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch) {
   return {
     handleGetInfo: () => dispatch(getInfo())
-  };
+  }
 }

@@ -19,7 +19,6 @@ declare interface ErrorData {
   stack: string,
   type: string
 }
-
 declare type ErrorData = ErrorData;
 
 declare interface InfoData {
@@ -34,5 +33,16 @@ declare interface InfoData {
   name?: string,
   stack?: string
 }
-
 declare type InfoState = InfoData;
+
+declare interface AuthData {
+  username: string,
+  password: string
+}
+
+declare interface CommonData {
+  errorData?: ErrorData,
+  loading?: boolean,
+  auth: AuthData
+}
+declare type CommonState = CommonData;
