@@ -5,7 +5,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin')
 
-const isProd = process.argv.indexOf('-p') >= 0;
+const index = process.argv.indexOf('--mode')
+const isProd = index >= 0 ? process.argv[index + 1] === 'production' :  false
 const outPath = Path.join(__dirname, './dist');
 const sourcePath = Path.join(__dirname, './');
 
@@ -114,24 +115,16 @@ module.exports = {
   },
   plugins: _.compact([
     new Webpack.DefinePlugin({
-      'process.env.NODE_ENV': isProd === true ? JSON.stringify('production') : JSON.stringify('development')
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
     }),
     isProd ? new Webpack.HashedModuleIdsPlugin() : undefined,
-    isProd
-      ? undefined
-      : new Webpack.optimize.CommonsChunkPlugin({
-        name: 'frontend',
-        filename: 'frontend.js',
-        minChunks: Infinity,
-      }),
     new Webpack.optimize.AggressiveMergingPlugin(),
     new ExtractTextPlugin({
       filename: '[name].[chunkhash:8].cache.css'
     }),
     new Webpack.NoEmitOnErrorsPlugin(),
-    isProd
-      ? new Webpack.optimize.UglifyJsPlugin({ sourceMap: true })
-      : undefined,
     isProd
       ? undefined
       : new HtmlWebpackPlugin({
@@ -152,5 +145,8 @@ module.exports = {
     fs: 'empty',
     net: 'empty'
   },
-  devtool: isProd ? 'source-map' : 'eval-source-map'
+  devtool: isProd ? 'source-map' : 'eval-source-map',
+  performance: {
+    hints: isProd ? false : 'warning'
+  }
 };

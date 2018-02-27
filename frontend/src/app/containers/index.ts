@@ -1,5 +1,4 @@
 export { default as App } from './App'
-export { NoMatch } from './NoMatch'
-export { Health } from './Health'
 export { Info } from './Info'
 export { LoginForm } from './LoginForm'
+export { NavBar } from './NavBar'
