@@ -7,9 +7,9 @@ import {apiMiddleware} from 'redux-api-middleware'
 import {createLogger} from 'redux-logger'
 import {createStore, applyMiddleware, compose} from 'redux'
 import rootReducer, {RootState} from './reducers'
-import {App, Info, NoMatch, Health} from './containers'
+import {App, Info, NavBar} from './containers'
 import thunk from 'redux-thunk'
-import { NavBar } from './components/NavBar'
+import { NoMatch, Health } from './components'
 
 import './styles/index.less'
 
@@ -27,8 +27,8 @@ function configureStore(initialState?: RootState) {
     )
   )(createStore)
 
-  const store2 = ((initialState2) => {
-    const finalStore = finalCreateStore(rootReducer, initialState2)
+  const store = ((initialState?: RootState) => {
+    const finalStore = finalCreateStore(rootReducer, initialState)
     if (module.hot) {
       // Enable Webpack hot module replacement for reducers
       module.hot.accept('./reducers', () => {
@@ -39,7 +39,7 @@ function configureStore(initialState?: RootState) {
     return finalStore
   })()
 
-  return store2
+  return store
 }
 
 const store = configureStore();
@@ -48,15 +48,15 @@ const history = createBrowserHistory();
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <div>
+      <>
         <NavBar />
         <Switch>
-          <Route exact path="/" component={App}/>
-          <Route path="/app/info" component={Info}/>
-          <Route path="/app/health" component={Health}/>
+          <Route exact path='/' component={App}/>
+          <Route path='/app/info' component={Info}/>
+          <Route path='/app/health' component={Health}/>
           <Route component={NoMatch}/>
         </Switch>
-      </div>
+      </>
     </Router>
   </Provider>,
   document.getElementById('root')

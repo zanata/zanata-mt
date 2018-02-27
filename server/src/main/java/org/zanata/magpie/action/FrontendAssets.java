@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.action;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +54,9 @@ public class FrontendAssets implements Serializable {
         throws Exception {
         manifest = getManifest();
         String contextPath = servletContext.getContextPath();
-        frontendJs = contextPath + "/" + manifest.getFrontendJs();
-        frontendCss = contextPath + "/" + manifest.getFrontendCss();
-        vendorJs = contextPath + "/" + manifest.getVendorJs();
+        frontendJs = generateAbsolutePath(contextPath, manifest.getFrontendJs());
+        frontendCss = generateAbsolutePath(contextPath, manifest.getFrontendCss());
+        vendorJs = generateAbsolutePath(contextPath, manifest.getVendorJs());
 
         LOG.info("Frontend manifest: {}", manifest);
     }
@@ -83,5 +84,9 @@ public class FrontendAssets implements Serializable {
 
     public String getVendorJs() {
         return vendorJs;
+    }
+
+    public String generateAbsolutePath(String contextPath, String file) {
+        return contextPath + "/" + StringUtils.stripStart(file, "/");
     }
 }

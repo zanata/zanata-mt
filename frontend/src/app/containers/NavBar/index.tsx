@@ -1,20 +1,22 @@
 import * as React from 'react';
-import { connect } from 'react-redux'
+import {connect, GenericDispatch} from 'react-redux'
 import {RootState} from "../../reducers/index"
 import { Link } from 'react-router-dom'
 import {LoginForm} from "../../containers/LoginForm/index"
 import {Action} from "redux-actions"
-import { login, logout } from '../../actions/common'
+import { login, logout, toggleLoginFormDisplay } from '../../actions/common'
+import { isLoggedIn } from '../../config'
 
 interface Props {
-  isLoggedIn?: boolean
+  isLoggedIn?: boolean,
+  showLoginForm?: boolean,
   handleLogout?: () => Action<void>,
-  handleLogin?: (username: string, password: string) => Action<void>
+  handleLogin?: (username: string, password: string) => Action<void>,
+  handleSetLoginFormDisplay?: (display: boolean) => Action<void>
 }
 
 export interface State {
   show: boolean
-  showLogin: boolean
 }
 
 const items = [
@@ -27,48 +29,42 @@ export class NavBar extends React.Component<Props, State> {
   constructor(props?: Props, context?: any) {
     super(props, context);
     this.state = {
-      show: false,
-      showLogin: false
+      show: false
     }
     this.toggleNav = this.toggleNav.bind(this)
-    this.toggleLoginForm = this.toggleLoginForm.bind(this)
-    this.onCloseLoginForm = this.onCloseLoginForm.bind(this)
+    this.showLoginForm = this.showLoginForm.bind(this)
+    this.hideLoginForm = this.hideLoginForm.bind(this)
   }
 
-  private toggleNav(e) {
+  private toggleNav(e: React.MouseEvent<HTMLElement>) {
     this.setState({
       show: !this.state.show
     })
   }
 
-  private toggleLoginForm(e) {
-    this.setState({
-      showLogin: true
-    })
+  private showLoginForm(e: React.MouseEvent<HTMLElement>) {
+    this.props.handleSetLoginFormDisplay(true)
   }
 
-  private onCloseLoginForm() {
-    this.setState({
-      showLogin: false
-    })
+  private hideLoginForm() {
+    this.props.handleSetLoginFormDisplay(false)
   }
 
   public render() {
     const path = window.location.pathname
-    const {handleLogin, handleLogout, isLoggedIn} = this.props
-    const {show, showLogin} = this.state
+    const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
+    const {show} = this.state
     const cssClass = 'navbar-collapse ' + (show ? 'show' : 'collapse')
     return (
-      <nav className='navbar navbar-toggleable-md navbar-light bg-faded mr-auto'>
+      <nav className='navbar navbar-expand-lg navbar-light bg-light'>
         <button className='navbar-toggler navbar-toggler-left'
           aria-controls='navbar'
           aria-expanded='false' aria-label='Toggle navigation'
           onClick={this.toggleNav}>
           <span className='navbar-toggler-icon'></span>
         </button>
-        <span className='navbar-text'>&nbsp;</span>
         <div className={cssClass} id='navbar'>
-          <ul className='navbar-nav mr-auto mt-2 mt-md-0'>
+          <ul className='navbar-nav mr-auto'>
             {items.map((item, itemId) => {
               const isSelected = item.url === path
               return <li className={isSelected ? 'nav-item active' : 'nav-item'}
@@ -80,10 +76,6 @@ export class NavBar extends React.Component<Props, State> {
               </li>
             })}
           </ul>
-          { isLoggedIn
-            ? <button className='btn btn-warning' onClick={handleLogout}>Logout</button>
-            : <button className='btn btn-primary' onClick={this.toggleLoginForm}>Login</button>
-          }
           <ul className='navbar-nav'>
             <li className='nav-item'>
               <a className='nav-link' target='_blank'
@@ -97,9 +89,16 @@ export class NavBar extends React.Component<Props, State> {
                 Docs
               </a>
             </li>
+            <li className='nav-item'>
+              { isLoggedIn
+                ? <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
+                : <button className='btn btn-primary' onClick={this.showLoginForm}>Login</button>
+              }
+            </li>
           </ul>
         </div>
-        <LoginForm show={showLogin} handleLogin={handleLogin} onClose={this.onCloseLoginForm}/>
+        <LoginForm show={showLoginForm}
+          handleLogin={handleLogin} onClose={this.hideLoginForm}/>
       </nav>
     )
   }
@@ -110,13 +109,17 @@ function mapStateToProps(state: RootState) {
   return {
     errorData: state.common.errorData,
     loading: state.common.loading,
-    isLoggedIn: false
+    isLoggedIn: isLoggedIn(),
+    showLoginForm: state.common.showLoginForm
   }
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
-    handleLogin: (username, password) => dispatch(login),
-    handleLogout: () => dispatch(logout)
+    handleLogin: (username: string, password: string) =>
+      dispatch(login({auth: {username, password}})),
+    handleLogout: () => dispatch(logout()),
+    handleSetLoginFormDisplay: (display: boolean) =>
+      dispatch(toggleLoginFormDisplay({showLoginForm: display}))
   }
 }

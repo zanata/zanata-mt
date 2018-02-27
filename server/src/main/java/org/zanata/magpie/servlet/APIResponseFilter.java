@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.Priority;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -115,7 +116,7 @@ public class APIResponseFilter implements Filter {
     }
 
     @VisibleForTesting
-    protected void setOriginWhitelist(String whitelist) {
+    protected void setOriginWhitelist(@Nullable String whitelist) {
         originWhitelist = StringUtils.isBlank(whitelist) ? ImmutableList.of() :
                 ImmutableList.copyOf(whitelist.split(" +"));
     }
