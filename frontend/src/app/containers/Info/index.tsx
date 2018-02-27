@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { connect, GenericDispatch } from 'react-redux';
 import { RootState } from '../../reducers';
 import { getInfo } from '../../actions/info';
-import { Alert } from '../../components/Alert'
+import { Alert } from '../../components'
+import {ErrorData} from "../../types/models"
 
 export interface Props {
   loading?: boolean,
@@ -11,7 +12,7 @@ export interface Props {
   build?: string,
   dev?: boolean
   handleGetInfo: typeof getInfo,
-  errorData?
+  errorData?: ErrorData
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -97,7 +98,7 @@ function mapStateToProps(state: RootState) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
     handleGetInfo: () => dispatch(getInfo())
   }

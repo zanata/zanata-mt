@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { MSG_TYPE } from '../../constants/actions';
+import {ErrorData} from "../../types/models"
 
 export interface Props {
-  data,
+  data: ErrorData,
   dismissible: boolean
 }
 
@@ -22,13 +23,13 @@ export class Alert extends React.Component<Props, State> {
     this.toggleStackTrace = this.toggleStackTrace.bind(this)
   }
 
-  private dismissAlert(e) {
+  private dismissAlert(e: React.MouseEvent<HTMLElement>) {
     this.setState({
       show: false
     })
   }
 
-  private toggleStackTrace(e) {
+  private toggleStackTrace(e: React.MouseEvent<HTMLElement>) {
     this.setState({
       showStackTrace: !this.state.showStackTrace
     })
@@ -70,7 +71,7 @@ export class Alert extends React.Component<Props, State> {
     )
   }
 
-  private getButtonClassName(type) {
+  private getButtonClassName(type: MSG_TYPE) {
     if (type === MSG_TYPE.ERROR) {
       return 'btn btn-danger'
     } else if (type === MSG_TYPE.WARNING) {
@@ -80,7 +81,7 @@ export class Alert extends React.Component<Props, State> {
     }
   }
 
-  private getAlertClassName(dismissible, data, show) {
+  private getAlertClassName(dismissible: boolean, data: ErrorData, show: boolean) {
     let className = 'alert' + (dismissible ? ' alert-dismissible' : '') + (show ? '' : ' hide')
     if (data.type === MSG_TYPE.ERROR) {
       className += ' alert-danger'

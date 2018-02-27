@@ -20,9 +20,9 @@ export const logout = () => {
 }
 
 export const getUsername = () => {
-  sessionStorage.getItem('username')
+  return sessionStorage.getItem('username')
 }
 
 export const getToken = () => {
-  sessionStorage.getItem('token')
+  return sessionStorage.getItem('token')
 }

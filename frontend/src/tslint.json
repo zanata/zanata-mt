@@ -8,6 +8,7 @@
   "rules": {
     "arrow-parens": false,
     "no-console": [true, "info", "log", "debug"],
+    "no-any": true,
     "semicolon": [true, "never"],
     "max-classes-per-file": false,
     "trailing-comma": [
