@@ -1,15 +1,19 @@
-import {handleActions} from "redux-actions"
+import {handleActions} from 'redux-actions'
 import * as Actions from '../constants/actions'
-import moment from "moment"
-import {getToken, getUsername, logout, setAuth} from '../config'
+import moment from 'moment'
+import {
+  logout, setAuth
+} from '../config'
+import {CommonData, CommonState} from '../types/models'
 
 const initialState: CommonState = {
   errorData: null,
   loading: null,
-  auth: null
+  auth: null,
+  showLoginForm: false
 }
 
-const loginFailed = (payload) => {
+const loginFailed = (payload: CommonData) => {
   const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
   return {
     summary: 'Invalid username and password',
@@ -26,23 +30,27 @@ export default handleActions<CommonState, CommonData>({
       return {
         ...initialState,
         errorData: loginFailed(action.payload),
-        loading: false
+        loading: false,
+        showLoginForm: true
       }
     } else {
       return {
+        ...state,
         ...action.payload,
-        loading: true,
-        ...state
+        loading: true
+
       }
     }
   },
 
   [Actions.LOGIN_SUCCESS]: (state, action) => {
-    setAuth(action.payload.auth.username, action.payload.auth.password)
+    const auth = action.payload.auth
+    setAuth(auth.username, auth.password)
     return {
       errorData: null,
       loading: false,
-      auth: null
+      auth: null,
+      showLoginForm: false
     }
   },
 
@@ -50,7 +58,8 @@ export default handleActions<CommonState, CommonData>({
     return {
       ...initialState,
       errorData: loginFailed(action.payload),
-      loading: false
+      loading: false,
+      showLoginForm: true
     }
   },
 
@@ -58,6 +67,13 @@ export default handleActions<CommonState, CommonData>({
     logout()
     return {
       ...initialState
+    }
+  },
+
+  [Actions.TOGGLE_LOGIN_FORM_DISPLAY]: (state, action) => {
+    return {
+      ...state,
+      showLoginForm: action.payload.showLoginForm
     }
   }
 }, initialState)

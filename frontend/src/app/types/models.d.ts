@@ -1,48 +1,39 @@
-/** TodoMVC model definitions **/
-
-declare interface TodoItemData {
-  id?: TodoItemId;
-  text?: string;
-  completed?: boolean;
-}
-
-declare type TodoItemId = number;
-
-declare type TodoFilterType = 'SHOW_ALL' | 'SHOW_ACTIVE' | 'SHOW_COMPLETED';
-
-declare type TodoStoreState = TodoItemData[];
+import {MSG_TYPE} from '../constants/actions'
 
 declare interface ErrorData {
   summary?: string,
   message?: string,
   timestamp: string,
   stack: string,
-  type: string
+  type: MSG_TYPE
 }
-declare type ErrorData = ErrorData;
+declare type ErrorData = ErrorData
 
-declare interface InfoData {
+declare interface ReduxMiddlewareError {
+    message?: string,
+    name?: string,
+    stack?: string
+}
+
+declare interface InfoData extends ReduxMiddlewareError{
   loading?: boolean
   appName?: string,
   version?: string,
   buildDate?: string,
   devMode?: boolean,
   errorData?: ErrorData
-  // generic redux-middleware error fields
-  message?: string,
-  name?: string,
-  stack?: string
 }
-declare type InfoState = InfoData;
+declare type InfoState = InfoData
 
 declare interface AuthData {
   username: string,
   password: string
 }
 
-declare interface CommonData {
+declare interface CommonData extends ReduxMiddlewareError {
   errorData?: ErrorData,
   loading?: boolean,
-  auth: AuthData
+  auth?: AuthData
+  showLoginForm?: boolean
 }
-declare type CommonState = CommonData;
+declare type CommonState = CommonData
