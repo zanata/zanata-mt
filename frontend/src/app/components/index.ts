@@ -1,5 +1,3 @@
-export { Footer } from './Footer';
-export { Header } from './Header';
-export { MainSection } from './MainSection';
-export { TodoItem } from './TodoItem';
-export { TodoTextInput } from './TodoTextInput';
+export { Alert } from './Alert'
+export { Modal, ModalBody, ModalFooter, size } from './Modal'
+export { NoMatch, Health } from './Display'
