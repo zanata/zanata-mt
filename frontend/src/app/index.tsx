@@ -9,7 +9,7 @@ import {createStore, applyMiddleware, compose} from 'redux'
 import rootReducer, {RootState} from './reducers'
 import {App, Info, NoMatch, Health} from './containers'
 import thunk from 'redux-thunk'
-import { NavBar } from './components/NavBar'
+import { NavBar } from './components'
 
 import './styles/index.less'
 
@@ -27,8 +27,8 @@ function configureStore(initialState?: RootState) {
     )
   )(createStore)
 
-  const store2 = ((initialState2) => {
-    const finalStore = finalCreateStore(rootReducer, initialState2)
+  const store = ((initialState?: RootState) => {
+    const finalStore = finalCreateStore(rootReducer, initialState)
     if (module.hot) {
       // Enable Webpack hot module replacement for reducers
       module.hot.accept('./reducers', () => {
@@ -39,7 +39,7 @@ function configureStore(initialState?: RootState) {
     return finalStore
   })()
 
-  return store2
+  return store
 }
 
 const store = configureStore();
@@ -51,9 +51,9 @@ ReactDOM.render(
       <div>
         <NavBar />
         <Switch>
-          <Route exact path="/" component={App}/>
-          <Route path="/app/info" component={Info}/>
-          <Route path="/app/health" component={Health}/>
+          <Route exact path='/' component={App}/>
+          <Route path='/app/info' component={Info}/>
+          <Route path='/app/health' component={Health}/>
           <Route component={NoMatch}/>
         </Switch>
       </div>

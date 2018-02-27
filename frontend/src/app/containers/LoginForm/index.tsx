@@ -1,15 +1,16 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import {connect, GenericDispatch} from 'react-redux'
 import { login } from '../../actions/common'
-import { Alert } from '../../components/Alert'
-import {RootState} from '../../reducers';
-import {isEmpty} from 'lodash';
-import {Modal, ModalBody, ModalFooter, size} from "../../components/Modal"
+import { Alert, Modal, ModalBody, ModalFooter, size } from '../../components'
+import {RootState} from '../../reducers'
+import {isEmpty} from 'lodash'
+import {ErrorData} from "../../types/models"
+import {Input} from "postcss"
 
 export interface Props {
   show: boolean
   loading?: boolean
-  errorData?,
+  errorData?: ErrorData,
   handleLogin: (username: string, pass: string) => void
   onClose?: () => void
 }
@@ -35,17 +36,17 @@ export class LoginForm extends React.Component<Props, State> {
     this.cancel = this.cancel.bind(this)
   }
 
-  private handleChangeUsername(e) {
+  private handleChangeUsername(e: React.FormEvent<HTMLInputElement>) {
     this.setState({
-      username: e.target.value,
-      validated: !isEmpty(e.target.value) && !isEmpty(this.state.password)
+      username: e.currentTarget.value,
+      validated: !isEmpty(e.currentTarget.value) && !isEmpty(this.state.password)
     })
   }
 
-  private handleChangePassword(e) {
+  private handleChangePassword(e: React.FormEvent<HTMLInputElement>) {
     this.setState({
-      password: e.target.value,
-      validated: !isEmpty(e.target.value) && !isEmpty(this.state.username)
+      password: e.currentTarget.value,
+      validated: !isEmpty(e.currentTarget.value) && !isEmpty(this.state.username)
     })
   }
 
@@ -117,8 +118,9 @@ function mapStateToProps(state: RootState) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
-    handleLogin: (username, password) => dispatch(login({username, password}))
+    handleLogin: (username: string, password: string) =>
+      dispatch(login({auth: {username, password}}))
   }
 }
