@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions'
 import * as Actions from '../constants/actions'
 import moment from 'moment'
+import {InfoData, InfoState} from "../types/models"
 
 const initialState: InfoState = {
   loading: null,
@@ -14,7 +15,7 @@ const initialState: InfoState = {
   stack: null
 }
 
-const getInfoFailed = (payload) => {
+const getInfoFailed = (payload: InfoData) => {
   const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
   return {
     summary: 'Unable to fetch info',

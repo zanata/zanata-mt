@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Alert } from '../../components/Alert'
+import { Alert } from '../../components'
+import {ErrorData} from "../../types/models"
 
 interface AppProps {
-  errorData?
+  errorData?: ErrorData
 }
 
 const App: React.StatelessComponent<AppProps> = ({

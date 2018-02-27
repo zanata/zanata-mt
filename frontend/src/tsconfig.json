@@ -13,7 +13,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitReturns": false,
     "removeComments": true,
     "skipLibCheck": true,
