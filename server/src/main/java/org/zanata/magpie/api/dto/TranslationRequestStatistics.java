@@ -73,18 +73,16 @@ public class TranslationRequestStatistics implements Serializable {
 
         if (count != that.count) return false;
         if (wordCount != that.wordCount) return false;
-        if (fromLocaleCode != null ?
-                !fromLocaleCode.equals(that.fromLocaleCode) :
-                that.fromLocaleCode != null) return false;
-        return toLocaleCode != null ? toLocaleCode.equals(that.toLocaleCode) :
-                that.toLocaleCode == null;
+        if (!fromLocaleCode.equals(that.fromLocaleCode)) {
+            return false;
+        }
+        return toLocaleCode.equals(that.toLocaleCode);
     }
 
     @Override
     public int hashCode() {
-        int result = fromLocaleCode != null ? fromLocaleCode.hashCode() : 0;
-        result = 31 * result +
-                (toLocaleCode != null ? toLocaleCode.hashCode() : 0);
+        int result = fromLocaleCode.hashCode();
+        result = 31 * result + toLocaleCode.hashCode();
         result = 31 * result + count;
         result = 31 * result + wordCount;
         return result;

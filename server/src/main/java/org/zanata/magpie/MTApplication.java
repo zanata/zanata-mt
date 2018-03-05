@@ -13,10 +13,12 @@ import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
 import org.zanata.magpie.exception.MTExceptionMapper;
 
+import static org.zanata.magpie.api.APIConstant.API_CONTEXT;
+
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@ApplicationPath("api")
+@ApplicationPath(API_CONTEXT)
 public class MTApplication extends Application {
     private Set<Class<?>> classes = buildResources();
 

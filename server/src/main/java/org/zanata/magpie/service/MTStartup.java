@@ -28,7 +28,7 @@ public class MTStartup {
     private static final Logger LOG =
         LoggerFactory.getLogger(MTStartup.class);
 
-    public static final String APPLICATION_NAME = "Magpie (Machine Translation) service";
+    public static final String APPLICATION_NAME = "Magpie service (Machine Translation)";
 
     private ConfigurationService configurationService;
 
@@ -42,11 +42,11 @@ public class MTStartup {
             @DevMode boolean isDevMode, @BackEndProviders
             Set<BackendID> availableProviders)
         throws MTException {
-        LOG.info("===================================");
-        LOG.info("===================================");
-        LOG.info("=== " + APPLICATION_NAME + " ===");
-        LOG.info("===================================");
-        LOG.info("===================================");
+        LOG.info("==========================================");
+        LOG.info("==========================================");
+        LOG.info("== " + APPLICATION_NAME + " ==");
+        LOG.info("==========================================");
+        LOG.info("==========================================");
         LOG.info("Build info: version-" + configurationService.getVersion() +
                 " date-" + configurationService.getBuildDate());
         if (isDevMode) {

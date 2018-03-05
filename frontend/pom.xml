@@ -17,12 +17,17 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <node.version>v8.1.2</node.version>
-    <yarn.version>v0.24.5</yarn.version>
+    <node.version>v8.1.3</node.version>
+    <yarn.version>v1.3.2</yarn.version>
     <!-- The location to download the correct version of Node and Yarn.
         ${download.dir} comes from parent pom.xml -->
     <yarn.install.directory>${download.dir}/zanata/node-${node.version}-yarn-${yarn.version}</yarn.install.directory>
     <build.directory>${project.basedir}/src</build.directory>
+
+    <!-- Root path within the jar to put the built artifacts.
+         Note: META-INF/resources/* is served as static content, so this serves
+         the built files at the root of the website -->
+    <bundle.dest>${project.build.outputDirectory}/META-INF/resources</bundle.dest>
 
     <!-- Do not run checkstyle (eslint is used instead for this module) -->
     <checkstyle.skip>true</checkstyle.skip>
@@ -51,16 +56,29 @@
             </configuration>
           </execution>
 
+          <!-- Download all dependency modules from yarn (or mirror). -->
+          <execution>
+            <id>execute yarn install</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${build.directory}</workingDirectory>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+
           <!-- Transpile and bundle all the javascript and css -->
           <execution>
-            <id>frontend: execute yarn build</id>
+            <id>execute yarn build</id>
             <phase>compile</phase>
             <goals>
               <goal>yarn</goal>
             </goals>
             <configuration>
               <workingDirectory>${build.directory}</workingDirectory>
-              <arguments>yarn build</arguments>
+              <arguments>build</arguments>
             </configuration>
           </execution>
 
@@ -73,7 +91,7 @@
             </goals>
             <configuration>
               <workingDirectory>${build.directory}</workingDirectory>
-              <arguments>yarn test</arguments>
+              <arguments>test</arguments>
             </configuration>
           </execution>
         </executions>
@@ -106,14 +124,13 @@
               <outputDirectory>${bundle.dest}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>src/frontend/dist</directory>
-                  <include>intl-polyfill.min.js</include>
-                  <include>frontend.min.js</include>
-                  <include>frontend.css</include>
-                  <include>frontend.css.map</include>
+                  <directory>src/dist</directory>
+                  <include>vendor.*.cache.js</include>
+                  <include>frontend.*.cache.js</include>
+                  <include>frontend.*.cache.css</include>
+                  <include>frontend.*.cache.css.map</include>
                   <include>*.js.map</include>
-                  <!-- TODO eliminate generate bootstrap.css, bundle.js, style.css? -->
-                  <!-- TODO try including everything -->
+                  <include>manifest.json</include>
                 </resource>
               </resources>
             </configuration>
@@ -139,4 +156,30 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>skipTests</id>
+      <activation>
+        <property>
+          <name>skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <executions>
+              <!-- Skip yarn test -->
+              <execution>
+                <id>execute yarn test</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
