@@ -13,42 +13,44 @@ import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
 import org.zanata.magpie.exception.MTExceptionMapper;
 
+import static org.zanata.magpie.api.APIConstant.API_CONTEXT;
+
 /**
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-@ApplicationPath(&quot;api&quot;)
-<span class="fc" id="L20">public class MTApplication extends Application {</span>
-<span class="fc" id="L21">    private Set&lt;Class&lt;?&gt;&gt; classes = buildResources();</span>
+@ApplicationPath(API_CONTEXT)
+<span class="fc" id="L22">public class MTApplication extends Application {</span>
+<span class="fc" id="L23">    private Set&lt;Class&lt;?&gt;&gt; classes = buildResources();</span>
 
     private static Set&lt;Class&lt;?&gt;&gt; buildResources() {
-<span class="fc" id="L24">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
-<span class="fc" id="L25">                .addAll(buildAPIResource())</span>
-<span class="fc" id="L26">                .addAll(buildExceptionMapperResource())</span>
-<span class="fc" id="L27">                .build();</span>
+<span class="fc" id="L26">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
+<span class="fc" id="L27">                .addAll(buildAPIResource())</span>
+<span class="fc" id="L28">                .addAll(buildExceptionMapperResource())</span>
+<span class="fc" id="L29">                .build();</span>
     }
 
     // build api resources
     private static Set&lt;Class&lt;?&gt;&gt; buildAPIResource() {
-<span class="fc" id="L32">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
-<span class="fc" id="L33">                .add(DocumentResourceImpl.class)</span>
-<span class="fc" id="L34">                .add(BackendResourceImpl.class)</span>
-<span class="fc" id="L35">                .add(LanguagesResourceImpl.class)</span>
-<span class="fc" id="L36">                .add(DocumentsResourceImpl.class)</span>
-<span class="fc" id="L37">                .add(InfoResourceImpl.class)</span>
-<span class="fc" id="L38">                .build();</span>
+<span class="fc" id="L34">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
+<span class="fc" id="L35">                .add(DocumentResourceImpl.class)</span>
+<span class="fc" id="L36">                .add(BackendResourceImpl.class)</span>
+<span class="fc" id="L37">                .add(LanguagesResourceImpl.class)</span>
+<span class="fc" id="L38">                .add(DocumentsResourceImpl.class)</span>
+<span class="fc" id="L39">                .add(InfoResourceImpl.class)</span>
+<span class="fc" id="L40">                .build();</span>
     }
 
     // build exception mapper class
     private static Set&lt;Class&lt;?&gt;&gt; buildExceptionMapperResource() {
-<span class="fc" id="L43">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
-<span class="fc" id="L44">                .add(BadRequestExceptionMapper.class)</span>
-<span class="fc" id="L45">                .add(MTExceptionMapper.class)</span>
-<span class="fc" id="L46">                .build();</span>
+<span class="fc" id="L45">        return ImmutableSet.&lt;Class&lt;?&gt;&gt;builder()</span>
+<span class="fc" id="L46">                .add(BadRequestExceptionMapper.class)</span>
+<span class="fc" id="L47">                .add(MTExceptionMapper.class)</span>
+<span class="fc" id="L48">                .build();</span>
     }
 
     @Override
     public Set&lt;Class&lt;?&gt;&gt; getClasses() {
-<span class="fc" id="L51">        return classes;</span>
+<span class="fc" id="L53">        return classes;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

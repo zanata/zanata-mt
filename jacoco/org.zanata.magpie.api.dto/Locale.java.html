@@ -61,18 +61,17 @@ public class Locale implements Serializable {
 
 <span class="fc" id="L62">        Locale locale = (Locale) o;</span>
 
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (getLocaleCode() != null ?</span>
-<span class="pc bfc" id="L65" title="All 2 branches covered.">                !getLocaleCode().equals(locale.getLocaleCode()) :</span>
-<span class="pc bnc" id="L66" title="All 2 branches missed.">                locale.getLocaleCode() != null) return false;</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        return getName() != null ? getName().equals(locale.getName()) :</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                locale.getName() == null;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!getLocaleCode().equals(locale.getLocaleCode())) {</span>
+<span class="fc" id="L65">            return false;</span>
+        }
+<span class="fc" id="L67">        return getName().equals(locale.getName());</span>
     }
 
     @Override
     public int hashCode() {
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        int result = getLocaleCode() != null ? getLocaleCode().hashCode() : 0;</span>
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        result = 31 * result + (getName() != null ? getName().hashCode() : 0);</span>
-<span class="fc" id="L75">        return result;</span>
+<span class="fc" id="L72">        int result = getLocaleCode().hashCode();</span>
+<span class="fc" id="L73">        result = 31 * result + getName().hashCode();</span>
+<span class="fc" id="L74">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

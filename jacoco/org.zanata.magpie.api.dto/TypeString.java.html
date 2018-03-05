@@ -83,23 +83,25 @@ public class TypeString implements Serializable {
 
 <span class="fc" id="L84">        TypeString that = (TypeString) o;</span>
 
-<span class="pc bpc" id="L86" title="1 of 4 branches missed.">        if (getValue() != null ? !getValue().equals(that.getValue()) :</span>
-<span class="pc bnc" id="L87" title="All 2 branches missed.">                that.getValue() != null) return false;</span>
-<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (getType() != null ? !getType().equals(that.getType()) :</span>
-<span class="pc bnc" id="L89" title="All 2 branches missed.">                that.getType() != null) return false;</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        return getMetadata() != null ?</span>
-<span class="pc" id="L91">                getMetadata().equals(that.getMetadata()) :</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">                that.getMetadata() == null;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (!getValue().equals(that.getValue())) {</span>
+<span class="fc" id="L87">            return false;</span>
+        }
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (!getType().equals(that.getType())) {</span>
+<span class="fc" id="L90">            return false;</span>
+        }
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        return getMetadata() != null ?</span>
+<span class="pc" id="L93">                getMetadata().equals(that.getMetadata()) :</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                that.getMetadata() == null;</span>
     }
 
     @Override
     public int hashCode() {
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        int result = getValue() != null ? getValue().hashCode() : 0;</span>
-<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        result = 31 * result + (getType() != null ? getType().hashCode() : 0);</span>
-<span class="fc" id="L99">        result =</span>
+<span class="fc" id="L99">        int result = getValue().hashCode();</span>
+<span class="fc" id="L100">        result = 31 * result + getType().hashCode();</span>
+<span class="fc" id="L101">        result =</span>
                 31 * result +
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                        (getMetadata() != null ? getMetadata().hashCode() : 0);</span>
-<span class="fc" id="L102">        return result;</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                        (getMetadata() != null ? getMetadata().hashCode() : 0);</span>
+<span class="fc" id="L104">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

@@ -15,19 +15,19 @@ import java.io.IOException;
  *
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-<span class="nc" id="L18">public class JavaMelodyFilter extends MonitoringFilter {</span>
+<span class="fc" id="L18">public class JavaMelodyFilter extends MonitoringFilter {</span>
     @Override
     public void doFilter(final ServletRequest request,
             final ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-<span class="nc" id="L23">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</span>
+<span class="fc" id="L23">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</span>
 
-<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (httpRequest.getRequestURI().equals(getMonitoringUrl(httpRequest))) {</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if (httpRequest.getRequestURI().equals(getMonitoringUrl(httpRequest))) {</span>
             // TODO: add authentication for user and password
 <span class="nc" id="L27">            super.doFilter(request, response, chain);</span>
         } else {
-<span class="nc" id="L29">            chain.doFilter(request, response);</span>
+<span class="fc" id="L29">            chain.doFilter(request, response);</span>
         }
-<span class="nc" id="L31">    }</span>
+<span class="fc" id="L31">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

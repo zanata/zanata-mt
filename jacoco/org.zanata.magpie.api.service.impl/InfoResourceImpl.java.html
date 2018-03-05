@@ -18,21 +18,21 @@ public class InfoResourceImpl implements InfoResource {
     private ConfigurationService configurationService;
 
     @SuppressWarnings(&quot;unused&quot;)
-<span class="nc" id="L21">    public InfoResourceImpl() {</span>
-<span class="nc" id="L22">    }</span>
+<span class="fc" id="L21">    public InfoResourceImpl() {</span>
+<span class="fc" id="L22">    }</span>
 
     @Inject
-<span class="nc" id="L25">    public InfoResourceImpl(ConfigurationService configurationService) {</span>
-<span class="nc" id="L26">        this.configurationService = configurationService;</span>
-<span class="nc" id="L27">    }</span>
+<span class="fc" id="L25">    public InfoResourceImpl(ConfigurationService configurationService) {</span>
+<span class="fc" id="L26">        this.configurationService = configurationService;</span>
+<span class="fc" id="L27">    }</span>
 
     @Override
     public Response getInfo() {
-<span class="nc" id="L31">        ApplicationInfo info = new ApplicationInfo(MTStartup.APPLICATION_NAME,</span>
-<span class="nc" id="L32">                configurationService.getVersion(),</span>
-<span class="nc" id="L33">                configurationService.getBuildDate(),</span>
-<span class="nc" id="L34">                configurationService.isDevMode());</span>
-<span class="nc" id="L35">        return Response.ok().entity(info).build();</span>
+<span class="fc" id="L31">        ApplicationInfo info = new ApplicationInfo(MTStartup.APPLICATION_NAME,</span>
+<span class="fc" id="L32">                configurationService.getVersion(),</span>
+<span class="fc" id="L33">                configurationService.getBuildDate(),</span>
+<span class="fc" id="L34">                configurationService.isDevMode());</span>
+<span class="fc" id="L35">        return Response.ok().entity(info).build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

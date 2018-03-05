@@ -28,7 +28,7 @@ public class MTStartup {
 <span class="fc" id="L28">    private static final Logger LOG =</span>
 <span class="fc" id="L29">        LoggerFactory.getLogger(MTStartup.class);</span>
 
-    public static final String APPLICATION_NAME = &quot;Magpie (Machine Translation) service&quot;;
+    public static final String APPLICATION_NAME = &quot;Magpie service (Machine Translation)&quot;;
 
     private ConfigurationService configurationService;
 
@@ -42,11 +42,11 @@ public class MTStartup {
             @DevMode boolean isDevMode, @BackEndProviders
             Set&lt;BackendID&gt; availableProviders)
         throws MTException {
-<span class="fc" id="L45">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L46">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L47">        LOG.info(&quot;=== &quot; + APPLICATION_NAME + &quot; ===&quot;);</span>
-<span class="fc" id="L48">        LOG.info(&quot;===================================&quot;);</span>
-<span class="fc" id="L49">        LOG.info(&quot;===================================&quot;);</span>
+<span class="fc" id="L45">        LOG.info(&quot;==========================================&quot;);</span>
+<span class="fc" id="L46">        LOG.info(&quot;==========================================&quot;);</span>
+<span class="fc" id="L47">        LOG.info(&quot;== &quot; + APPLICATION_NAME + &quot; ==&quot;);</span>
+<span class="fc" id="L48">        LOG.info(&quot;==========================================&quot;);</span>
+<span class="fc" id="L49">        LOG.info(&quot;==========================================&quot;);</span>
 <span class="fc" id="L50">        LOG.info(&quot;Build info: version-&quot; + configurationService.getVersion() +</span>
 <span class="fc" id="L51">                &quot; date-&quot; + configurationService.getBuildDate());</span>
 <span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (isDevMode) {</span>
