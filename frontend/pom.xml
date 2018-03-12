@@ -18,10 +18,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <node.version>v8.1.3</node.version>
-    <yarn.version>v1.3.2</yarn.version>
+    <yarn.version>v1.5.1</yarn.version>
+    <npm.version>5.0.3</npm.version>
     <!-- The location to download the correct version of Node and Yarn.
         ${download.dir} comes from parent pom.xml -->
-    <yarn.install.directory>${download.dir}/zanata/node-${node.version}-yarn-${yarn.version}</yarn.install.directory>
+    <node.install.directory>${download.dir}/zanata/node-${node.version}</node.install.directory>
     <build.directory>${project.basedir}/src</build.directory>
 
     <!-- Root path within the jar to put the built artifacts.
@@ -40,19 +41,24 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <version>${frontend-maven-plugin.version}</version>
         <configuration>
-          <installDirectory>${yarn.install.directory}</installDirectory>
+          <installDirectory>${node.install.directory}</installDirectory>
         </configuration>
         <executions>
-          <!-- Installs correct version of node and yarn locally. -->
+          <!--
+            Installs correct version of node, npm and yarn locally.
+            NPM is required for postinstall script
+          -->
           <execution>
             <id>install node and yarn</id>
             <phase>initialize</phase>
             <goals>
               <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
               <yarnVersion>${yarn.version}</yarnVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
 
