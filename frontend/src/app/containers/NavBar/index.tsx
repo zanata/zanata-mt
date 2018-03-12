@@ -54,6 +54,7 @@ export class NavBar extends React.Component<Props, State> {
     const path = window.location.pathname
     const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
     const {show} = this.state
+    const disableLogin = true
     const cssClass = 'navbar-collapse ' + (show ? 'show' : 'collapse')
     return (
       <nav className='navbar navbar-expand-lg navbar-light bg-light'>
@@ -89,12 +90,15 @@ export class NavBar extends React.Component<Props, State> {
                 Docs
               </a>
             </li>
-            <li className='nav-item'>
-              { isLoggedIn
-                ? <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
-                : <button className='btn btn-primary' onClick={this.showLoginForm}>Login</button>
-              }
-            </li>
+            {
+              disableLogin ? undefined :
+                <li className='nav-item'>
+                  { isLoggedIn
+                    ? <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
+                    : <button className='btn btn-primary' onClick={this.showLoginForm}>Login</button>
+                  }
+                </li>
+            }
           </ul>
         </div>
         <LoginForm show={showLoginForm}
