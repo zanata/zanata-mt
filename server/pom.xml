@@ -152,6 +152,7 @@
                     <!-- this need to match the volume binding below -->
                     <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
                     <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
+                    <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
                   </env>
                   <dependsOn>
                     <container>MTDB</container>
@@ -162,7 +163,7 @@
                   </ports>
                   <wait>
                     <http>
-                      <url>http://localhost:${jboss.http.port}/health.html</url>
+                      <url>http://localhost:${jboss.http.port}/app/health</url>
                     </http>
                     <time>60000</time>
                   </wait>
@@ -262,12 +263,17 @@
   </profiles>
 
   <dependencies>
-    <!--
+
     <dependency>
-      <groupId>org.zanata.magpie.mt</groupId>
+      <groupId>org.zanata.magpie</groupId>
       <artifactId>mt-frontend</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    -->
+
+    <dependency>
+      <groupId>org.tuckey</groupId>
+      <artifactId>urlrewritefilter</artifactId>
+    </dependency>
 
     <!-- enunciate -->
     <dependency>
@@ -398,6 +404,17 @@
     <dependency>
       <groupId>org.apache.deltaspike.modules</groupId>
       <artifactId>deltaspike-security-module-impl</artifactId>
+    </dependency>
+
+    <!-- jsf -->
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-impl</artifactId>
     </dependency>
 
     <!-- hibernate -->

@@ -116,7 +116,7 @@ timestamps {
     mainScmGit = new ScmGit(env, steps, PROJ_URL)
     mainScmGit.init(env.BRANCH_NAME)
     notify = new Notifier(env, steps, currentBuild,
-        pipelineLibraryScmGit, mainScmGit, 'Jenkinsfile',
+        pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
     )
     ansicolor {
       try {
@@ -258,7 +258,7 @@ void mavenSite() {
     withCredentials(
             [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
               usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-      sh "./mvnw -e site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode -Djavax.net.debug=all"
+      sh "./mvnw -e package site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode"
     }
   }
 }

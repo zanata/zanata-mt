@@ -74,19 +74,16 @@ public class DocumentStatistics implements Serializable {
 
         DocumentStatistics documentStatistics = (DocumentStatistics) o;
 
-        if (getUrl() != null ? !getUrl().equals(documentStatistics.getUrl()) :
-                documentStatistics.getUrl() != null) return false;
-        return getRequestCounts() != null ?
-                getRequestCounts().equals(documentStatistics.getRequestCounts()) :
-                documentStatistics.getRequestCounts() == null;
+        if (!getUrl().equals(documentStatistics.getUrl())) {
+            return false;
+        }
+        return getRequestCounts().equals(documentStatistics.getRequestCounts());
     }
 
     @Override
     public int hashCode() {
-        int result = getUrl() != null ? getUrl().hashCode() : 0;
-        result = 31 * result +
-                (getRequestCounts() != null ? getRequestCounts().hashCode() :
-                        0);
+        int result = getUrl().hashCode();
+        result = 31 * result + getRequestCounts().hashCode();
         return result;
     }
 }

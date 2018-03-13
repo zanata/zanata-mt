@@ -11,14 +11,14 @@
 
 ## Build and run 
 
-1. Package: `mvn clean package` (build and package war file)
+1. Package: `mvn clean package` (build and package frontend and server module)
 2. Go to `server` directory
 3. Docker build: run `mvn docker:build -DskipTests` (build docker image named MT)
 4. Start docker: `mvn docker:start` (This will start docker **MT** and postgresql **MTDB**)
 5. Logs: `mvn docker:logs -Ddocker.follow`
 6. To stop and remove: `mvn docker:stop` (This will stop and remove both containers)
 
-Alternatively, go to `server` directory and run `restart.sh`. It will rebuild the package and redeploy to docker containers. 
+Alternatively, run `restart.sh`. It will rebuild the package and redeploy to docker containers. 
 
 ### DEV mode
 

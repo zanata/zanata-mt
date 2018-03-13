@@ -1,0 +1,31 @@
+{
+  // https://www.typescriptlang.org/docs/handbook/compiler-options.html
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    // import tslib instead of duplicating generated code
+    "importHelpers": true,
+    "sourceMap": true,
+    "target": "es5",
+    "jsx": "react",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "removeComments": true,
+    "skipLibCheck": true,
+    // "strictNullChecks": true,
+    "outDir": "build",
+    "lib": [
+      "dom", "es6", "dom.iterable", "scripthost"
+    ]
+  },
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules"
+  ]
+}

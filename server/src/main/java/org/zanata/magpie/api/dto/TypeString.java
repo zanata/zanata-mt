@@ -83,10 +83,12 @@ public class TypeString implements Serializable {
 
         TypeString that = (TypeString) o;
 
-        if (getValue() != null ? !getValue().equals(that.getValue()) :
-                that.getValue() != null) return false;
-        if (getType() != null ? !getType().equals(that.getType()) :
-                that.getType() != null) return false;
+        if (!getValue().equals(that.getValue())) {
+            return false;
+        }
+        if (!getType().equals(that.getType())) {
+            return false;
+        }
         return getMetadata() != null ?
                 getMetadata().equals(that.getMetadata()) :
                 that.getMetadata() == null;
@@ -94,8 +96,8 @@ public class TypeString implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = getValue() != null ? getValue().hashCode() : 0;
-        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        int result = getValue().hashCode();
+        result = 31 * result + getType().hashCode();
         result =
                 31 * result +
                         (getMetadata() != null ? getMetadata().hashCode() : 0);

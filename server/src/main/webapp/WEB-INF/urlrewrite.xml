@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+        "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+<!--
+    Configuration file for UrlRewriteFilter
+    http://www.tuckey.org/urlrewrite/
+-->
+<urlrewrite>
+  <rule>
+    <note>Forward all /app/* to index.xhtml</note>
+    <from>^/app/(.*)$</from>
+    <to type="forward" last="true">/index.xhtml</to>
+  </rule>
+</urlrewrite>
+

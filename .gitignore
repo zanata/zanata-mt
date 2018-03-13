@@ -29,3 +29,6 @@
 
 .mvn/timing.properties
 
+
+node_modules/
+dist/

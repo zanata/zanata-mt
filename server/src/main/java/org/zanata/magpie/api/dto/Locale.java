@@ -61,17 +61,16 @@ public class Locale implements Serializable {
 
         Locale locale = (Locale) o;
 
-        if (getLocaleCode() != null ?
-                !getLocaleCode().equals(locale.getLocaleCode()) :
-                locale.getLocaleCode() != null) return false;
-        return getName() != null ? getName().equals(locale.getName()) :
-                locale.getName() == null;
+        if (!getLocaleCode().equals(locale.getLocaleCode())) {
+            return false;
+        }
+        return getName().equals(locale.getName());
     }
 
     @Override
     public int hashCode() {
-        int result = getLocaleCode() != null ? getLocaleCode().hashCode() : 0;
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        int result = getLocaleCode().hashCode();
+        result = 31 * result + getName().hashCode();
         return result;
     }
 }
