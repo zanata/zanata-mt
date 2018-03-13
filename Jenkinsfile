@@ -240,7 +240,6 @@ private void buildOnly() {
                        --update-snapshots \
                        -DstaticAnalysis \
                        -Dmaven.test.failure.ignore \
-                       -Djavax.net.debug=all \
              """
     processTestResults()
   }

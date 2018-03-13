@@ -56,7 +56,7 @@
     <urlrewritefilter.version>4.0.4</urlrewritefilter.version>
     <cdi-api.version>1.2</cdi-api.version>
     <site-maven-plugin.version>0.12</site-maven-plugin.version>
-    <frontend-maven-plugin.version>1.4</frontend-maven-plugin.version>
+    <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
 
     <!-- checkstyle/findbugs -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
