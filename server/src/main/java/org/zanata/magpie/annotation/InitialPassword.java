@@ -27,8 +27,6 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
-import org.zanata.magpie.model.BackendID;
-
 /**
  * Qualifier for initial password for the system.
  */

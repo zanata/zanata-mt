@@ -43,7 +43,6 @@ import org.zanata.magpie.annotation.DefaultProvider;
 import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.EnvVariable;
 import org.zanata.magpie.annotation.BackEndProviders;
-import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.backend.google.GoogleCredential;
 import org.zanata.magpie.model.BackendID;
 

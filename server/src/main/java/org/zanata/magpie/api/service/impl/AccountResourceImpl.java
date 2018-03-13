@@ -37,8 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -65,14 +63,12 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 @ResourceLabel("Account")
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResourceImpl {
-    private static final Logger log =
-            LoggerFactory.getLogger(AccountResourceImpl.class);
     private AccountService accountService;
     private Validator validator;
     private Event<AccountCreated> accountCreatedEvent;
 
     @Context
-    UriInfo uriInfo;
+    protected UriInfo uriInfo;
 
     @Inject
     public AccountResourceImpl(AccountService accountService,

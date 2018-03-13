@@ -1,10 +1,12 @@
 package org.zanata.magpie.service;
 
+import static org.assertj.core.util.Lists.newArrayList;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.IOException;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,17 +14,11 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.security.AccountCreated;
 
 import com.google.common.collect.Sets;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.util.Lists.newArrayList;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
