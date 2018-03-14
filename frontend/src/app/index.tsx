@@ -11,7 +11,7 @@ import {App, Info, NavBar} from './containers'
 import thunk from 'redux-thunk'
 import { NoMatch, Health } from './components'
 
-import './styles/index.less'
+import './styles/index.scss'
 
 function configureStore(initialState?: RootState) {
   const logger = createLogger({
