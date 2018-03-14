@@ -14,8 +14,9 @@ GOOGLE_CREDENTIAL_FILE=""
 GOOGLE_OPTION=""
 MS_OPTION=""
 DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
+TEST="-DskipTests"
 
-while getopts ":fhg:m:d:" opt; do
+while getopts ":fhtg:m:d:" opt; do
   case $opt in
     h)
       echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-fh]" >&2
@@ -24,6 +25,7 @@ while getopts ":fhg:m:d:" opt; do
       echo "-g Google credentials JSON file location" >&2
       echo "-m Microsoft translate API key" >&2
       echo "-d Default provider - DEV, MS, GOOGLE" >&2
+      echo "-t Run tests" >&2
       ;;
     f)
       ${SKIP_FRONTEND}=true
@@ -36,6 +38,10 @@ while getopts ":fhg:m:d:" opt; do
       ;;
     d)
       DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=$OPTARG"
+      ;;
+    t)
+      echo "Tests enabled"
+      TEST=""
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -65,11 +71,11 @@ mvn docker:stop || true
 if ${SKIP_FRONTEND}
 then
     echo "Skipping frontend build..."
-    mvn clean install -DskipTests
+    mvn clean install ${TEST}
 else
     echo "Full build..."
     cd ../
-    mvn clean install -DskipTests
+    mvn clean install ${TEST}
     cd server
 fi
 
