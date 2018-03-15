@@ -17,18 +17,19 @@ DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
 TEST="-DskipTests"
 
 while getopts ":fhtg:m:d:" opt; do
-  case $opt in
+  case ${opt} in
     h)
-      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-fh]" >&2
+      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-fht]" >&2
       echo "-h This help" >&2
       echo "-f Skip frontend build" >&2
       echo "-g Google credentials JSON file location" >&2
       echo "-m Microsoft translate API key" >&2
       echo "-d Default provider - DEV, MS, GOOGLE" >&2
       echo "-t Run tests" >&2
+      exit 0
       ;;
     f)
-      ${SKIP_FRONTEND}=true
+      SKIP_FRONTEND=true
       ;;
     g)
       GOOGLE_CREDENTIAL_FILE="$OPTARG"
@@ -40,7 +41,7 @@ while getopts ":fhtg:m:d:" opt; do
       DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=$OPTARG"
       ;;
     t)
-      echo "Tests enabled"
+      echo "Tests enabled" >&2
       TEST=""
       ;;
     \?)
