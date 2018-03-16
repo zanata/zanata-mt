@@ -14,8 +14,8 @@
       <column name="id" type="SERIAL" autoIncrement="true">
         <constraints primaryKey="true" />
       </column>
-      <column name="name" type="varchar(80)" />
-      <column name="email" type="varchar(100)">
+      <column name="name" type="varchar(128)" />
+      <column name="email" type="varchar(254)">
         <constraints nullable="false" />
       </column>
       <column name="accounttype" type="char(1)">
@@ -40,7 +40,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="account_id" type="bigint" />
-      <column name="username" type="varchar(80)">
+      <column name="username" type="varchar(128)">
         <constraints nullable="false" />
       </column>
       <column name="secret" type="char(50)" />

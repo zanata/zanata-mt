@@ -41,7 +41,7 @@ public class CredentialDto {
     }
 
     @NotNull
-    @Size(min = 2, max = 20)
+    @Size(min = 2, max = 128)
     public String getUsername() {
         return username;
     }
