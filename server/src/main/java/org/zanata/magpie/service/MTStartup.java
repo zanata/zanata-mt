@@ -53,6 +53,8 @@ public class MTStartup {
             LOG.warn("THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION");
         }
         LOG.info("Available backend providers: {}", availableProviders);
+        LOG.info("Default backend provider: {}",
+                configurationService.getDefaultTranslationProvider(isDevMode));
         verifyCredentials();
     }
 
