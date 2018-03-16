@@ -53,8 +53,10 @@ public class MTStartup {
 <span class="nc" id="L53">            LOG.warn(&quot;THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION&quot;);</span>
         }
 <span class="fc" id="L55">        LOG.info(&quot;Available backend providers: {}&quot;, availableProviders);</span>
-<span class="fc" id="L56">        verifyCredentials();</span>
-<span class="fc" id="L57">    }</span>
+<span class="fc" id="L56">        LOG.info(&quot;Default backend provider: {}&quot;,</span>
+<span class="fc" id="L57">                configurationService.getDefaultTranslationProvider(isDevMode));</span>
+<span class="fc" id="L58">        verifyCredentials();</span>
+<span class="fc" id="L59">    }</span>
 
     /**
      * This method validates the environment is set up properly with basic
@@ -62,12 +64,12 @@ public class MTStartup {
      * @see APISecurityFilter
      */
     public void verifyCredentials() {
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (StringUtils.isBlank(configurationService.getId()) ||</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                StringUtils.isBlank(configurationService.getApiKey())) {</span>
-<span class="fc" id="L67">            throw new MTException(</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (StringUtils.isBlank(configurationService.getId()) ||</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                StringUtils.isBlank(configurationService.getApiKey())) {</span>
+<span class="fc" id="L69">            throw new MTException(</span>
                     &quot;Missing credentials of &quot; + APIConstant.API_ID + &quot; and &quot; +
                             APIConstant.API_KEY);
         }
-<span class="fc" id="L71">    }</span>
+<span class="fc" id="L73">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

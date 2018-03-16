@@ -4,7 +4,7 @@ mt-server,org.zanata.magpie.model.type,LocaleCodeType,0,21,0,0,0,4,0,3,0,3
 mt-server,org.zanata.magpie,MTApplication,0,36,0,0,0,18,0,5,0,5
 mt-server,org.zanata.magpie.process,DocumentProcessManager,19,86,2,2,5,22,3,6,1,6
 mt-server,org.zanata.magpie.process,DocumentProcessKey,2,91,1,7,0,16,1,7,0,4
-mt-server,org.zanata.magpie.service,MTStartup,3,68,2,4,1,20,2,5,0,4
+mt-server,org.zanata.magpie.service,MTStartup,3,75,2,4,1,22,2,5,0,4
 mt-server,org.zanata.magpie.service,DateRange,13,67,0,4,2,16,0,7,0,5
 mt-server,org.zanata.magpie.service,ConfigurationService,36,125,8,12,1,36,6,16,0,12
 mt-server,org.zanata.magpie.service,ResourceProducer,0,50,0,0,0,21,0,4,0,4
