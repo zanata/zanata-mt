@@ -26,6 +26,7 @@
     <kotlin.version>1.1.51</kotlin.version>
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
+    <DEFAULT_TRANSLATION_PROVIDER>DEV</DEFAULT_TRANSLATION_PROVIDER>
   </properties>
 
   <build>
@@ -151,7 +152,7 @@
                     <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
                     <!-- this need to match the volume binding below -->
                     <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
-                    <DEFAULT_TRANSLATION_PROVIDER>dev</DEFAULT_TRANSLATION_PROVIDER>
+                    <DEFAULT_TRANSLATION_PROVIDER>${DEFAULT_TRANSLATION_PROVIDER}</DEFAULT_TRANSLATION_PROVIDER>
                     <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
                   </env>
                   <dependsOn>

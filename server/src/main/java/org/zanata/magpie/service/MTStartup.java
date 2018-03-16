@@ -71,6 +71,8 @@ public class MTStartup {
 
         showInitialAdminCredentialIfNoAccountExists();
 
+        LOG.info("Default backend provider: {}",
+                configurationService.getDefaultTranslationProvider(isDevMode));
     }
 
     private void showInitialAdminCredentialIfNoAccountExists() {
