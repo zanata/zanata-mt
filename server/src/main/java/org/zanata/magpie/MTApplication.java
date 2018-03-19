@@ -34,6 +34,7 @@ import org.zanata.magpie.api.service.impl.InfoResourceImpl;
 import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
 import org.zanata.magpie.exception.AccessDeniedExceptionMapper;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
+import org.zanata.magpie.exception.DataConstraintViolationExceptionMapper;
 import org.zanata.magpie.exception.MTExceptionMapper;
 
 import static org.zanata.magpie.api.APIConstant.API_CONTEXT;
@@ -71,6 +72,7 @@ public class MTApplication extends Application {
                 .add(BadRequestExceptionMapper.class)
                 .add(AccessDeniedExceptionMapper.class)
                 .add(MTExceptionMapper.class)
+                .add(DataConstraintViolationExceptionMapper.class)
                 .build();
     }
 

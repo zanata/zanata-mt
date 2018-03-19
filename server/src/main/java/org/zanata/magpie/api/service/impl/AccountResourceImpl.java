@@ -21,6 +21,7 @@
 package org.zanata.magpie.api.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.event.Event;
@@ -37,14 +38,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
+import org.zanata.magpie.exception.DataConstraintViolationException;
+import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.service.AccountService;
 
+import com.google.common.base.Throwables;
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
 import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
@@ -106,8 +111,21 @@ public class AccountResourceImpl {
         }
         // TODO only support one credential for now
         CredentialDto credentialDto = accountDto.getCredentials().iterator().next();
-        AccountDto dto = accountService.registerNewAccount(accountDto,
-                credentialDto.getUsername(), credentialDto.getSecret());
+        AccountDto dto;
+        try {
+            dto = accountService.registerNewAccount(accountDto,
+                    credentialDto.getUsername(), credentialDto.getSecret());
+        } catch (Exception e) {
+            Optional<Throwable>
+                    anyConstraintViolation = Throwables.getCausalChain(e).stream()
+                    .filter(t -> t instanceof ConstraintViolationException)
+                    .findAny();
+            if (anyConstraintViolation.isPresent()) {
+                throw new DataConstraintViolationException(Throwables.getRootCause(e));
+            }
+            throw new MTException("error registering new account", e);
+        }
+
 
         // as soon as we have a user, we should remove initial password
         accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
