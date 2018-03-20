@@ -6,6 +6,7 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;
+import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.Locale;
 
 import javax.ws.rs.GET;
@@ -21,8 +22,8 @@ import javax.ws.rs.core.Response;
  */
 @Path("/languages")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
+        @RequestHeader(name = APIConstant.HEADER_USERNAME, description = "The authentication user."),
+        @RequestHeader(name = APIConstant.HEADER_API_KEY, description = "The authentication token.")
 })
 @ResourceLabel("Languages")
 public interface LanguagesResource {

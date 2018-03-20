@@ -14,13 +14,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -88,6 +86,7 @@ public class APIResponseFilterTest {
         verify(response, times(4)).addHeader(anyString(), anyString());
     }
 
+
     @Test
     public void testWithAccessRequestHeaders() throws Exception {
         filter.setOriginWhitelist("http://localhost");
@@ -98,40 +97,12 @@ public class APIResponseFilterTest {
         enumList.add("request-header2");
 
         when(request.getHeaders("Access-Control-Request-Headers"))
-            .thenReturn(Collections.enumeration(enumList));
+                .thenReturn(Collections.enumeration(enumList));
 
         filter.doFilter(request, response, chain);
         verify(response).addHeader("Vary", "Origin");
         verify(response).addHeader("Access-Control-Allow-Headers",
-            Joiner.on(",").join(enumList));
+                Joiner.on(",").join(enumList));
         verify(request).getHeader("Origin");
-    }
-
-    @Test
-    public void testRestCredentialsEmpty() {
-        APISecurityFilter.RestCredentials restCredentials =
-            new APISecurityFilter.RestCredentials(null, null);
-        assertThat(restCredentials.hasUsername()).isFalse();
-        assertThat(restCredentials.hasApiKey()).isFalse();
-    }
-
-    @Test
-    public void testRestCredentialsNotEmpty() {
-        APISecurityFilter.RestCredentials restCredentials =
-            new APISecurityFilter.RestCredentials("user", "api");
-        assertThat(restCredentials.hasUsername()).isTrue();
-        assertThat(restCredentials.hasApiKey()).isTrue();
-    }
-
-    @Test
-    public void testRestCredentialsEqualsAndHashCode() {
-        APISecurityFilter.RestCredentials restCredentials =
-            new APISecurityFilter.RestCredentials("user", "api");
-
-        APISecurityFilter.RestCredentials restCredentials2 =
-            new APISecurityFilter.RestCredentials("user", "api");
-        assertThat(restCredentials).isEqualTo(restCredentials2);
-        assertThat(restCredentials.hashCode())
-                .isEqualTo(restCredentials2.hashCode());
     }
 }

@@ -12,11 +12,6 @@ public interface APIConstant {
 
     // list of url to allow access to {@link #API_CONTEXT}. White space separated
     String ORIGIN_WHITELIST = "MT_ORIGIN_WHITELIST";
-    // see org.zanata.magpie.mt.servlet.APISecurityFilter
-    // API_ID to be used for API request (for authentication purpose)
-    String API_ID = "MT_API_ID";
-    // API Key to be used for API request (for authentication purpose)
-    String API_KEY = "MT_API_KEY";
 
 
     // AZURE Subscription key for MS backend

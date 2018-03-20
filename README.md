@@ -23,21 +23,12 @@ Alternatively, run `restart.sh`. It will rebuild the package and redeploy to doc
 ### DEV mode
 
 DEV mode is enabled when **MT_AZURE_KEY** or **GOOGLE_APPLICATION_CREDENTIALS** is not present in environment variable. The service will not use any paid service backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
-
-`MT_API_ID` = `devID`<br/>
-`MT_API_KEY` = `devKEY`
                   
 ----
 
 ## Environment Variables
 
 List of Environment variables that are used in the application.
-
-### `MT_API_ID` (required)
-ID for /api request
-
-### `MT_API_KEY` (required)
-Api key for /api request
 
 ### `MT_AZURE_KEY` (if this and Google key are empty, DEV mode will be enabled)
 Subscription key for MS translators
@@ -47,3 +38,44 @@ Location to the Google service account credential json file
 
 ### `MT_ORIGIN_WHITELIST` (optional)
 Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.
+
+## Authentication to the REST api
+
+Header fields that are used for authentication:
+
+### `X-Auth-User` the account username
+### `X-Auth-Token` the account secret
+
+If the instance starts with an empty account table in the database e.g. first load, it will display
+a random hash as initial password in the server log. The value of the hash will also be
+written to ```~/magpie_initial_password```.
+
+You can then authenticate to the REST api by setting `X-Auth-User` to *admin* 
+and `X-Auth-Token` to the hash noted above. This credential is considered to have admin role.
+This can only be used for creating admin account (currently a BETA feature). 
+
+## To create an account (account with admin role only)
+```
+POST /api/account
+// payload
+{
+	"name": "John Smith",
+	"email": "jsmith@example.com",
+	"accountType": "Normal",
+	"roles": ["admin"],
+	"credentials": [
+	    {
+		    "username": "devID",
+	        "secret": ["d", "e", "v", "K", "E", "Y"]
+	    }
+    ]
+	
+}
+```
+Once an admin account is created, the initial password is no longer valid.
+
+## To query accounts (account with admin role only)
+
+```GET /api/account ```
+
+Any other REST api can be accessed by an authenticated account regardless role (for now) 

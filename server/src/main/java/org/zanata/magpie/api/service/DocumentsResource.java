@@ -14,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.zanata.magpie.api.APIConstant;
+
 /**
  * API entry point for documents
  *
@@ -21,8 +23,8 @@ import javax.ws.rs.core.Response;
  */
 @Path("/documents")
 @RequestHeaders({
-        @RequestHeader(name = "X-Auth-User", description = "The authentication user."),
-        @RequestHeader(name = "X-Auth-Token", description = "The authentication token.")
+        @RequestHeader(name = APIConstant.HEADER_USERNAME, description = "The authentication user."),
+        @RequestHeader(name = APIConstant.HEADER_API_KEY, description = "The authentication token.")
 })
 @ResourceLabel("Documents")
 public interface DocumentsResource {

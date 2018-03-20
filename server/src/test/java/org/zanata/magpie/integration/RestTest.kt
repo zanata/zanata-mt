@@ -21,21 +21,39 @@
 package org.zanata.magpie.integration
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.zanata.magpie.api.APIConstant
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.MediaType
 
 object RestTest {
+    private val log: Logger = LoggerFactory.getLogger(RestTest::class.java)
     val port = System.getProperty("http.port", "8080")
     val baseUrl = "http://localhost:$port/api/"
+    val adminUsername = "admin"
+    val adminSecret = "secret"
 
     fun newClient(path: String) = ResteasyClientBuilder().build()
                 .target(RestTest.baseUrl).path(path)
 
-    fun setCommonHeaders(webTarget: WebTarget) = webTarget
+    fun setCommonHeaders(webTarget: WebTarget, username: String, token: String) = webTarget
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header("X-Auth-User", "devID")
-                .header("X-Auth-Token", "devKEY")
+                .header(APIConstant.HEADER_USERNAME, username)
+                .header(APIConstant.HEADER_API_KEY, token)
 
+    fun setCommonHeadersAsAdmin(webTarget: WebTarget) = webTarget
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .accept(MediaType.APPLICATION_JSON_TYPE)
+            .header(APIConstant.HEADER_USERNAME, adminUsername)
+            .header(APIConstant.HEADER_API_KEY, adminSecret)
 
+//    fun clearDatabaseTable(tableName: String) {
+////        "docker exec MTDB psql --username=root --dbname=zanataMT --command=truncate account".runCommand(1)
+//
+//        val command = listOf("docker", "exec", "MTDB", "psql", "--username=root", "--dbname=zanataMT", "--command=TRUNCATE $tableName CASCADE")
+//
+//        runCommand(command, 1)
+//    }
 }

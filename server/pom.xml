@@ -152,8 +152,6 @@
                     <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
                     <!-- this need to match the volume binding below -->
                     <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
-                    <MT_API_ID>devID</MT_API_ID>
-                    <MT_API_KEY>devKEY</MT_API_KEY>
                     <DEFAULT_TRANSLATION_PROVIDER>${DEFAULT_TRANSLATION_PROVIDER}</DEFAULT_TRANSLATION_PROVIDER>
                     <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
                   </env>
@@ -247,6 +245,8 @@
                   <testNGArtifactName>none:none</testNGArtifactName>
                   <systemProperties>
                     <http.port>${jboss.http.port}</http.port>
+                    <pg.username>${postgresql.user}</pg.username>
+                    <pg.password>${postgresql.password}</pg.password>
                   </systemProperties>
                 </configuration>
               </execution>
@@ -382,6 +382,31 @@
       <artifactId>liquibase-slf4j</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-servlet-module-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-security-module-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.modules</groupId>
+      <artifactId>deltaspike-security-module-impl</artifactId>
+    </dependency>
+
     <!-- jsf -->
     <dependency>
       <groupId>com.sun.faces</groupId>
@@ -409,6 +434,16 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <!-- bean validation -->
+    <dependency>
+      <groupId>org.jboss.spec.javax.el</groupId>
+      <artifactId>jboss-el-api_3.0_spec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.el</artifactId>
     </dependency>
 
     <dependency>

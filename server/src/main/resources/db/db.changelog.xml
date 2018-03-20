@@ -8,5 +8,7 @@
 
   <include relativeToChangelogFile="true"
     file="changelogs/db.changelog-1.0.xml" />
+  <include relativeToChangelogFile="true"
+      file="changelogs/db.changelog-1.1.xml" />
 
 </databaseChangeLog>
