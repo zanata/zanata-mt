@@ -27,8 +27,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.zanata.magpie.api.APIConstant.API_CONTEXT;
 import static org.zanata.magpie.api.APIConstant.ORIGIN_WHITELIST;
-import static org.zanata.magpie.servlet.APISecurityFilter.API_PATH;
 
 /**
  * This filter is for REST API requests.
@@ -41,7 +41,7 @@ import static org.zanata.magpie.servlet.APISecurityFilter.API_PATH;
  *
  * @author Alex Eng &lt;a href=&quot;mailto:aeng@redhat.com&quot;&gt;aeng@redhat.com&lt;/a&gt;
  */
-@WebFilter(filterName = &quot;APIResponseFilter&quot;, value = { API_PATH + &quot;*&quot; })
+@WebFilter(filterName = &quot;APIResponseFilter&quot;, value = { &quot;/&quot; + API_CONTEXT + &quot;/*&quot; })
 @Priority(Priorities.HEADER_DECORATOR)
 <span class="fc" id="L46">public class APIResponseFilter implements Filter {</span>
     private static final String ALLOW_METHODS =

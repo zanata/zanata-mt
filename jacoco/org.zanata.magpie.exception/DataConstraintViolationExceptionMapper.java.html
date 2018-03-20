@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataConstraintViolationExceptionMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mt-server</a> &gt; <a href="index.source.html" class="el_package">org.zanata.magpie.exception</a> &gt; <span class="el_source">DataConstraintViolationExceptionMapper.java</span></div><h1>DataConstraintViolationExceptionMapper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018, Red Hat, Inc. and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.zanata.magpie.exception;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zanata.magpie.api.dto.APIResponse;
+
+/**
+ * @author Patrick Huang
+ * &lt;a href=&quot;mailto:pahuang@redhat.com&quot;&gt;pahuang@redhat.com&lt;/a&gt;
+ */
+@Provider
+<span class="nc" id="L36">public class DataConstraintViolationExceptionMapper</span>
+        implements ExceptionMapper&lt;DataConstraintViolationException&gt; {
+<span class="nc" id="L38">    private static final Logger LOG =</span>
+<span class="nc" id="L39">            LoggerFactory.getLogger(DataConstraintViolationExceptionMapper.class);</span>
+
+    @Override
+    public Response toResponse(DataConstraintViolationException exception) {
+<span class="nc" id="L43">        String title = &quot;constraint violation exception&quot;;</span>
+<span class="nc" id="L44">        LOG.error(title, exception);</span>
+<span class="nc" id="L45">        Response.Status status = Response.Status.CONFLICT;</span>
+<span class="nc" id="L46">        APIResponse response = new APIResponse(status, exception, title);</span>
+<span class="nc" id="L47">        return Response.status(status).entity(response).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
