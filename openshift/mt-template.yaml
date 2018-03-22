@@ -8,6 +8,7 @@ parameters:
     reqruied: true
   - name: app
     description: app name
+    value: mt-server
     reqrired: true
   - name: image
     description: image reference
@@ -20,7 +21,6 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    creationTimestamp: null
     generation: 1
     labels:
       app: ${app}
@@ -28,6 +28,9 @@ objects:
   spec:
     tags:
     - annotations: null
+      from:
+        kind: DockerImage
+        name: ${image}
       name: latest
       referencePolicy:
         type: "Source"
@@ -40,7 +43,7 @@ objects:
   spec:
     replicas: 2
     selector:
-      deploymentConfig: mt-server
+      deploymentConfig: ${app}
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -62,7 +65,10 @@ objects:
           - name: MT_GOOGLE_CREDENTIAL_CONTENT
             value: ${google}  
           - name: DB_SERVICE_PREFIX_MAPPING
-            value: mt-server-postgresql=DB
+          # the prefix will determine what the database host and port env variable names needs to be.
+          # e.g. ${prefix}_service_host and ${prefix}_service_port
+          # Since we define a service named ${app}-postgresql, these two variables are injected by the service
+            value: ${app}-postgresql=DB
           - name: DB_JNDI
             value: java:jboss/datasources/zanataMT
           - name: DB_USERNAME
@@ -79,7 +85,7 @@ objects:
           - name: JGROUPS_PING_PROTOCOL
             value: openshift.DNS_PING
           - name: OPENSHIFT_DNS_PING_SERVICE_NAME
-            value: mt-server-ping
+            value: ${app}-ping
           - name: OPENSHIFT_DNS_PING_SERVICE_PORT
             value: "8888"
 #          - name: HTTPS_KEYSTORE_DIR
@@ -136,9 +142,9 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 2Gi
+#          resources:
+#            limits:
+#              memory: 2Gi
 #          volumeMounts:
 #          - mountPath: /etc/eap-secret-volume
 #            name: eap-keystore-volume
@@ -167,7 +173,6 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    creationTimestamp: null
     generation: 1
     labels:
       app: eap71-postgresql-persistent-s2i
@@ -184,9 +189,7 @@ objects:
       type: Recreate
     template:
       metadata:
-        creationTimestamp: null
         labels:
-          application: mt-server
           deploymentConfig: mt-server-postgresql
         name: mt-server-postgresql
       spec:
@@ -258,7 +261,7 @@ objects:
       protocol: TCP
       targetPort: 8080
     selector:
-      deploymentConfig: mt-server
+      deploymentConfig: ${app}
     sessionAffinity: None
     type: ClusterIP
 - apiVersion: v1
@@ -278,7 +281,7 @@ objects:
       protocol: TCP
       targetPort: 8888
     selector:
-      deploymentConfig: mt-server
+      deploymentConfig: ${app}
     sessionAffinity: None
     type: ClusterIP
 - apiVersion: v1

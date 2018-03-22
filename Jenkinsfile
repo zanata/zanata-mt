@@ -1,4 +1,10 @@
 #!/usr/bin/env groovy
+import groovy.transform.Field
+@Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
+import org.zanata.jenkins.Notifier
+@Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
+import org.zanata.jenkins.Notifier
+
 /**
  * Jenkinsfile for mt
  *
@@ -30,14 +36,10 @@ public static final String PROJ_URL = 'https://github.com/zanata/zanata-mt'
 @Field
 public static final String PIPELINE_LIBRARY_BRANCH = 'v0.3.1'
 
-@Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
-import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
 import org.zanata.jenkins.ScmGit
-import static org.zanata.jenkins.Reporting.codecov
-import static org.zanata.jenkins.StackTraces.getStackTrace
 
-import groovy.transform.Field
+import static org.zanata.jenkins.Reporting.codecov
 
 milestone 0
 PullRequests.ensureJobDescription(env, manager, steps)
@@ -146,6 +148,7 @@ timestamps {
           buildAndDeploy()
         } else {
           buildOnly()
+          deployToOpenPaaS()
         }
         // Artifacts are in docker registry, so reduce workspace size
         sh "git clean -fdx"
@@ -157,6 +160,70 @@ timestamps {
         throw e
       }
     }
+  }
+}
+
+private void deployToOpenPaaS() {
+
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+
+    /**
+     * TODO: clean up once we migrate to managed platform
+     */
+    // create a new project and deploy
+    stage('Deploy PR to OpenPaaS') {
+      lock(resource: 'MT-DEPLOY-PR-TO-OPENPAAS', inversePrecedence: true) {
+        milestone 800
+        def deployPR = false
+        timeout(time: 20, unit: 'MINUTES') {
+          deployPR = input(message: 'Create a project in OpenPaaS and deploy?',
+                  parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
+                                description: '', name: 'Deploy PR to OpenPaaS?']])
+        }
+        milestone 900
+        if (deployPR) {
+          // because dockerBuildAndDeploy_OPEN will call unstash
+          stash name: 'generated-files', includes: '**/target/**'
+
+          def POM = readMavenPom file: 'pom.xml'
+          // set the version to use in this pipeline job
+          version = POM.version.replace('-SNAPSHOT', '.' + branchName)
+          echo "Update project version to $version"
+          sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
+
+          final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+
+          dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+
+          def ocClient = getOpenshiftClient();
+          echo "Login to OPENSHIFT with token"
+          withCredentials(
+                  [string(credentialsId: 'Jenkins-Token-open-paas-Magpie',
+                          variable: 'MT_OPENSHIFT_TOKEN_MAGPIE')]) {
+            sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_MAGPIE --insecure-skip-tls-verify"
+          }
+
+          // TODO if we can create project on the fly then we should do it here
+          echo "Deploy to project magpie"
+          String project = "magpie"
+          String app = "mt-server-${branchName}".toLowerCase()
+          String image = "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$DOCKER_IMAGE_OPEN:$version"
+          def params = "--param=project=$project --param=app=$app --param=image=$image --param=azure=${env.MT_AZURE} " // --param=google='${env.MT_GOOGLE}'
+
+          sh "$ocClient process -f ${env.WORKSPACE}/openshift/mt-template.yaml $params|$ocClient apply -f -"
+
+          echo "Update image stream 'latest' tag to $version"
+          sh "$ocClient tag $image mt-server:latest"
+//          echo "Rollout latest release"
+          // we use app as deployment config name
+//          sh "$ocClient rollout latest dc/$app"
+          sh "$ocClient logout"
+        }
+      }
+    }
+  } else {
+    currentBuild.result = 'FAILURE'
+    error('Build failure.')
   }
 }
 
