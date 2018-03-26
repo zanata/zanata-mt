@@ -32,6 +32,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
@@ -51,6 +52,13 @@ public class SecurityInterceptor implements ContainerRequestFilter {
     private AccountService accountService;
     private AuthenticatedAccount authenticatedAccount;
 
+    // list of api url that does not require authentication
+    private static ImmutableList<String> PUBLIC_API;
+
+    static {
+        PUBLIC_API = ImmutableList.of("/api/info");
+    }
+
     @Inject
     public SecurityInterceptor(
             @InitialPassword Provider<String> initialPassword,
@@ -64,8 +72,14 @@ public class SecurityInterceptor implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext)
             throws IOException {
-        String username = requestContext.getHeaderString(APIConstant.HEADER_USERNAME);
-        String token = requestContext.getHeaderString(APIConstant.HEADER_API_KEY);
+        if (isPublicAPI(
+                requestContext.getUriInfo().getRequestUri().getPath())) {
+            return;
+        }
+        String username =
+                requestContext.getHeaderString(APIConstant.HEADER_USERNAME);
+        String token =
+                requestContext.getHeaderString(APIConstant.HEADER_API_KEY);
         if (username != null && token != null) {
             Optional<Account> account =
                     tryAuthenticate(username, token, requestContext);
@@ -75,7 +89,8 @@ public class SecurityInterceptor implements ContainerRequestFilter {
                 return;
             }
         }
-        requestContext.abortWith(Response.status(Status.UNAUTHORIZED).build());
+        requestContext
+                .abortWith(Response.status(Status.UNAUTHORIZED).build());
     }
 
     private Optional<Account> tryAuthenticate(String username, String token,
@@ -104,6 +119,10 @@ public class SecurityInterceptor implements ContainerRequestFilter {
             isAccessingAccountCreation(ContainerRequestContext requestContext) {
         return requestContext.getUriInfo().getPath().equals("/account")
                 && requestContext.getMethod().equals("POST");
+    }
+
+    private boolean isPublicAPI(String uri) {
+        return PUBLIC_API.contains(uri);
     }
 
     @SuppressWarnings("unused")
