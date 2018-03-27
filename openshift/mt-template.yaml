@@ -41,7 +41,7 @@ objects:
       app: ${app}
     name: ${app}
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       deploymentConfig: ${app}
     strategy:
