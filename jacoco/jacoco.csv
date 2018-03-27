@@ -13,7 +13,7 @@ mt-server,org.zanata.magpie.service,PersistentTranslationService,81,380,11,31,18
 mt-server,org.zanata.magpie.service,DocumentService,3,49,0,2,2,12,1,5,1,4
 mt-server,org.zanata.magpie.service,DocumentContentTranslatorService,18,655,10,54,0,163,10,34,0,12
 mt-server,org.zanata.magpie.api,AuthenticatedAccount,0,18,0,2,0,5,0,5,0,4
-mt-server,org.zanata.magpie.api,SecurityInterceptor,3,119,3,15,2,32,4,11,1,5
+mt-server,org.zanata.magpie.api,SecurityInterceptor,3,134,3,17,2,41,4,13,1,6
 mt-server,org.zanata.magpie.api,InputStreamStreamingOutput,0,24,0,2,0,7,0,3,0,2
 mt-server,org.zanata.magpie.security,AccountCreated,0,15,0,0,0,6,0,3,0,3
 mt-server,org.zanata.magpie.security,CheckRoleDecisionVoter,3,55,0,8,2,12,1,8,1,4
