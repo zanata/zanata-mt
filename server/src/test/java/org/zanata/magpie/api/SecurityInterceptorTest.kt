@@ -11,6 +11,7 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.zanata.magpie.model.Account
 import org.zanata.magpie.service.AccountService
+import java.net.URI
 import java.util.*
 import javax.inject.Provider
 import javax.ws.rs.container.ContainerRequestContext
@@ -39,11 +40,27 @@ class SecurityInterceptorTest {
 
     private lateinit var interceptor: SecurityInterceptor
 
+    var notPublicURI = URI("http://localhost/api/test")
+
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         authenticatedAccount = AuthenticatedAccount()
         interceptor = SecurityInterceptor(initialPasswordProvider, accountService, authenticatedAccount)
+
+        given(requestContext.getUriInfo()).willReturn(uriInfo)
+        given(uriInfo.getRequestUri()).willReturn(notPublicURI)
+    }
+
+    @Test
+    fun requestPublicAPI() {
+        var uri = URI("http://localhost/api/info")
+        given(uriInfo.getRequestUri()).willReturn(uri)
+        interceptor.filter(requestContext)
+
+        Mockito.verify(requestContext, Mockito.times(1)).getUriInfo()
+        Mockito.verifyNoMoreInteractions(requestContext)
+        Mockito.verifyZeroInteractions(accountService)
     }
 
 
