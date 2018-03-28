@@ -41,7 +41,7 @@ objects:
       app: ${app}
     name: ${app}
   spec:
-    replicas: 1
+    replicas: 2
     selector:
       deploymentConfig: ${app}
     strategy:
@@ -68,7 +68,7 @@ objects:
             value: ${google}  
           - name: DB_SERVICE_PREFIX_MAPPING
           # the prefix will determine what the database host and port env variable names needs to be.
-          # e.g. ${prefix}_service_host and ${prefix}_service_port
+          # e.g. ${prefix}_service_host and ${prefix}_service_port (all caps)
           # Since we define a service named ${app}-postgresql, these two variables are injected by the service
             value: ${app}-postgresql=DB
           - name: DB_JNDI
