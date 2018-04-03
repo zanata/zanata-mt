@@ -27,7 +27,7 @@ class ResourceProducerTest {
 
     @Test
     fun canGetCacheManager() {
-        assertThat(cacheManager?.clusterName).isEqualTo(ResourceProducer.MACHINE_TRANSLATIONS_CLUSTER)
+        assertThat(cacheManager?.clusterName).isEqualTo("web")
         assertThat(cacheManager?.cacheManagerConfiguration?.isClustered).isTrue()
     }
 
@@ -40,7 +40,7 @@ class ResourceProducerTest {
 
     @Test
     fun canGetTransactionManager() {
-        val transactionManager = resourceProducer.cacheTransactionManager(resourceProducer.docProcessCache(cacheManager))
+        val transactionManager = resourceProducer.dockProcessCacheTransactionManager(resourceProducer.docProcessCache(cacheManager))
         // in test environment there is a dummy transaction manager
         assertThat(transactionManager).isNotNull()
     }

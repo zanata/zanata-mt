@@ -40,6 +40,7 @@ import org.zanata.magpie.annotation.ClusteredCache;
 import org.zanata.magpie.process.DocumentProcessKey;
 
 import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE;
+import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -47,22 +48,22 @@ import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE
 @ApplicationScoped
 public class ResourceProducer {
 
-    static final String MACHINE_TRANSLATIONS_CLUSTER =
-            "MachineTranslationsCluster";
-
     @Produces
     @ApplicationScoped
     public EmbeddedCacheManager defaultClusteredCacheManager() {
+        // http://infinispan.org/docs/9.1.x/user_guide/user_guide.html#which_cache_mode_should_i_use
         GlobalConfiguration g = new GlobalConfigurationBuilder()
                 .clusteredDefault()
                 .transport()
-                .clusterName(MACHINE_TRANSLATIONS_CLUSTER)
+                .clusterName("web")
                 .globalJmxStatistics()
-                .allowDuplicateDomains(true)
+//                .allowDuplicateDomains(true)
                 .build();
         Configuration cfg = new ConfigurationBuilder()
                 .clustering()
-                .cacheMode(CacheMode.DIST_ASYNC)
+                .cacheMode(CacheMode.REPL_SYNC)
+//                .hash()
+//                .numOwners(2)
                 .eviction()
                 .strategy(EvictionStrategy.LRU)
                 .type(EvictionType.COUNT).size(150)
@@ -82,9 +83,24 @@ public class ResourceProducer {
 
     @Produces
     @ClusteredCache(DOC_PROCESS_CACHE)
-    public TransactionManager cacheTransactionManager(
+    public TransactionManager dockProcessCacheTransactionManager(
             @ClusteredCache(DOC_PROCESS_CACHE)
                     Cache<DocumentProcessKey, Boolean> cache) {
+        return cache.getAdvancedCache().getTransactionManager();
+    }
+
+    @Produces
+    @ClusteredCache(INITIAL_PASSWORD_CACHE)
+    public Cache<String, String> initialPasswordCache(
+            EmbeddedCacheManager cacheManager) {
+        return cacheManager.getCache("repl");
+    }
+
+    @Produces
+    @ClusteredCache(INITIAL_PASSWORD_CACHE)
+    public TransactionManager initialPasswordCacheTransactionManager(
+            @ClusteredCache(INITIAL_PASSWORD_CACHE)
+                    Cache<String, String> cache) {
         return cache.getAdvancedCache().getTransactionManager();
     }
 }

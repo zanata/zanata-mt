@@ -175,13 +175,13 @@ private void deployToOpenPaaS() {
       lock(resource: 'MT-DEPLOY-PR-TO-OPENPAAS', inversePrecedence: true) {
         milestone 800
         def deployPR = false
-        timeout(time: 20, unit: 'MINUTES') {
-          deployPR = input(message: 'Create a project in OpenPaaS and deploy?',
-                  parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
-                                description: '', name: 'Deploy PR to OpenPaaS?']])
-        }
+//        timeout(time: 2, unit: 'MINUTES') {
+//          deployPR = input(message: 'Deploy this PR to OpenPaaS?',
+//                  parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: true,
+//                                description: '', name: 'Deploy PR to OpenPaaS?']])
+//        }
         milestone 900
-        if (deployPR) {
+//        if (deployPR) {
           // because dockerBuildAndDeploy_OPEN will call unstash
           stash name: 'generated-files', includes: '**/target/**'
 
@@ -213,12 +213,12 @@ private void deployToOpenPaaS() {
           sh "$ocClient process -f ${env.WORKSPACE}/openshift/mt-template.yaml $params|$ocClient apply -f -"
 
           echo "Update image stream 'latest' tag to $version"
-          sh "$ocClient tag $image mt-server:latest"
+          sh "$ocClient tag $image $app:latest"
 //          echo "Rollout latest release"
           // we use app as deployment config name
 //          sh "$ocClient rollout latest dc/$app"
           sh "$ocClient logout"
-        }
+//        }
       }
     }
   } else {
