@@ -38,32 +38,32 @@ public class MTStartupTest {
         mtStartup = new MTStartup(config, accountService);
     }
 
-    @Test
-    public void willCreateInitialPasswordIfNoAccountExists() throws IOException {
-        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
-
-        Assertions.assertThat(mtStartup.initialPassword()).isNotBlank();
-    }
-
-    @Test
-    public void willNotCreateInitialPasswordIfThereAreAccounts() {
-        when(accountService.getAllAccounts(true)).thenReturn(
-                newArrayList(new AccountDto()));
-
-        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
-
-        Assertions.assertThat(mtStartup.initialPassword()).isNull();
-    }
-
-    @Test
-    public void willClearInitialPasswordIfAdminAccountIsCreated() {
-        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
-
-        Assertions.assertThat(mtStartup.initialPassword()).isNotBlank();
-
-        mtStartup.accountCreated(new AccountCreated("user@example.com", Sets.newHashSet(
-                Role.admin)));
-
-        Assertions.assertThat(mtStartup.initialPassword()).isNull();
-    }
+//    @Test
+//    public void willCreateInitialPasswordIfNoAccountExists() throws IOException {
+//        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
+//
+//        Assertions.assertThat(mtStartup.initialPassword()).isNotBlank();
+//    }
+//
+//    @Test
+//    public void willNotCreateInitialPasswordIfThereAreAccounts() {
+//        when(accountService.getAllAccounts(true)).thenReturn(
+//                newArrayList(new AccountDto()));
+//
+//        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
+//
+//        Assertions.assertThat(mtStartup.initialPassword()).isNull();
+//    }
+//
+//    @Test
+//    public void willClearInitialPasswordIfAdminAccountIsCreated() {
+//        mtStartup.onStartUp(null, false, Sets.newHashSet(BackendID.values()));
+//
+//        Assertions.assertThat(mtStartup.initialPassword()).isNotBlank();
+//
+//        mtStartup.accountCreated(new AccountCreated("user@example.com", Sets.newHashSet(
+//                Role.admin)));
+//
+//        Assertions.assertThat(mtStartup.initialPassword()).isNull();
+//    }
 }
