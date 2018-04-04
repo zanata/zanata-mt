@@ -93,7 +93,7 @@ module.exports = {
         })
       },
       {
-        test: /\.scss$/,
+        test: /\.less$/,
         exclude: /node_modules/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
@@ -107,7 +107,10 @@ module.exports = {
               }
             },
             postCssLoader,
-            'sass-loader'
+            {
+              loader: 'less-loader',
+              options: {javascriptEnabled: true}
+            }
           ]
         })
       }
