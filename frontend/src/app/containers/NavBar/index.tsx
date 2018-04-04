@@ -2,10 +2,14 @@ import * as React from 'react';
 import {connect, GenericDispatch} from 'react-redux'
 import {RootState} from "../../reducers/index"
 import { Link } from 'react-router-dom'
+import { findIndex } from 'lodash'
 import {LoginForm} from "../../containers/LoginForm/index"
 import {Action} from "redux-actions"
 import { login, logout, toggleLoginFormDisplay } from '../../actions/common'
 import { isLoggedIn } from '../../config'
+
+import { Layout, Menu, Icon, Button } from 'antd'
+const { Sider } = Layout
 
 interface Props {
   isLoggedIn?: boolean,
@@ -16,12 +20,12 @@ interface Props {
 }
 
 export interface State {
-  show: boolean
+  collapsed: boolean
 }
 
 const items = [
-  {name: 'Home', url: '/'},
-  {name: 'Info', url: '/app/info'}
+  {name: 'Home', url: '/', icon: 'home'},
+  {name: 'Info', url: '/app/info', icon: 'info-circle'}
 ]
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -29,17 +33,15 @@ export class NavBar extends React.Component<Props, State> {
   constructor(props?: Props, context?: any) {
     super(props, context);
     this.state = {
-      show: false
+      collapsed: false
     }
     this.toggleNav = this.toggleNav.bind(this)
     this.showLoginForm = this.showLoginForm.bind(this)
     this.hideLoginForm = this.hideLoginForm.bind(this)
   }
 
-  private toggleNav(e: React.MouseEvent<HTMLElement>) {
-    this.setState({
-      show: !this.state.show
-    })
+  private toggleNav(collapsed: boolean) {
+    this.setState({collapsed})
   }
 
   private showLoginForm(e: React.MouseEvent<HTMLElement>) {
@@ -50,60 +52,58 @@ export class NavBar extends React.Component<Props, State> {
     this.props.handleSetLoginFormDisplay(false)
   }
 
-  public render() {
+  private getSelectedKey() {
     const path = window.location.pathname
+    return findIndex(items, function(item) {
+      return item.url === path
+    }).toString()
+  }
+
+  public render() {
     const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
-    const {show} = this.state
     const disableLogin = true
-    const cssClass = 'navbar-collapse ' + (show ? 'show' : 'collapse')
     return (
-      <nav className='navbar navbar-expand-lg navbar-light bg-light'>
-        <button className='navbar-toggler navbar-toggler-left'
-          aria-controls='navbar'
-          aria-expanded='false' aria-label='Toggle navigation'
-          onClick={this.toggleNav}>
-          <span className='navbar-toggler-icon'></span>
-        </button>
-        <div className={cssClass} id='navbar'>
-          <ul className='navbar-nav mr-auto'>
+      <Sider collapsible={true}
+          collapsed={this.state.collapsed} onCollapse={this.toggleNav}>
+        <div className='logo' />
+        <Menu theme="dark" mode="inline"
+          defaultSelectedKeys={[this.getSelectedKey()]}>
             {items.map((item, itemId) => {
-              const isSelected = item.url === path
-              return <li className={isSelected ? 'nav-item active' : 'nav-item'}
-                key={itemId}>
-                <Link className='nav-link' to={item.url}>
-                  {item.name} {isSelected &&
-                <span className='sr-only'>(current)</span>}
-                </Link>
-              </li>
+                return <Menu.Item key={itemId}>
+                    <Link to={item.url}>
+                      <Icon type={item.icon} />
+                      <span>{item.name}</span>
+                    </Link>
+                </Menu.Item>
             })}
-          </ul>
-          <ul className='navbar-nav'>
-            <li className='nav-item'>
-              <a className='nav-link' target='_blank'
-                href='https://github.com/zanata/zanata-mt'>
-                Github
+
+            <Menu.Item>
+              <a target='_blank'
+                 href='https://github.com/zanata/zanata-mt'>
+                <Icon type='github' />
+                <span>Github</span>
               </a>
-            </li>
-            <li className='nav-item'>
-              <a className='nav-link' target='_blank'
-                href='http://zanata.org/zanata-mt/apidocs/'>
-                Docs
+            </Menu.Item>
+            <Menu.Item>
+              <a target='_blank'
+                  href='http://zanata.org/zanata-mt/apidocs/'>
+                <Icon type='api' />
+                <span>Docs</span>
               </a>
-            </li>
+            </Menu.Item>
             {
               disableLogin ? undefined :
-                <li className='nav-item'>
-                  { isLoggedIn
-                    ? <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
-                    : <button className='btn btn-primary' onClick={this.showLoginForm}>Login</button>
-                  }
-                </li>
+                  <Menu.Item>
+                    { isLoggedIn
+                      ? <Button type='danger' onClick={handleLogout} icon='logout'>Log out</Button>
+                      : <Button type='primary' onClick={this.showLoginForm} icon='login'>Log in</Button>
+                    }
+                  </Menu.Item>
             }
-          </ul>
-        </div>
-        <LoginForm show={showLoginForm}
+        </Menu>
+        <LoginForm visible={showLoginForm}
           handleLogin={handleLogin} onClose={this.hideLoginForm}/>
-      </nav>
+      </Sider>
     )
   }
 }
