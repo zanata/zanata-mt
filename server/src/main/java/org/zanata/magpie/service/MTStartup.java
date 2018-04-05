@@ -1,9 +1,14 @@
 package org.zanata.magpie.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -88,8 +93,10 @@ public class MTStartup {
         log.info("==========================================");
         log.info("==========================================");
         log.info("== " + APPLICATION_NAME + " ==");
+        readManifestInfo(context);
         log.info("==========================================");
         log.info("==========================================");
+
         log.info("Build info: version-" + configurationService.getVersion() +
                 " date-" + configurationService.getBuildDate());
         if (isDevMode) {
@@ -101,6 +108,28 @@ public class MTStartup {
 
         log.info("Default backend provider: {}",
                 configurationService.getDefaultTranslationProvider(isDevMode));
+    }
+
+    private void readManifestInfo(ServletContext context) {
+        String appServerHome = context.getRealPath("/");
+        File manifestFile = new File(appServerHome, "META-INF/MANIFEST.MF");
+        Attributes atts = null;
+        if (manifestFile.canRead()) {
+            Manifest mf = new Manifest();
+            try (FileInputStream fis = new FileInputStream(manifestFile)) {
+                mf.read(fis);
+            } catch (IOException e) {
+                log.warn("can not get manifest info: {}", e.getMessage());
+            }
+            atts = mf.getMainAttributes();
+            String version = atts.getValue("Implementation-Version");
+            String buildTimestamp = atts.getValue("Implementation-Build");
+            String scmDescribe = atts.getValue("SCM-Describe");
+
+            log.info("== version: {}", version);
+            log.info("== build timestamp: {}", buildTimestamp);
+            log.info("== scm describe: {}", scmDescribe);
+        }
     }
 
     private void showInitialAdminCredentialIfNoAccountExists() {
@@ -115,7 +144,6 @@ public class MTStartup {
             InitialPasswordCommand command =
                     new InitialPasswordCommand(initialPassword);
 //            try {
-
             cache.addListener(new CacheListener());
 
                 channelGroup.addListener((prevNodes, currentNodes, isMerged) -> {
