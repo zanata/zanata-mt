@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -85,6 +86,7 @@ public class MTStartup {
         this.accountService = accountService;
     }
 
+    @TransactionAttribute
     public void onStartUp(
         @Observes @Initialized ServletContext context,
             @DevMode boolean isDevMode, @BackEndProviders
@@ -172,15 +174,12 @@ public class MTStartup {
                     }
                 });
 
-                cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
 
-//            try {
-//                transactionManager.begin();
-//                cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
-//                transactionManager.commit();
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
+            try {
+                cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
+            } catch (Exception e) {
+                log.error("error putting things to cache", e);
+            }
 //            } catch (Exception e) {
 //                log.warn("failed to execute on nodes", e);
 //            }

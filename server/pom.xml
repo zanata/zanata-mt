@@ -177,7 +177,7 @@
                     <http>
                       <url>http://localhost:${jboss.http.port}/app/health</url>
                     </http>
-                    <time>90000</time>
+                    <time>120000</time>
                   </wait>
                   <log>
                     <date>default</date>
