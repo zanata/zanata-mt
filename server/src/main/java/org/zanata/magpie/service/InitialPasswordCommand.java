@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.clustering.dispatcher.Command;
 import org.wildfly.clustering.group.Node;
+import org.zanata.magpie.util.PasswordUtil;
 
 import com.google.common.collect.Lists;
 
@@ -50,12 +51,12 @@ public class InitialPasswordCommand implements Command<String, Node> {
 
     @Override
     public String execute(Node node) throws Exception {
-        log.info("=== no account exists in the system ===");
-        log.info("=== to authenticate, use admin as username and ===");
-        log.info("=== initial password (without leading spaces):  {}", initialPassword);
-        log.info("=== initial password is also written to:  {}",
-                INITIAL_PASSWORD_FILE);
-        log.info("=======================================");
+//        log.info("=== no account exists in the system ===");
+//        log.info("=== to authenticate, use admin as username and ===");
+//        log.info("=== initial password (without leading spaces):  {}", initialPassword);
+//        log.info("=== initial password is also written to:  {}",
+//                INITIAL_PASSWORD_FILE);
+//        log.info("=======================================");
         try {
             Files.write(INITIAL_PASSWORD_FILE,
                     Lists.newArrayList(this.initialPassword));

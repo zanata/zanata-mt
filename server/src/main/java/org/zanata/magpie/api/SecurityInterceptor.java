@@ -23,14 +23,15 @@ package org.zanata.magpie.api;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.Provider;
 
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
@@ -43,12 +44,12 @@ import org.zanata.magpie.service.AccountService;
 
 import com.google.common.collect.Sets;
 
-@javax.ws.rs.ext.Provider
+@Provider
 @RequestScoped
 public class SecurityInterceptor implements ContainerRequestFilter {
     private static final Logger log =
             LoggerFactory.getLogger(SecurityInterceptor.class);
-    private Provider<String> initialPassword;
+    private Set<String> initialPasswords;
     private AccountService accountService;
     private AuthenticatedAccount authenticatedAccount;
 
@@ -61,10 +62,10 @@ public class SecurityInterceptor implements ContainerRequestFilter {
 
     @Inject
     public SecurityInterceptor(
-            @InitialPassword Provider<String> initialPassword,
+            @InitialPassword Set<String> initialPasswords,
             AccountService accountService,
             AuthenticatedAccount authenticatedAccount) {
-        this.initialPassword = initialPassword;
+        this.initialPasswords = initialPasswords;
         this.accountService = accountService;
         this.authenticatedAccount = authenticatedAccount;
     }
@@ -95,11 +96,10 @@ public class SecurityInterceptor implements ContainerRequestFilter {
 
     private Optional<Account> tryAuthenticate(String username, String token,
             ContainerRequestContext requestContext) {
-        String initialPass = initialPassword.get();
-        if (initialPass == null) {
+        if (initialPasswords.isEmpty()) {
             return accountService.authenticate(username, token);
         } else if ("admin".equals(username)
-                && Objects.equals(token, initialPass)) {
+                && initialPasswords.contains(token)) {
             log.info("authenticating using initial password");
 
             if (isAccessingAccountCreation(requestContext)) {

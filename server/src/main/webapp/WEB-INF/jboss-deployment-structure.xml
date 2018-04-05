@@ -33,6 +33,8 @@
       <module name="org.hibernate.commons-annotations" />
       <module name="org.hibernate.validator" />
       <module name="org.slf4j" />
+       <!--enable clustering api support -->
+      <module name="org.wildfly.clustering.api" services="export"/>
     </dependencies>
   </deployment>
 </jboss-deployment-structure>
