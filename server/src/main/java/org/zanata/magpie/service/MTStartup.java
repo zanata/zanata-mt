@@ -123,6 +123,8 @@ public class MTStartup {
                     new InitialPasswordCommand(initialPassword);
 //            try {
 
+            cache.addListener(new CacheListener());
+
                 channelGroup.addListener((prevNodes, currentNodes, isMerged) -> {
                     log.info("--- previous nodes:{}", prevNodes.stream().map(Node::getName).collect(
                             Collectors.toList()));
