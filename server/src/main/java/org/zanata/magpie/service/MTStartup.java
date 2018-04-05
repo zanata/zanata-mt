@@ -10,16 +10,10 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
@@ -40,8 +34,7 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
+
 import com.google.common.collect.Sets;
 
 /**
@@ -138,8 +131,8 @@ public class MTStartup {
                         responseMap.forEach((n, r) -> {
                             log.info("executed on node:{}", n);
                             try {
-                                log.info("--- adding initialPassword to set: {}", initialPasswords);
                                 initialPasswords.add(r.get());
+                                log.info("--- added initialPassword to set: {}", initialPasswords);
                             } catch (ExecutionException e) {
                                 log.error("fail getting response from cluster execution", e);
                             }
@@ -150,6 +143,8 @@ public class MTStartup {
                         throw new RuntimeException(e);
                     }
                 });
+
+                cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
 
 //            try {
 //                transactionManager.begin();
