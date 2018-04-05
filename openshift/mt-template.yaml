@@ -205,7 +205,9 @@ objects:
           - name: POSTGRESQL_DATABASE
             value: root
           - name: POSTGRESQL_MAX_CONNECTIONS
+            value: "20"
           - name: POSTGRESQL_MAX_PREPARED_TRANSACTIONS
+            value: "20"
           - name: POSTGRESQL_SHARED_BUFFERS
           image: registry.access.redhat.com/rhscl/postgresql-95-rhel7
           imagePullPolicy: Always
