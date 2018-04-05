@@ -20,27 +20,18 @@
  */
 package org.zanata.magpie.service;
 
+import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE;
+import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
+
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.transaction.TransactionManager;
 
 import org.infinispan.Cache;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.eviction.EvictionStrategy;
-import org.infinispan.eviction.EvictionType;
-import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.transaction.LockingMode;
-import org.infinispan.transaction.TransactionMode;
+import org.infinispan.manager.CacheContainer;
 import org.zanata.magpie.annotation.ClusteredCache;
 import org.zanata.magpie.process.DocumentProcessKey;
-
-import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE;
-import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -48,37 +39,39 @@ import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
 @ApplicationScoped
 public class ResourceProducer {
 
-    @Produces
-    @ApplicationScoped
-    public EmbeddedCacheManager defaultClusteredCacheManager() {
-        // http://infinispan.org/docs/9.1.x/user_guide/user_guide.html#which_cache_mode_should_i_use
-        GlobalConfiguration g = new GlobalConfigurationBuilder()
-                .clusteredDefault()
-                .transport()
-                .clusterName("web")
-                .globalJmxStatistics()
-//                .allowDuplicateDomains(true)
-                .build();
-        Configuration cfg = new ConfigurationBuilder()
-                .clustering()
-                .cacheMode(CacheMode.REPL_SYNC)
-//                .hash()
-//                .numOwners(2)
-                .eviction()
-                .strategy(EvictionStrategy.LRU)
-                .type(EvictionType.COUNT).size(150)
-                .transaction()
-                .transactionMode(TransactionMode.TRANSACTIONAL)
-                .lockingMode(LockingMode.PESSIMISTIC)
-                .build();
-        return new DefaultCacheManager(g, cfg);
-    }
+    @Resource(lookup = "java:jboss/infinispan/container/web")
+    private CacheContainer webCacheManager;
+
+//    @Produces
+//    @ApplicationScoped
+//    public EmbeddedCacheManager defaultClusteredCacheManager() {
+//        // http://infinispan.org/docs/9.1.x/user_guide/user_guide.html#which_cache_mode_should_i_use
+//        GlobalConfiguration g = new GlobalConfigurationBuilder()
+//                .clusteredDefault()
+//                .transport()
+//                .clusterName("web")
+//                .globalJmxStatistics()
+////                .allowDuplicateDomains(true)
+//                .build();
+//        Configuration cfg = new ConfigurationBuilder()
+//                .clustering()
+//                .cacheMode(CacheMode.REPL_SYNC)
+////                .hash()
+////                .numOwners(2)
+//                .eviction()
+//                .strategy(EvictionStrategy.LRU)
+//                .type(EvictionType.COUNT).size(150)
+//                .transaction()
+//                .transactionMode(TransactionMode.TRANSACTIONAL)
+//                .lockingMode(LockingMode.PESSIMISTIC)
+//                .build();
+//        return new DefaultCacheManager(g, cfg);
+//    }
 
     @Produces
     @ClusteredCache(DOC_PROCESS_CACHE)
-    public Cache<DocumentProcessKey, Boolean> docProcessCache(
-            EmbeddedCacheManager cacheManager) {
-        return cacheManager.getCache(DOC_PROCESS_CACHE);
+    public Cache<DocumentProcessKey, Boolean> docProcessCache() {
+        return webCacheManager.getCache(DOC_PROCESS_CACHE);
     }
 
     @Produces
@@ -91,9 +84,9 @@ public class ResourceProducer {
 
     @Produces
     @ClusteredCache(INITIAL_PASSWORD_CACHE)
-    public Cache<String, String> initialPasswordCache(
-            EmbeddedCacheManager cacheManager) {
-        return cacheManager.getCache("repl");
+    public Cache<String, String> initialPasswordCache() {
+        // this cache is defined in the standalone-openshift.xml
+        return webCacheManager.getCache("repl");
     }
 
     @Produces

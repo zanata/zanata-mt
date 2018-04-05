@@ -37,7 +37,7 @@ import com.google.common.annotations.VisibleForTesting;
 public class DocumentProcessManager {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentProcessManager.class);
-    public static final String DOC_PROCESS_CACHE = "docProcessCache";
+    public static final String DOC_PROCESS_CACHE = "repl";
 
     private Cache<DocumentProcessKey, Boolean> docProcessCache;
 
