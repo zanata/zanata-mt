@@ -143,36 +143,36 @@ public class MTStartup {
             log.info("=== to authenticate, use admin as username and ===");
             log.info("=== initial password (without leading spaces):  {}", initialPassword);
 
-            InitialPasswordCommand command =
-                    new InitialPasswordCommand(initialPassword);
+//            InitialPasswordCommand command =
+//                    new InitialPasswordCommand(initialPassword);
 //            try {
             cache.addListener(new CacheListener());
 
-                channelGroup.addListener((prevNodes, currentNodes, isMerged) -> {
-                    log.info("--- previous nodes:{}", prevNodes.stream().map(Node::getName).collect(
-                            Collectors.toList()));
-                    log.info("--- current nodes:{}", currentNodes.stream().map(Node::getName).collect(
-                            Collectors.toList()));
-                    log.info("--- is Merged:{}", isMerged);
+            /*channelGroup.addListener((prevNodes, currentNodes, isMerged) -> {
+                log.info("--- previous nodes:{}", prevNodes.stream().map(Node::getName).collect(
+                        Collectors.toList()));
+                log.info("--- current nodes:{}", currentNodes.stream().map(Node::getName).collect(
+                        Collectors.toList()));
+                log.info("--- is Merged:{}", isMerged);
 
-                    try {
-                        Map<Node, CommandResponse<String>> responseMap =
-                                commandDispatcherBean.executeOnCluster(command);
-                        responseMap.forEach((n, r) -> {
-                            log.info("executed on node:{}", n);
-                            try {
-                                initialPasswords.add(r.get());
-                                log.info("--- added initialPassword to set: {}", initialPasswords);
-                            } catch (ExecutionException e) {
-                                log.error("fail getting response from cluster execution", e);
-                            }
-                        });
+                try {
+                    Map<Node, CommandResponse<String>> responseMap =
+                            commandDispatcherBean.executeOnCluster(command);
+                    responseMap.forEach((n, r) -> {
+                        log.info("executed on node:{}", n);
+                        try {
+                            initialPasswords.add(r.get());
+                            log.info("--- added initialPassword to set: {}", initialPasswords);
+                        } catch (ExecutionException e) {
+                            log.error("fail getting response from cluster execution", e);
+                        }
+                    });
 
 
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });*/
 
 
             try {
@@ -194,12 +194,12 @@ public class MTStartup {
 //    @InitialPassword
     @NotNull
     private String getInitialPassword() {
-//        String valueInCache = cache.get(INITIAL_PASSWORD_CACHE);
-//        if (valueInCache == null) {
-//            log.info("no initial password yet. Generate one.");
+        String valueInCache = cache.get(INITIAL_PASSWORD_CACHE);
+        if (valueInCache == null) {
+            log.info("no initial password yet. Generate one.");
             return new PasswordUtil().generateRandomPassword(32);
-//        }
-//        return valueInCache;
+        }
+        return valueInCache;
     }
 
     @Produces
