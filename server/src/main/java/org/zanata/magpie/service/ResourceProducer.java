@@ -42,31 +42,8 @@ public class ResourceProducer {
     @Resource(lookup = "java:jboss/infinispan/container/web")
     private CacheContainer webCacheManager;
 
-//    @Produces
-//    @ApplicationScoped
-//    public EmbeddedCacheManager defaultClusteredCacheManager() {
-//        // http://infinispan.org/docs/9.1.x/user_guide/user_guide.html#which_cache_mode_should_i_use
-//        GlobalConfiguration g = new GlobalConfigurationBuilder()
-//                .clusteredDefault()
-//                .transport()
-//                .clusterName("web")
-//                .globalJmxStatistics()
-////                .allowDuplicateDomains(true)
-//                .build();
-//        Configuration cfg = new ConfigurationBuilder()
-//                .clustering()
-//                .cacheMode(CacheMode.REPL_SYNC)
-////                .hash()
-////                .numOwners(2)
-//                .eviction()
-//                .strategy(EvictionStrategy.LRU)
-//                .type(EvictionType.COUNT).size(150)
-//                .transaction()
-//                .transactionMode(TransactionMode.TRANSACTIONAL)
-//                .lockingMode(LockingMode.PESSIMISTIC)
-//                .build();
-//        return new DefaultCacheManager(g, cfg);
-//    }
+    static final String REPLICATE_CACHE = "repl";
+
 
     @Produces
     @ClusteredCache(DOC_PROCESS_CACHE)
@@ -83,17 +60,10 @@ public class ResourceProducer {
     }
 
     @Produces
-    @ClusteredCache(INITIAL_PASSWORD_CACHE)
+    @ClusteredCache(REPLICATE_CACHE)
     public Cache<String, String> initialPasswordCache() {
         // this cache is defined in the standalone-openshift.xml
-        return webCacheManager.getCache("repl");
+        return webCacheManager.getCache(REPLICATE_CACHE);
     }
 
-    @Produces
-    @ClusteredCache(INITIAL_PASSWORD_CACHE)
-    public TransactionManager initialPasswordCacheTransactionManager(
-            @ClusteredCache(INITIAL_PASSWORD_CACHE)
-                    Cache<String, String> cache) {
-        return cache.getAdvancedCache().getTransactionManager();
-    }
 }

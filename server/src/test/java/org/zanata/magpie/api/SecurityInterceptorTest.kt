@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriInfo
 
 class SecurityInterceptorTest {
     @Mock
-    private lateinit var initialPasswords: Set<String>
+    private lateinit var initialPasswordProvider: Provider<String>
 
     @Mock
     private lateinit var accountService: AccountService
@@ -46,7 +46,7 @@ class SecurityInterceptorTest {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         authenticatedAccount = AuthenticatedAccount()
-        interceptor = SecurityInterceptor(initialPasswords, accountService, authenticatedAccount)
+        interceptor = SecurityInterceptor(initialPasswordProvider, accountService, authenticatedAccount)
 
         given(requestContext.getUriInfo()).willReturn(uriInfo)
         given(uriInfo.getRequestUri()).willReturn(notPublicURI)
@@ -90,7 +90,7 @@ class SecurityInterceptorTest {
     fun initialPasswordUnmatchIsUnauthenticated() {
         given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         given(requestContext.getHeaderString(headerToken)).willReturn("unmatchedInitialPassword")
-        given(initialPasswords.contains("initialPassword")).willReturn(false)
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
 
         interceptor.filter(requestContext)
 
@@ -103,7 +103,7 @@ class SecurityInterceptorTest {
     fun canAuthenticateUsingInitialPasswordToCreateAccount() {
         given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
-        given(initialPasswords.contains("initialPassword")).willReturn(true)
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
         given(requestContext.uriInfo).willReturn(uriInfo)
         given(uriInfo.path).willReturn("/account")
         given(requestContext.method).willReturn("POST")
@@ -119,7 +119,7 @@ class SecurityInterceptorTest {
     fun canNotAuthenticateUsingInitialPasswordIfNotCreatingAccount() {
         given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         given(requestContext.getHeaderString(headerToken)).willReturn("initialPassword")
-        given(initialPasswords.contains("initialPassword")).willReturn(true)
+        given(initialPasswordProvider.get()).willReturn("initialPassword")
         given(requestContext.uriInfo).willReturn(uriInfo)
         given(uriInfo.path).willReturn("/account")
         given(requestContext.method).willReturn("GET")
@@ -136,7 +136,7 @@ class SecurityInterceptorTest {
     fun canAuthenticateUsingDatabase() {
         given(requestContext.getHeaderString(headerUser)).willReturn("admin")
         given(requestContext.getHeaderString(headerToken)).willReturn("secret")
-        given(initialPasswords.isEmpty()).willReturn(true)
+        given(initialPasswordProvider.get()).willReturn(null)
         val account = Account()
         given(accountService.authenticate("admin", "secret"))
                 .willReturn(Optional.of(account))
