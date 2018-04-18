@@ -56,9 +56,6 @@ def notify
 def defaultNodeLabel
 
 @Field
-def branchName
-
-@Field
 def version
 
 String getLabel() {
@@ -86,9 +83,8 @@ String getLabel() {
 }
 
 
-node(getLabel()) {
-  echo "running on node ${env.NODE_NAME}"
-  currentBuild.displayName = currentBuild.displayName + " {${env.NODE_NAME}}"
+node {
+  echo "Setup running on node ${env.NODE_NAME}"
 
   pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
   pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
@@ -98,8 +94,6 @@ node(getLabel()) {
     pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
   )
   defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
-  // eg github-zanata-org/zanata-platform/update-Jenkinsfile
-  jobName = env.JOB_NAME
   def projectProperties = [
     [$class: 'BuildDiscarderProperty',
       strategy:
@@ -127,24 +121,17 @@ node(getLabel()) {
       ]
     ]
   ]
-  branchName = env.BRANCH_NAME
   properties(projectProperties)
 }
 
 timestamps {
-  node (defaultNodeLabel) {
+  node(getLabel()) {
     echo "running on node ${env.NODE_NAME}"
     // See if we are affected by JENKINS-28921 (Can't access Jenkins Global Properties from Pipeline DSL)
+    currentBuild.displayName = currentBuild.displayName + " {${env.NODE_NAME}}"
     // Also note that envinject plugin is
     assert env.MT_DOCKER_REGISTRY_URL
     assert env.MT_DOCKER_REGISTRY_URL_OPEN
-    pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
-    pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
-    mainScmGit = new ScmGit(env, steps, PROJ_URL)
-    mainScmGit.init(env.BRANCH_NAME)
-    notify = new Notifier(env, steps, currentBuild,
-        pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
-    )
     ansicolor {
       try {
         stage('Checkout') {
@@ -156,7 +143,7 @@ timestamps {
         }
 
         notify.startBuilding()
-        if (branchName == 'master' && params.isReleasing) {
+        if (env.BRANCH_NAME == 'master' && params.isReleasing) {
           buildAndDeploy()
         } else {
           buildOnly()
@@ -479,9 +466,9 @@ void processTestResults() {
   // parse Jacoco test coverage
   step([$class: 'JacocoPublisher'])
 
-  if (branchName == 'master') {
+  if (env.BRANCH_NAME == 'master') {
     step([$class: 'MasterCoverageAction'])
-  } else if (branchName.startsWith('PR-')) {
+  } else if (env.BRANCH_NAME.startsWith('PR-')) {
     step([$class: 'CompareCoverageAction'])
   }
 
