@@ -61,8 +61,35 @@ def branchName
 @Field
 def version
 
-node {
+String getLabel() {
+	def labelParam = null
+	try {
+		labelParam = params.LABEL
+	} catch (e1) {
+		// workaround for https://issues.jenkins-ci.org/browse/JENKINS-38813
+		echo '[WARNING] unable to access `params`'
+		echo getStackTrace(e1)
+		try {
+			labelParam = LABEL
+		} catch (e2) {
+			echo '[WARNING] unable to access `LABEL`'
+			echo getStackTrace(e2)
+		}
+	}
+
+	if (labelParam == null) {
+		echo "LABEL param is null; using default value."
+	}
+	def result = labelParam ?: defaultNodeLabel
+	echo "Using build node label: $result"
+	return result
+}
+
+
+node(getLabel()) {
   echo "running on node ${env.NODE_NAME}"
+  currentBuild.displayName = currentBuild.displayName + " {${env.NODE_NAME}}"
+
   pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
   pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
   mainScmGit = new ScmGit(env, steps, PROJ_URL)
