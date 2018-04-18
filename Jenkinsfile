@@ -59,72 +59,71 @@ def defaultNodeLabel
 def version
 
 String getLabel() {
-	def labelParam = null
-	try {
-		labelParam = params.LABEL
-	} catch (e1) {
-		// workaround for https://issues.jenkins-ci.org/browse/JENKINS-38813
-		echo '[WARNING] unable to access `params`'
-		echo getStackTrace(e1)
-		try {
-			labelParam = LABEL
-		} catch (e2) {
-			echo '[WARNING] unable to access `LABEL`'
-			echo getStackTrace(e2)
-		}
-	}
+  def labelParam = null
+  try {
+    labelParam = params.LABEL
+  } catch (e1) {
+    // workaround for https://issues.jenkins-ci.org/browse/JENKINS-38813
+    echo '[WARNING] unable to access `params`'
+    echo getStackTrace(e1)
+    try {
+      labelParam = LABEL
+    } catch (e2) {
+      echo '[WARNING] unable to access `LABEL`'
+      echo getStackTrace(e2)
+    }
+  }
 
-	if (labelParam == null) {
-		echo "LABEL param is null; using default value."
-	}
-	def result = labelParam ?: defaultNodeLabel
-	echo "Using build node label: $result"
-	return result
-}
-
-
-node {
-  echo "Setup running on node ${env.NODE_NAME}"
-
-  pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
-  pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
-  mainScmGit = new ScmGit(env, steps, PROJ_URL)
-  mainScmGit.init(env.BRANCH_NAME)
-  notify = new Notifier(env, steps, currentBuild,
-    pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
-  )
-  defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
-  def projectProperties = [
-    [$class: 'BuildDiscarderProperty',
-      strategy:
-        [$class: 'LogRotator',
-          numToKeepStr: '10',        // keep records for at most X builds
-        ]
-    ],
-    [$class: 'GithubProjectProperty',
-      projectUrlStr: PROJ_URL
-    ],
-    [$class: 'ParametersDefinitionProperty',
-      parameterDefinitions: [
-        [$class: 'LabelParameterDefinition',
-          // Specify the default node in Jenkins env var DEFAULT_NODE
-          // (eg kvm), or leave blank to build on any node.
-          defaultValue: defaultNodeLabel,
-          description: 'Jenkins node label to use for build',
-          name: 'LABEL'
-        ],
-        [$class: 'BooleanParameterDefinition',
-          defaultValue: true,
-          description: 'Make release',
-          name: 'isReleasing'
-        ],
-      ]
-    ]
-  ]
-  properties(projectProperties)
+  if (labelParam == null) {
+    echo "LABEL param is null; using default value."
+  }
+  def result = labelParam ?: defaultNodeLabel
+  echo "Using build node label: $result"
+  return result
 }
 
 timestamps {
+  node {
+    echo "Setup running on node ${env.NODE_NAME}"
+
+    pipelineLibraryScmGit = new ScmGit(env, steps, 'https://github.com/zanata/zanata-pipeline-library')
+    pipelineLibraryScmGit.init(PIPELINE_LIBRARY_BRANCH)
+    mainScmGit = new ScmGit(env, steps, PROJ_URL)
+    mainScmGit.init(env.BRANCH_NAME)
+    notify = new Notifier(env, steps, currentBuild,
+      pipelineLibraryScmGit, mainScmGit, (env.GITHUB_COMMIT_CONTEXT) ?: 'Jenkinsfile',
+    )
+    defaultNodeLabel = env.DEFAULT_NODE ?: 'master || !master'
+    def projectProperties = [
+      [$class: 'BuildDiscarderProperty',
+        strategy:
+          [$class: 'LogRotator',
+            numToKeepStr: '10',        // keep records for at most X builds
+          ]
+      ],
+      [$class: 'GithubProjectProperty',
+        projectUrlStr: PROJ_URL
+      ],
+      [$class: 'ParametersDefinitionProperty',
+        parameterDefinitions: [
+          [$class: 'LabelParameterDefinition',
+            // Specify the default node in Jenkins env var DEFAULT_NODE
+            // (eg kvm), or leave blank to build on any node.
+            defaultValue: defaultNodeLabel,
+            description: 'Jenkins node label to use for build',
+            name: 'LABEL'
+          ],
+          [$class: 'BooleanParameterDefinition',
+            defaultValue: true,
+            description: 'Make release',
+            name: 'isReleasing'
+          ],
+        ]
+      ]
+    ]
+    properties(projectProperties)
+  }
+
   node(getLabel()) {
     echo "running on node ${env.NODE_NAME}"
     // See if we are affected by JENKINS-28921 (Can't access Jenkins Global Properties from Pipeline DSL)
