@@ -2,6 +2,9 @@ import * as React from 'react';
 import { Alert } from '../../components'
 import {ErrorData} from "../../types/models"
 
+import { Layout } from 'antd'
+const { Content } = Layout
+
 interface AppProps {
   errorData?: ErrorData
 }
@@ -11,12 +14,10 @@ const App: React.StatelessComponent<AppProps> = ({
  }) => {
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
     return (
-      <div className='container justify-content-center mt-3'>
+      <Content style={{ padding: 24 }}>
         {alert}
         <h1>Home</h1>
-        <div className='p-3 mt-3'>
-        </div>
-      </div>
+      </Content>
     )
 }
 

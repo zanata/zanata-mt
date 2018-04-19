@@ -11,7 +11,10 @@ import {App, Info, NavBar} from './containers'
 import thunk from 'redux-thunk'
 import { NoMatch, Health } from './components'
 
-import './styles/index.scss'
+
+import { Layout } from 'antd'
+
+import './styles/index.less'
 
 function configureStore(initialState?: RootState) {
   const logger = createLogger({
@@ -48,15 +51,17 @@ const history = createBrowserHistory();
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <>
+      <Layout style={{ minHeight: '100vh' }}>
         <NavBar />
-        <Switch>
-          <Route exact path='/' component={App}/>
-          <Route path='/app/info' component={Info}/>
-          <Route path='/app/health' component={Health}/>
-          <Route component={NoMatch}/>
-        </Switch>
-      </>
+        <Layout>
+          <Switch>
+            <Route exact path='/' component={App}/>
+            <Route path='/app/info' component={Info}/>
+            <Route path='/app/health' component={Health}/>
+            <Route component={NoMatch}/>
+          </Switch>
+        </Layout>
+      </Layout>
     </Router>
   </Provider>,
   document.getElementById('root')

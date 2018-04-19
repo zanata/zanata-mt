@@ -4,6 +4,8 @@ import { RootState } from '../../reducers';
 import { getInfo } from '../../actions/info';
 import { Alert } from '../../components'
 import {ErrorData} from "../../types/models"
+import { Layout, Spin, Icon, Row, Col } from 'antd'
+const { Content } = Layout
 
 export interface Props {
   loading?: boolean,
@@ -23,65 +25,58 @@ export class Info extends React.Component<Props, {}> {
   }
 
   public render() {
-    const { loading, appName, version, build, dev, errorData } = this.props;
+    const { appName, loading, version, build, dev, errorData } = this.props
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
 
-    const emptyValue = <em className='badge badge-default'>Undefined</em>
-    const loadingComp = loading ? <span>loading</span> : undefined
+    const emptyValue = <em>Undefined</em>
+    const loadingComp = loading && <Spin indicator={<Icon type="loading" spin />} />
     return (
-      <div className='container justify-content-center w-50 mt-3'>
+      <Content style={{ padding: 24 }}>
         { alert }
         <h1>Information</h1>
-        <div className='p-3 mt-3'>
-          <table className='table'>
-            <tbody>
-              <tr>
-                <td>Name</td>
-                <td>
-                  {loading
-                    ? loadingComp
-                    : appName
-                      ? <span className='badge badge-info'>{appName}</span>
-                      : emptyValue
-                  }
-                </td>
-              </tr>
-              <tr>
-                <td>Version</td>
-                <td>
-                  {loading
-                    ? loadingComp
-                    : version
-                      ? <span className='badge badge-info'>{version}</span>
-                      : emptyValue
-                  }
-                </td>
-              </tr>
-              <tr>
-                <td>Build</td>
-                <td>
-                  {loading
-                    ? loadingComp
-                    :build
-                      ? <span className='badge badge-info'>{build}</span>
-                      : emptyValue
-                  }
-                </td>
-              </tr>
-              {dev && <tr>
-                <td>Dev Mode</td>
-                <td>
-                  {loading
-                    ? loadingComp
-                    : <span
-                      className='badge badge-warning text-white'>Yes</span>
-                  }
-                </td>
-              </tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <Row justify='start' type='flex'>
+          <Col span={4}>Name</Col>
+          <Col>
+            {loading
+              ? loadingComp
+              : appName
+                ? <span>{appName}</span>
+                : emptyValue
+            }
+          </Col>
+        </Row>
+        <Row justify='start' type='flex'>
+          <Col span={4}>Version</Col>
+          <Col>
+            {loading
+              ? loadingComp
+              : version
+                ? <span>{version}</span>
+                : emptyValue
+            }
+          </Col>
+        </Row>
+        <Row justify='start' type='flex'>
+          <Col span={4}>Build</Col>
+          <Col>
+            {loading
+              ? loadingComp
+              :build
+                ? <span>{build}</span>
+                : emptyValue
+            }
+          </Col>
+        </Row>
+        {dev && <Row justify='start' type='flex'>
+          <Col span={4}>Dev Mode</Col>
+          <Col>
+            {loading
+              ? loadingComp
+              : <strong>Yes</strong>
+            }
+          </Col>
+        </Row>}
+      </Content>
     )
   }
 }

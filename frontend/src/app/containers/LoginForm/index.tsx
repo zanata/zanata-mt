@@ -1,14 +1,15 @@
 import * as React from 'react'
 import {connect, GenericDispatch} from 'react-redux'
 import { login } from '../../actions/common'
-import { Alert, Modal, ModalBody, ModalFooter, size } from '../../components'
+import { Alert } from '../../components'
 import {RootState} from '../../reducers'
 import {isEmpty} from 'lodash'
 import {ErrorData} from "../../types/models"
-import {Input} from "postcss"
+import { Modal, Button, Form, Icon, Input} from 'antd'
+const FormItem = Form.Item;
 
 export interface Props {
-  show: boolean
+  visible: boolean
   loading?: boolean
   errorData?: ErrorData,
   handleLogin: (username: string, pass: string) => void
@@ -50,6 +51,10 @@ export class LoginForm extends React.Component<Props, State> {
     })
   }
 
+  private handleSubmit(e: React.FormEvent<Form>) {
+    e.preventDefault()
+  }
+
   private login() {
     this.props.handleLogin(this.state.username, this.state.password)
   }
@@ -64,49 +69,39 @@ export class LoginForm extends React.Component<Props, State> {
   }
 
   public render() {
-    const { errorData, loading, show } = this.props
+    const { errorData, loading, visible } = this.props
     const { username, password, validated } = this.state
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
 
-    const body = (
-      <ModalBody>
-        <div className='main-login-form'>
-          {alert}
-          <div className='login-group'>
-            <div className='form-group'>
-              <label htmlFor='lg_username'
-                className='sr-only'>Username</label>
-              <input type='text' className='form-control' value={username}
-                onChange={this.handleChangeUsername}
-                name='lg_username' placeholder='username'/>
-            </div>
-            <div className='form-group'>
-              <label htmlFor='lg_password'
-                className='sr-only'>Password</label>
-              <input type='password' className='form-control' value={password}
-                onChange={this.handleChangePassword}
-                name='lg_password' placeholder='password'/>
-            </div>
-          </div>
-        </div>
-      </ModalBody>
-    )
-
     const footer = (
-      <ModalFooter>
-        <button className='btn btn-primary'
-          onClick={this.login} disabled={!validated || loading}>
-          Login
-        </button>
-        <button className='btn btn-secondary' onClick={this.cancel}>
-          Cancel
-        </button>
-      </ModalFooter>
+        <FormItem>
+          <Button type='primary'
+            loading={loading}
+            onClick={this.login} disabled={!validated || loading}>
+            Log in
+          </Button>
+          <Button onClick={this.cancel} type='danger'>
+            Cancel
+          </Button>
+        </FormItem>
     )
     return (
-      <Modal title='Login' show={show}
-        onClose={this.cancel} body={body}
-        footer={footer} size={size.small} />
+      <Modal title='Login' visible={visible}
+        closable={false}
+        onCancel={this.cancel}
+        footer={footer} >
+        <Form className='login-form' onSubmit={this.handleSubmit}>
+          {alert}
+          <FormItem>
+            <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                placeholder="Username" value={username} onChange={this.handleChangeUsername} />
+          </FormItem>
+          <FormItem>
+            <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                type="password" placeholder="Password" value={password} onChange={this.handleChangePassword} />
+          </FormItem>
+        </Form>
+      </Modal>
     )
   }
 }
