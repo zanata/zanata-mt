@@ -4,10 +4,12 @@
 # Required file in same directory:
 # - ROOT.war - packaged war file
 #
-# https://access.redhat.com/containers/?tab=tech-details#/registry.access.redhat.com/jboss-eap-7/eap70-openshift
-FROM registry.access.redhat.com/jboss-eap-7/eap70-openshift:latest
+# https://access.redhat.com/containers/?tab=overview#/registry.access.redhat.com/jboss-eap-7/eap71-openshift
+#
+FROM registry.access.redhat.com/jboss-eap-7/eap71-openshift:latest
 
 MAINTAINER "Alex Eng" <aeng@redhat.com>
+MAINTAINER "Patrick Huang" <pahuang@redhat.com>
 
 EXPOSE 8080
 
