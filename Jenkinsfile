@@ -512,7 +512,7 @@ void buildAndTagDockerImage(workspace, dockerImage, dockerRegistryUrl) {
   sh "curl -o $workspace/certs/RH-IT-pki-ca-chain.crt $env.SSL_INTERMEDIATE_CA_CERT"
 
   echo "Building docker MT $version..."
-  sh "docker build --pull -f $workspace/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace"
+  sh "docker build --pull --no-cache -f $workspace/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace"
 
   sh "echo Creating tag for $version..."
   sh "docker tag $dockerImage:$version $dockerRegistryUrl/$dockerImage:$version"
