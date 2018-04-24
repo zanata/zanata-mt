@@ -18,7 +18,8 @@ USER root
 # copy all certs from certs/ directory
 COPY certs/ /etc/pki/ca-trust/source/anchors/
 
-RUN update-ca-trust extract
+# install certificates and security patches
+RUN update-ca-trust extract && yum update -y --security
 
 # need to use numeric uid so it's more suitable in Openshift
 # 185 is used in parent image and it's reserved for jboss as
