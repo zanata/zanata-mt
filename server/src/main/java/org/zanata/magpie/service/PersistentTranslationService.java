@@ -123,6 +123,7 @@ public class PersistentTranslationService {
         Map<Integer, TextFlow> indexTextFlowMap = Maps.newHashMap();
 
         // search from database
+        int matchCount = 0;
         for (int sourceStringIndex = 0; sourceStringIndex < sourceStrings.size(); sourceStringIndex++) {
             String string = sourceStrings.get(sourceStringIndex);
             String contentHash = HashUtil.generateHash(string);
@@ -139,8 +140,9 @@ public class PersistentTranslationService {
 
                 if (matchedTarget.isPresent()) {
                     TextFlowTarget matchedEntity = matchedTarget.get();
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info(
+                    matchCount++;
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(
                                 "Found match, Source {}:{}:{}\nTranslation {}:{}",
                                 fromLocale.getLocaleCode(), document.getUrl(),
                                 ShortString.shorten(string),
@@ -157,6 +159,7 @@ public class PersistentTranslationService {
                 untranslatedIndexMap.put(string, sourceStringIndex);
             }
         }
+        LOG.info("found {} of match sources and translations in database", matchCount);
 
         // see if we got all translations from database records
         if (untranslatedIndexMap.isEmpty()) {
