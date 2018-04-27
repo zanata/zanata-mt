@@ -123,80 +123,83 @@ public class PersistentTranslationService {
 <span class="fc" id="L123">        Map&lt;Integer, TextFlow&gt; indexTextFlowMap = Maps.newHashMap();</span>
 
         // search from database
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int sourceStringIndex = 0; sourceStringIndex &lt; sourceStrings.size(); sourceStringIndex++) {</span>
-<span class="fc" id="L127">            String string = sourceStrings.get(sourceStringIndex);</span>
-<span class="fc" id="L128">            String contentHash = HashUtil.generateHash(string);</span>
-<span class="fc" id="L129">            Optional&lt;TextFlow&gt; matchedHashTf =</span>
-<span class="fc" id="L130">                    tryFindTextFlowByContentHashFromDB(document, fromLocale, toLocale,</span>
+<span class="fc" id="L126">        int matchCount = 0;</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for (int sourceStringIndex = 0; sourceStringIndex &lt; sourceStrings.size(); sourceStringIndex++) {</span>
+<span class="fc" id="L128">            String string = sourceStrings.get(sourceStringIndex);</span>
+<span class="fc" id="L129">            String contentHash = HashUtil.generateHash(string);</span>
+<span class="fc" id="L130">            Optional&lt;TextFlow&gt; matchedHashTf =</span>
+<span class="fc" id="L131">                    tryFindTextFlowByContentHashFromDB(document, fromLocale, toLocale,</span>
                             backendID, contentHash);
 
-<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (matchedHashTf.isPresent()) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            if (matchedHashTf.isPresent()) {</span>
                 // we found a matching text flow in database
                 // now check to see if it has translation from the same provider
-<span class="fc" id="L136">                TextFlow matchedTf = matchedHashTf.get();</span>
-<span class="fc" id="L137">                Optional&lt;TextFlowTarget&gt; matchedTarget = findTargetByLocaleAndProvider(</span>
+<span class="fc" id="L137">                TextFlow matchedTf = matchedHashTf.get();</span>
+<span class="fc" id="L138">                Optional&lt;TextFlowTarget&gt; matchedTarget = findTargetByLocaleAndProvider(</span>
                         toLocale, backendID, matchedTf);
 
-<span class="fc bfc" id="L140" title="All 2 branches covered.">                if (matchedTarget.isPresent()) {</span>
-<span class="fc" id="L141">                    TextFlowTarget matchedEntity = matchedTarget.get();</span>
-<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                    if (LOG.isInfoEnabled()) {</span>
-<span class="fc" id="L143">                        LOG.info(</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">                if (matchedTarget.isPresent()) {</span>
+<span class="fc" id="L142">                    TextFlowTarget matchedEntity = matchedTarget.get();</span>
+<span class="fc" id="L143">                    matchCount++;</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                    if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L145">                        LOG.debug(</span>
                                 &quot;Found match, Source {}:{}:{}\nTranslation {}:{}&quot;,
-<span class="fc" id="L145">                                fromLocale.getLocaleCode(), document.getUrl(),</span>
-<span class="fc" id="L146">                                ShortString.shorten(string),</span>
-<span class="fc" id="L147">                                toLocale.getLocaleCode(),</span>
-<span class="fc" id="L148">                                ShortString.shorten(matchedEntity.getContent()));</span>
+<span class="nc" id="L147">                                fromLocale.getLocaleCode(), document.getUrl(),</span>
+<span class="nc" id="L148">                                ShortString.shorten(string),</span>
+<span class="nc" id="L149">                                toLocale.getLocaleCode(),</span>
+<span class="nc" id="L150">                                ShortString.shorten(matchedEntity.getContent()));</span>
                     }
 
-<span class="fc" id="L151">                    results.set(sourceStringIndex, matchedEntity.getContent());</span>
-<span class="fc" id="L152">                } else {</span>
-<span class="fc" id="L153">                    untranslatedIndexMap.put(string, sourceStringIndex);</span>
-<span class="fc" id="L154">                    indexTextFlowMap.put(sourceStringIndex, matchedTf);</span>
+<span class="fc" id="L153">                    results.set(sourceStringIndex, matchedEntity.getContent());</span>
+<span class="fc" id="L154">                } else {</span>
+<span class="fc" id="L155">                    untranslatedIndexMap.put(string, sourceStringIndex);</span>
+<span class="fc" id="L156">                    indexTextFlowMap.put(sourceStringIndex, matchedTf);</span>
                 }
-<span class="fc" id="L156">            } else {</span>
-<span class="fc" id="L157">                untranslatedIndexMap.put(string, sourceStringIndex);</span>
+<span class="fc" id="L158">            } else {</span>
+<span class="fc" id="L159">                untranslatedIndexMap.put(string, sourceStringIndex);</span>
             }
         }
+<span class="fc" id="L162">        LOG.info(&quot;found {} of match sources and translations in database&quot;, matchCount);</span>
 
         // see if we got all translations from database records
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (untranslatedIndexMap.isEmpty()) {</span>
-<span class="fc" id="L163">            return results;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (untranslatedIndexMap.isEmpty()) {</span>
+<span class="fc" id="L166">            return results;</span>
         }
 
         // translate using requested MT engine
-<span class="fc" id="L167">        List&lt;String&gt; sourcesToTranslate = Lists.newArrayList(untranslatedIndexMap.keySet());</span>
-<span class="fc" id="L168">        List&lt;AugmentedTranslation&gt; translations =</span>
-<span class="fc" id="L169">                translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,</span>
+<span class="fc" id="L170">        List&lt;String&gt; sourcesToTranslate = Lists.newArrayList(untranslatedIndexMap.keySet());</span>
+<span class="fc" id="L171">        List&lt;AugmentedTranslation&gt; translations =</span>
+<span class="fc" id="L172">                translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,</span>
                         mappedToLocaleCode, mediaType, category);
 
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        for (int i = 0; i &lt; sourcesToTranslate.size(); i++) {</span>
-<span class="fc" id="L173">            String source = sourcesToTranslate.get(i);</span>
-<span class="fc" id="L174">            AugmentedTranslation translation = translations.get(i);</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (int i = 0; i &lt; sourcesToTranslate.size(); i++) {</span>
+<span class="fc" id="L176">            String source = sourcesToTranslate.get(i);</span>
+<span class="fc" id="L177">            AugmentedTranslation translation = translations.get(i);</span>
             // same string may appear several times in a document therefore has several indexes
-<span class="fc" id="L176">            Collection&lt;Integer&gt; indexes = untranslatedIndexMap.get(source);</span>
-<span class="fc" id="L177">            indexes.forEach(j -&gt; results.set(j, translation.getPlainTranslation()));</span>
+<span class="fc" id="L179">            Collection&lt;Integer&gt; indexes = untranslatedIndexMap.get(source);</span>
+<span class="fc" id="L180">            indexes.forEach(j -&gt; results.set(j, translation.getPlainTranslation()));</span>
 
             // see if we already have a matched text flow
             // (either in the same document or copied from other document)
-<span class="fc" id="L181">            TextFlow tf = indexTextFlowMap.get(indexes.iterator().next());</span>
-<span class="fc bfc" id="L182" title="All 2 branches covered.">            if (tf == null) {</span>
-<span class="fc" id="L183">                tf = createTextFlow(document, source, fromLocale);</span>
+<span class="fc" id="L184">            TextFlow tf = indexTextFlowMap.get(indexes.iterator().next());</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (tf == null) {</span>
+<span class="fc" id="L186">                tf = createTextFlow(document, source, fromLocale);</span>
             }
-<span class="fc" id="L185">            TextFlowTarget target =</span>
-<span class="fc" id="L186">                    new TextFlowTarget(translation.getPlainTranslation(),</span>
-<span class="fc" id="L187">                            translation.getRawTranslation(), tf,</span>
+<span class="fc" id="L188">            TextFlowTarget target =</span>
+<span class="fc" id="L189">                    new TextFlowTarget(translation.getPlainTranslation(),</span>
+<span class="fc" id="L190">                            translation.getRawTranslation(), tf,</span>
                             toLocale, backendID);
-<span class="fc" id="L189">            createOrUpdateTextFlowTarget(target);</span>
+<span class="fc" id="L192">            createOrUpdateTextFlowTarget(target);</span>
         }
-<span class="fc" id="L191">        return results;</span>
+<span class="fc" id="L194">        return results;</span>
     }
 
     private @NotNull
     TranslatorBackend getTranslatorBackend(@NotNull BackendID backendID) {
-<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (translatorBackendMap.containsKey(backendID)) {</span>
-<span class="fc" id="L197">            return translatorBackendMap.get(backendID);</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if (translatorBackendMap.containsKey(backendID)) {</span>
+<span class="fc" id="L200">            return translatorBackendMap.get(backendID);</span>
         }
-<span class="nc" id="L199">        throw new BadRequestException(&quot;Unsupported backendId:&quot; + backendID);</span>
+<span class="nc" id="L202">        throw new BadRequestException(&quot;Unsupported backendId:&quot; + backendID);</span>
     }
 
     /**
@@ -220,21 +223,21 @@ public class PersistentTranslationService {
             @NotNull Document document,
             @NotNull Locale fromLocale, @NotNull Locale toLocale,
             @NotNull BackendID backendID, String contentHash) {
-<span class="fc" id="L223">        TextFlow matchedHashTf = document.getTextFlows().get(contentHash);</span>
-<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (matchedHashTf == null) {</span>
+<span class="fc" id="L226">        TextFlow matchedHashTf = document.getTextFlows().get(contentHash);</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (matchedHashTf == null) {</span>
             // we don't have text flow for this document yet,
             // now try to search similar text flow from database
-<span class="fc" id="L227">            Optional&lt;TextFlow&gt; tfCopy =</span>
-<span class="fc" id="L228">                    tryCopyTextFlowAndTargetFromDB(document, fromLocale,</span>
+<span class="fc" id="L230">            Optional&lt;TextFlow&gt; tfCopy =</span>
+<span class="fc" id="L231">                    tryCopyTextFlowAndTargetFromDB(document, fromLocale,</span>
                             toLocale, contentHash, backendID);
 
-<span class="fc" id="L231">            matchedHashTf = tfCopy.orElse(null);</span>
+<span class="fc" id="L234">            matchedHashTf = tfCopy.orElse(null);</span>
         }
-<span class="fc" id="L233">        return Optional.ofNullable(matchedHashTf);</span>
+<span class="fc" id="L236">        return Optional.ofNullable(matchedHashTf);</span>
     }
 
     public int getMaxLength(@NotNull BackendID backendID) {
-<span class="nc" id="L237">        return getTranslatorBackend(backendID).getCharLimitPerRequest();</span>
+<span class="nc" id="L240">        return getTranslatorBackend(backendID).getCharLimitPerRequest();</span>
     }
 
 
@@ -248,44 +251,44 @@ public class PersistentTranslationService {
     private Optional&lt;TextFlow&gt; tryCopyTextFlowAndTargetFromDB(Document document,
             Locale fromLocale, Locale toLocale, String contentHash,
             BackendID backendID) {
-<span class="fc" id="L251">        Optional&lt;TextFlow&gt; textFlow =</span>
-<span class="fc" id="L252">                textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(),</span>
+<span class="fc" id="L254">        Optional&lt;TextFlow&gt; textFlow =</span>
+<span class="fc" id="L255">                textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(),</span>
                         contentHash);
-<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (textFlow.isPresent()) {</span>
-<span class="pc bpc" id="L255" title="1 of 2 branches missed.">            if (textFlow.get().getDocument().equals(document)) {</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (textFlow.isPresent()) {</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">            if (textFlow.get().getDocument().equals(document)) {</span>
                 // this document already has this text flow
-<span class="fc" id="L257">                return textFlow;</span>
+<span class="fc" id="L260">                return textFlow;</span>
             } else {
                 // found a matching text flow from different document
                 // copy textFlow and possible target textFlowTarget
-<span class="nc" id="L261">                TextFlow newTfCopy =</span>
-<span class="nc" id="L262">                        new TextFlow(document, textFlow.get().getContent(),</span>
+<span class="nc" id="L264">                TextFlow newTfCopy =</span>
+<span class="nc" id="L265">                        new TextFlow(document, textFlow.get().getContent(),</span>
                                 fromLocale);
-<span class="nc" id="L264">                Optional&lt;TextFlowTarget&gt; matchedTft =</span>
-<span class="nc" id="L265">                        findTargetByLocaleAndProvider(toLocale, backendID,</span>
-<span class="nc" id="L266">                                textFlow.get());</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">                if (matchedTft.isPresent()) {</span>
-<span class="nc" id="L268">                    TextFlowTarget tft = matchedTft.get();</span>
-<span class="nc" id="L269">                    newTfCopy.getTargets()</span>
-<span class="nc" id="L270">                            .add(new TextFlowTarget(tft.getContent(),</span>
-<span class="nc" id="L271">                                    tft.getRawContent(), newTfCopy,</span>
+<span class="nc" id="L267">                Optional&lt;TextFlowTarget&gt; matchedTft =</span>
+<span class="nc" id="L268">                        findTargetByLocaleAndProvider(toLocale, backendID,</span>
+<span class="nc" id="L269">                                textFlow.get());</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">                if (matchedTft.isPresent()) {</span>
+<span class="nc" id="L271">                    TextFlowTarget tft = matchedTft.get();</span>
+<span class="nc" id="L272">                    newTfCopy.getTargets()</span>
+<span class="nc" id="L273">                            .add(new TextFlowTarget(tft.getContent(),</span>
+<span class="nc" id="L274">                                    tft.getRawContent(), newTfCopy,</span>
                                     toLocale,
                                     backendID));
                 }
-<span class="nc" id="L275">                newTfCopy = textFlowDAO.persist(newTfCopy);</span>
-<span class="nc" id="L276">                document.getTextFlows()</span>
-<span class="nc" id="L277">                        .put(newTfCopy.getContentHash(), newTfCopy);</span>
-<span class="nc" id="L278">                return Optional.of(newTfCopy);</span>
+<span class="nc" id="L278">                newTfCopy = textFlowDAO.persist(newTfCopy);</span>
+<span class="nc" id="L279">                document.getTextFlows()</span>
+<span class="nc" id="L280">                        .put(newTfCopy.getContentHash(), newTfCopy);</span>
+<span class="nc" id="L281">                return Optional.of(newTfCopy);</span>
             }
         }
-<span class="fc" id="L281">        return Optional.empty();</span>
+<span class="fc" id="L284">        return Optional.empty();</span>
     }
 
     private TextFlow createTextFlow(Document document, String source,
             Locale locale) {
-<span class="fc" id="L286">        TextFlow tf = new TextFlow(document, source, locale);</span>
-<span class="fc" id="L287">        tf = textFlowDAO.persist(tf);</span>
-<span class="fc" id="L288">        return tf;</span>
+<span class="fc" id="L289">        TextFlow tf = new TextFlow(document, source, locale);</span>
+<span class="fc" id="L290">        tf = textFlowDAO.persist(tf);</span>
+<span class="fc" id="L291">        return tf;</span>
     }
 
     /**
@@ -293,23 +296,23 @@ public class PersistentTranslationService {
      * update the content and rawContent, else create new TextFlowTarget
      */
     private void createOrUpdateTextFlowTarget(TextFlowTarget tft) {
-<span class="fc" id="L296">        TextFlow tf = tft.getTextFlow();</span>
-<span class="fc" id="L297">        Optional&lt;TextFlowTarget&gt; existingTarget = textFlowTargetDAO</span>
-<span class="fc" id="L298">                .findTarget(tf, tft.getLocale(), tft.getBackendId());</span>
-<span class="pc bpc" id="L299" title="1 of 2 branches missed.">        if (existingTarget.isPresent()) {</span>
-<span class="nc" id="L300">            existingTarget.get()</span>
-<span class="nc" id="L301">                    .updateContent(tft.getContent(), tft.getRawContent());</span>
+<span class="fc" id="L299">        TextFlow tf = tft.getTextFlow();</span>
+<span class="fc" id="L300">        Optional&lt;TextFlowTarget&gt; existingTarget = textFlowTargetDAO</span>
+<span class="fc" id="L301">                .findTarget(tf, tft.getLocale(), tft.getBackendId());</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">        if (existingTarget.isPresent()) {</span>
+<span class="nc" id="L303">            existingTarget.get()</span>
+<span class="nc" id="L304">                    .updateContent(tft.getContent(), tft.getRawContent());</span>
         } else {
-<span class="fc" id="L303">            textFlowTargetDAO.persist(tft);</span>
+<span class="fc" id="L306">            textFlowTargetDAO.persist(tft);</span>
         }
-<span class="fc" id="L305">    }</span>
+<span class="fc" id="L308">    }</span>
 
     private static Optional&lt;TextFlowTarget&gt; findTargetByLocaleAndProvider(
             Locale toLocale, BackendID backendID, TextFlow textFlow) {
-<span class="fc" id="L309">        return textFlow.getTargets().stream()</span>
-<span class="pc bpc" id="L310" title="1 of 2 branches missed.">                .filter(target -&gt; target.getLocale().equals(toLocale)</span>
-<span class="pc bpc" id="L311" title="1 of 2 branches missed.">                        &amp;&amp; target.getBackendId().equals(backendID))</span>
-<span class="fc" id="L312">                .findAny();</span>
+<span class="fc" id="L312">        return textFlow.getTargets().stream()</span>
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">                .filter(target -&gt; target.getLocale().equals(toLocale)</span>
+<span class="pc bpc" id="L314" title="1 of 2 branches missed.">                        &amp;&amp; target.getBackendId().equals(backendID))</span>
+<span class="fc" id="L315">                .findAny();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
