@@ -58,7 +58,6 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             );
 
     private String clientSubscriptionKey;
-    private DTOUtil dtoUtil;
 
     private MicrosoftTranslatorClient api;
 
@@ -70,15 +69,14 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     }
 
     @Inject
-    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey, DTOUtil dtoUtil) {
+    public MicrosoftTranslatorBackend(@Credentials(BackendID.MS) String msAPIKey) {
         this.clientSubscriptionKey = msAPIKey;
-        this.dtoUtil = dtoUtil;
     }
 
     public void onInit(
             @Observes @Initialized(ApplicationScoped.class) Object init)
             throws MTException {
-        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient, dtoUtil);
+        api = new MicrosoftTranslatorClient(clientSubscriptionKey, restClient);
     }
 
     @Override
@@ -101,10 +99,10 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
             String rawResponse = api.requestTranslations(req);
             MSTranslateArrayResp resp =
-                    dtoUtil.toObject(rawResponse, MSTranslateArrayResp.class);
+                    DTOUtil.toObject(rawResponse, MSTranslateArrayResp.class);
             return resp.getResponse().stream().map(
                     res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
-                            dtoUtil.toXML(res)))
+                            DTOUtil.toXML(res)))
                     .collect(Collectors.toList());
         } catch (JAXBException e) {
             throw new MTException("Unable to get translations from MS API", e);
@@ -125,6 +123,11 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     @Override
     public BackendID getId() {
         return BackendID.MS;
+    }
+
+    @Override
+    public Optional<List<BackendLocaleCode>> getSupportedLocales() {
+        return Optional.empty();
     }
 
     @VisibleForTesting

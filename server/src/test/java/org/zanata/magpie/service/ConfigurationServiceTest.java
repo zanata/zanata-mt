@@ -23,9 +23,12 @@ public class ConfigurationServiceTest {
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config =
                 new ConfigurationService("clientSubscriptionKey",
-                        googleADC.getAbsolutePath(), "{\"type\": \"service_account\"," +
-                        "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}", "ms", null);
+                        googleADC.getAbsolutePath(),
+                        "{\"type\": \"service_account\"," +
+                                "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}",
+                        "deepLAPIKEY", "ms", null);
         assertThat(config.getMsAPIKey()).isEqualTo("clientSubscriptionKey");
+        assertThat(config.getDeepLAPIKey()).isEqualTo("deepLAPIKEY");
         assertThat(config.googleDefaultCredential().getCredentialsFile())
                 .isEqualTo(googleADC);
         assertThat(config.getBuildDate()).isNotBlank();
@@ -38,7 +41,7 @@ public class ConfigurationServiceTest {
     public void isDevModeIfNoAzureKeyAndGoogleCredential() throws IOException {
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config = new ConfigurationService("",
-                googleADC.getAbsolutePath(), "", "ms", null);
+                googleADC.getAbsolutePath(), "", "", "ms", null);
         assertThat(config.isDevMode()).isTrue();
     }
 
@@ -51,25 +54,32 @@ public class ConfigurationServiceTest {
                         googleADC.getAbsolutePath(),
                         "{\"type\": \"service_account\"," +
                                 "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}",
-                        "ms", "enableDev");
+                        "deepLKey", "ms", "enableDev");
 
         assertThat(
-                config.availableProviders(GoogleCredential.ABSENT, "", false))
-                        .isEmpty();
+                config.availableProviders(GoogleCredential.ABSENT, "", "",
+                        false))
+                .isEmpty();
         assertThat(config.availableProviders(config.googleDefaultCredential(),
-                "", false)).containsExactly(BackendID.GOOGLE);
+                "", "", false)).containsExactly(BackendID.GOOGLE);
         assertThat(config.availableProviders(config.googleDefaultCredential(),
-                "msKey", false)).containsExactlyInAnyOrder(BackendID.GOOGLE,
-                        BackendID.MS);
+                "msKey", "", false)).containsExactlyInAnyOrder(BackendID.GOOGLE,
+                BackendID.MS);
         assertThat(config.availableProviders(GoogleCredential.ABSENT, "msKey",
-                false)).containsExactly(BackendID.MS);
+                "", false)).containsExactly(BackendID.MS);
+        assertThat(config.availableProviders(GoogleCredential.ABSENT, "",
+                "DeepL", false)).containsExactly(BackendID.DEEPL);
         assertThat(config.availableProviders(GoogleCredential.ABSENT, "msKey",
-                true)).containsExactlyInAnyOrder(BackendID.MS, BackendID.DEV);
-        assertThat(config.availableProviders(config.googleDefaultCredential(),
-                "msKey", true)).containsExactlyInAnyOrder(BackendID.GOOGLE, BackendID.MS,
+                "deepLKey", true))
+                .containsExactlyInAnyOrder(BackendID.MS, BackendID.DEEPL,
                         BackendID.DEV);
         assertThat(config.availableProviders(config.googleDefaultCredential(),
-                "msKey", false)).containsExactlyInAnyOrder(BackendID.GOOGLE,
-                        BackendID.MS);
+                "msKey", "deepLKey", true))
+                .containsExactlyInAnyOrder(BackendID.GOOGLE, BackendID.MS,
+                        BackendID.DEEPL, BackendID.DEV);
+        assertThat(config.availableProviders(config.googleDefaultCredential(),
+                "msKey", "deepLKey", false))
+                .containsExactlyInAnyOrder(BackendID.GOOGLE,
+                        BackendID.MS, BackendID.DEEPL);
     }
 }

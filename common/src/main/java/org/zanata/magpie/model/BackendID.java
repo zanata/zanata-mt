@@ -17,6 +17,8 @@ public enum  BackendID implements Serializable {
     MS("MS"),
     // Google translation service
     GOOGLE("GOOGLE"),
+    // DeepL
+    DEEPL("DEEPL"),
 
     // DEV translators service
     DEV("DEV");
@@ -49,11 +51,14 @@ public enum  BackendID implements Serializable {
         if (Strings.isNullOrEmpty(value)) {
             return null;
         }
-        if (value.toLowerCase().startsWith("m")) {
+        if (value.toLowerCase().equals("ms")) {
             return MS;
         }
-        if (value.toLowerCase().startsWith("g")) {
+        if (value.toLowerCase().equals("google")) {
             return GOOGLE;
+        }
+        if (value.toLowerCase().equals("deepl")) {
+            return DEEPL;
         }
         if (value.equalsIgnoreCase("dev")) {
             return DEV;

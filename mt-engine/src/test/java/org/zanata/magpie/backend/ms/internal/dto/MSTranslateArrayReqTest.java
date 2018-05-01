@@ -15,8 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class MSTranslateArrayReqTest {
-    private DTOUtil dtoUtil = new DTOUtil();
-
     @Test
     public void testEmptyConstructor() {
         MSTranslateArrayReq req = new MSTranslateArrayReq();
@@ -69,8 +67,8 @@ public class MSTranslateArrayReqTest {
         MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
         options.setContentType("xml");
         req.setOptions(options);
-        String xml = dtoUtil.toXML(req);
-        MSTranslateArrayReq req1 = dtoUtil.toObject(xml, MSTranslateArrayReq.class);
+        String xml = DTOUtil.toXML(req);
+        MSTranslateArrayReq req1 = DTOUtil.toObject(xml, MSTranslateArrayReq.class);
         assertThat(req).isEqualTo(req1);
     }
 

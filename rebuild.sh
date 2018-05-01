@@ -13,10 +13,11 @@ SKIP_FRONTEND=false
 GOOGLE_CREDENTIAL_FILE=""
 GOOGLE_OPTION=""
 MS_OPTION=""
+DEEPL_OPTION=""
 DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
 TEST="-DskipTests"
 
-while getopts ":fehtg:m:d:" opt; do
+while getopts ":fehtg:m:d:l:" opt; do
   case ${opt} in
     h)
       echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-efht]" >&2
@@ -24,6 +25,7 @@ while getopts ":fehtg:m:d:" opt; do
       echo "-f Skip frontend build" >&2
       echo "-g Google credentials JSON file location" >&2
       echo "-m Microsoft translate API key" >&2
+      echo "-l DeepL API key" >&2
       echo "-d Default provider - DEV, MS, GOOGLE" >&2
       echo "-e enable DEV backend" >&2
       echo "-t Run tests" >&2
@@ -37,6 +39,9 @@ while getopts ":fehtg:m:d:" opt; do
       ;;
     m)
       MS_OPTION="-DMT_AZURE_KEY=$OPTARG"
+      ;;
+    l)
+      DEEPL_OPTION="-DDEEPL_KEY=$OPTARG"
       ;;
     d)
       DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=$OPTARG"
@@ -82,7 +87,7 @@ else
 fi
 
 mvn docker:build -pl :mt-server -DskipTests && \
-  mvn docker:start -pl :mt-server ${GOOGLE_OPTION} ${MS_OPTION} \
+  mvn docker:start -pl :mt-server ${GOOGLE_OPTION} ${MS_OPTION} ${DEEPL_OPTION} \
   ${ENABLE_DEV} ${DEFAULT_PROVIDER_OPTION}
 
 docker logs --follow MT

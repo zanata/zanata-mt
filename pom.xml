@@ -52,7 +52,7 @@
     <powermock.version>1.6.6</powermock.version>
     <okapi.version>0.33</okapi.version>
     <infinispan.version>8.1.4.Final</infinispan.version>
-    <docker-maven-plugin.version>0.16.8</docker-maven-plugin.version>
+    <docker-maven-plugin.version>0.26.0</docker-maven-plugin.version>
     <icu4j.version>58.2</icu4j.version>
     <postgresql.version>9.4.1212</postgresql.version>
     <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>

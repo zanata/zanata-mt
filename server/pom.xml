@@ -145,6 +145,7 @@
                     <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
                     <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
                     <MT_AZURE_KEY>${MT_AZURE_KEY}</MT_AZURE_KEY>
+                    <DEEPL_KEY>${DEEPL_KEY}</DEEPL_KEY>
                     <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
                     <!-- this need to match the volume binding below -->
                     <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>

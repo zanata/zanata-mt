@@ -17,6 +17,9 @@ public interface APIConstant {
     // AZURE Subscription key for MS backend
     String AZURE_KEY = "MT_AZURE_KEY";
 
+    // DeepL subscription key
+    String DEEPL_KEY = "DEEPL_KEY";
+
     /**
      * Google Application Default Credentials content for google backend.
      * The content of this environment variable will override the content of the

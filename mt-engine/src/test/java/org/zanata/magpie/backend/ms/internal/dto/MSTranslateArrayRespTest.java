@@ -11,13 +11,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class MSTranslateArrayRespTest {
-    private DTOUtil dtoUtil = new DTOUtil();
     @Test
     public void testRoundTrip() throws JAXBException {
         MSTranslateArrayResp resp = getDefaultResp();
 
-        String xml = dtoUtil.toXML(resp);
-        MSTranslateArrayResp resp1 = dtoUtil
+        String xml = DTOUtil.toXML(resp);
+        MSTranslateArrayResp resp1 = DTOUtil
             .toObject(xml, MSTranslateArrayResp.class);
         assertThat(resp).isEqualTo(resp1);
     }

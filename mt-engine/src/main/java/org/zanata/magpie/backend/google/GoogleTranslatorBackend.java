@@ -67,21 +67,21 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                     LocaleCode.ZH_HANS, new BackendLocaleCodeImpl("zh-CN"),
                     LocaleCode.ZH_HANT, new BackendLocaleCodeImpl("zh-TW")
             );
-    private DTOUtil dtoUtil;
     private GoogleCredential googleCredential;
 
     @Inject
-    public GoogleTranslatorBackend(DTOUtil dtoUtil,
+    public GoogleTranslatorBackend(
             @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential) {
-        this.dtoUtil = dtoUtil;
         this.googleCredential = googleCredential;
-        translate = TranslateOptions.getDefaultInstance().getService();
+        if (googleCredential.exists()) {
+            translate = TranslateOptions.getDefaultInstance().getService();
+        }
     }
 
     @VisibleForTesting
     protected GoogleTranslatorBackend(Translate translate,
-            DTOUtil dtoUtil, GoogleCredential googleCredential) {
-        this(dtoUtil, googleCredential);
+            GoogleCredential googleCredential) {
+        this(googleCredential);
         this.translate = translate;
     }
 
@@ -110,7 +110,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
             return translations.stream()
                     .map(translation -> new AugmentedTranslation(
                             translation.getTranslatedText(),
-                            dtoUtil.toJSON(translation))).collect(
+                            DTOUtil.toJSON(translation))).collect(
                             Collectors.toList());
         } catch (Exception e) {
             throw new MTException(
@@ -132,5 +132,10 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     @Override
     public BackendID getId() {
         return BackendID.GOOGLE;
+    }
+
+    @Override
+    public Optional<List<BackendLocaleCode>> getSupportedLocales() {
+        return Optional.empty();
     }
 }

@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MicrosoftTranslatorBackendTest {
     private MicrosoftTranslatorBackend msBackend = null;
-    private DTOUtil dtoUtil = new DTOUtil();
 
     @Test
     public void testConstructor() {
@@ -40,7 +39,7 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testMappedLocale() {
         LocaleCode from = LocaleCode.ZH_HANS;
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         BackendLocaleCode to = msBackend.getMappedLocale(from);
         assertThat(to.getLocaleCode()).isNotEqualTo(from.getId());
 
@@ -59,13 +58,13 @@ public class MicrosoftTranslatorBackendTest {
         respList.add(buildMSResponse("translation1"));
 
         resp.setResponse(respList);
-        String responseString = dtoUtil.toXML(resp);
+        String responseString = DTOUtil.toXML(resp);
 
         MicrosoftTranslatorClient api =
                 Mockito.mock(MicrosoftTranslatorClient.class);
         when(api.requestTranslations(any())).thenReturn(responseString);
 
-        msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
+        msBackend = new MicrosoftTranslatorBackend("subscriptionKey");
         msBackend.setApi(api);
         List<AugmentedTranslation> translations = msBackend
                 .translate(Lists.newArrayList(content), srcLocale, transLocale,
@@ -75,7 +74,7 @@ public class MicrosoftTranslatorBackendTest {
         AugmentedTranslation translation = translations.get(0);
         assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
         assertThat(translation.getRawTranslation())
-                .isEqualTo(dtoUtil.toXML(resp.getResponse().get(0)));
+                .isEqualTo(DTOUtil.toXML(resp.getResponse().get(0)));
     }
 
     private MSTranslateArrayResponse buildMSResponse(String message) {
