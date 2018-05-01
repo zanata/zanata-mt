@@ -155,19 +155,17 @@ public class DocumentResourceImpl implements DocumentResource {
         DocumentProcessKey key =
                 new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
                         toLocaleCode);
-        return docProcessManager.withLock(key, () -> {
-            Locale fromLocale = getLocale(fromLocaleCode);
-            Locale toLocale = getLocale(toLocaleCode);
+        Locale fromLocale = getLocale(fromLocaleCode);
+        Locale toLocale = getLocale(toLocaleCode);
 
-            Document doc = documentService
-                    .getOrCreateByUrl(docContent.getUrl(), fromLocale,
-                            toLocale);
-            documentService.incrementDocRequestCount(doc);
+        Document doc = documentService
+                .getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                        toLocale);
+        documentService.incrementDocRequestCount(doc);
 
-            DocumentContent newDocContent = documentContentTranslatorService
-                    .translateDocument(doc, docContent, backendID);
-            return Response.ok().entity(newDocContent).build();
-        });
+        DocumentContent newDocContent = documentContentTranslatorService
+                .translateDocument(doc, docContent, backendID);
+        return Response.ok().entity(newDocContent).build();
     }
 
     private Optional<APIResponse> validateTranslateRequest(DocumentContent docContent,

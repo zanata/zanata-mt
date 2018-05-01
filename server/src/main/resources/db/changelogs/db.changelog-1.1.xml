@@ -62,4 +62,11 @@
         referencedColumnNames="id" onDelete="CASCADE" />
   </changeSet>
 
+  <changeSet id="4" author="pahuang@redhat.com">
+    <comment>add column to record how many times a textflow has been requested for machine translation</comment>
+    <addColumn tableName="textflow">
+      <column name="mt_count" type="int" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
