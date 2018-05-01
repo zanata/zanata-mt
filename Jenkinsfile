@@ -174,51 +174,40 @@ private void deployToOpenPaaS() {
     stage('Deploy PR to OpenPaaS') {
       lock(resource: 'MT-DEPLOY-PR-TO-OPENPAAS', inversePrecedence: true) {
         milestone 800
-        def deployPR = false
-//        timeout(time: 2, unit: 'MINUTES') {
-//          deployPR = input(message: 'Deploy this PR to OpenPaaS?',
-//                  parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: true,
-//                                description: '', name: 'Deploy PR to OpenPaaS?']])
-//        }
-        milestone 900
-//        if (deployPR) {
-          // because dockerBuildAndDeploy_OPEN will call unstash
-          stash name: 'generated-files', includes: '**/target/**'
+        // because dockerBuildAndDeploy_OPEN will call unstash
+        stash name: 'generated-files', includes: '**/target/**'
 
-          def POM = readMavenPom file: 'pom.xml'
-          // set the version to use in this pipeline job
-          version = POM.version.replace('-SNAPSHOT', '.' + branchName)
-          echo "Update project version to $version"
-          sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
+        def POM = readMavenPom file: 'pom.xml'
+        branchName = env.BRANCH_NAME
+        // set the version to use in this pipeline job
+        version = POM.version.replace('-SNAPSHOT', '.' + branchName)
+        echo "Update project version to $version"
+        sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
 
-          final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+        final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
 
-          dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
+        dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
 
-          def ocClient = getOpenshiftClient();
-          echo "Login to OPENSHIFT with token"
-          withCredentials(
-                  [string(credentialsId: 'Jenkins-Token-open-paas-Magpie',
-                          variable: 'MT_OPENSHIFT_TOKEN_MAGPIE')]) {
-            sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_MAGPIE --insecure-skip-tls-verify"
-          }
+        def ocClient = getOpenshiftClient();
+        echo "Login to OPENSHIFT with token"
+        withCredentials(
+                [string(credentialsId: 'Jenkins-Token-open-paas-Magpie',
+                        variable: 'MT_OPENSHIFT_TOKEN_MAGPIE')]) {
+          sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_MAGPIE --insecure-skip-tls-verify"
+        }
 
-          // TODO if we can create project on the fly then we should do it here
-          echo "Deploy to project magpie"
-          String project = "magpie"
-          String app = "mt-server-${branchName}".toLowerCase()
-          String image = "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$DOCKER_IMAGE_OPEN:$version"
-          def params = "--param=project=$project --param=app=$app --param=image=$image --param=azure=${env.MT_AZURE} " // --param=google='${env.MT_GOOGLE}'
+        // TODO if we can create project on the fly then we should do it here
+        echo "Deploy to project magpie"
+        String project = "magpie"
+        String app = "mt-server-${branchName}".toLowerCase()
+        String image = "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$DOCKER_IMAGE_OPEN:$version"
+        def params = "--param=project=$project --param=app=$app --param=image=$image --param=azure=${env.MT_AZURE} " // --param=google='${env.MT_GOOGLE}'
 
-          sh "$ocClient process -f ${env.WORKSPACE}/openshift/mt-template.yaml $params|$ocClient apply -f -"
+        sh "$ocClient process -f ${env.WORKSPACE}/openshift/mt-template.yaml $params|$ocClient apply -f -"
 
-          echo "Update image stream 'latest' tag to $version"
-          sh "$ocClient tag $image $app:latest"
-//          echo "Rollout latest release"
-          // we use app as deployment config name
-//          sh "$ocClient rollout latest dc/$app"
-          sh "$ocClient logout"
-//        }
+        echo "Update image stream 'latest' tag to $version"
+        sh "$ocClient tag $image $app:latest"
+        sh "$ocClient logout"
       }
     }
   } else {

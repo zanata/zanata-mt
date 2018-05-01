@@ -26,7 +26,6 @@ import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
-import org.zanata.magpie.process.DocumentProcessKey;
 import org.zanata.magpie.process.DocumentProcessManager;
 import org.zanata.magpie.service.DateRange;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
@@ -48,7 +47,6 @@ public class DocumentResourceImpl implements DocumentResource {
     private LocaleDAO localeDAO;
 
     private DocumentService documentService;
-    private DocumentProcessManager docProcessManager;
     private boolean isDevMode;
     private BackendID defaultProvider;
     private Set<BackendID> availableProviders;
@@ -61,7 +59,6 @@ public class DocumentResourceImpl implements DocumentResource {
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
             LocaleDAO localeDAO, DocumentService documentService,
-            DocumentProcessManager docProcessManager,
             @DevMode boolean isDevMode,
             @DefaultProvider BackendID defaultProvider,
             @BackEndProviders Set<BackendID> availableProviders) {
@@ -69,7 +66,6 @@ public class DocumentResourceImpl implements DocumentResource {
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentService = documentService;
-        this.docProcessManager = docProcessManager;
         this.isDevMode = isDevMode;
         this.defaultProvider = defaultProvider;
         this.availableProviders = availableProviders;
@@ -152,9 +148,6 @@ public class DocumentResourceImpl implements DocumentResource {
                     docContent, toLocaleCode, backendID.getId());
         }
 
-        DocumentProcessKey key =
-                new DocumentProcessKey(docContent.getUrl(), fromLocaleCode,
-                        toLocaleCode);
         Locale fromLocale = getLocale(fromLocaleCode);
         Locale toLocale = getLocale(toLocaleCode);
 

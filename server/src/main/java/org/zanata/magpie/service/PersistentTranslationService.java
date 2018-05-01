@@ -23,6 +23,7 @@ package org.zanata.magpie.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,17 +31,20 @@ import java.util.Optional;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
+import org.zanata.magpie.event.RequestedMTEvent;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
@@ -51,6 +55,7 @@ import org.zanata.magpie.model.TextFlowTarget;
 import org.zanata.magpie.util.HashUtil;
 import org.zanata.magpie.util.ShortString;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,6 +73,7 @@ public class PersistentTranslationService {
     private TextFlowDAO textFlowDAO;
 
     private TextFlowTargetDAO textFlowTargetDAO;
+    private Event<RequestedMTEvent> requestedMTEvent;
 
     private Map<BackendID, TranslatorBackend> translatorBackendMap;
 
@@ -78,9 +84,10 @@ public class PersistentTranslationService {
     @Inject
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
             TextFlowTargetDAO textFlowTargetDAO,
-            Instance<TranslatorBackend> translatorBackends) {
+            Instance<TranslatorBackend> translatorBackends, Event<RequestedMTEvent> requestedMTEvent) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
+        this.requestedMTEvent = requestedMTEvent;
 
         Map<BackendID, TranslatorBackend> backendMap = new HashMap<>();
         for (TranslatorBackend backend : translatorBackends) {
@@ -168,10 +175,11 @@ public class PersistentTranslationService {
 
         // translate using requested MT engine
         List<String> sourcesToTranslate = Lists.newArrayList(untranslatedIndexMap.keySet());
+        Date engineInvokeTime = new Date();
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,
                         mappedToLocaleCode, mediaType, category);
-
+        List<String> requestedTextFlows = Lists.newLinkedList();
         for (int i = 0; i < sourcesToTranslate.size(); i++) {
             String source = sourcesToTranslate.get(i);
             AugmentedTranslation translation = translations.get(i);
@@ -182,15 +190,33 @@ public class PersistentTranslationService {
             // see if we already have a matched text flow
             // (either in the same document or copied from other document)
             TextFlow tf = indexTextFlowMap.get(indexes.iterator().next());
-            if (tf == null) {
-                tf = createTextFlow(document, source, fromLocale);
+
+            try {
+                if (tf == null) {
+                    tf = createTextFlow(document, source, fromLocale);
+                }
+                requestedTextFlows.add(tf.getContentHash());
+                TextFlowTarget target =
+                        new TextFlowTarget(translation.getPlainTranslation(),
+                                translation.getRawTranslation(), tf,
+                                toLocale, backendID);
+                createOrUpdateTextFlowTarget(target);
+            } catch (Exception e) {
+                List<Throwable> causalChain = Throwables.getCausalChain(e);
+                Optional<Throwable> duplicateKeyEx = causalChain.stream()
+                        .filter(t -> t instanceof PSQLException &&
+                                t.getMessage().contains(
+                                        "ERROR: duplicate key value violates unique constraint"))
+                        .findAny();
+                if (duplicateKeyEx.isPresent()) {
+                    LOG.warn("concurrent requests for document {}", document.getUrl());
+                    // we ignore the failed update
+                }
             }
-            TextFlowTarget target =
-                    new TextFlowTarget(translation.getPlainTranslation(),
-                            translation.getRawTranslation(), tf,
-                            toLocale, backendID);
-            createOrUpdateTextFlowTarget(target);
         }
+        requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale,
+                requestedTextFlows, backendID, engineInvokeTime));
+
         return results;
     }
 

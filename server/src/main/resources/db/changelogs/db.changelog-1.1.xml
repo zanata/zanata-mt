@@ -62,11 +62,52 @@
         referencedColumnNames="id" onDelete="CASCADE" />
   </changeSet>
 
+  <!--create table TextFlowMTRequest_textFlowContentHashes (TextFlowMTRequest_id bigint not null, textFlowContentHashes varchar(255))-->
   <changeSet id="4" author="pahuang@redhat.com">
-    <comment>add column to record how many times a textflow has been requested for machine translation</comment>
-    <addColumn tableName="textflow">
-      <column name="mt_count" type="int" />
-    </addColumn>
+    <comment>add table to record textflows that have been requested for machine translation</comment>
+    <createTable tableName="textflowmtrequest">
+      <column name="id" type="SERIAL" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="invokedate" defaultValue="${now}" type="datetime"/>
+      <column name="backendid" type="varchar(20)" >
+        <constraints nullable="false" />
+      </column>
+      <column name="localeid" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="documentid" type="bigint">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="textflowmtrequest"
+        baseColumnNames="localeid"
+        constraintName="FK_textflowmtrequest_locale"
+        referencedTableName="locale"
+        referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="textflowmtrequest"
+        baseColumnNames="documentid"
+        constraintName="FK_textflowmtrequest_document"
+        referencedTableName="document"
+        referencedColumnNames="id" />
+  </changeSet>
+
+  <changeSet id="5" author="pahuang@redhat.com">
+    <comment>add table to record textflows that have been requested for machine translation</comment>
+    <createTable tableName="textflowmtrequest_textflowcontenthashes">
+      <column name="textflowmtrequest_id" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="textflowcontenthashes" type="varchar(128)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <addForeignKeyConstraint
+        baseTableName="textflowmtrequest_textflowcontenthashes"
+        baseColumnNames="textflowmtrequest_id"
+        constraintName="FK_RequestTextFlowHash_MTRequest"
+        referencedTableName="textflowmtrequest"
+        referencedColumnNames="id" />
   </changeSet>
 
 </databaseChangeLog>

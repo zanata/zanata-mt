@@ -64,7 +64,7 @@ public class DocumentResourceImplTest {
         docProcessLock = new DocumentProcessManager(cache, txManager);
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentService, docProcessLock,
+                        localeDAO, documentService,
                         false, defaultProvider,
                         Sets.newHashSet(BackendID.values()));
         when(documentContentTranslatorService
@@ -357,7 +357,7 @@ public class DocumentResourceImplTest {
     public void testDevMode() {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentService, docProcessLock,
+                        localeDAO, documentService,
                         true, BackendID.GOOGLE,
                         Sets.newHashSet(BackendID.values()));
         Locale fromLocale = new Locale(LocaleCode.EN, "English");

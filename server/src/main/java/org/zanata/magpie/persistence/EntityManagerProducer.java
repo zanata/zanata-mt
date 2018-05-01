@@ -1,6 +1,7 @@
 package org.zanata.magpie.persistence;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -25,6 +26,7 @@ public class EntityManagerProducer {
     }
 
     @Produces
+    @RequestScoped
     protected EntityManager getEntityManager() {
         return em;
     }

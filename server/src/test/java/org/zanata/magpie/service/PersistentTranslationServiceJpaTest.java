@@ -9,6 +9,7 @@ import static org.zanata.magpie.model.BackendID.GOOGLE;
 import java.util.List;
 import java.util.Optional;
 
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.ws.rs.core.MediaType;
 
@@ -23,6 +24,7 @@ import org.zanata.magpie.backend.mock.MockTranslatorBackend;
 import org.zanata.magpie.backend.ms.MicrosoftTranslatorBackend;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
+import org.zanata.magpie.event.RequestedMTEvent;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
@@ -41,6 +43,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
     private Locale fromLocale;
     private Locale toLocale;
     @Mock private Instance<TranslatorBackend> backendInstances;
+    @Mock private Event<RequestedMTEvent> requestedMTEvent;
 
     @Override
     protected void setupTestData() {
@@ -62,7 +65,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
                 newArrayList(msBackend, googleBackend, devBackend).iterator());
         service = new PersistentTranslationService(new TextFlowDAO(getEm()),
                 new TextFlowTargetDAO(getEm()),
-                backendInstances);
+                backendInstances, requestedMTEvent);
     }
 
     @Test

@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -52,9 +51,6 @@ public class TextFlow extends ModelEntity {
 
     @NotNull
     private Long wordCount;
-
-    @Column(name = "mt_count")
-    private int mtCount;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "textFlow",
         fetch = FetchType.EAGER)
@@ -107,10 +103,6 @@ public class TextFlow extends ModelEntity {
 
     public Long getWordCount() {
         return wordCount;
-    }
-
-    public int getMtCount() {
-        return mtCount;
     }
 
     @Transient
