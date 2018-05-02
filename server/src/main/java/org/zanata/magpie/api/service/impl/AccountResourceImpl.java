@@ -127,7 +127,7 @@ public class AccountResourceImpl {
         }
 
 
-        // as soon as we have a user, we should remove initial password
+        // as soon as we have an admin user, we should remove initial password
         accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
         return Response.created(uriInfo.getRequestUriBuilder().path("id")
                 .path(dto.getId().toString()).build()).build();

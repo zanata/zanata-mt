@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.security;
 
+import java.util.Objects;
 import java.util.Set;
 
 import org.zanata.magpie.api.dto.AccountDto;
@@ -49,5 +50,20 @@ public class AccountCreated {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AccountCreated)) return false;
+        AccountCreated that = (AccountCreated) o;
+        return Objects.equals(getEmail(), that.getEmail()) &&
+                Objects.equals(getRoles(), that.getRoles());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getEmail(), getRoles());
     }
 }
