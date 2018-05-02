@@ -163,15 +163,16 @@ objects:
 #            secretName: eap7-app-secret
     test: false
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${app}
-        from:
-          kind: ImageStreamTag
-          name: ${app}:latest
-          namespace: ${project}
-      type: ImageChange
+#    we commented out below section to avoid double triggering from Jenkins
+#    - imageChangeParams:
+#        automatic: true
+#        containerNames:
+#        - ${app}
+#        from:
+#          kind: ImageStreamTag
+#          name: ${app}:latest
+#          namespace: ${project}
+#      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: DeploymentConfig
