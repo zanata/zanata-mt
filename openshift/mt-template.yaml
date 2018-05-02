@@ -64,7 +64,7 @@ objects:
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: "$HOME/google-cred.json"
           - name: MT_GOOGLE_CREDENTIAL_CONTENT
-            value: ${google}  
+            value: ${google} 
           - name: DB_SERVICE_PREFIX_MAPPING
           # the prefix will determine what the database host and port env variable names needs to be.
           # e.g. ${prefix}_service_host and ${prefix}_service_port (all caps)
@@ -138,7 +138,7 @@ objects:
               path: /app/health
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 120  
+            initialDelaySeconds: 120 
             failureThreshold: 3
             periodSeconds: 10
             successThreshold: 1

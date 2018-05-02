@@ -21,8 +21,7 @@
 package org.zanata.magpie.service;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -36,8 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.zanata.magpie.event.RequestedMTEvent;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
-import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowMTRequest;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**

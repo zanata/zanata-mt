@@ -49,7 +49,7 @@ public class MTStartup {
 
     public static final String APPLICATION_NAME = "Magpie service (Machine Translation)";
 
-    static final String INITIAL_PASSWORD_CACHE = "initialPassword";
+    protected static final String INITIAL_PASSWORD_CACHE = "initialPassword";
 
     private ConfigurationService configurationService;
     private AccountService accountService;

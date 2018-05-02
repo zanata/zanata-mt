@@ -37,7 +37,7 @@ public class ResourceProducer {
     @Resource(lookup = "java:jboss/infinispan/container/web")
     private CacheContainer webCacheManager;
 
-    static final String REPLICATE_CACHE = "repl";
+    public static final String REPLICATE_CACHE = "repl";
 
 
     @Produces
