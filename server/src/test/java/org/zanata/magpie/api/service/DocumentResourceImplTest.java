@@ -1,19 +1,16 @@
 package org.zanata.magpie.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.TransactionManager;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.infinispan.AdvancedCache;
-import org.infinispan.Cache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,8 +25,6 @@ import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
-import org.zanata.magpie.process.DocumentProcessKey;
-import org.zanata.magpie.process.DocumentProcessManager;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
 
@@ -52,16 +47,11 @@ public class DocumentResourceImplTest {
     @Mock
     private DocumentService documentService;
 
-    @Mock private Cache<DocumentProcessKey, Boolean> cache;
-    @Mock private TransactionManager txManager;
-    private DocumentProcessManager docProcessLock;
     private BackendID defaultProvider = BackendID.GOOGLE;
-    @Mock private AdvancedCache<DocumentProcessKey, Boolean> advancedCache;
 
     @Before
     public void beforeTest() {
         MockitoAnnotations.initMocks(this);
-        docProcessLock = new DocumentProcessManager(cache, txManager);
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
                         localeDAO, documentService,
@@ -71,7 +61,6 @@ public class DocumentResourceImplTest {
                 .isMediaTypeSupported("text/plain")).thenReturn(true);
         when(documentContentTranslatorService.isMediaTypeSupported("text/html"))
                 .thenReturn(true);
-        when(cache.getAdvancedCache()).thenReturn(advancedCache);
     }
 
     @Test

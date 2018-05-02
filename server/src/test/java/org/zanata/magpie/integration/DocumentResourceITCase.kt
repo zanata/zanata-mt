@@ -8,7 +8,7 @@ import org.zanata.magpie.api.dto.TypeString
 import org.zanata.magpie.integration.RestTest.setCommonHeadersAsAdmin
 import javax.ws.rs.client.Entity
 
-class DocProcessManagerITCase {
+class DocumentResourceITCase {
     @Rule @JvmField val ensureAdminRule = EnsureAdminAccountRule
 
     @Test

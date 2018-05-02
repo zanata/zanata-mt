@@ -20,18 +20,13 @@
  */
 package org.zanata.magpie.service;
 
-import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE;
-import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
-
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.transaction.TransactionManager;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.CacheContainer;
 import org.zanata.magpie.annotation.ClusteredCache;
-import org.zanata.magpie.process.DocumentProcessKey;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -44,20 +39,6 @@ public class ResourceProducer {
 
     static final String REPLICATE_CACHE = "repl";
 
-
-    @Produces
-    @ClusteredCache(DOC_PROCESS_CACHE)
-    public Cache<DocumentProcessKey, Boolean> docProcessCache() {
-        return webCacheManager.getCache(DOC_PROCESS_CACHE);
-    }
-
-    @Produces
-    @ClusteredCache(DOC_PROCESS_CACHE)
-    public TransactionManager dockProcessCacheTransactionManager(
-            @ClusteredCache(DOC_PROCESS_CACHE)
-                    Cache<DocumentProcessKey, Boolean> cache) {
-        return cache.getAdvancedCache().getTransactionManager();
-    }
 
     @Produces
     @ClusteredCache(REPLICATE_CACHE)

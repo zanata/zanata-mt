@@ -26,7 +26,6 @@ import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
-import org.zanata.magpie.process.DocumentProcessManager;
 import org.zanata.magpie.service.DateRange;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
