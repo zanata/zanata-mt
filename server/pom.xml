@@ -27,6 +27,7 @@
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
     <DEFAULT_TRANSLATION_PROVIDER>DEV</DEFAULT_TRANSLATION_PROVIDER>
+    <apidocs.dir>apidocs</apidocs.dir>
   </properties>
 
   <build>
@@ -51,7 +52,7 @@
           <docsDir>${project.build.directory}/site</docsDir>
           <!-- The subdirectory of the site where the documentation will be put. -->
           <!-- Note that if this isn't set, the documentation will overwrite the site. -->
-          <docsSubdir>apidocs</docsSubdir>
+          <docsSubdir>${apidocs.dir}</docsSubdir>
           <indexPageName>index.html</indexPageName>
         </configuration>
       </plugin>
@@ -86,6 +87,9 @@
       <plugin>
         <groupId>com.github.github</groupId>
         <artifactId>site-maven-plugin</artifactId>
+        <configuration>
+          <includes>${apidocs.dir}/**</includes>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
