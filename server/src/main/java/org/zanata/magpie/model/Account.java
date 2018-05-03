@@ -77,6 +77,10 @@ public class Account extends ModelEntity {
 
     private boolean enabled = true;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,
+            mappedBy = "triggeredBy")
+    private Set<TextFlowMTRequest> mtRequests;
+
     public Account(String name, String email,
             AccountType accountType, Set<Role> roles) {
         this.name = name;
@@ -134,6 +138,10 @@ public class Account extends ModelEntity {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Set<TextFlowMTRequest> getMtRequests() {
+        return mtRequests;
     }
 
     @Override

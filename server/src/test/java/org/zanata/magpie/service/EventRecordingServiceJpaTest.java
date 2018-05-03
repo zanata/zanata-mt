@@ -1,16 +1,22 @@
 package org.zanata.magpie.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Date;
 import java.util.List;
 
 import org.assertj.core.util.Lists;
+import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.magpie.JPATest;
+import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.event.RequestedMTEvent;
+import org.zanata.magpie.exception.MTException;
+import org.zanata.magpie.model.Account;
+import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -23,6 +29,7 @@ public class EventRecordingServiceJpaTest extends JPATest {
     private TextFlow textFlow;
     private EventRecordingService service;
     private Locale en;
+    private Account account;
 
     @Override
     protected void setupTestData() {
@@ -32,8 +39,11 @@ public class EventRecordingServiceJpaTest extends JPATest {
         getEm().persist(ja);
         document = new Document("https://example.com", en, ja);
         textFlow = new TextFlow(document, "hello world", en);
+        account = new Account("Joe", "joe@example.com", AccountType.Normal,
+                Sets.newHashSet());
         getEm().persist(document);
         getEm().persist(textFlow);
+        getEm().persist(account);
     }
 
     @Before
@@ -42,11 +52,10 @@ public class EventRecordingServiceJpaTest extends JPATest {
     }
 
     @Test
-    public void test() {
-
+    public void canRecordMTRequest() {
         service.onMTRequest(new RequestedMTEvent(document, en,
                 Lists.newArrayList(textFlow.getContentHash()), BackendID.DEV,
-                new Date()));
+                new Date(), account));
         getEm().flush();
 
         List<TextFlowMTRequest> requests =

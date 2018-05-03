@@ -73,22 +73,30 @@
       <column name="backendid" type="varchar(20)" >
         <constraints nullable="false" />
       </column>
-      <column name="localeid" type="bigint">
+      <column name="locale_id" type="bigint">
         <constraints nullable="false" />
       </column>
-      <column name="documentid" type="bigint">
+      <column name="document_id" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="triggered_account_id" type="bigint">
         <constraints nullable="false" />
       </column>
     </createTable>
     <addForeignKeyConstraint baseTableName="textflowmtrequest"
-        baseColumnNames="localeid"
+        baseColumnNames="locale_id"
         constraintName="FK_textflowmtrequest_locale"
         referencedTableName="locale"
         referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="textflowmtrequest"
-        baseColumnNames="documentid"
+        baseColumnNames="document_id"
         constraintName="FK_textflowmtrequest_document"
         referencedTableName="document"
+        referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="textflowmtrequest"
+        baseColumnNames="triggered_account_id"
+        constraintName="FK_texflowmtrequest_account"
+        referencedTableName="account"
         referencedColumnNames="id" />
   </changeSet>
 

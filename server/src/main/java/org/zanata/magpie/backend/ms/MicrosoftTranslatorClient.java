@@ -61,7 +61,7 @@ class MicrosoftTranslatorClient {
                     TOKEN_CACHE_EXPIRATION;
             token = "Bearer " + tokenKey;
             if (LOG.isDebugEnabled()) {
-                LOG.debug("New token:" + token);
+                LOG.debug("New token:{}", token);
             }
         }
     }
@@ -73,7 +73,7 @@ class MicrosoftTranslatorClient {
             throws MTException {
         getTokenIfNeeded();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Source sending:" + dtoUtil.toXML(req));
+            LOG.debug("Source sending:{}", dtoUtil.toXML(req));
         }
         ResteasyWebTarget webTarget =
                 restClient.getWebTarget(TRANSLATIONS_BASE_URL);
@@ -90,7 +90,7 @@ class MicrosoftTranslatorClient {
         }
         String xml = response.readEntity(String.class);
         response.close();
-        LOG.info("Translation from Microsoft Engine:" + xml);
+        LOG.debug("Translation from Microsoft Engine:{}", xml);
         return xml;
     }
 
@@ -100,7 +100,7 @@ class MicrosoftTranslatorClient {
     protected String getToken() throws MTException {
         Response response = null;
         try {
-            LOG.info("Getting token for Microsoft Engine");
+            LOG.debug("Getting token for Microsoft Engine");
 
             Invocation.Builder builder =
                     restClient.getBuilder(DATA_MARKET_ACCESS_URI, ENCODING);

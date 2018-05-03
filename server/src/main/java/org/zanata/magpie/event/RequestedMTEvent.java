@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -42,15 +43,18 @@ public class RequestedMTEvent implements Serializable {
     private final List<String> textFlows;
     private final BackendID backendID;
     private final Date engineInvokeTime;
+    private final Account triggeredBy;
 
     public RequestedMTEvent(
             Document document, Locale fromLocale, List<String> textFlows,
-            BackendID backendID, Date engineInvokeTime) {
+            BackendID backendID, Date engineInvokeTime,
+            Account account) {
         this.document = document;
         this.fromLocale = fromLocale;
         this.textFlows = textFlows;
         this.backendID = backendID;
         this.engineInvokeTime = new Date(engineInvokeTime.getTime());
+        triggeredBy = account;
     }
 
     public List<String> getTextFlows() {
@@ -71,5 +75,9 @@ public class RequestedMTEvent implements Serializable {
 
     public Locale getFromLocale() {
         return fromLocale;
+    }
+
+    public Account getTriggeredBy() {
+        return triggeredBy;
     }
 }

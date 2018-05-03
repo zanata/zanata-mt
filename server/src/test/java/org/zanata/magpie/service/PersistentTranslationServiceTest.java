@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.google.GoogleTranslatorBackend;
 import org.zanata.magpie.backend.mock.MockTranslatorBackend;
@@ -32,6 +33,8 @@ import org.zanata.magpie.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
 import org.zanata.magpie.event.RequestedMTEvent;
+import org.zanata.magpie.exception.MTException;
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
@@ -66,6 +69,7 @@ public class PersistentTranslationServiceTest {
     private PersistentTranslationService persistentTranslationService;
     @Mock private Instance<TranslatorBackend> translators;
     @Mock private Event<RequestedMTEvent> requestedMTEvent;
+    private AuthenticatedAccount authenticatedAccount;
 
     @Before
     public void setup() {
@@ -74,13 +78,27 @@ public class PersistentTranslationServiceTest {
         when(translators.iterator())
                 .thenReturn(Lists.newArrayList(googleTranslatorBackend,
                         mockTranslatorBackend, msBackend).iterator());
+        authenticatedAccount = new AuthenticatedAccount();
+        authenticatedAccount.setAuthenticatedAccount(new Account());
         persistentTranslationService = new PersistentTranslationService(
-                textFlowDAO, textFlowTargetDAO, translators, requestedMTEvent);
+                textFlowDAO, textFlowTargetDAO, translators, requestedMTEvent,
+                authenticatedAccount);
     }
 
     @Test
     public void testEmptyConstructor() {
         persistentTranslationService = new PersistentTranslationService();
+    }
+
+    @Test
+    public void willThrowExceptionIfNoAuthenticatedAccount() {
+        authenticatedAccount.setAuthenticatedAccount(null);
+        List<String> source = Lists.newArrayList("testing source");
+        Locale targetLocale = new Locale(LocaleCode.DE, "German");
+        assertThatThrownBy(() -> persistentTranslationService.translate(new Document(), source,
+                new Locale(LocaleCode.EN_US, "English"), targetLocale,
+                BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                Optional.of("tech"))).isInstanceOf(MTException.class);
     }
 
     @Test

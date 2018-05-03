@@ -68,15 +68,20 @@ public class TextFlowMTRequest implements Serializable {
 
     @NaturalId
     @ManyToOne
-    @JoinColumn(name = "documentId", updatable = false, nullable = false)
+    @JoinColumn(name = "document_id", updatable = false, nullable = false)
     @NotNull
     private Document document;
 
     @NaturalId
     @ManyToOne(optional = false)
-    @JoinColumn(name = "localeId", nullable = false, updatable = false)
+    @JoinColumn(name = "locale_id", nullable = false, updatable = false)
     @NotNull
     private Locale locale;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "triggered_account_id", nullable = false, updatable = false)
+    @NotNull
+    private Account triggeredBy;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> textFlowContentHashes = Lists.newArrayList();
@@ -86,11 +91,13 @@ public class TextFlowMTRequest implements Serializable {
 
     public TextFlowMTRequest(BackendID backendID, Date invokeDate,
             Document document, Locale locale,
+            Account triggeredBy,
             List<String> textFlowContentHashes) {
         this.backendID = backendID;
         this.invokeDate = new Date(invokeDate.getTime());
         this.document = document;
         this.locale = locale;
+        this.triggeredBy = triggeredBy;
         this.textFlowContentHashes = textFlowContentHashes;
     }
 
@@ -116,5 +123,9 @@ public class TextFlowMTRequest implements Serializable {
 
     public List<String> getTextFlowContentHashes() {
         return textFlowContentHashes;
+    }
+
+    public Account getTriggeredBy() {
+        return triggeredBy;
     }
 }

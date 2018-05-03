@@ -32,7 +32,10 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.event.RequestedMTEvent;
+import org.zanata.magpie.exception.MTException;
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlowMTRequest;
@@ -41,7 +44,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * @author Patrick Huang
- * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
+ *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Stateless
 public class EventRecordingService implements Serializable {
@@ -62,18 +65,24 @@ public class EventRecordingService implements Serializable {
 
     @Asynchronous
     @TransactionAttribute
-    public void onMTRequest(@Observes(during = TransactionPhase.AFTER_COMPLETION) RequestedMTEvent event) {
+    public void onMTRequest(@Observes(
+            during = TransactionPhase.AFTER_COMPLETION) RequestedMTEvent event) {
+
         // need to re-fetch entities into hibernate session
         Document document =
                 entityManager.find(Document.class, event.getDocument().getId());
         Locale locale =
                 entityManager.find(Locale.class, event.getFromLocale().getId());
-        TextFlowMTRequest textFlowMTRequest =
-                new TextFlowMTRequest(event.getBackendID(), event.getEngineInvokeTime(),
-                        document, locale, event.getTextFlows());
-
-        log.info("invoked MT engine {} at {}", textFlowMTRequest.getBackendID(), textFlowMTRequest.getInvokeDate());
+        Account account = entityManager.find(Account.class,
+                event.getTriggeredBy().getId());
+        TextFlowMTRequest textFlowMTRequest = new TextFlowMTRequest(
+                event.getBackendID(), event.getEngineInvokeTime(), document,
+                locale, account,
+                event.getTextFlows());
 
         entityManager.persist(textFlowMTRequest);
+        log.debug("recorded MT engine invocation {} at {}",
+                textFlowMTRequest.getBackendID(),
+                textFlowMTRequest.getInvokeDate());
     }
 }

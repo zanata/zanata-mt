@@ -41,6 +41,7 @@ import javax.ws.rs.core.MediaType;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
@@ -74,6 +75,7 @@ public class PersistentTranslationService {
 
     private TextFlowTargetDAO textFlowTargetDAO;
     private Event<RequestedMTEvent> requestedMTEvent;
+    private AuthenticatedAccount authenticatedAccount;
 
     private Map<BackendID, TranslatorBackend> translatorBackendMap;
 
@@ -84,10 +86,13 @@ public class PersistentTranslationService {
     @Inject
     public PersistentTranslationService(TextFlowDAO textFlowDAO,
             TextFlowTargetDAO textFlowTargetDAO,
-            Instance<TranslatorBackend> translatorBackends, Event<RequestedMTEvent> requestedMTEvent) {
+            Instance<TranslatorBackend> translatorBackends,
+            Event<RequestedMTEvent> requestedMTEvent,
+            AuthenticatedAccount authenticatedAccount) {
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
         this.requestedMTEvent = requestedMTEvent;
+        this.authenticatedAccount = authenticatedAccount;
 
         Map<BackendID, TranslatorBackend> backendMap = new HashMap<>();
         for (TranslatorBackend backend : translatorBackends) {
@@ -114,6 +119,9 @@ public class PersistentTranslationService {
         if (sourceStrings == null || sourceStrings.isEmpty() || fromLocale == null
                 || toLocale == null || backendID == null) {
             throw new BadRequestException();
+        }
+        if (!authenticatedAccount.hasAuthenticatedAccount()) {
+            throw new MTException("not authenticated account trying to trigger MT translation");
         }
 
         // get translator backend for MT engine by requested backend id
@@ -179,6 +187,10 @@ public class PersistentTranslationService {
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,
                         mappedToLocaleCode, mediaType, category);
+
+        LOG.info("triggered MT engine {} from {} to {}", backendID,
+                fromLocale.getLocaleCode(), toLocale.getLocaleCode());
+
         List<String> requestedTextFlows = Lists.newLinkedList();
         for (int i = 0; i < sourcesToTranslate.size(); i++) {
             String source = sourcesToTranslate.get(i);
@@ -215,7 +227,8 @@ public class PersistentTranslationService {
             }
         }
         requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale,
-                requestedTextFlows, backendID, engineInvokeTime));
+                requestedTextFlows, backendID, engineInvokeTime,
+                authenticatedAccount.getAuthenticatedAccount().get()));
 
         return results;
     }
