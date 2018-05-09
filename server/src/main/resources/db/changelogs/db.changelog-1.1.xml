@@ -106,7 +106,7 @@
       <column name="textflowmtrequest_id" type="bigint">
         <constraints nullable="false" />
       </column>
-      <column name="textflowcontenthashes" type="varchar(128)">
+      <column name="textflow_contenthash" type="varchar(128)">
         <constraints nullable="false" />
       </column>
     </createTable>

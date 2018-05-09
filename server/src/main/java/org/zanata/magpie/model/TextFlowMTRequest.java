@@ -84,6 +84,7 @@ public class TextFlowMTRequest implements Serializable {
     private Account triggeredBy;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = " textflow_contenthash")
     private List<String> textFlowContentHashes = Lists.newArrayList();
 
     public TextFlowMTRequest() {
