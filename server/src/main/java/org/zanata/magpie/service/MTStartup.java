@@ -1,21 +1,28 @@
 package org.zanata.magpie.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-import javax.enterprise.context.ApplicationScoped;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionAttribute;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
+import org.infinispan.Cache;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.BackEndProviders;
+import org.zanata.magpie.annotation.ClusteredCache;
 import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
@@ -24,7 +31,8 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.security.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
-import com.google.common.collect.Lists;
+
+import static org.zanata.magpie.service.ResourceProducer.REPLICATE_CACHE;
 
 /**
  * Startup monitor for MT.
@@ -33,91 +41,117 @@ import com.google.common.collect.Lists;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@ApplicationScoped
+@Singleton
+@Startup
 public class MTStartup {
-    private static final Logger LOG =
+    private static final Logger log =
         LoggerFactory.getLogger(MTStartup.class);
 
     public static final String APPLICATION_NAME = "Magpie service (Machine Translation)";
 
+    protected static final String INITIAL_PASSWORD_CACHE = "initialPassword";
+
     private ConfigurationService configurationService;
     private AccountService accountService;
-    private String initialPassword = null;
-    private static final Path INITIAL_PASSWORD_FILE = Paths.get(System.getProperty("user.home"),
-            "magpie_initial_password");
 
-    @Inject
-    public MTStartup(ConfigurationService configurationService, AccountService accountService) {
-        this.configurationService = configurationService;
-        this.accountService = accountService;
+    private Cache<String, String> cache;
+
+    public MTStartup() {
     }
 
+    @Inject
+    public MTStartup(ConfigurationService configurationService,
+            AccountService accountService,
+            @ClusteredCache(REPLICATE_CACHE)
+            Cache<String, String> replCache) {
+        this.configurationService = configurationService;
+        this.accountService = accountService;
+        cache = replCache;
+    }
+
+    @TransactionAttribute
     public void onStartUp(
         @Observes @Initialized ServletContext context,
             @DevMode boolean isDevMode, @BackEndProviders
             Set<BackendID> availableProviders)
         throws MTException {
-        LOG.info("==========================================");
-        LOG.info("==========================================");
-        LOG.info("== " + APPLICATION_NAME + " ==");
-        LOG.info("==========================================");
-        LOG.info("==========================================");
-        LOG.info("Build info: version-" + configurationService.getVersion() +
+        log.info("==========================================");
+        log.info("==========================================");
+        log.info("== " + APPLICATION_NAME + " ==");
+        readManifestInfo(context);
+        log.info("==========================================");
+        log.info("==========================================");
+
+        log.info("Build info: version-" + configurationService.getVersion() +
                 " date-" + configurationService.getBuildDate());
         if (isDevMode) {
-            LOG.warn("THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION");
+            log.warn("THIS IS A DEV MODE BUILD. DO NOT USE IT FOR PRODUCTION");
         }
-        LOG.info("Available backend providers: {}", availableProviders);
+        log.info("Available backend providers: {}", availableProviders);
 
         showInitialAdminCredentialIfNoAccountExists();
 
-        LOG.info("Default backend provider: {}",
+        log.info("Default backend provider: {}",
                 configurationService.getDefaultTranslationProvider(isDevMode));
+    }
+
+    private void readManifestInfo(ServletContext context) {
+        String appServerHome = context.getRealPath("/");
+        File manifestFile = new File(appServerHome, "META-INF/MANIFEST.MF");
+        Attributes atts = null;
+        if (manifestFile.canRead()) {
+            Manifest mf = new Manifest();
+            try (FileInputStream fis = new FileInputStream(manifestFile)) {
+                mf.read(fis);
+            } catch (IOException e) {
+                log.warn("can not get manifest info: {}", e.getMessage());
+            }
+            atts = mf.getMainAttributes();
+            String version = atts.getValue("Implementation-Version");
+            String buildTimestamp = atts.getValue("Implementation-Build");
+            String scmDescribe = atts.getValue("SCM-Describe");
+
+            log.info("== version: {}", version);
+            log.info("== build timestamp: {}", buildTimestamp);
+            log.info("== scm describe: {}", scmDescribe);
+        }
     }
 
     private void showInitialAdminCredentialIfNoAccountExists() {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
-            initialPassword = new PasswordUtil().generateRandomPassword(32);
-            LOG.info("=== no account exists in the system ===");
-            LOG.info("=== to authenticate, use admin as username and ===");
-            LOG.info("=== initial password (without leading spaces):  {}", initialPassword);
-            LOG.info("=== initial password is also written to:  {}",
-                    INITIAL_PASSWORD_FILE);
-            LOG.info("=======================================");
 
-            try {
-                Files.write(INITIAL_PASSWORD_FILE,
-                        Lists.newArrayList(this.initialPassword));
-            } catch (IOException e) {
-                LOG.warn("failed writing initial password to disk", e);
-            }
-            try {
-                Runtime.getRuntime()
-                        .exec(new String[] {"chmod", "400", INITIAL_PASSWORD_FILE
-                                .toAbsolutePath().toString()});
-            } catch (IOException e) {
-                LOG.info("unable to change permission on {}",
-                        INITIAL_PASSWORD_FILE);
-            }
+            String initialPassword = getInitialPassword();
+            log.info("=== no account exists in the system ===");
+            log.info("=== to authenticate, use admin as username and ===");
+            log.info("=== initial password (without leading spaces):  {}", initialPassword);
+
+            cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
         }
+    }
+
+    @NotNull
+    private String getInitialPassword() {
+        String valueInCache = cache.get(INITIAL_PASSWORD_CACHE);
+        if (valueInCache == null) {
+            log.info("no initial password yet. Generate one.");
+            return new PasswordUtil().generateRandomPassword(32);
+        }
+        return valueInCache;
     }
 
     @Produces
     @InitialPassword
-    protected String initialPassword() {
-        return initialPassword;
+    public String getInitialPasswords() {
+        return cache.get(INITIAL_PASSWORD_CACHE);
     }
 
-    protected void accountCreated(@Observes AccountCreated event) {
-        if (event.getRoles().contains(Role.admin) && initialPassword != null) {
-            try {
-                Files.delete(INITIAL_PASSWORD_FILE);
-            } catch (IOException e) {
-                LOG.warn("unable to delete {}. {}", INITIAL_PASSWORD_FILE, e.getMessage());
-            }
-            initialPassword = null;
+    public void accountCreated(@Observes AccountCreated event) {
+        if (event.getRoles().contains(Role.admin)
+                && cache.get(INITIAL_PASSWORD_CACHE) != null) {
+            log.info("admin account created. Removing intial password");
+            cache.remove(INITIAL_PASSWORD_CACHE);
         }
-        LOG.info("account created: {} {}", event.getEmail(), event.getRoles());
+        log.info("account created: {} {}", event.getEmail(), event.getRoles());
     }
 }

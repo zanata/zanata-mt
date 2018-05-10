@@ -20,26 +20,13 @@
  */
 package org.zanata.magpie.service;
 
+import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.transaction.TransactionManager;
 
 import org.infinispan.Cache;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.eviction.EvictionStrategy;
-import org.infinispan.eviction.EvictionType;
-import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.transaction.LockingMode;
-import org.infinispan.transaction.TransactionMode;
+import org.infinispan.manager.CacheContainer;
 import org.zanata.magpie.annotation.ClusteredCache;
-import org.zanata.magpie.process.DocumentProcessKey;
-
-import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE;
 
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
@@ -47,44 +34,17 @@ import static org.zanata.magpie.process.DocumentProcessManager.DOC_PROCESS_CACHE
 @ApplicationScoped
 public class ResourceProducer {
 
-    static final String MACHINE_TRANSLATIONS_CLUSTER =
-            "MachineTranslationsCluster";
+    @Resource(lookup = "java:jboss/infinispan/container/web")
+    private CacheContainer webCacheManager;
+
+    public static final String REPLICATE_CACHE = "repl";
+
 
     @Produces
-    @ApplicationScoped
-    public EmbeddedCacheManager defaultClusteredCacheManager() {
-        GlobalConfiguration g = new GlobalConfigurationBuilder()
-                .clusteredDefault()
-                .transport()
-                .clusterName(MACHINE_TRANSLATIONS_CLUSTER)
-                .globalJmxStatistics()
-                .allowDuplicateDomains(true)
-                .build();
-        Configuration cfg = new ConfigurationBuilder()
-                .clustering()
-                .cacheMode(CacheMode.DIST_ASYNC)
-                .eviction()
-                .strategy(EvictionStrategy.LRU)
-                .type(EvictionType.COUNT).size(150)
-                .transaction()
-                .transactionMode(TransactionMode.TRANSACTIONAL)
-                .lockingMode(LockingMode.PESSIMISTIC)
-                .build();
-        return new DefaultCacheManager(g, cfg);
+    @ClusteredCache(REPLICATE_CACHE)
+    public Cache<String, String> initialPasswordCache() {
+        // this cache is defined in the standalone-openshift.xml
+        return webCacheManager.getCache(REPLICATE_CACHE);
     }
 
-    @Produces
-    @ClusteredCache(DOC_PROCESS_CACHE)
-    public Cache<DocumentProcessKey, Boolean> docProcessCache(
-            EmbeddedCacheManager cacheManager) {
-        return cacheManager.getCache(DOC_PROCESS_CACHE);
-    }
-
-    @Produces
-    @ClusteredCache(DOC_PROCESS_CACHE)
-    public TransactionManager cacheTransactionManager(
-            @ClusteredCache(DOC_PROCESS_CACHE)
-                    Cache<DocumentProcessKey, Boolean> cache) {
-        return cache.getAdvancedCache().getTransactionManager();
-    }
 }

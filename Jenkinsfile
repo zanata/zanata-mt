@@ -1,4 +1,8 @@
 #!/usr/bin/env groovy
+import groovy.transform.Field
+@Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
+import org.zanata.jenkins.Notifier
+
 /**
  * Jenkinsfile for mt
  *
@@ -10,9 +14,6 @@
  * MT_OPENSHIFT_URL - Managed Platform url
  * MT_OPENSHIFT_URL_OPEN - OPEN Platform url
  * MT_GIT_URL - git url
- * MT_DEV_PROJECT_NAME - Managed Platform project name for DEV
- * MT_STAGE_PROJECT_NAME_OPEN - OPEN Platform project name for stage
- * MT_PROD_PROJECT_NAME_OPEN - OPEN Platform project name for production
  *
  *
  * Master (documentation will be build on separate job):
@@ -30,14 +31,10 @@ public static final String PROJ_URL = 'https://github.com/zanata/zanata-mt'
 @Field
 public static final String PIPELINE_LIBRARY_BRANCH = 'v0.3.1'
 
-@Library('github.com/zanata/zanata-pipeline-library@v0.3.1')
-import org.zanata.jenkins.Notifier
 import org.zanata.jenkins.PullRequests
 import org.zanata.jenkins.ScmGit
-import static org.zanata.jenkins.Reporting.codecov
-import static org.zanata.jenkins.StackTraces.getStackTrace
 
-import groovy.transform.Field
+import static org.zanata.jenkins.Reporting.codecov
 
 milestone 0
 PullRequests.ensureJobDescription(env, manager, steps)
@@ -146,6 +143,7 @@ timestamps {
           buildAndDeploy()
         } else {
           buildOnly()
+          deployToOpenPaaS()
         }
         // Artifacts are in docker registry, so reduce workspace size
         sh "git clean -fdx"
@@ -157,6 +155,59 @@ timestamps {
         throw e
       }
     }
+  }
+}
+
+/**
+ * Deploy PR build to Open PaaS project magpie for testing.
+ */
+private void deployToOpenPaaS() {
+
+  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+
+    // create a new project and deploy
+    stage('Deploy PR to OpenPaaS') {
+      lock(resource: 'MT-DEPLOY-PR-TO-OPENPAAS', inversePrecedence: true) {
+        milestone 800
+        // because dockerBuildAndDeploy_OPEN will call unstash
+        stash name: 'generated-files', includes: '**/target/**'
+
+        def POM = readMavenPom file: 'pom.xml'
+        branchName = env.BRANCH_NAME
+        // set the version to use in this pipeline job
+        version = POM.version.replace('-SNAPSHOT', '.' + branchName)
+        echo "Update project version to $version"
+        sh "./mvnw versions:set -DnewVersion=$version --non-recursive --batch-mode"
+
+        final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
+
+        dockerBuildAndPushToOpenPaaS("$DOCKER_IMAGE_OPEN")
+
+        def ocClient = getOpenshiftClient();
+        echo "Login to OPENSHIFT with token"
+        withCredentials(
+                [string(credentialsId: 'Jenkins-Token-open-paas-Magpie',
+                        variable: 'MT_OPENSHIFT_TOKEN_MAGPIE')]) {
+          sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_MAGPIE --insecure-skip-tls-verify"
+        }
+
+        // TODO if we can create project on the fly then we should do it here
+        echo "Deploy to project magpie"
+        String project = "magpie"
+        String app = "mt-server-${branchName}".toLowerCase()
+        String image = "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$DOCKER_IMAGE_OPEN:$version"
+        def params = "--param=project=$project --param=app=$app --param=image=$image --param=azure=${env.MT_AZURE} " // --param=google='${env.MT_GOOGLE}'
+
+        sh "$ocClient process -f ${env.WORKSPACE}/openshift/mt-template.yaml $params|$ocClient apply -f -"
+
+        echo "Update image stream 'latest' tag to $version"
+        sh "$ocClient tag $image $app:latest"
+        sh "$ocClient logout"
+      }
+    }
+  } else {
+    currentBuild.result = 'FAILURE'
+    error('Build failure.')
   }
 }
 
@@ -194,46 +245,24 @@ private void buildAndDeploy() {
       }
     }
     /**
-     * TODO: Migrate all to Managed Platform only
      *
      * Current state:
-     *  OPEN Platform - STAGE and PROD
-     *  Managed Platform - DEV
+     *  OPEN Platform - PR only
+     *  Managed Platform - DEV, QA, STAGE, PROD
      *
-     * DEV deployment:
-     *  Managed Platform - DEV
-     *
-     * STAGE deployment:
-     *  OPEN Platform - STAGE
-     *
-     * PROD deployment:
-     *  OPEN Platform - PROD
      */
-
-    final String DOCKER_IMAGE_OPEN = 'zanata-mt/server'
     final String DOCKER_IMAGE = 'machine-translations/mt-server'
 
-    stage('Deploy to DEV; Maven site') {
+    stage('Deploy to Managed PaaS; Maven site') {
       lock(resource: 'MT-DEPLOY-TO-DEV', inversePrecedence: true) {
         milestone 600
         def tasks = [
                 "DOCUMENTATION"       : { mavenSite() },
                 "DOCKER_BUILD_RELEASE": {
-                  dockerBuildAndDeploy_OPEN("$DOCKER_IMAGE_OPEN")
-                  dockerBuildAndDeploy("$DOCKER_IMAGE")
-                  deployToDEV("$DOCKER_IMAGE")
+                  dockerBuildAndPushToManagedPaaS("$DOCKER_IMAGE")
                 }
         ]
         parallel tasks
-      }
-    }
-    if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-      deployToStage_OPEN("$DOCKER_IMAGE_OPEN")
-      // TODO: deploy to managed platform stage
-
-      if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-        deployToProduction_OPEN("$DOCKER_IMAGE_OPEN")
-        // TODO: deploy to managed platform production
       }
     }
   } else {
@@ -276,10 +305,9 @@ void mavenSite() {
 }
 
 /**
- * Build docker image and deploy to docker registry for Managed Platform
- * To replace dockerBuildAndDeploy_OPEN()
+ * Build docker image and push to docker registry for Managed Platform
  */
-void dockerBuildAndDeploy(String dockerImage) {
+void dockerBuildAndPushToManagedPaaS(String dockerImage) {
   final String DOCKER_WORKSPACE = 'server/target/docker_workspace'
   node(defaultNodeLabel) {
     echo "running on node ${env.NODE_NAME}"
@@ -309,38 +337,36 @@ void dockerBuildAndDeploy(String dockerImage) {
 }
 
 /**
- * Build docker image and deploy to docker registry for OPEN Platform
+ * Build docker image and push to Open Platform docker registry
  *
  * @param dockerImage - docker image name
  */
-void dockerBuildAndDeploy_OPEN(String dockerImage) {
+void dockerBuildAndPushToOpenPaaS(String dockerImage) {
   final String DOCKER_WORKSPACE = 'server/target/docker_workspace_open'
 
-  node(defaultNodeLabel) {
-    echo "running on node ${env.NODE_NAME}"
-    checkout scm
-    // Clean the workspace
-    sh "git clean -fdx"
-    unstash 'generated-files'
+  echo "running on node ${env.NODE_NAME}"
+  checkout scm
+  // Clean the workspace
+  sh "git clean -fdx"
+  unstash 'generated-files'
 
-    buildAndTagDockerImage(DOCKER_WORKSPACE, dockerImage, "${env.MT_DOCKER_REGISTRY_URL_OPEN}")
+  buildAndTagDockerImage(DOCKER_WORKSPACE, dockerImage, "${env.MT_DOCKER_REGISTRY_URL_OPEN}")
 
-    echo "Docker login.."
-    withCredentials([string(credentialsId: 'DOCKER-REGISTRY-TOKEN',
-            variable: 'MT_REGISTRY_TOKEN')]) {
-      sh "docker login -p $MT_REGISTRY_TOKEN -u unused ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
-    }
-
-    echo "Pushing to docker registry..."
-    sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
-    sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
-
-    echo "Docker logout.."
-    sh "docker logout ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
-
-    echo "Remove local docker image $dockerImage:$version"
-    sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+  echo "Docker login.."
+  withCredentials([string(credentialsId: 'DOCKER-REGISTRY-TOKEN',
+          variable: 'MT_REGISTRY_TOKEN')]) {
+    sh "docker login -p $MT_REGISTRY_TOKEN -u unused ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
   }
+
+  echo "Pushing to docker registry..."
+  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
+  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+
+  echo "Docker logout.."
+  sh "docker logout ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
+
+  echo "Remove local docker image $dockerImage:$version"
+  sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
 }
 
 /**
@@ -361,93 +387,6 @@ String getOpenshiftClient() {
       sh "tar -xvzf $downloadDest -C /tmp"
     }
     return "/tmp/$name/oc"
-}
-
-/**
- * Deploy docker image to OPEN Platform Stage
- * @param dockerImage
- */
-void deployToStage_OPEN(String dockerImage) {
-  stage('Deploy to STAGE') {
-    lock(resource: 'MT-DEPLOY-TO-STAGE', inversePrecedence: true) {
-      milestone 700
-      node(defaultNodeLabel) {
-        def ocClient = getOpenshiftClient();
-
-        echo "Login to OPENSHIFT with token"
-
-        withCredentials([string(credentialsId: 'Jenkins-Token-open-paas-STAGE',
-                variable: 'MT_OPENSHIFT_TOKEN_STAGE')]) {
-          sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_STAGE --insecure-skip-tls-verify --namespace=$MT_STAGE_PROJECT_NAME_OPEN"
-
-          echo "Update 'latest' tag to $version"
-          sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version server:latest"
-          sh "$ocClient logout"
-        }
-      }
-    }
-  }
-}
-
-/**
- * Deploy docker image to Managed Platform DEV
- * @param dockerImage
- */
-void deployToDEV(String dockerImage) {
-  if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-    node(defaultNodeLabel) {
-      def ocClient = getOpenshiftClient();
-
-      echo "Login to OPENSHIFT with token"
-
-      withCredentials(
-        [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'Jenkins-Token-managed-paas-DEV',
-          usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        sh "$ocClient login $MT_OPENSHIFT_URL --username=$USERNAME --password=$PASSWORD --insecure-skip-tls-verify --namespace=$MT_DEV_PROJECT_NAME"
-
-        echo "Update 'latest' tag to $version"
-        sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version mt-server:latest"
-        sh "$ocClient logout"
-      }
-    }
-  }
-}
-
-/**
- * Deploy to OPEN Platform PROD
- * Pending permission to deploy to production. 14 days before timeout
- *
- * @param dockerImage
- */
-void deployToProduction_OPEN(String dockerImage) {
-  stage('Deploy to PRODUCTION') {
-    lock(resource: 'MT-DEPLOY-TO-PROD', inversePrecedence: true) {
-      milestone 800
-      def deployToProd = false
-      timeout(time: 14, unit: 'DAYS') {
-        deployToProd = input(message: 'Deploy docker image to production?',
-                parameters: [[$class     : 'BooleanParameterDefinition', defaultValue: false,
-                              description: '', name: 'Deploy to production?']])
-      }
-      milestone 900
-      if (deployToProd) {
-        node(defaultNodeLabel) {
-          def ocClient = getOpenshiftClient();
-
-          echo "Login to OPENSHIFT with token"
-          withCredentials(
-                  [string(credentialsId: 'Jenkins-Token-open-paas-PROD',
-                          variable: 'MT_OPENSHIFT_TOKEN_PROD')]) {
-            sh "$ocClient login $MT_OPENSHIFT_URL_OPEN --token $MT_OPENSHIFT_TOKEN_PROD --insecure-skip-tls-verify --namespace=$MT_PROD_PROJECT_NAME_OPEN"
-          }
-
-          echo "Update 'latest' tag to $version"
-          sh "$ocClient tag ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version server:latest"
-          sh "$ocClient logout"
-        }
-      }
-    }
-  }
 }
 
 /**

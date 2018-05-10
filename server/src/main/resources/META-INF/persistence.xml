@@ -16,6 +16,7 @@
     <class>org.zanata.magpie.model.Account</class>
     <class>org.zanata.magpie.model.Credential</class>
     <class>org.zanata.magpie.model.LocalCredential</class>
+    <class>org.zanata.magpie.model.TextFlowMTRequest</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>

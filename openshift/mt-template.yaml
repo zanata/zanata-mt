@@ -1,0 +1,308 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: mt-openpaas-template
+parameters:
+  - name: project
+    description: Openshift project name. It will be part of the url.
+    reqruied: true
+  - name: app
+    description: app name
+    value: mt-server
+    reqrired: true
+  - name: image
+    description: image reference
+    reqrired: true
+  - description: Azure key
+    name: azure
+  - description: Google api credential
+    name: google
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: ${app}
+    name: ${app}
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: ${image}
+      name: latest
+      referencePolicy:
+        type: "Source"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: ${app}
+    name: ${app}
+  spec:
+    replicas: 2
+    selector:
+      deploymentConfig: ${app}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      type: Recreate
+      recreateParams:
+        timeoutSeconds: 600
+    template:
+      metadata:
+        labels:
+          deploymentConfig: ${app}
+        name: ${app}
+      spec:
+        containers:
+        - env:
+          - name: MT_AZURE_KEY
+            value: ${azure}
+          - name: DEFAULT_TRANSLATION_PROVIDER
+            value: google
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "$HOME/google-cred.json"
+          - name: MT_GOOGLE_CREDENTIAL_CONTENT
+            value: ${google} 
+          - name: DB_SERVICE_PREFIX_MAPPING
+          # the prefix will determine what the database host and port env variable names needs to be.
+          # e.g. ${prefix}_service_host and ${prefix}_service_port (all caps)
+          # Since we define a service named ${app}-postgresql, these two variables are injected by the service
+            value: ${app}-postgresql=DB
+          - name: DB_JNDI
+            value: java:jboss/datasources/zanataMT
+          - name: DB_USERNAME
+            value: mtUser
+          - name: DB_PASSWORD
+            value: mts3cr3t
+          - name: DB_DATABASE
+            value: root
+#          - name: TX_DATABASE_PREFIX_MAPPING
+#            value: mt-server-postgresql=DB
+          - name: DB_MIN_POOL_SIZE
+          - name: DB_MAX_POOL_SIZE
+          - name: DB_TX_ISOLATION
+          - name: JGROUPS_PING_PROTOCOL
+            value: openshift.DNS_PING
+          - name: OPENSHIFT_DNS_PING_SERVICE_NAME
+            value: ${app}-ping.magpie.svc.cluster.local
+          - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+            value: "8888"
+#          - name: HTTPS_KEYSTORE_DIR
+#            value: /etc/eap-secret-volume
+#          - name: HTTPS_KEYSTORE
+#            value: keystore.jks
+#          - name: HTTPS_KEYSTORE_TYPE
+#          - name: HTTPS_NAME
+#          - name: HTTPS_PASSWORD
+#          - name: MQ_CLUSTER_PASSWORD
+#            value: ohLhGqw2
+#          - name: MQ_QUEUES
+#          - name: MQ_TOPICS
+#          - name: JGROUPS_ENCRYPT_SECRET
+#            value: eap7-app-secret
+#          - name: JGROUPS_ENCRYPT_KEYSTORE_DIR
+#            value: /etc/jgroups-encrypt-secret-volume
+#          - name: JGROUPS_ENCRYPT_KEYSTORE
+#            value: jgroups.jceks
+#          - name: JGROUPS_ENCRYPT_NAME
+#          - name: JGROUPS_ENCRYPT_PASSWORD
+          - name: JGROUPS_CLUSTER_PASSWORD
+            value: j7kQoalS
+          image: ${image}
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 600
+          name: ${app}
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          - containerPort: 8443
+            name: https
+            protocol: TCP
+          - containerPort: 8888
+            name: ping
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /app/health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120 
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 600
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 1Gi
+#          volumeMounts:
+#          - mountPath: /etc/eap-secret-volume
+#            name: eap-keystore-volume
+#            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 75
+#        volumes:
+#        - name: eap-keystore-volume
+#          secret:
+#            defaultMode: 420
+#            secretName: eap7-app-secret
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${app}
+        from:
+          kind: ImageStreamTag
+          name: ${app}:latest
+          namespace: ${project}
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    generation: 1
+    labels:
+      app: eap71-postgresql-persistent-s2i
+    name: mt-server-postgresql
+  spec:
+    replicas: 1
+    selector:
+      deploymentConfig: mt-server-postgresql
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          deploymentConfig: mt-server-postgresql
+        name: mt-server-postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_USER
+            value: mtUser
+          - name: POSTGRESQL_PASSWORD
+            value: mts3cr3t
+          - name: POSTGRESQL_DATABASE
+            value: root
+          - name: POSTGRESQL_MAX_CONNECTIONS
+            value: "20"
+          - name: POSTGRESQL_MAX_PREPARED_TRANSACTIONS
+            value: "20"
+          - name: POSTGRESQL_SHARED_BUFFERS
+          image: registry.access.redhat.com/rhscl/postgresql-95-rhel7
+          imagePullPolicy: Always
+          name: mt-server-postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+#          volumeMounts:
+#          - mountPath: /var/lib/pgsql/data
+#            name: mt-server-postgresql-pvol
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 60
+#        volumes:
+#        - name: mt-server-postgresql-pvol
+#          persistentVolumeClaim:
+#            claimName: mt-server-postgresql-claim
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - mt-server-postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:9.5
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      description: Route for application's http service.
+    labels:
+      app: ${app}
+    name: ${app}
+  spec:
+    host: ${app}-${project}.int.open.paas.redhat.com
+    to:
+      kind: Service
+      name: ${app}
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${app}
+    name: ${app}
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentConfig: ${app}
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The JGroups ping port for clustering.
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    labels:
+      app: ${app}
+    name: ${app}-ping
+  spec:
+    clusterIP: None
+    ports:
+    - name: ping
+      port: 8888
+      protocol: TCP
+      targetPort: 8888
+    selector:
+      deploymentConfig: ${app}
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The database server's port.
+    labels:
+      app: ${app}
+    name: ${app}-postgresql
+  spec:
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      deploymentConfig: mt-server-postgresql
+    sessionAffinity: None
+    type: ClusterIP
