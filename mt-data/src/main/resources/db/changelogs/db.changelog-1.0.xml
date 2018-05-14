@@ -6,7 +6,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
   <property name="now" value="now()" dbms="postgresql"/>
-  
+
   <changeSet author="aeng@redhat.com" id="1">
     <comment>baseline schema</comment>
     <sqlFile path="db/baseline.sql" stripComments="true" />

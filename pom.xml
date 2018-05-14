@@ -85,6 +85,9 @@
 
     <coverage.complexity.min>0.70</coverage.complexity.min>
     <coverage.line.min>0.85</coverage.line.min>
+
+    <db.name>zanataMT</db.name>
+    <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
   </properties>
 
   <dependencyManagement>

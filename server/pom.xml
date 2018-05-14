@@ -16,8 +16,6 @@
   </scm>
   <properties>
     <!-- database -->
-    <db.name>zanataMT</db.name>
-    <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
     <postgresql.port>5432</postgresql.port>
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
