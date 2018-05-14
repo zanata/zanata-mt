@@ -22,7 +22,10 @@ package org.zanata.magpie.service;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.CacheContainer;
@@ -37,6 +40,8 @@ public class ResourceProducer {
     @Resource(lookup = "java:jboss/infinispan/container/web")
     private CacheContainer webCacheManager;
 
+    private EntityManager em;
+
     public static final String REPLICATE_CACHE = "repl";
 
 
@@ -45,6 +50,17 @@ public class ResourceProducer {
     public Cache<String, String> initialPasswordCache() {
         // this cache is defined in the standalone-openshift.xml
         return webCacheManager.getCache(REPLICATE_CACHE);
+    }
+
+    @PersistenceContext
+    protected void setEntityManager(EntityManager em) {
+        this.em = em;
+    }
+
+    @Produces
+    @RequestScoped
+    protected EntityManager getEntityManager() {
+        return em;
     }
 
 }
