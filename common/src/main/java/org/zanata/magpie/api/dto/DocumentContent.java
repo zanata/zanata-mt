@@ -3,7 +3,6 @@ package org.zanata.magpie.api.dto;
 import com.webcohesion.enunciate.metadata.DocumentationExample;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.zanata.magpie.api.service.DocumentResource;
 
 import java.io.Serializable;
 import java.util.List;
