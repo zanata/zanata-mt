@@ -880,5 +880,6 @@
     <module>frontend</module>
     <module>server</module>
     <module>common</module>
+    <module>mt-data</module>
   </modules>
 </project>

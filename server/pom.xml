@@ -273,6 +273,11 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>mt-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.tuckey</groupId>

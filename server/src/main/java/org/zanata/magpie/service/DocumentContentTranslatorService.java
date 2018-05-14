@@ -22,7 +22,6 @@ import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.model.Document;
-import org.zanata.magpie.model.TranslatableHTMLNode;
 import org.zanata.magpie.util.ArticleUtil;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;

@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
-import org.zanata.magpie.model.TranslatableHTMLNode;
+import org.zanata.magpie.service.TranslatableHTMLNode;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;

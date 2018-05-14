@@ -1,4 +1,4 @@
-package org.zanata.magpie.model;
+package org.zanata.magpie.service;
 
 import org.jsoup.nodes.*;
 
