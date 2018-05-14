@@ -1,4 +1,4 @@
-package org.zanata.magpie.service;
+package org.zanata.magpie.dto;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.magpie.exception.InvalidDateParamException;

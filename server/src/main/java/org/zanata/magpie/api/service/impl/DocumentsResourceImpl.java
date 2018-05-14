@@ -3,7 +3,7 @@ package org.zanata.magpie.api.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.zanata.magpie.api.service.DocumentsResource;
 import org.zanata.magpie.dao.DocumentDAO;
-import org.zanata.magpie.service.DateRange;
+import org.zanata.magpie.dto.DateRange;
 
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;

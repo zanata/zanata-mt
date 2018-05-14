@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.dao.DocumentDAO;
+import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 

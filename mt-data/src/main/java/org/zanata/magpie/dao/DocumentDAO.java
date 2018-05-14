@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.zanata.magpie.service.DateRange;
+import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.util.HashUtil;
 
 /**

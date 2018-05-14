@@ -8,7 +8,7 @@ import org.zanata.magpie.JPATest;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
-import org.zanata.magpie.service.DateRange;
+import org.zanata.magpie.dto.DateRange;
 
 import java.util.Date;
 import java.util.List;

@@ -1,6 +1,7 @@
-package org.zanata.magpie.service;
+package org.zanata.magpie.dto;
 
 import org.junit.Test;
+import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.exception.InvalidDateParamException;
 
 import java.text.DateFormat;
