@@ -13,6 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <apidocs.dir>apidocs</apidocs.dir>
   </properties>
 
   <dependencies>
@@ -32,6 +33,10 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
     <!-- enunciate -->
     <dependency>
       <groupId>com.webcohesion.enunciate</groupId>
@@ -42,9 +47,58 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
+    <plugins>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+        <configuration>
+          <enunciateArtifactId>MT</enunciateArtifactId>
+          <docsDir>${project.build.directory}/site</docsDir>
+          <!-- The subdirectory of the site where the documentation will be put. -->
+          <!-- Note that if this isn't set, the documentation will overwrite the site. -->
+          <docsSubdir>${apidocs.dir}</docsSubdir>
+          <indexPageName>index.html</indexPageName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+        <configuration>
+          <message>api docs</message>
+          <includes>${apidocs.dir}/**</includes>
+        </configuration>
+      </plugin>
+    </plugins>
+
 
   </build>
+
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>com.webcohesion.enunciate</groupId>
+        <artifactId>enunciate-slim-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
