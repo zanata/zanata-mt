@@ -893,6 +893,7 @@
     <module>common</module>
     <module>mt-data</module>
     <module>mt-engine</module>
+    <module>business-svc</module>
     <module>server</module>
   </modules>
 </project>
