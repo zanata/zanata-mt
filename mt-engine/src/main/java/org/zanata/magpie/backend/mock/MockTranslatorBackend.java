@@ -2,6 +2,7 @@ package org.zanata.magpie.backend.mock;
 
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
@@ -56,7 +57,7 @@ public class MockTranslatorBackend implements TranslatorBackend {
      */
     @Override
     public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
-        return new MockLocaleCode(localeCode);
+        return new BackendLocaleCodeImpl(localeCode);
     }
 
     @Override
@@ -67,19 +68,6 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public BackendID getId() {
         return BackendID.DEV;
-    }
-
-    public static class MockLocaleCode implements BackendLocaleCode {
-        private String localeCode;
-
-        public MockLocaleCode(@NotNull LocaleCode localeCode) {
-            this.localeCode = localeCode.getId();
-        }
-
-        @Override
-        public String getLocaleCode() {
-            return localeCode;
-        }
     }
 
     private String wrapContentInBlock(String content) {

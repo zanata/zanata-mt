@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.LocaleCode;
-import org.zanata.magpie.backend.google.internal.dto.GoogleLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.util.DTOUtil;
 
@@ -44,13 +44,13 @@ public class GoogleTranslatorBackendTest {
     @Test
     public void canGetGoogleMappedLocales() {
         assertThat(backend.getMappedLocale(LocaleCode.EN_US))
-                .isEqualTo(new GoogleLocaleCode("en"));
+                .isEqualTo(new BackendLocaleCodeImpl("en"));
         assertThat(backend.getMappedLocale(LocaleCode.ZH_HANS))
-                .isEqualTo(new GoogleLocaleCode("zh-CN"));
+                .isEqualTo(new BackendLocaleCodeImpl("zh-CN"));
         assertThat(backend.getMappedLocale(LocaleCode.ZH_HANT))
-                .isEqualTo(new GoogleLocaleCode("zh-TW"));
+                .isEqualTo(new BackendLocaleCodeImpl("zh-TW"));
         assertThat(backend.getMappedLocale(LocaleCode.DE))
-                .isEqualTo(new GoogleLocaleCode("de"));
+                .isEqualTo(new BackendLocaleCodeImpl("de"));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class GoogleTranslatorBackendTest {
                 Translate.TranslateOption.format("html")))
                         .thenReturn(expectedTrans);
         List<AugmentedTranslation> translations = backend.translate(source,
-                new GoogleLocaleCode("en"), new GoogleLocaleCode("zh"),
+                new BackendLocaleCodeImpl("en"), new BackendLocaleCodeImpl("zh"),
                 MediaType.TEXT_HTML_TYPE, Optional.empty());
 
         assertThat(translations).hasSize(expectedTrans.size());
@@ -81,7 +81,7 @@ public class GoogleTranslatorBackendTest {
                 Translate.TranslateOption.format("text")))
                 .thenReturn(expectedTrans);
         List<AugmentedTranslation> translations = backend.translate(source,
-                new GoogleLocaleCode("en"), new GoogleLocaleCode("zh"),
+                new BackendLocaleCodeImpl("en"), new BackendLocaleCodeImpl("zh"),
                 MediaType.TEXT_PLAIN_TYPE, Optional.empty());
 
         assertThat(translations).hasSize(expectedTrans.size());

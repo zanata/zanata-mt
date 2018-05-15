@@ -31,7 +31,7 @@ import javax.ws.rs.core.MediaType;
 import org.zanata.magpie.annotation.Credentials;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
-import org.zanata.magpie.backend.google.internal.dto.GoogleLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
@@ -61,11 +61,11 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
      *
      * https://cloud.google.com/translate/docs/languages
      */
-    private final ImmutableMap<LocaleCode, GoogleLocaleCode> LOCALE_MAP =
+    private final ImmutableMap<LocaleCode, BackendLocaleCode> LOCALE_MAP =
             ImmutableMap.of(
-                    LocaleCode.EN_US, new GoogleLocaleCode(LocaleCode.EN),
-                    LocaleCode.ZH_HANS, new GoogleLocaleCode("zh-CN"),
-                    LocaleCode.ZH_HANT, new GoogleLocaleCode("zh-TW")
+                    LocaleCode.EN_US, new BackendLocaleCodeImpl(LocaleCode.EN),
+                    LocaleCode.ZH_HANS, new BackendLocaleCodeImpl("zh-CN"),
+                    LocaleCode.ZH_HANT, new BackendLocaleCodeImpl("zh-TW")
             );
     private DTOUtil dtoUtil;
     private GoogleCredential googleCredential;
@@ -120,7 +120,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 
     @Override
     public BackendLocaleCode getMappedLocale(LocaleCode localeCode) {
-        GoogleLocaleCode googleLocaleCode = new GoogleLocaleCode(localeCode);
+        BackendLocaleCode googleLocaleCode = new BackendLocaleCodeImpl(localeCode);
         return LOCALE_MAP.getOrDefault(localeCode, googleLocaleCode);
     }
 

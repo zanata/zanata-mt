@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.zanata.magpie.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
-import static org.zanata.magpie.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
+import static org.zanata.magpie.model.BackendID.DEV;
 import static org.zanata.magpie.model.BackendID.GOOGLE;
 
 import java.util.List;
@@ -26,10 +24,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
-import org.zanata.magpie.backend.google.GoogleTranslatorBackend;
-import org.zanata.magpie.backend.mock.MockTranslatorBackend;
-import org.zanata.magpie.backend.ms.MicrosoftTranslatorBackend;
-import org.zanata.magpie.backend.ms.internal.dto.MSLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
 import org.zanata.magpie.event.RequestedMTEvent;
@@ -58,13 +54,13 @@ public class PersistentTranslationServiceTest {
     private TextFlowTargetDAO textFlowTargetDAO;
 
     @Mock
-    private MicrosoftTranslatorBackend msBackend;
+    private TranslatorBackend msBackend;
 
     @Mock
-    private GoogleTranslatorBackend googleTranslatorBackend;
+    private TranslatorBackend googleTranslatorBackend;
 
-    private MockTranslatorBackend mockTranslatorBackend =
-            new MockTranslatorBackend();
+    @Mock
+    private TranslatorBackend mockTranslatorBackend;
 
     private PersistentTranslationService persistentTranslationService;
     @Mock private Instance<TranslatorBackend> translators;
@@ -75,6 +71,7 @@ public class PersistentTranslationServiceTest {
     public void setup() {
         when(msBackend.getId()).thenReturn(BackendID.MS);
         when(googleTranslatorBackend.getId()).thenReturn(GOOGLE);
+        when(mockTranslatorBackend.getId()).thenReturn(DEV);
         when(translators.iterator())
                 .thenReturn(Lists.newArrayList(googleTranslatorBackend,
                         mockTranslatorBackend, msBackend).iterator());
@@ -142,34 +139,6 @@ public class PersistentTranslationServiceTest {
     }
 
     @Test
-    public void testDevMode() {
-        List<String> source = Lists.newArrayList("testing source");
-        Locale fromLocale = new Locale(LocaleCode.EN, "English");
-        Locale toLocale = new Locale(LocaleCode.DE, "German");
-        Document doc = new Document();
-        TextFlow expectedTf = new TextFlow(doc, source.get(0), fromLocale);
-        TextFlowTarget expectedTft =
-                new TextFlowTarget(source.get(0), source.get(0), expectedTf,
-                        toLocale, BackendID.DEV);
-
-        String hash = HashUtil.generateHash(source.get(0));
-
-        when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
-                .thenReturn(Optional.empty());
-        when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
-        when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
-
-        List<String> translations = persistentTranslationService
-                .translate(new Document(), source, fromLocale, toLocale,
-                        BackendID.DEV, MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
-        assertThat(translations.get(0))
-                .contains(source.get(0), PREFIX_MOCK_STRING,
-                        UNICODE_SUPPLEMENTARY);
-        verify(msBackend).getId();
-        verifyNoMoreInteractions(msBackend);
-    }
-
-    @Test
     public void testNewTranslation()
             throws BadRequestException {
         List<String> sources = Lists.newArrayList("string to translate");
@@ -194,8 +163,8 @@ public class PersistentTranslationServiceTest {
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleCode());
-        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
+        BackendLocaleCode fromLocaleCode = new BackendLocaleCodeImpl(fromLocale.getLocaleCode());
+        BackendLocaleCode toLocaleCode = new BackendLocaleCodeImpl(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
                 .thenReturn(fromLocaleCode);
@@ -248,8 +217,8 @@ public class PersistentTranslationServiceTest {
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
         when(textFlowTargetDAO.persist(expectedTft)).thenReturn(expectedTft);
 
-        MSLocaleCode fromLocaleCode = new MSLocaleCode(fromLocale.getLocaleCode());
-        MSLocaleCode toLocaleCode = new MSLocaleCode(toLocale.getLocaleCode());
+        BackendLocaleCode fromLocaleCode = new BackendLocaleCodeImpl(fromLocale.getLocaleCode());
+        BackendLocaleCode toLocaleCode = new BackendLocaleCodeImpl(toLocale.getLocaleCode());
 
         when(msBackend.getMappedLocale(fromLocale.getLocaleCode()))
                 .thenReturn(fromLocaleCode);
@@ -299,7 +268,7 @@ public class PersistentTranslationServiceTest {
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.of(expectedTf));
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
-                .thenReturn(new MSLocaleCode(toLocale.getLocaleCode()));
+                .thenReturn(new BackendLocaleCodeImpl(toLocale.getLocaleCode()));
 
         List<String> translations =
                 persistentTranslationService

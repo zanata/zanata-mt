@@ -16,8 +16,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.zanata.magpie.annotation.Credentials;
 import org.zanata.magpie.api.dto.LocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.BackendLocaleCode;
-import org.zanata.magpie.backend.ms.internal.dto.MSLocaleCode;
 import org.zanata.magpie.backend.ms.internal.dto.MSString;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
@@ -51,10 +51,10 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
      *
      * https://msdn.microsoft.com/en-us/library/hh456380.aspx
      */
-    private final ImmutableMap<LocaleCode, MSLocaleCode> LOCALE_MAP =
+    private final ImmutableMap<LocaleCode, BackendLocaleCode> LOCALE_MAP =
             ImmutableMap.of(
-                    LocaleCode.ZH_HANS, new MSLocaleCode("zh-CHS"),
-                    LocaleCode.ZH_HANT, new MSLocaleCode("zh-CHT")
+                    LocaleCode.ZH_HANS, new BackendLocaleCodeImpl("zh-CHS"),
+                    LocaleCode.ZH_HANT, new BackendLocaleCodeImpl("zh-CHT")
             );
 
     private String clientSubscriptionKey;
@@ -113,7 +113,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     @Override
     public BackendLocaleCode getMappedLocale(@NotNull LocaleCode localeCode) {
-        MSLocaleCode from = new MSLocaleCode(localeCode);
+        BackendLocaleCode from = new BackendLocaleCodeImpl(localeCode);
         return LOCALE_MAP.getOrDefault(localeCode, from);
     }
 

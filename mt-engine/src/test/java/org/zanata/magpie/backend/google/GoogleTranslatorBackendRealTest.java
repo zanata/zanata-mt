@@ -11,7 +11,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.zanata.magpie.backend.google.internal.dto.GoogleLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.util.DTOUtil;
 
@@ -56,8 +56,8 @@ public class GoogleTranslatorBackendRealTest {
             String targetLocale, MediaType mediaType) {
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(Lists.newArrayList(content),
-                        new GoogleLocaleCode("en"),
-                        new GoogleLocaleCode(targetLocale), mediaType,
+                        new BackendLocaleCodeImpl("en"),
+                        new BackendLocaleCodeImpl(targetLocale), mediaType,
                         Optional.empty());
         return translations.get(0);
     }

@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
-import org.zanata.magpie.backend.ms.internal.dto.MSLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.ms.internal.dto.MSString;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResponse;
@@ -52,8 +52,8 @@ public class MicrosoftTranslatorBackendTest {
     @Test
     public void testTranslate() {
         String content = "content";
-        MSLocaleCode srcLocale = new MSLocaleCode(LocaleCode.EN);
-        MSLocaleCode transLocale = new MSLocaleCode(LocaleCode.DE);
+        BackendLocaleCode srcLocale = new BackendLocaleCodeImpl(LocaleCode.EN);
+        BackendLocaleCode transLocale = new BackendLocaleCodeImpl(LocaleCode.DE);
         MSTranslateArrayResp resp = new MSTranslateArrayResp();
         List<MSTranslateArrayResponse> respList = new ArrayList<>();
         respList.add(buildMSResponse("translation1"));

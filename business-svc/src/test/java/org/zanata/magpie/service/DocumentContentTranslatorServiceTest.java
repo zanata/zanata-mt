@@ -17,9 +17,8 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
@@ -34,7 +33,6 @@ import org.zanata.magpie.util.ShortString;
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DocumentContentTranslatorServiceTest {
 
     private DocumentContentTranslatorService documentContentTranslatorService;
@@ -44,6 +42,7 @@ public class DocumentContentTranslatorServiceTest {
 
     @Before
     public void setup() {
+        MockitoAnnotations.initMocks(this);
         documentContentTranslatorService =
                 new DocumentContentTranslatorService(persistentTranslationService);
     }
