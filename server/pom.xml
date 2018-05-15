@@ -276,6 +276,11 @@
       <artifactId>mt-data</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>mt-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.tuckey</groupId>
@@ -330,16 +335,6 @@
       <artifactId>annotations</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-translate</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.oauth-client</groupId>
-      <artifactId>google-oauth-client</artifactId>
-    </dependency>
-
     <!-- resteasy -->
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
@@ -365,10 +360,7 @@
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -419,10 +411,7 @@
     </dependency>
 
     <!-- hibernate -->
-    <dependency>
-      <groupId>org.hibernate.common</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>

@@ -197,6 +197,8 @@
         <version>${google-oauth-client.version}</version>
       </dependency>
 
+
+
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -461,10 +463,17 @@
         <version>1.1.1</version>
       </dependency>
 
+      <!-- TODO we should use jackson2 and get rid of this one -->
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-mapper-asl</artifactId>
         <version>1.9.13</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.8.9</version>
       </dependency>
 
       <dependency>
@@ -881,8 +890,9 @@
 
   <modules>
     <module>frontend</module>
-    <module>server</module>
     <module>common</module>
     <module>mt-data</module>
+    <module>mt-engine</module>
+    <module>server</module>
   </modules>
 </project>

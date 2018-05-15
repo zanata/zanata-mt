@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * This service will return translations of original string with prefix of
  * {@link #PREFIX_MOCK_STRING}.
  *
- * See {@link org.zanata.magpie.service.ConfigurationService#isDevMode}
+ * See org.zanata.magpie.service.ConfigurationService#isDevMode
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */

@@ -1,6 +1,5 @@
 package org.zanata.magpie.backend.mock;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -11,7 +10,9 @@ import javax.ws.rs.core.MediaType;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import com.google.common.collect.Lists;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.zanata.magpie.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
 import static org.zanata.magpie.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
 
