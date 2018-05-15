@@ -25,7 +25,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import com.google.common.collect.ImmutableSet;
-import org.zanata.magpie.api.SecurityInterceptor;
+import org.zanata.magpie.api.security.SecurityInterceptor;
 import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.api.service.impl.BackendResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentResourceImpl;

@@ -1,4 +1,4 @@
-package org.zanata.magpie.api
+package org.zanata.magpie.api.security
 
 import org.assertj.core.api.Assertions.*
 import org.junit.Before
@@ -9,6 +9,8 @@ import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.zanata.magpie.api.APIConstant
+import org.zanata.magpie.api.AuthenticatedAccount
 import org.zanata.magpie.model.Account
 import org.zanata.magpie.service.AccountService
 import java.net.URI

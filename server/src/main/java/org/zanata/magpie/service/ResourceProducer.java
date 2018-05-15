@@ -26,6 +26,9 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.CacheContainer;
@@ -61,6 +64,12 @@ public class ResourceProducer {
     @RequestScoped
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    @RequestScoped
+    public Validator getValidator() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        return factory.getValidator();
     }
 
 }

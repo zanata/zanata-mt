@@ -1,4 +1,4 @@
-package org.zanata.magpie.security
+package org.zanata.magpie.api.security
 
 import org.apache.deltaspike.security.api.authorization.AccessDecisionVoterContext
 import org.apache.deltaspike.security.api.authorization.SecurityViolation

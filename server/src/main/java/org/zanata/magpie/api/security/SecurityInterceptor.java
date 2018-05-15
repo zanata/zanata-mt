@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.api;
+package org.zanata.magpie.api.security;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -36,6 +36,8 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
+import org.zanata.magpie.api.APIConstant;
+import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.Role;

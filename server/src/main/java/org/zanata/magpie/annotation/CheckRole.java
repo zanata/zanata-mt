@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 import javax.enterprise.inject.Stereotype;
 
 import org.apache.deltaspike.security.api.authorization.Secured;
-import org.zanata.magpie.security.CheckRoleDecisionVoter;
+import org.zanata.magpie.api.security.CheckRoleDecisionVoter;
 
 /**
  * @author Patrick Huang
