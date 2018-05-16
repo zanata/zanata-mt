@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.service;
+package org.zanata.magpie.producer;
 
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
@@ -26,9 +26,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.CacheContainer;
@@ -66,10 +63,5 @@ public class ResourceProducer {
         return em;
     }
 
-    @RequestScoped
-    public Validator getValidator() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        return factory.getValidator();
-    }
 
 }

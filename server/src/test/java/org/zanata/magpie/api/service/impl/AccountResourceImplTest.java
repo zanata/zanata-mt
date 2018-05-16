@@ -27,8 +27,8 @@ import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.event.AccountCreated;
+import org.zanata.magpie.producer.ValidatorProducer;
 import org.zanata.magpie.service.AccountService;
-import org.zanata.magpie.service.ResourceProducer;
 
 
 public class AccountResourceImplTest {
@@ -41,7 +41,7 @@ public class AccountResourceImplTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         accountResource = new AccountResourceImpl(accountService,
-                new ResourceProducer().getValidator(), accountCreatedEvent);
+                new ValidatorProducer().getValidator(), accountCreatedEvent);
         accountResource.uriInfo = new ResteasyUriInfo("account", "", "");
     }
 
