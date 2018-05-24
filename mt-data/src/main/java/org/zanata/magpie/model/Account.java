@@ -47,10 +47,16 @@ import com.google.common.collect.Sets;
  */
 @Entity
 @Access(AccessType.FIELD)
-@NamedQueries(
+@NamedQueries({
         @NamedQuery(name = Account.QUERY_BY_USERNAME,
-                query = "select u from Account u fetch all properties join u.credentials c where c.username = :username and u.enabled = true")
-)
+                query = "select a from Account a join fetch a.credentials c where c.username = :username and a.enabled = true"),
+        @NamedQuery(name = Account.QUERY_BY_EMAIL,
+                query = "select a from Account a join fetch a.credentials c where a.email = :email and a.enabled = true"),
+        @NamedQuery(name = Account.QUERY_ALL_ACCOUNTS,
+                query = "from Account a join fetch a.roles order by a.creationDate"),
+        @NamedQuery(name = Account.QUERY_ENABLED_ACCOUNTS,
+                query = "from Account a join fetch a.roles where a.enabled = true order by a.creationDate")
+})
 @Table(
         name = "account",
         uniqueConstraints = @UniqueConstraint(name = "UK_account_email", columnNames = {"email"})
@@ -58,6 +64,9 @@ import com.google.common.collect.Sets;
 public class Account extends ModelEntity {
     private static final long serialVersionUID = -8177299694942674381L;
     public static final String QUERY_BY_USERNAME = "QUERY_BY_USERNAME";
+    public static final String QUERY_BY_EMAIL = "QUERY_BY_EMAIL";
+    public static final String QUERY_ALL_ACCOUNTS = "QUERY_ALL_ACCOUNTS";
+    public static final String QUERY_ENABLED_ACCOUNTS = "QUERY_ENABLED_ACCOUNTS";
 
     @NotNull
     @Size(min = 1, max = 128)

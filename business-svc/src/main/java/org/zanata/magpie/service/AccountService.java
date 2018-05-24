@@ -28,9 +28,13 @@ import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
+import javax.swing.text.html.Option;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.dao.AccountDAO;
+import org.zanata.magpie.dao.CredentialDAO;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Credential;
 import org.zanata.magpie.model.LocalCredential;
@@ -42,14 +46,18 @@ import org.zanata.magpie.util.PasswordUtil;
  */
 @Stateless
 public class AccountService implements Serializable {
-
     private static final long serialVersionUID = -7045985475911143937L;
+    private static final Logger log =
+            LoggerFactory.getLogger(AccountService.class);
+
     private AccountDAO accountDAO;
+    private CredentialDAO credentialDAO;
     private final PasswordUtil passwordUtil = new PasswordUtil();
 
     @Inject
-    public AccountService(AccountDAO accountDAO) {
+    public AccountService(AccountDAO accountDAO, CredentialDAO credentialDAO) {
         this.accountDAO = accountDAO;
+        this.credentialDAO = credentialDAO;
     }
 
     @SuppressWarnings("unused")
@@ -102,5 +110,33 @@ public class AccountService implements Serializable {
                 .map(a -> new AccountDto(a.getId(), a.getName(), a.getEmail(),
                         a.getAccountType(), a.getRoles()))
                 .collect(Collectors.toList());
+    }
+
+    @TransactionAttribute
+    public boolean updateAccount(AccountDto accountDto) {
+        Optional<Account> account =
+                accountDAO.findAccountByEmail(accountDto.getEmail());
+        account.ifPresent(a -> {
+            log.info("updating account {}", a.getEmail());
+            a.setAccountType(accountDto.getAccountType());
+            a.setName(accountDto.getName());
+            a.setRoles(accountDto.getRoles());
+            accountDto.getCredentials().forEach(dto -> {
+                Optional<Credential> credential = credentialDAO
+                        .getCredentialByUsername(dto.getUsername());
+                if (credential.isPresent()) {
+                    log.info("secret for username [{}] is updated", credential.get().getUsername());
+                    credential.get().setSecret(passwordUtil.hash(dto.getSecret()));
+                } else {
+                    log.info("adding new credential to account {}", a.getEmail());
+                    LocalCredential c =
+                            new LocalCredential(a, dto.getUsername(),
+                                    passwordUtil.hash(dto.getSecret()));
+                    credentialDAO.persist(c);
+                    a.getCredentials().add(c);
+                }
+            });
+        });
+        return account.isPresent();
     }
 }
