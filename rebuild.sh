@@ -66,22 +66,19 @@ fi
 
 GOOGLE_OPTION="-DGOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CREDENTIAL_FILE"
 
-cd server
-mvn docker:stop || true
+mvn docker:stop -pl :mt-server || true
 
 if ${SKIP_FRONTEND}
 then
     echo "Skipping frontend build..."
-    mvn clean install ${TEST}
+    mvn clean install ${TEST} -pl \!frontend
 else
     echo "Full build..."
-    cd ../
     mvn clean install ${TEST}
-    cd server
 fi
 
-mvn docker:build -DskipTests
-mvn docker:start ${GOOGLE_OPTION} ${MS_OPTION} ${DEFAULT_PROVIDER_OPTION}
+mvn docker:build -pl :mt-server -DskipTests && \
+ mvn docker:start -pl :mt-server ${GOOGLE_OPTION} ${MS_OPTION} ${DEFAULT_PROVIDER_OPTION}
 
 docker logs --follow MT
 
