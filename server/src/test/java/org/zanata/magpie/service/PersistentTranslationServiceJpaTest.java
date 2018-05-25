@@ -20,6 +20,8 @@ import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.JPATest;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.google.GoogleTranslatorBackend;
 import org.zanata.magpie.backend.mock.MockTranslatorBackend;
 import org.zanata.magpie.backend.ms.MicrosoftTranslatorBackend;
@@ -78,11 +80,11 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
         Optional<String> category = Optional.empty();
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
-        MockTranslatorBackend.MockLocaleCode devFromLocale =
-                new MockTranslatorBackend.MockLocaleCode(
+        BackendLocaleCode devFromLocale =
+                new BackendLocaleCodeImpl(
                         fromLocale.getLocaleCode());
-        MockTranslatorBackend.MockLocaleCode devToLocale =
-                new MockTranslatorBackend.MockLocaleCode(
+        BackendLocaleCode devToLocale =
+                new BackendLocaleCodeImpl(
                         toLocale.getLocaleCode());
         when(devBackend.getMappedLocale(fromLocale.getLocaleCode()))
                 .thenReturn(devFromLocale);

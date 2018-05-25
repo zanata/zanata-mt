@@ -16,8 +16,6 @@
   </scm>
   <properties>
     <!-- database -->
-    <db.name>zanataMT</db.name>
-    <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
     <postgresql.port>5432</postgresql.port>
     <postgresql.user>root</postgresql.user>
     <postgresql.password>root</postgresql.password>
@@ -27,7 +25,6 @@
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
     <DEFAULT_TRANSLATION_PROVIDER>DEV</DEFAULT_TRANSLATION_PROVIDER>
-    <apidocs.dir>apidocs</apidocs.dir>
   </properties>
 
   <build>
@@ -43,18 +40,6 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.webcohesion.enunciate</groupId>
-        <artifactId>enunciate-slim-maven-plugin</artifactId>
-        <configuration>
-          <enunciateArtifactId>MT</enunciateArtifactId>
-          <docsDir>${project.build.directory}/site</docsDir>
-          <!-- The subdirectory of the site where the documentation will be put. -->
-          <!-- Note that if this isn't set, the documentation will overwrite the site. -->
-          <docsSubdir>${apidocs.dir}</docsSubdir>
-          <indexPageName>index.html</indexPageName>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -97,13 +82,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.github.github</groupId>
-        <artifactId>site-maven-plugin</artifactId>
-        <configuration>
-          <includes>${apidocs.dir}/**</includes>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -288,16 +266,30 @@
       <artifactId>mt-frontend</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>mt-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>mt-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>business-svc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.tuckey</groupId>
       <artifactId>urlrewritefilter</artifactId>
-    </dependency>
-
-    <!-- enunciate -->
-    <dependency>
-      <groupId>com.webcohesion.enunciate</groupId>
-      <artifactId>enunciate-core-annotations</artifactId>
     </dependency>
 
     <!-- CDI -->
@@ -329,11 +321,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>net.bull.javamelody</groupId>
       <artifactId>javamelody-core</artifactId>
     </dependency>
@@ -346,16 +333,6 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>annotations</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-translate</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.oauth-client</groupId>
-      <artifactId>google-oauth-client</artifactId>
     </dependency>
 
     <!-- resteasy -->
@@ -383,10 +360,7 @@
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -425,22 +399,7 @@
       <artifactId>deltaspike-security-module-impl</artifactId>
     </dependency>
 
-    <!-- jsf -->
-    <dependency>
-      <groupId>com.sun.faces</groupId>
-      <artifactId>jsf-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.faces</groupId>
-      <artifactId>jsf-impl</artifactId>
-    </dependency>
-
     <!-- hibernate -->
-    <dependency>
-      <groupId>org.hibernate.common</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
@@ -496,45 +455,27 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.ibm.icu</groupId>
       <artifactId>icu4j</artifactId>
     </dependency>
 
-    <!-- okapi -->
-    <dependency>
-      <groupId>net.sf.okapi</groupId>
-      <artifactId>okapi-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.okapi.steps</groupId>
-      <artifactId>okapi-step-tokenization</artifactId>
-    </dependency>
-
     <!-- Test -->
+    <dependency>
+      <groupId>org.zanata.magpie</groupId>
+      <artifactId>mt-data</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -574,13 +515,4 @@
     </dependency>
   </dependencies>
 
-  <reporting>
-    <excludeDefaults>true</excludeDefaults>
-    <plugins>
-      <plugin>
-        <groupId>com.webcohesion.enunciate</groupId>
-        <artifactId>enunciate-slim-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>

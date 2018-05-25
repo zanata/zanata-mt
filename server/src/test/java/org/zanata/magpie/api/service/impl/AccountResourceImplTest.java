@@ -26,9 +26,9 @@ import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AccountType;
-import org.zanata.magpie.security.AccountCreated;
+import org.zanata.magpie.event.AccountCreated;
+import org.zanata.magpie.producer.ValidatorProducer;
 import org.zanata.magpie.service.AccountService;
-import org.zanata.magpie.util.ValidatorProducer;
 
 
 public class AccountResourceImplTest {

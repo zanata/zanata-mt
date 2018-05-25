@@ -29,10 +29,10 @@ import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
-import org.zanata.magpie.security.AccountCreated;
+import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
 
-import static org.zanata.magpie.service.ResourceProducer.REPLICATE_CACHE;
+import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
 
 /**
  * Startup monitor for MT.

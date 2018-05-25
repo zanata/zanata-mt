@@ -21,7 +21,7 @@ import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
-import org.zanata.magpie.security.AccountCreated;
+import org.zanata.magpie.event.AccountCreated;
 
 import com.google.common.collect.Sets;
 

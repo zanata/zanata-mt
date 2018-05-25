@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.magpie.api.service.impl.DocumentsResourceImpl;
 import org.zanata.magpie.dao.DocumentDAO;
-import org.zanata.magpie.service.DateRange;
+import org.zanata.magpie.dto.DateRange;
 
 import javax.ws.rs.core.Response;
 

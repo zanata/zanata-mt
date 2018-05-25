@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.junit.Test;
-import org.zanata.magpie.model.TranslatableHTMLNode;
+import org.zanata.magpie.service.TranslatableHTMLNode;
 
 import java.util.HashMap;
 import java.util.List;
