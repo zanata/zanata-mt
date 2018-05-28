@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 
-public class OkapiUtil {
-    private static final Logger log = LoggerFactory.getLogger(OkapiUtil.class);
+public class CountUtil {
+    private static final Logger log = LoggerFactory.getLogger(CountUtil.class);
 
-    private OkapiUtil() {
+    private CountUtil() {
     }
 
     /**

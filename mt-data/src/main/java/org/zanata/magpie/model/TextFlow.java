@@ -19,7 +19,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.util.HashUtil;
-import org.zanata.magpie.util.OkapiUtil;
+import org.zanata.magpie.util.CountUtil;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -77,7 +77,7 @@ public class TextFlow extends ModelEntity {
         if (locale != null) {
             localeCode = locale.getLocaleCode().getId();
         }
-        long count = OkapiUtil.countWords(content, localeCode);
+        long count = CountUtil.countWords(content, localeCode);
         this.wordCount = count;
     }
 
