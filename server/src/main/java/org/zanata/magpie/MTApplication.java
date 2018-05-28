@@ -32,6 +32,7 @@ import org.zanata.magpie.api.service.impl.DocumentResourceImpl;
 import org.zanata.magpie.api.service.impl.DocumentsResourceImpl;
 import org.zanata.magpie.api.service.impl.InfoResourceImpl;
 import org.zanata.magpie.api.service.impl.LanguagesResourceImpl;
+import org.zanata.magpie.api.service.impl.ReportingResourceImpl;
 import org.zanata.magpie.exception.AccessDeniedExceptionMapper;
 import org.zanata.magpie.exception.BadRequestExceptionMapper;
 import org.zanata.magpie.exception.DataConstraintViolationExceptionMapper;
@@ -63,6 +64,7 @@ public class MTApplication extends Application {
                 .add(DocumentsResourceImpl.class)
                 .add(AccountResourceImpl.class)
                 .add(InfoResourceImpl.class)
+                .add(ReportingResourceImpl.class)
                 .build();
     }
 

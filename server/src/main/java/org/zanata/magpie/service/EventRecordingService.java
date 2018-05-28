@@ -77,7 +77,7 @@ public class EventRecordingService implements Serializable {
                 event.getTriggeredBy().getId());
         TextFlowMTRequest textFlowMTRequest = new TextFlowMTRequest(
                 event.getBackendID(), event.getEngineInvokeTime(), document,
-                locale, account,
+                locale, event.getToLocale(), account,
                 event.getTextFlows());
 
         entityManager.persist(textFlowMTRequest);

@@ -226,7 +226,7 @@ public class PersistentTranslationService {
                 }
             }
         }
-        requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale,
+        requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale, toLocale,
                 requestedTextFlows, backendID, engineInvokeTime,
                 authenticatedAccount.getAuthenticatedAccount().get()));
 

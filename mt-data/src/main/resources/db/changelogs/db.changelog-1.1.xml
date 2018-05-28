@@ -118,4 +118,18 @@
         referencedColumnNames="id" />
   </changeSet>
 
+  <changeSet id="6" author="pahuang@redhat.com">
+    <comment>add column to record to locale for text flow machine translation</comment>
+    <addColumn tableName="textflowmtrequest">
+      <column name="to_locale_id" type="bigint">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+    <addForeignKeyConstraint baseTableName="textflowmtrequest"
+        baseColumnNames="to_locale_id"
+        constraintName="FK_textflowmtrequest_to_locale"
+        referencedTableName="locale"
+        referencedColumnNames="id" />
+  </changeSet>
+
 </databaseChangeLog>

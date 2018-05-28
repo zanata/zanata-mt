@@ -40,17 +40,20 @@ public class RequestedMTEvent implements Serializable {
     private static final long serialVersionUID = 2189882352044418886L;
     private final Document document;
     private final Locale fromLocale;
+    private final Locale toLocale;
     private final List<String> textFlows;
     private final BackendID backendID;
     private final Date engineInvokeTime;
     private final Account triggeredBy;
 
     public RequestedMTEvent(
-            Document document, Locale fromLocale, List<String> textFlows,
+            Document document, Locale fromLocale,
+            Locale toLocale, List<String> textFlows,
             BackendID backendID, Date engineInvokeTime,
             Account account) {
         this.document = document;
         this.fromLocale = fromLocale;
+        this.toLocale = toLocale;
         this.textFlows = textFlows;
         this.backendID = backendID;
         this.engineInvokeTime = new Date(engineInvokeTime.getTime());
@@ -75,6 +78,10 @@ public class RequestedMTEvent implements Serializable {
 
     public Locale getFromLocale() {
         return fromLocale;
+    }
+
+    public Locale getToLocale() {
+        return toLocale;
     }
 
     public Account getTriggeredBy() {
