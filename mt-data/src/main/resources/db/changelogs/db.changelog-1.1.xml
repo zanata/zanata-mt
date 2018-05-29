@@ -132,4 +132,17 @@
         referencedColumnNames="id" />
   </changeSet>
 
+  <changeSet id="7" author="pahuang@redhat.com">
+    <comment>add column to record character count for a text flow</comment>
+    <addColumn tableName="textflow">
+      <column name="charcount" type="bigint" defaultValue="0">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
+  <changeSet id="8" author="pahuang@redhat.com">
+    <comment>update character count in existing text flows</comment>
+    <customChange class="org.zanata.magpie.liquibase.UpdateCharCountToTextFlow" />
+  </changeSet>
+
 </databaseChangeLog>

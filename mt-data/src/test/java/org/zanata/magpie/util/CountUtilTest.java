@@ -30,4 +30,14 @@ public class CountUtilTest {
         long words = CountUtil.countWords(test, LocaleCode.EN.getId());
         assertThat(words).isEqualTo(3);
     }
+
+    @Test
+    public void countChars() {
+        String test = "你好吗？";
+        String test1 = "Thîs lóo̰ks we̐ird!";
+
+        assertThat(CountUtil.countCharacters(test, LocaleCode.ZH_HANS.getId())).isEqualTo(4);
+        assertThat(CountUtil.countCharacters(test1, LocaleCode.FR.getId())).isEqualTo(17);
+
+    }
 }

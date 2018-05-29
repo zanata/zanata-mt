@@ -20,14 +20,21 @@
  */
 package org.zanata.magpie.util;
 
-import net.sf.okapi.common.LocaleId;
-import net.sf.okapi.steps.tokenization.Tokenizer;
-import net.sf.okapi.steps.tokenization.tokens.Tokens;
+import static java.text.BreakIterator.getCharacterInstance;
+import static java.util.Locale.forLanguageTag;
+
+import java.text.BreakIterator;
+
+import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
+import net.sf.okapi.common.LocaleId;
+import net.sf.okapi.steps.tokenization.Tokenizer;
+import net.sf.okapi.steps.tokenization.tokens.Tokens;
 
 public class CountUtil {
     private static final Logger log = LoggerFactory.getLogger(CountUtil.class);
@@ -50,15 +57,7 @@ public class CountUtil {
             return 0;
         }
         try {
-            LocaleId locale;
-            try {
-                locale = LocaleId.fromBCP47(localeCode);
-            } catch (Exception e) {
-                log.error(
-                        "can't understand '{}' as a BCP-47 locale; defaulting to English",
-                        localeCode);
-                locale = LocaleId.ENGLISH;
-            }
+            LocaleId locale = getLocaleId(localeCode);
 
             Tokens tokens = StringTokenizer.tokenizeString(content, locale, "WORD");
             return tokens.size();
@@ -70,6 +69,19 @@ public class CountUtil {
         }
     }
 
+    private static LocaleId getLocaleId(@NotNull String localeCode) {
+        LocaleId locale;
+        try {
+            locale = LocaleId.fromBCP47(localeCode);
+        } catch (Exception e) {
+            log.error(
+                    "can't understand '{}' as a BCP-47 locale; defaulting to English",
+                    localeCode);
+            locale = LocaleId.ENGLISH;
+        }
+        return locale;
+    }
+
     private static class StringTokenizer extends Tokenizer {
         public static Tokens tokenizeString(String text, LocaleId language,
                 String... tokenNames) {
@@ -77,6 +89,32 @@ public class CountUtil {
                 return Tokenizer.tokenizeString(text, language, tokenNames);
             }
         }
+    }
+
+    /**
+     * Count the characters in a string taking into account the locale.
+     * See https://stackoverflow.com/a/6846155/345718
+     *
+     * @param content
+     *            the string content
+     * @param localeCode
+     *            locale that used in the string
+     * @return character count
+     */
+    public static long countCharacters(@Nonnull String content,
+            @NotNull String localeCode) {
+        if (StringUtils.isBlank(content) || StringUtils.isBlank(localeCode)) {
+            return 0;
+        }
+        BreakIterator charIterator =
+                getCharacterInstance(forLanguageTag(localeCode));
+        charIterator.setText(content);
+
+        long result = 0;
+        while (charIterator.next() != BreakIterator.DONE) {
+            result += 1;
+        }
+        return result;
     }
 
 }

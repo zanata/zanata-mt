@@ -2,7 +2,6 @@ package org.zanata.magpie.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
@@ -11,7 +10,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -51,6 +49,8 @@ public class TextFlow extends ModelEntity {
 
     @NotNull
     private Long wordCount;
+    @NotNull
+    private Long charCount;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "textFlow",
         fetch = FetchType.EAGER)
@@ -63,22 +63,23 @@ public class TextFlow extends ModelEntity {
         this.content = content;
         this.locale = locale;
         this.document = document;
-        updateContentHashAndWordCount();
+        updateContentHashAndWordAndCharCount();
     }
 
     public void setContent(String content) {
         this.content = content;
-        updateContentHashAndWordCount();
+        updateContentHashAndWordAndCharCount();
     }
 
-    private void updateContentHashAndWordCount() {
+    private void updateContentHashAndWordAndCharCount() {
         this.contentHash = HashUtil.generateHash(content);
         String localeCode = LocaleCode.EN.getId();
         if (locale != null) {
             localeCode = locale.getLocaleCode().getId();
         }
-        long count = CountUtil.countWords(content, localeCode);
-        this.wordCount = count;
+        this.wordCount = CountUtil.countWords(content, localeCode);
+        this.charCount = CountUtil.countCharacters(content, localeCode);
+
     }
 
     public String getContentHash() {
@@ -105,12 +106,8 @@ public class TextFlow extends ModelEntity {
         return wordCount;
     }
 
-    @Transient
-    public List<TextFlowTarget> getTargetsByLocaleCode(LocaleCode localeCode) {
-        return getTargets().stream()
-                .filter(textFlowTarget -> textFlowTarget.getLocale()
-                        .getLocaleCode().equals(localeCode))
-                .collect(Collectors.toList());
+    public Long getCharCount() {
+        return charCount;
     }
 
     @Override
