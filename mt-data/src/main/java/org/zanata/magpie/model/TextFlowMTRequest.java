@@ -41,7 +41,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.NaturalId;
 import com.google.common.collect.Lists;
 
 /**
@@ -66,13 +65,11 @@ public class TextFlowMTRequest implements Serializable {
     @NotNull
     private BackendID backendID;
 
-    @NaturalId
     @ManyToOne
     @JoinColumn(name = "document_id", updatable = false, nullable = false)
     @NotNull
     private Document document;
 
-    @NaturalId
     @ManyToOne(optional = false)
     @JoinColumn(name = "locale_id", nullable = false, updatable = false)
     @NotNull
