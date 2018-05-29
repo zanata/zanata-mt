@@ -69,9 +69,8 @@ public class ReportingService {
                         textFlowMTRequestDAO.getRequestsByDateRange(dateRange, account.get());
             return requestsByDateRange.stream().map(r -> {
                 Document document = r.getDocument();
-                LocaleCode fromLocaleCode = r.getLocale().getLocaleCode();
-
-                LocaleCode toLocaleCode = r.getToLocale().getLocaleCode();
+                LocaleCode fromLocaleCode = r.getDocument().getFromLocale().getLocaleCode();
+                LocaleCode toLocaleCode = r.getDocument().getToLocale().getLocaleCode();
                 return new MTRequestStatistics(fromLocaleCode.getId(),
                         toLocaleCode.getId(), document.getUrl(),
                         r.getCharCount(), r.getWordCount(), r.getBackendID());

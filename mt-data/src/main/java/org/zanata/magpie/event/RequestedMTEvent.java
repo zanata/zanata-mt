@@ -42,8 +42,6 @@ import com.google.common.base.MoreObjects;
 public class RequestedMTEvent implements Serializable {
     private static final long serialVersionUID = 2189882352044418886L;
     private final Document document;
-    private final Locale fromLocale;
-    private final Locale toLocale;
     private final List<String> textFlows;
     private final BackendID backendID;
     private final Date engineInvokeTime;
@@ -52,13 +50,11 @@ public class RequestedMTEvent implements Serializable {
     private final long charCount;
 
     public RequestedMTEvent(
-            @Nonnull Document document, @Nonnull Locale fromLocale,
-            @Nonnull Locale toLocale, List<String> textFlows,
+            @Nonnull Document document,
+            List<String> textFlows,
             BackendID backendID, Date engineInvokeTime,
             Account account, long wordCount, long charCount) {
         this.document = document;
-        this.fromLocale = fromLocale;
-        this.toLocale = toLocale;
         this.textFlows = textFlows;
         this.backendID = backendID;
         this.engineInvokeTime = new Date(engineInvokeTime.getTime());
@@ -83,14 +79,6 @@ public class RequestedMTEvent implements Serializable {
         return document;
     }
 
-    public Locale getFromLocale() {
-        return fromLocale;
-    }
-
-    public Locale getToLocale() {
-        return toLocale;
-    }
-
     public Account getTriggeredBy() {
         return triggeredBy;
     }
@@ -107,8 +95,8 @@ public class RequestedMTEvent implements Serializable {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("document", document.getUrl())
-                .add("fromLocale", fromLocale.getLocaleCode())
-                .add("toLocale", toLocale.getLocaleCode())
+                .add("fromLocale", document.getFromLocale().getLocaleCode())
+                .add("toLocale", document.getToLocale().getLocaleCode())
                 .add("backendID", backendID)
                 .add("engineInvokeTime", engineInvokeTime)
                 .add("triggeredBy", triggeredBy)

@@ -32,9 +32,7 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.event.RequestedMTEvent;
-import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -71,14 +69,12 @@ public class EventRecordingService implements Serializable {
         // need to re-fetch entities into hibernate session
         Document document =
                 entityManager.find(Document.class, event.getDocument().getId());
-        Locale locale =
-                entityManager.find(Locale.class, event.getFromLocale().getId());
+
         Account account = entityManager.find(Account.class,
                 event.getTriggeredBy().getId());
         TextFlowMTRequest textFlowMTRequest = new TextFlowMTRequest(
-                event.getBackendID(), event.getEngineInvokeTime(), document,
-                locale, event.getToLocale(), account,
-                event.getTextFlows(),
+                event.getBackendID(), event.getEngineInvokeTime(),
+                document, account, event.getTextFlows(),
                 event.getWordCount(), event.getCharCount());
 
         entityManager.persist(textFlowMTRequest);

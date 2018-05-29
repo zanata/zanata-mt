@@ -230,7 +230,7 @@ public class PersistentTranslationService {
                 }
             }
         }
-        requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale, toLocale,
+        requestedMTEvent.fire(new RequestedMTEvent(document,
                 requestedTextFlows, backendID, engineInvokeTime,
                 authenticatedAccount.getAuthenticatedAccount().get(), wordCount, charCount));
 
