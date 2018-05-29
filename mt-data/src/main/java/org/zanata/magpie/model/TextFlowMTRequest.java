@@ -85,6 +85,12 @@ public class TextFlowMTRequest implements Serializable {
     @NotNull
     private Account triggeredBy;
 
+    @NotNull
+    private Long wordCount;
+
+    @NotNull
+    private Long charCount;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = " textflow_contenthash")
     private List<String> textFlowContentHashes = Lists.newArrayList();
@@ -95,7 +101,7 @@ public class TextFlowMTRequest implements Serializable {
     public TextFlowMTRequest(BackendID backendID, Date invokeDate,
             Document document, Locale locale, Locale toLocale,
             Account triggeredBy,
-            List<String> textFlowContentHashes) {
+            List<String> textFlowContentHashes, long wordCount, long charCount) {
         this.backendID = backendID;
         this.invokeDate = new Date(invokeDate.getTime());
         this.document = document;
@@ -103,6 +109,8 @@ public class TextFlowMTRequest implements Serializable {
         this.toLocale = toLocale;
         this.triggeredBy = triggeredBy;
         this.textFlowContentHashes = textFlowContentHashes;
+        this.wordCount = wordCount;
+        this.charCount = charCount;
     }
 
     public Long getId() {
@@ -135,5 +143,13 @@ public class TextFlowMTRequest implements Serializable {
 
     public Account getTriggeredBy() {
         return triggeredBy;
+    }
+
+    public Long getWordCount() {
+        return wordCount;
+    }
+
+    public Long getCharCount() {
+        return charCount;
     }
 }

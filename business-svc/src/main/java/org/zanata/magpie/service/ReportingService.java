@@ -36,7 +36,6 @@ import org.zanata.magpie.dao.TextFlowMTRequestDAO;
 import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Document;
-import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowMTRequest;
 
 import com.google.common.collect.Lists;
@@ -47,8 +46,6 @@ import com.google.common.collect.Lists;
  */
 @Stateless
 public class ReportingService {
-    private static final Logger log =
-            LoggerFactory.getLogger(ReportingService.class);
     private AccountDAO accountDAO;
     private TextFlowMTRequestDAO textFlowMTRequestDAO;
 
@@ -70,51 +67,15 @@ public class ReportingService {
 
             List<TextFlowMTRequest> requestsByDateRange =
                         textFlowMTRequestDAO.getRequestsByDateRange(dateRange, account.get());
-            List<MTRequestStatistics> result =
-                    requestsByDateRange.stream().map(r -> {
-                        Document document = r.getDocument();
-                        LocaleCode fromLocaleCode =
-                                r.getLocale().getLocaleCode();
+            return requestsByDateRange.stream().map(r -> {
+                Document document = r.getDocument();
+                LocaleCode fromLocaleCode = r.getLocale().getLocaleCode();
 
-                        long totalWordCount =
-                                r.getTextFlowContentHashes().stream()
-                                        .mapToLong(contentHash -> {
-                                            TextFlow textFlow =
-                                                    document.getTextFlows()
-                                                            .get(contentHash);
-                                            if (textFlow != null) {
-                                                return textFlow.getWordCount();
-                                            }
-                                            log.warn(
-                                                    "contentHash {} can not be found in document: {}",
-                                                    document.getUrl());
-                                            return 0;
-                                        }).sum();
-
-                        long totalCharCount =
-                                r.getTextFlowContentHashes().stream()
-                                        .mapToLong(contentHash -> {
-                                            TextFlow textFlow =
-                                                    document.getTextFlows()
-                                                            .get(contentHash);
-                                            if (textFlow != null) {
-                                                return textFlow.getContent()
-                                                        .length();
-                                            }
-                                            log.warn(
-                                                    "contentHash {} can not be found in document: {}",
-                                                    document.getUrl());
-                                            return 0;
-                                        }).sum();
-
-                        LocaleCode toLocaleCode = r.getToLocale().getLocaleCode();
-                        return new MTRequestStatistics(
-                                fromLocaleCode.getId(),
-                                toLocaleCode.getId(), document
-                                .getUrl(), totalCharCount, totalWordCount,
-                                r.getBackendID());
-                    }).collect(Collectors.toList());
-            return result;
+                LocaleCode toLocaleCode = r.getToLocale().getLocaleCode();
+                return new MTRequestStatistics(fromLocaleCode.getId(),
+                        toLocaleCode.getId(), document.getUrl(),
+                        r.getCharCount(), r.getWordCount(), r.getBackendID());
+            }).collect(Collectors.toList());
         }
         return Lists.newArrayList();
     }

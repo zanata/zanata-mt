@@ -53,7 +53,7 @@ public class EventRecordingServiceJpaTest extends JPATest {
     public void canRecordMTRequest() {
         service.onMTRequest(new RequestedMTEvent(document, en,
                 ja, Lists.newArrayList(textFlow.getContentHash()), BackendID.DEV,
-                new Date(), account));
+                new Date(), account, textFlow.getWordCount(), textFlow.getCharCount()));
         getEm().flush();
 
         List<TextFlowMTRequest> requests =

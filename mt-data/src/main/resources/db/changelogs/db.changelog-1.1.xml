@@ -145,4 +145,16 @@
     <customChange class="org.zanata.magpie.liquibase.UpdateCharCountToTextFlow" />
   </changeSet>
 
+  <changeSet id="9" author="pahuang@redhat.com">
+    <comment>add columns to record total word count and character count for a MT request</comment>
+    <addColumn tableName="textflowmtrequest">
+      <column name="wordcount" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="charcount" type="bigint">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

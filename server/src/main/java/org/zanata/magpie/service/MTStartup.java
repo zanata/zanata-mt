@@ -3,6 +3,9 @@ package org.zanata.magpie.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -32,6 +35,8 @@ import org.zanata.magpie.model.Role;
 import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
 
+import com.google.common.collect.Lists;
+
 import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
 
 /**
@@ -50,6 +55,8 @@ public class MTStartup {
     public static final String APPLICATION_NAME = "Magpie service (Machine Translation)";
 
     protected static final String INITIAL_PASSWORD_CACHE = "initialPassword";
+    private static final Path INITIAL_PASSWORD_FILE = Paths.get(System.getProperty("user.home"),
+            "magpie_initial_password");
 
     private ConfigurationService configurationService;
     private AccountService accountService;
@@ -127,6 +134,24 @@ public class MTStartup {
             log.info("=== initial password (without leading spaces):  {}", initialPassword);
 
             cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
+            writeInitialPasswordToFile(initialPassword);
+        }
+    }
+
+    private static void writeInitialPasswordToFile(String initialPassword) {
+        try {
+            Files.write(INITIAL_PASSWORD_FILE,
+                    Lists.newArrayList(initialPassword));
+        } catch (IOException e) {
+            log.warn("failed writing initial password to disk", e);
+        }
+        try {
+            Runtime.getRuntime()
+                    .exec(new String[] {"chmod", "400", INITIAL_PASSWORD_FILE
+                            .toAbsolutePath().toString()});
+        } catch (IOException e) {
+            log.info("unable to change permission on {}",
+                    INITIAL_PASSWORD_FILE);
         }
     }
 
@@ -151,6 +176,11 @@ public class MTStartup {
                 && cache.get(INITIAL_PASSWORD_CACHE) != null) {
             log.info("admin account created. Removing intial password");
             cache.remove(INITIAL_PASSWORD_CACHE);
+            try {
+                Files.delete(INITIAL_PASSWORD_FILE);
+            } catch (IOException e) {
+                log.warn("unable to delete {}. {}", INITIAL_PASSWORD_FILE, e.getMessage());
+            }
         }
         log.info("account created: {} {}", event.getEmail(), event.getRoles());
     }
