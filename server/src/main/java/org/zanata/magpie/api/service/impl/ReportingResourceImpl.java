@@ -22,6 +22,7 @@ package org.zanata.magpie.api.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
@@ -32,8 +33,6 @@ import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.api.service.ReportingResource;
 import org.zanata.magpie.dto.DateRange;
-import org.zanata.magpie.model.Account;
-import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.service.ReportingService;
 
 /**
@@ -43,22 +42,28 @@ import org.zanata.magpie.service.ReportingService;
 @RequestScoped
 @Path("/report")
 public class ReportingResourceImpl implements ReportingResource {
-    @Inject
     private ReportingService reportingService;
-    @Inject
     private AuthenticatedAccount authenticatedAccount;
 
+    public ReportingResourceImpl() {
+    }
+
+    @Inject
+    public ReportingResourceImpl(
+            ReportingService reportingService,
+            AuthenticatedAccount authenticatedAccount) {
+        this.reportingService = reportingService;
+        this.authenticatedAccount = authenticatedAccount;
+    }
 
     @Override
     public Response getMachineTranslationUsage(DateRange dateRange) {
 
-        Optional<Account> account =
-                authenticatedAccount.getAuthenticatedAccount();
-        if (account.isPresent()) {
+        Optional<String> authenticatedUsername =
+                authenticatedAccount.getAuthenticatedUsername();
+        if (authenticatedUsername.isPresent()) {
             List<MTRequestStatistics> stats = reportingService
-                    .getMTRequestStats(
-                            account.get().getCredentials().iterator().next()
-                                    .getUsername(), dateRange);
+                    .getMTRequestStats(authenticatedUsername.get(), dateRange);
             GenericEntity<List<MTRequestStatistics>> entity =
                     new GenericEntity<List<MTRequestStatistics>>(stats) {
                     };

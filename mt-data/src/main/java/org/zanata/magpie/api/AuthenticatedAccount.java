@@ -37,6 +37,7 @@ public class AuthenticatedAccount implements Serializable {
 
     private static final long serialVersionUID = -7986651568502749384L;
     private Account account;
+    private String username;
 
     public void setAuthenticatedAccount(Account account) {
         this.account = account;
@@ -48,5 +49,12 @@ public class AuthenticatedAccount implements Serializable {
 
     public Optional<Account> getAuthenticatedAccount() {
         return Optional.ofNullable(account);
+    }
+
+    public void setAuthenticatedUsername(String username) {
+        this.username = username;
+    }
+    public Optional<String> getAuthenticatedUsername() {
+        return Optional.ofNullable(username);
     }
 }

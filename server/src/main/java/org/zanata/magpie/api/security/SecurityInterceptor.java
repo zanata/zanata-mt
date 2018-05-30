@@ -88,6 +88,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
             if (account.isPresent()) {
                 log.debug("authenticated {}", username);
                 authenticatedAccount.setAuthenticatedAccount(account.get());
+                authenticatedAccount.setAuthenticatedUsername(username);
                 return;
             }
         }

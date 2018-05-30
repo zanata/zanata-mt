@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
