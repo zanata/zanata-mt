@@ -23,6 +23,7 @@ package org.zanata.magpie.service;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.zanata.magpie.api.APIConstant.AZURE_KEY;
 import static org.zanata.magpie.api.APIConstant.DEFAULT_PROVIDER;
+import static org.zanata.magpie.api.APIConstant.DEV_BACKEND;
 import static org.zanata.magpie.api.APIConstant.GOOGLE_ADC;
 import static org.zanata.magpie.api.APIConstant.GOOGLE_CREDENTIAL_CONTENT;
 
@@ -77,14 +78,15 @@ public class ConfigurationService {
             @EnvVariable(AZURE_KEY) String msAPIKey,
             @EnvVariable(GOOGLE_ADC) String googleADC,
             @EnvVariable(GOOGLE_CREDENTIAL_CONTENT) String googleADCContent,
-            @EnvVariable(DEFAULT_PROVIDER) String defaultProvider) {
+            @EnvVariable(DEFAULT_PROVIDER) String defaultProvider,
+            @EnvVariable(DEV_BACKEND) String enableDevBackend) {
         this.msAPIKey = msAPIKey;
 
         this.googleCredential = GoogleCredential.from(googleADC, googleADCContent);
 
         defaultTranslationProvider = BackendID.fromString(defaultProvider);
 
-        isDevMode = isBlank(msAPIKey) && !googleCredential.exists();
+        isDevMode = !isBlank(enableDevBackend) || (isBlank(msAPIKey) && !googleCredential.exists());
 
         Properties properties = new Properties();
         try (InputStream is = getClass().getClassLoader()

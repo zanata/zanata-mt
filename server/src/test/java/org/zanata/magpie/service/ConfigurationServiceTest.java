@@ -24,7 +24,7 @@ public class ConfigurationServiceTest {
         ConfigurationService config =
                 new ConfigurationService("clientSubscriptionKey",
                         googleADC.getAbsolutePath(), "{\"type\": \"service_account\"," +
-                        "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}", "ms");
+                        "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}", "ms", null);
         assertThat(config.getMsAPIKey()).isEqualTo("clientSubscriptionKey");
         assertThat(config.googleDefaultCredential().getCredentialsFile())
                 .isEqualTo(googleADC);
@@ -38,7 +38,7 @@ public class ConfigurationServiceTest {
     public void isDevModeIfNoAzureKeyAndGoogleCredential() throws IOException {
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config = new ConfigurationService("",
-                googleADC.getAbsolutePath(), "", "ms");
+                googleADC.getAbsolutePath(), "", "ms", null);
         assertThat(config.isDevMode()).isTrue();
     }
 
@@ -51,7 +51,7 @@ public class ConfigurationServiceTest {
                         googleADC.getAbsolutePath(),
                         "{\"type\": \"service_account\"," +
                                 "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}",
-                        "ms");
+                        "ms", "enableDev");
 
         assertThat(
                 config.availableProviders(GoogleCredential.ABSENT, "", false))
