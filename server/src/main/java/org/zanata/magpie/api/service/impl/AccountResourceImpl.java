@@ -92,7 +92,7 @@ public class AccountResourceImpl {
         return accountService.getAllAccounts(!enabledOnly);
     }
 
-    @ValidatePayload
+    @ValidatePayload(AccountDto.class)
     @POST
     @CheckRole("admin")
     public Response registerNewAccount(AccountDto accountDto) {
@@ -110,7 +110,7 @@ public class AccountResourceImpl {
                 .path(dto.getId().toString()).build()).build();
     }
 
-    @ValidatePayload
+    @ValidatePayload(AccountDto.class)
     @PUT
     @CheckRole("admin")
     public Response updateAccount(AccountDto accountDto) {

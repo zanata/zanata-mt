@@ -36,8 +36,8 @@ public class CountUtilTest {
         String test = "你好吗？";
         String test1 = "Thîs lóo̰ks we̐ird!";
 
-        assertThat(CountUtil.countCharacters(test, LocaleCode.ZH_HANS.getId())).isEqualTo(4);
-        assertThat(CountUtil.countCharacters(test1, LocaleCode.FR.getId())).isEqualTo(17);
+        assertThat(CountUtil.countCharacters(test)).isEqualTo(4);
+        assertThat(CountUtil.countCharacters(test1)).isEqualTo(21);
 
     }
 }

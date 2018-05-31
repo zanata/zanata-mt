@@ -78,7 +78,7 @@ public class TextFlow extends ModelEntity {
             localeCode = locale.getLocaleCode().getId();
         }
         this.wordCount = CountUtil.countWords(content, localeCode);
-        this.charCount = CountUtil.countCharacters(content, localeCode);
+        this.charCount = CountUtil.countCharacters(content);
 
     }
 

@@ -92,29 +92,18 @@ public class CountUtil {
     }
 
     /**
-     * Count the characters in a string taking into account the locale.
+     * Count the characters in a string by code point.
      * See https://stackoverflow.com/a/6846155/345718
      *
      * @param content
      *            the string content
-     * @param localeCode
-     *            locale that used in the string
      * @return character count
      */
-    public static long countCharacters(@Nonnull String content,
-            @NotNull String localeCode) {
-        if (StringUtils.isBlank(content) || StringUtils.isBlank(localeCode)) {
+    public static long countCharacters(@Nonnull String content) {
+        if (StringUtils.isBlank(content)) {
             return 0;
         }
-        BreakIterator charIterator =
-                getCharacterInstance(forLanguageTag(localeCode));
-        charIterator.setText(content);
-
-        long result = 0;
-        while (charIterator.next() != BreakIterator.DONE) {
-            result += 1;
-        }
-        return result;
+        return content.codePointCount(0, content.length());
     }
 
 }

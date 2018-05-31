@@ -88,7 +88,7 @@ public class UpdateCharCountToTextFlow implements CustomTaskChange {
                 while (resultSet.next()) {
                     String content = resultSet.getString(1);
                     String locale = resultSet.getString(3);
-                    long charCount = CountUtil.countCharacters(content, locale);
+                    long charCount = CountUtil.countCharacters(content);
                     resultSet.updateLong(2, charCount);
                     resultSet.updateRow();
                     if (++rowsUpdated % 10000 == 0) {

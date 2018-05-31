@@ -44,7 +44,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @Interceptor
-@ValidatePayload
+@ValidatePayload(Object.class)
 public class PayloadValidationInterceptor implements Serializable {
     private static final Logger log =
             LoggerFactory.getLogger(PayloadValidationInterceptor.class);
