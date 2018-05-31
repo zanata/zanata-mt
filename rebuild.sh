@@ -16,7 +16,7 @@ MS_OPTION=""
 DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
 TEST="-DskipTests"
 
-while getopts ":fhtg:m:d:" opt; do
+while getopts ":fehtg:m:d:" opt; do
   case ${opt} in
     h)
       echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-fht]" >&2

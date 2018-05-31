@@ -22,7 +22,7 @@ Alternatively, run `restart.sh`. It will rebuild the package and redeploy to doc
 
 ### DEV mode
 
-DEV mode is enabled when **MT_AZURE_KEY** or **GOOGLE_APPLICATION_CREDENTIALS** is not present in environment variable. The service will not use any paid service backend in this mode but will return wrapped string: 'translated[𠾴 string 𠾴]'.
+DEV mode is enabled when both **MT_AZURE_KEY** and **GOOGLE_APPLICATION_CREDENTIALS** are not present in environment variable. You can also enable it by passing a non-empty **DEV_BACKEND** environment variable to the running instance. Once enabled and requested, the service will not use any paid service backend but will return wrapped string: 'translated[𠾴 string 𠾴]'.
                   
 ----
 
@@ -38,6 +38,9 @@ Location to the Google service account credential json file
 
 ### `MT_ORIGIN_WHITELIST` (optional)
 Url for CORS access control. Http response will include `Access-Control-Allow-Origin` in the header to cross-browser access.
+
+### `DEV_BACKEND` (optional)
+Enable dev backend for testing.
 
 ## Authentication to the REST api
 
