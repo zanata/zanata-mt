@@ -26,9 +26,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.Role;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Patrick Huang

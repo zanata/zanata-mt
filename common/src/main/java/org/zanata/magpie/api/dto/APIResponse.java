@@ -1,7 +1,5 @@
 package org.zanata.magpie.api.dto;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -10,12 +8,16 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 /**
  * JSON entity for HTTP API response
  *
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@JsonSerialize(include = JsonSerialize.Inclusion.ALWAYS)
+@JsonSerialize
 public class APIResponse implements Serializable {
 
     private final static DateTimeFormatter DATE_FORMATTER =

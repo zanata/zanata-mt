@@ -21,7 +21,6 @@
 package org.zanata.magpie.action;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +31,8 @@ import javax.inject.Named;
 import javax.servlet.ServletContext;
 import java.io.InputStream;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
