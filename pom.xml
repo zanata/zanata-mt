@@ -39,7 +39,7 @@
     <jackson2.version>2.8.3</jackson2.version>
     <javamelody.version>1.62.0</javamelody.version>
     <guava.version>20.0</guava.version>
-    <google-cloud-translate.version>1.3.0</google-cloud-translate.version>
+    <google-cloud-translate.version>1.32.0</google-cloud-translate.version>
     <google-oauth-client.version>1.22.0</google-oauth-client.version>
     <findbugs.maven.version>3.0.1u2</findbugs.maven.version>
     <slf4j.version>1.7.22</slf4j.version>
