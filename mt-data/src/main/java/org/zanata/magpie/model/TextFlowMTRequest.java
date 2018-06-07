@@ -85,7 +85,7 @@ public class TextFlowMTRequest implements Serializable {
     @Column(name = " textflow_contenthash")
     private List<String> textFlowContentHashes = Lists.newArrayList();
 
-    public TextFlowMTRequest() {
+    protected TextFlowMTRequest() {
     }
 
     public TextFlowMTRequest(BackendID backendID, Date invokeDate,
