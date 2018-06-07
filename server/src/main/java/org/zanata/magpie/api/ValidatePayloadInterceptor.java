@@ -45,9 +45,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @Interceptor
 @ValidatePayload(Object.class)
-public class PayloadValidationInterceptor implements Serializable {
+public class ValidatePayloadInterceptor implements Serializable {
     private static final Logger log =
-            LoggerFactory.getLogger(PayloadValidationInterceptor.class);
+            LoggerFactory.getLogger(ValidatePayloadInterceptor.class);
 
     private static final long serialVersionUID = -733258127968685778L;
 
@@ -55,11 +55,11 @@ public class PayloadValidationInterceptor implements Serializable {
     private Validator validator;
 
     @Inject
-    public PayloadValidationInterceptor(Validator validator) {
+    public ValidatePayloadInterceptor(Validator validator) {
         this.validator = validator;
     }
 
-    public PayloadValidationInterceptor() {
+    public ValidatePayloadInterceptor() {
     }
 
     @AroundInvoke
@@ -92,6 +92,10 @@ public class PayloadValidationInterceptor implements Serializable {
         return invocation.proceed();
     }
 
+    /**
+     * Get annoation from method first, then the class. Will not look up from
+     * inheritance hierarchy.
+     */
     private ValidatePayload getAnnotationFromClassOrMethod(
             InvocationContext invocation) {
         ValidatePayload validatePayload = invocation.getMethod().getAnnotation(ValidatePayload.class);

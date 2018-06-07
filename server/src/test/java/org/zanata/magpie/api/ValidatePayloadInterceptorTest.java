@@ -21,7 +21,6 @@
 package org.zanata.magpie.api;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.interceptor.InvocationContext;
@@ -36,7 +35,6 @@ import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.model.AccountType;
-import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.producer.ValidatorProducer;
 
 import com.google.common.collect.Sets;
@@ -45,16 +43,16 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class PayloadValidationInterceptorTest {
+public class ValidatePayloadInterceptorTest {
     @Mock
     private InvocationContext invocationContext;
 
-    private PayloadValidationInterceptor interceptor;
+    private ValidatePayloadInterceptor interceptor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        interceptor = new PayloadValidationInterceptor(new ValidatorProducer().getValidator());
+        interceptor = new ValidatePayloadInterceptor(new ValidatorProducer().getValidator());
         when(invocationContext.getTarget())
                 .thenReturn(new AccountResourceImpl());
         List<Method> methods = Lists.newArrayList(

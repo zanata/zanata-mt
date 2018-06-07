@@ -34,7 +34,8 @@ import javax.interceptor.InterceptorBinding;
 
 /**
  * Interceptor annotation for API endpoints that require payload validation
- * (bean validation).
+ * (bean validation). If apply on the class level, it won't work if annotation
+ * is on parent class/interface.
  */
 @Target({ TYPE, METHOD })
 @Retention(RUNTIME)
