@@ -82,16 +82,15 @@ public class UpdateCharCountToTextFlow implements CustomTaskChange {
             log.info("UpdateCharCountToTextFlow: updating " + totalRows + " rows");
 
             String textFlowSql =
-                    "select tf.content, tf.charCount, loc.localeCode from TextFlow tf join Locale loc on tf.localeId = loc.id where tf.charCount = 0";
+                    "select tf.content as tfContent, tf.charCount as charCount from TextFlow tf join Locale loc on tf.localeId = loc.id where tf.charCount = 0";
             try (ResultSet resultSet = stmt.executeQuery(textFlowSql)) {
                 long rowsUpdated = 0;
                 while (resultSet.next()) {
-                    String content = resultSet.getString(1);
-                    String locale = resultSet.getString(3);
+                    String content = resultSet.getString("tfContent");
                     long charCount = CountUtil.countCharacters(content);
-                    resultSet.updateLong(2, charCount);
+                    resultSet.updateLong("charCount", charCount);
                     resultSet.updateRow();
-                    if (++rowsUpdated % 10000 == 0) {
+                    if (++rowsUpdated % 10_000 == 0) {
                         log.info("CountWordsInHTextFlow: updated "
                                 + rowsUpdated + "/" + totalRows);
                     }

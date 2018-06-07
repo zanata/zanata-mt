@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.dao.AccountDAO;
@@ -59,23 +57,17 @@ public class ReportingService {
         this.textFlowMTRequestDAO = textFlowMTRequestDAO;
     }
 
-    public List<MTRequestStatistics> getMTRequestStats(String username, DateRange dateRange) {
-        Optional<Account> account =
-                accountDAO.findAccountByUsername(username);
+    public List<MTRequestStatistics> getMTRequestStats(Account account, DateRange dateRange) {
 
-        if (account.isPresent()) {
-
-            List<TextFlowMTRequest> requestsByDateRange =
-                        textFlowMTRequestDAO.getRequestsByDateRange(dateRange, account.get());
-            return requestsByDateRange.stream().map(r -> {
-                Document document = r.getDocument();
-                LocaleCode fromLocaleCode = r.getDocument().getFromLocale().getLocaleCode();
-                LocaleCode toLocaleCode = r.getDocument().getToLocale().getLocaleCode();
-                return new MTRequestStatistics(fromLocaleCode.getId(),
-                        toLocaleCode.getId(), document.getUrl(),
-                        r.getCharCount(), r.getWordCount(), r.getBackendID());
-            }).collect(Collectors.toList());
-        }
-        return Lists.newArrayList();
+        List<TextFlowMTRequest> requestsByDateRange =
+                    textFlowMTRequestDAO.getRequestsByDateRange(dateRange, account);
+        return requestsByDateRange.stream().map(request -> {
+            Document document = request.getDocument();
+            LocaleCode fromLocaleCode = document.getFromLocale().getLocaleCode();
+            LocaleCode toLocaleCode = document.getToLocale().getLocaleCode();
+            return new MTRequestStatistics(fromLocaleCode.getId(),
+                    toLocaleCode.getId(), document.getUrl(),
+                    request.getCharCount(), request.getWordCount(), request.getBackendID());
+        }).collect(Collectors.toList());
     }
 }

@@ -44,27 +44,23 @@ public class ReportingServiceTest {
         when(accountDAO.findAccountByUsername("admin")).thenReturn(of(account));
         Locale toLocale = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
         Locale fromLocale = new Locale(LocaleCode.EN_US, "English");
+        int charCount = 10;
+        int wordCount = 4;
         when(requestDAO.getRequestsByDateRange(dateRange, account))
                 .thenReturn(Lists.newArrayList(
                         new TextFlowMTRequest(BackendID.DEV, new Date(),
                                 new Document("https://example.com", fromLocale,
                                         toLocale),
-                                account, Lists.newArrayList("abc"), 4, 10)));
+                                account, Lists.newArrayList("abc"), wordCount,
+                                charCount)));
         List<MTRequestStatistics> requestStats =
-                service.getMTRequestStats("admin", dateRange);
+                service.getMTRequestStats(account, dateRange);
 
         assertThat(requestStats).hasSize(1);
-    }
-
-    @Test
-    public void returnEmptyIsNoAccountMatchesUsername() {
-        when(accountDAO.findAccountByUsername("admin"))
-                .thenReturn(Optional.empty());
-
-        List<MTRequestStatistics> result = service.getMTRequestStats("admin",
-                DateRange.fromString("2018-05-01..2018-05-31"));
-
-        assertThat(result).isEmpty();
+        MTRequestStatistics stats = requestStats.get(0);
+        assertThat(stats.getCharCount()).isEqualTo(charCount);
+        assertThat(stats.getWordCount()).isEqualTo(wordCount);
+        assertThat(stats.getDocUrl()).isEqualTo("https://example.com");
     }
 
 }

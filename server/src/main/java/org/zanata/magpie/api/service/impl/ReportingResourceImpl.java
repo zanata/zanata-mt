@@ -33,6 +33,7 @@ import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.api.service.ReportingResource;
 import org.zanata.magpie.dto.DateRange;
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.service.ReportingService;
 
 /**
@@ -59,16 +60,16 @@ public class ReportingResourceImpl implements ReportingResource {
     @Override
     public Response getMachineTranslationUsage(DateRange dateRange) {
 
-        Optional<String> authenticatedUsername =
-                authenticatedAccount.getAuthenticatedUsername();
-        if (authenticatedUsername.isPresent()) {
-            List<MTRequestStatistics> stats = reportingService
-                    .getMTRequestStats(authenticatedUsername.get(), dateRange);
-            GenericEntity<List<MTRequestStatistics>> entity =
-                    new GenericEntity<List<MTRequestStatistics>>(stats) {
-                    };
-            return Response.ok(entity).build();
+        Optional<Account> account =
+                this.authenticatedAccount.getAuthenticatedAccount();
+        if (!account.isPresent()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        return Response.status(Response.Status.UNAUTHORIZED).build();
+        List<MTRequestStatistics> stats = reportingService
+                .getMTRequestStats(account.get(), dateRange);
+        GenericEntity<List<MTRequestStatistics>> entity =
+                new GenericEntity<List<MTRequestStatistics>>(stats) {
+                };
+        return Response.ok(entity).build();
     }
 }

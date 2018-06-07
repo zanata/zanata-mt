@@ -94,10 +94,10 @@ public class PayloadValidationInterceptor implements Serializable {
 
     private ValidatePayload getAnnotationFromClassOrMethod(
             InvocationContext invocation) {
-        ValidatePayload validatePayload = invocation.getTarget().getClass()
-                .getAnnotation(ValidatePayload.class);
+        ValidatePayload validatePayload = invocation.getMethod().getAnnotation(ValidatePayload.class);
         if (validatePayload == null) {
-            validatePayload = invocation.getMethod().getAnnotation(ValidatePayload.class);
+            validatePayload = invocation.getTarget().getClass()
+                    .getAnnotation(ValidatePayload.class);
         }
         return validatePayload;
     }

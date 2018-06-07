@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.dto.DateRange;
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.service.ReportingService;
 
@@ -34,8 +35,8 @@ public class ReportingResourceImplTest {
     }
 
     @Test
-    public void returnUnauthorizedIfNoAuthenticatedUsername() {
-        authenticatedAccount.setAuthenticatedUsername(null);
+    public void returnUnauthorizedIfNoAuthenticatedAccount() {
+        authenticatedAccount.setAuthenticatedAccount(null);
         DateRange dateRange = DateRange.fromString("2018-05-01..2018-05-30");
 
         Response response = resource.getMachineTranslationUsage(
@@ -45,12 +46,13 @@ public class ReportingResourceImplTest {
 
     @Test
     public void canGetMTUsageReportForCurrentUser() {
-        authenticatedAccount.setAuthenticatedUsername("admin");
+        Account account = new Account();
+        authenticatedAccount.setAuthenticatedAccount(account);
         DateRange dateRange = DateRange.fromString("2018-05-01..2018-05-30");
         List<MTRequestStatistics> stats =
                 Lists.newArrayList(new MTRequestStatistics("en", "ja",
                         "https://example.com", 10, 4, BackendID.DEV));
-        when(reportingService.getMTRequestStats("admin", dateRange))
+        when(reportingService.getMTRequestStats(account, dateRange))
                 .thenReturn(stats);
 
         Response response = resource.getMachineTranslationUsage(
