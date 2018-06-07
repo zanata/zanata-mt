@@ -33,8 +33,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
+import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.model.AccountType;
+import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.producer.ValidatorProducer;
 
 import com.google.common.collect.Sets;
@@ -79,6 +81,23 @@ public class PayloadValidationInterceptorTest {
         result = interceptor.aroundInvoke(invocationContext);
         assertThat(result).isInstanceOf(Response.class);
         assertThat(((Response) result).getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void proceedIfThereIsNoValidationError() throws Exception {
+        CredentialDto credentialDto =
+                new CredentialDto("username", "secret".toCharArray());
+        AccountDto accountDto = new AccountDto(1L, "name", "name@example.com",
+                AccountType.ServiceAccount, Sets.newHashSet(),
+                Sets.newHashSet(credentialDto));
+        when(invocationContext.getParameters())
+                .thenReturn(new Object[]{ accountDto });
+        Object expectedResult = new Object();
+        when(invocationContext.proceed()).thenReturn(expectedResult);
+
+        Object result = interceptor.aroundInvoke(invocationContext);
+        assertThat(result).isSameAs(expectedResult);
+
     }
 
 }

@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.dto.DateRange;
-import org.zanata.magpie.model.BackendID;
 
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
 import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
@@ -52,10 +51,11 @@ import com.webcohesion.enunciate.metadata.rs.TypeHint;
 public interface ReportingResource {
 
     /**
-     * Get the statistics for machine translation back end during a given date range.
+     * Get the statistics for machine translation back end during a given date
+     * range, for requests by the current user.
      *
-     *
-     * @param dateRange date range
+     * @param dateRange
+     *         date range
      * @return statistics about character count and word count
      */
     @GET
