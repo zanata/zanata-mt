@@ -1,12 +1,18 @@
 package org.zanata.magpie.backend.ms;
 
+import java.util.Optional;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.zanata.magpie.api.dto.DocumentContent;
+import org.zanata.magpie.api.dto.LocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCode;
+import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.util.DTOUtil;
@@ -108,7 +114,10 @@ public class MicrosoftTranslatorClientTest {
         when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        String xml = api.requestTranslations(req);
+        BackendLocaleCode fromLocale = new BackendLocaleCodeImpl(LocaleCode.EN_US);
+        BackendLocaleCode toLocale = new BackendLocaleCodeImpl(LocaleCode.DE);
+        String xml = api.requestTranslations(req, fromLocale.getLocaleCode(),
+                toLocale.getLocaleCode(), Optional.empty(), MediaType.TEXT_HTML_TYPE);
 
         assertThat(xml).isEqualTo(responseXml);
         verify(webResp).close();
@@ -136,6 +145,10 @@ public class MicrosoftTranslatorClientTest {
         when(restClient.getWebTarget(any())).thenReturn(webTarget);
 
         MSTranslateArrayReq req = new MSTranslateArrayReq();
-        assertThatThrownBy(() -> api.requestTranslations(req));
+        BackendLocaleCode fromLocale = new BackendLocaleCodeImpl(LocaleCode.EN_US);
+        BackendLocaleCode toLocale = new BackendLocaleCodeImpl(LocaleCode.DE);
+        assertThatThrownBy(() -> api.requestTranslations(req,
+                fromLocale.getLocaleCode(), toLocale.getLocaleCode(),
+                Optional.empty(), MediaType.TEXT_HTML_TYPE));
     }
 }

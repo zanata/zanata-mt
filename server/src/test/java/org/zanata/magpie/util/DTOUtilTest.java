@@ -24,29 +24,6 @@ public class DTOUtilTest {
     }
 
     @Test
-    public void testToXML() {
-        String expectedXml = "<MSString>testing 123</MSString>";
-        MSString obj = new MSString("testing 123");
-        String xml = dtoUtil.toXML(obj);
-        assertThat(xml).isEqualTo(expectedXml);
-    }
-
-    @Test
-    public void testToObject() throws JAXBException {
-        String xml = "<MSString>testing 123</MSString>";
-        MSString expectedObj = new MSString("testing 123");
-        MSString obj = dtoUtil.toObject(xml, MSString.class);
-        assertThat(obj).isEqualTo(expectedObj);
-    }
-
-    @Test
-    public void testToObjectInvalid() throws JAXBException {
-        String xml = "testing 123";
-        assertThatThrownBy(() -> dtoUtil.toObject(xml, MSString.class))
-            .isInstanceOf(UnmarshalException.class);
-    }
-
-    @Test
     public void testToJson() {
         MSString obj = new MSString("testing 123");
         String expectedJson = "{\"value\":\"testing 123\"}";

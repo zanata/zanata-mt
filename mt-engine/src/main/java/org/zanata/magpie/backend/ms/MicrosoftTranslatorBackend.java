@@ -1,5 +1,6 @@
 package org.zanata.magpie.backend.ms;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,8 +11,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.zanata.magpie.annotation.Credentials;
@@ -20,8 +21,7 @@ import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.backend.ms.internal.dto.MSString;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReq;
-import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
-import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReqOptions;
+import org.zanata.magpie.backend.ms.internal.dto.MSTranslateJSONArrayResp;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
@@ -44,7 +44,7 @@ import org.zanata.magpie.util.DTOUtil;
 public class MicrosoftTranslatorBackend implements TranslatorBackend {
 
     // Max length per request for MS service
-    private final static int MAX_LENGTH = 10000;
+    private final static int MAX_LENGTH = 5_000;
 
     /**
      * Map from request locale to MS supported locale code
@@ -89,24 +89,24 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
             throws MTException {
         try {
             MSTranslateArrayReq req = new MSTranslateArrayReq();
-            req.setSrcLanguage(fromLocale.getLocaleCode());
-            req.setTransLanguage(toLocale.getLocaleCode());
+            // TODO MS has restriction of max 25 entries in the list
             for (String content: contents) {
                 req.getTexts().add(new MSString(content));
             }
-            MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
-            options.setContentType(mediaType.toString());
-            category.ifPresent(options::setCategory);
-            req.setOptions(options);
+            String rawResponse = api.requestTranslations(req, fromLocale.getLocaleCode(), toLocale.getLocaleCode(), category, mediaType);
 
-            String rawResponse = api.requestTranslations(req);
-            MSTranslateArrayResp resp =
-                    dtoUtil.toObject(rawResponse, MSTranslateArrayResp.class);
-            return resp.getResponse().stream().map(
-                    res -> new AugmentedTranslation(res.getTranslatedText().getValue(),
-                            dtoUtil.toXML(res)))
+
+            List<MSTranslateJSONArrayResp> resp =
+                    dtoUtil.fromJSONToObjectList(rawResponse,
+                            new TypeReference<List<MSTranslateJSONArrayResp>>() {
+                            });
+            return resp.stream().map(
+                    // we only have one text entry per translation
+                    translation -> new AugmentedTranslation(translation.getTranslations()
+                            .get(0).getText(),
+                            dtoUtil.toJSON(translation)))
                     .collect(Collectors.toList());
-        } catch (JAXBException e) {
+        } catch (IOException e) {
             throw new MTException("Unable to get translations from MS API", e);
         }
     }

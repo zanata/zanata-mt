@@ -1,7 +1,8 @@
 package org.zanata.magpie.backend.ms.internal.dto;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlValue;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -9,23 +10,23 @@ import javax.xml.bind.annotation.XmlValue;
 public class MSString implements Serializable {
     private static final long serialVersionUID = 7188269066576053950L;
 
-    private String value;
+    private String text;
 
     public MSString() {
         this(null);
     }
 
-    public MSString(String value) {
-        this.value = value;
+    public MSString(String text) {
+        this.text = text;
     }
 
-    @XmlValue
-    public String getValue() {
-        return value;
+    @JsonProperty("Text")
+    public String getText() {
+        return text;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -35,13 +36,13 @@ public class MSString implements Serializable {
 
         MSString msString = (MSString) o;
 
-        return value != null ? value.equals(msString.value) :
-            msString.value == null;
+        return text != null ? text.equals(msString.text) :
+            msString.text == null;
 
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return text != null ? text.hashCode() : 0;
     }
 }

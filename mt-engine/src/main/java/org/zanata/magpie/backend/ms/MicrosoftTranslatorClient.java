@@ -1,16 +1,21 @@
 package org.zanata.magpie.backend.ms;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.codec.CharEncoding;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zanata.magpie.backend.ms.internal.dto.MSString;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.util.DTOUtil;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -27,7 +32,9 @@ class MicrosoftTranslatorClient {
         LoggerFactory.getLogger(MicrosoftTranslatorClient.class);
 
     // properties
-    private static final String TRANSLATIONS_BASE_URL = "https://api.microsofttranslator.com/V2/Http.svc/TranslateArray2";
+    // https://api.cognitive.microsofttranslator.com/translate?api-version=3.0
+    private static final String TRANSLATIONS_BASE_URL = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0";
+
     private static final String DATA_MARKET_ACCESS_URI = "https://api.cognitive.microsoft.com/sts/v1.0/issueToken";
     private static final String OCP_APIM_SUBSCRIPTION_KEY_HEADER = "Ocp-Apim-Subscription-Key";
     private static final String ENCODING = CharEncoding.UTF_8;
@@ -69,29 +76,44 @@ class MicrosoftTranslatorClient {
     /**
      * Return raw response from Microsoft API
      */
-    protected String requestTranslations(MSTranslateArrayReq req)
+    protected String requestTranslations(MSTranslateArrayReq req,
+            String fromLocale, String toLocale,
+            Optional<String> category, MediaType mediaType)
             throws MTException {
         getTokenIfNeeded();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Source sending:{}", dtoUtil.toXML(req));
+            LOG.debug("Source sending:{}", dtoUtil.toJSON(req));
         }
         ResteasyWebTarget webTarget =
-                restClient.getWebTarget(TRANSLATIONS_BASE_URL);
-        Response response = webTarget.request(MediaType.TEXT_XML)
+                restClient.getWebTarget(TRANSLATIONS_BASE_URL)
+                        .queryParam("from", fromLocale)
+                        .queryParam("to", toLocale)
+                        .queryParam("textType", mediaType.equals(MediaType.TEXT_HTML_TYPE) ? "html" : "plain")
+                ;
+        category.ifPresent(cat -> webTarget.queryParam("category", cat));
+
+        List<MSString> texts = req.getTexts();
+
+        String entity = dtoUtil.toJSON(texts);
+
+        Response response = webTarget.request(MediaType.APPLICATION_JSON)
+
                 .header("Content-Type",
-                        MediaType.TEXT_XML + "; charset=" + ENCODING)
+                        MediaType.APPLICATION_JSON + "; charset=" + ENCODING)
                 .header("Authorization", token)
-                .post(Entity.xml(dtoUtil.toXML(req)));
+//                .header("Content-Length", entity.length())
+
+                .post(Entity.json(entity));
 
         if (response.getStatusInfo() != Response.Status.OK) {
             throw new MTException(
                     "Error from Microsoft Translator API:"
                             + response.getStatusInfo().getReasonPhrase());
         }
-        String xml = response.readEntity(String.class);
+        String json = response.readEntity(String.class);
         response.close();
-        LOG.debug("Translation from Microsoft Engine:{}", xml);
-        return xml;
+        LOG.debug("Translation from Microsoft Engine:{}", json);
+        return json;
     }
 
     /**

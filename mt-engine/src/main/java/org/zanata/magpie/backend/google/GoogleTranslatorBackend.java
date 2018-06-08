@@ -75,7 +75,9 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
             @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential) {
         this.dtoUtil = dtoUtil;
         this.googleCredential = googleCredential;
-        translate = TranslateOptions.getDefaultInstance().getService();
+        if (googleCredential.exists()) {
+            translate = TranslateOptions.getDefaultInstance().getService();
+        }
     }
 
     @VisibleForTesting

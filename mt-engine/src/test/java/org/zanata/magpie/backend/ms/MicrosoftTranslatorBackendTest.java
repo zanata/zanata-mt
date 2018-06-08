@@ -8,9 +8,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCodeImpl;
-import org.zanata.magpie.backend.ms.internal.dto.MSString;
-import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
-import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResponse;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.util.DTOUtil;
 
@@ -54,16 +51,12 @@ public class MicrosoftTranslatorBackendTest {
         String content = "content";
         BackendLocaleCode srcLocale = new BackendLocaleCodeImpl(LocaleCode.EN);
         BackendLocaleCode transLocale = new BackendLocaleCodeImpl(LocaleCode.DE);
-        MSTranslateArrayResp resp = new MSTranslateArrayResp();
-        List<MSTranslateArrayResponse> respList = new ArrayList<>();
-        respList.add(buildMSResponse("translation1"));
-
-        resp.setResponse(respList);
-        String responseString = dtoUtil.toXML(resp);
 
         MicrosoftTranslatorClient api =
                 Mockito.mock(MicrosoftTranslatorClient.class);
-        when(api.requestTranslations(any())).thenReturn(responseString);
+
+        when(api.requestTranslations(any(), srcLocale.getLocaleCode(),
+                transLocale.getLocaleCode(), Optional.of("tech"), MediaType.TEXT_PLAIN_TYPE)).thenReturn("[{\"translations\":[{\"text\":\"どのようにている\",\"to\":\"ja\"}]},{\"translations\":[{\"text\":\"こんにちは\",\"to\":\"ja\"}]}]");
 
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
         msBackend.setApi(api);
@@ -73,15 +66,8 @@ public class MicrosoftTranslatorBackendTest {
 
         assertThat(translations).hasSize(1);
         AugmentedTranslation translation = translations.get(0);
-        assertThat(translation.getPlainTranslation()).isEqualTo("translation1");
+        assertThat(translation.getPlainTranslation()).isEqualTo("どのようにている");
         assertThat(translation.getRawTranslation())
-                .isEqualTo(dtoUtil.toXML(resp.getResponse().get(0)));
-    }
-
-    private MSTranslateArrayResponse buildMSResponse(String message) {
-        MSTranslateArrayResponse resp = new MSTranslateArrayResponse();
-        resp.setSrcLanguage("en");
-        resp.setTranslatedText(new MSString(message));
-        return resp;
+                .isEqualTo("{\"text\":\"どのようにている\",\"to\":\"ja\"}]},{\"translations\":[{\"text\":\"こんにちは\",\"to\":\"ja\"}");
     }
 }

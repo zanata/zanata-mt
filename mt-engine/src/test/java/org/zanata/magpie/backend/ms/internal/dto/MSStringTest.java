@@ -17,14 +17,14 @@ public class MSStringTest {
     @Test
     public void testConstructor() {
         MSString msString = new MSString("value");
-        assertThat(msString.getValue()).isEqualTo("value");
+        assertThat(msString.getText()).isEqualTo("value");
     }
 
     @Test
     public void testValue() {
         MSString msString = new MSString();
-        msString.setValue("value");
-        assertThat(msString.getValue()).isEqualTo("value");
+        msString.setText("value");
+        assertThat(msString.getText()).isEqualTo("value");
     }
 
     @Test
@@ -34,7 +34,7 @@ public class MSStringTest {
         assertThat(msString1.hashCode()).isNotEqualTo(msString2.hashCode());
         assertThat(msString1.equals(msString2)).isFalse();
 
-        msString2.setValue(null);
+        msString2.setText(null);
         assertThat(msString1.hashCode()).isNotEqualTo(msString2.hashCode());
         assertThat(msString1.equals(msString2)).isFalse();
 

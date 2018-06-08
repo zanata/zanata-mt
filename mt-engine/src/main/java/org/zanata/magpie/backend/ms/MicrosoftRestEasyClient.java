@@ -14,7 +14,8 @@ import javax.ws.rs.core.MediaType;
 class MicrosoftRestEasyClient {
 
     protected ResteasyWebTarget getWebTarget(String url) {
-        return new ResteasyClientBuilder().build()
+        return new ResteasyClientBuilder()
+                .build()
                 .target(url);
     }
 
@@ -23,7 +24,8 @@ class MicrosoftRestEasyClient {
                 .build()
                 .target(uri)
                 .request()
-                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Content-Type", MediaType.APPLICATION_JSON_TYPE)
                 .header("Accept-Charset", encoding);
     }
+
 }
