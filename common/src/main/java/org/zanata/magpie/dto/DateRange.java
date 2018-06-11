@@ -40,6 +40,10 @@ public class DateRange {
         try {
             LocalDate fromDate = LocalDate.parse(dateRange[0], formatter);
             LocalDate toDate = LocalDate.parse(dateRange[1], formatter);
+
+            if (fromDate.isAfter(toDate)) {
+                throw new InvalidDateParamException("fromDate must be earlier than toDate");
+            }
             return new DateRange(fromDate, toDate);
         } catch (DateTimeParseException e) {
             throw new InvalidDateParamException(

@@ -33,6 +33,7 @@ import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.api.service.ReportingResource;
 import org.zanata.magpie.dto.DateRange;
+import org.zanata.magpie.exception.InvalidDateParamException;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.service.ReportingService;
 
@@ -59,6 +60,9 @@ public class ReportingResourceImpl implements ReportingResource {
 
     @Override
     public Response getMachineTranslationUsage(DateRange dateRange) {
+        if (dateRange == null) {
+            throw new InvalidDateParamException("dateRange is required");
+        }
 
         Optional<Account> account =
                 this.authenticatedAccount.getAuthenticatedAccount();

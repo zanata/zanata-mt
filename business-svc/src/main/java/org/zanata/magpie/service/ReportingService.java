@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -57,7 +58,8 @@ public class ReportingService {
         this.textFlowMTRequestDAO = textFlowMTRequestDAO;
     }
 
-    public List<MTRequestStatistics> getMTRequestStats(Account account, DateRange dateRange) {
+    public List<MTRequestStatistics> getMTRequestStats(Account account, @Nonnull
+            DateRange dateRange) {
 
         List<TextFlowMTRequest> requestsByDateRange =
                     textFlowMTRequestDAO.getRequestsByDateRange(dateRange, account);

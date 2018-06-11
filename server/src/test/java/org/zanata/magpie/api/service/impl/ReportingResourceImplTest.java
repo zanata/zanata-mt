@@ -2,6 +2,7 @@ package org.zanata.magpie.api.service.impl;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
 import org.zanata.magpie.dto.DateRange;
+import org.zanata.magpie.exception.InvalidDateParamException;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.service.ReportingService;
@@ -59,6 +61,12 @@ public class ReportingResourceImplTest {
                 dateRange);
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getEntity()).isEqualTo(stats);
+    }
+
+    @Test
+    public void dateRangeIsRequired() {
+        assertThatThrownBy(() -> resource.getMachineTranslationUsage(null))
+                .isInstanceOf(InvalidDateParamException.class);
     }
 
 }
