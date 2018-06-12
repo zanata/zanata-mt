@@ -11,6 +11,12 @@
 
   <name>common</name>
 
+  <scm>
+    <connection>scm:git:git@github.com:zanata/zanata-mt.git</connection>
+    <developerConnection>scm:git:git@github.com:zanata/zanata-mt.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <apidocs.dir>apidocs</apidocs.dir>
