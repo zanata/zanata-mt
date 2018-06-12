@@ -299,7 +299,7 @@ void mavenSite() {
     withCredentials(
             [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
               usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-      sh "./mvnw -e package site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode"
+      sh "./mvnw -e package site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode -pl common -am"
     }
   }
 }
