@@ -118,4 +118,36 @@
         referencedColumnNames="id" />
   </changeSet>
 
+  <changeSet id="6" author="pahuang@redhat.com">
+    <comment>remove redundant column in TextFlowMTRequest</comment>
+    <dropForeignKeyConstraint baseTableName="textflowmtrequest"
+        constraintName="FK_textflowmtrequest_locale" />
+    <dropColumn columnName="locale_id" tableName="textflowmtrequest" />
+  </changeSet>
+
+  <changeSet id="7" author="pahuang@redhat.com">
+    <comment>add column to record character count for a text flow</comment>
+    <addColumn tableName="textflow">
+      <column name="charcount" type="bigint" defaultValue="0">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
+  <changeSet id="8" author="pahuang@redhat.com">
+    <comment>update character count in existing text flows</comment>
+    <customChange class="org.zanata.magpie.liquibase.UpdateCharCountToTextFlow" />
+  </changeSet>
+
+  <changeSet id="9" author="pahuang@redhat.com">
+    <comment>add columns to record total word count and character count for a MT request</comment>
+    <addColumn tableName="textflowmtrequest">
+      <column name="wordcount" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="charcount" type="bigint">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

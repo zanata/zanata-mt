@@ -23,6 +23,7 @@ package org.zanata.magpie.dao;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
@@ -71,13 +72,24 @@ public class AccountDAO extends AbstractDAO<Account> {
 
     public List<Account> findAll() {
         return getEntityManager()
-                .createQuery("from Account a join fetch a.roles order by a.creationDate", Account.class)
+                .createNamedQuery(Account.QUERY_ALL_ACCOUNTS, Account.class)
                 .getResultList();
     }
 
     public List<Account> findAllEnabled() {
         return getEntityManager()
-                .createQuery("from Account a join fetch a.roles where enabled = true order by creationDate", Account.class)
+                .createNamedQuery(Account.QUERY_ENABLED_ACCOUNTS, Account.class)
                 .getResultList();
+    }
+
+    public Optional<Account> findAccountByEmail(@Nonnull String email) {
+        List<Account> accounts = getEntityManager()
+                .createNamedQuery(Account.QUERY_BY_EMAIL, Account.class)
+                .setParameter("email", email)
+                .getResultList();
+        if (accounts.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(accounts.get(0));
     }
 }

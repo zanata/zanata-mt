@@ -16,6 +16,7 @@ import java.io.Serializable;
  */
 @JsonSerialize
 public class TranslationRequestStatistics implements Serializable {
+    private static final long serialVersionUID = -80141890154780008L;
     private String fromLocaleCode;
     private String toLocaleCode;
     private int count;

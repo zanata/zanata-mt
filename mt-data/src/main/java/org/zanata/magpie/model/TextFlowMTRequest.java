@@ -41,7 +41,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.NaturalId;
 import com.google.common.collect.Lists;
 
 /**
@@ -66,40 +65,39 @@ public class TextFlowMTRequest implements Serializable {
     @NotNull
     private BackendID backendID;
 
-    @NaturalId
     @ManyToOne
     @JoinColumn(name = "document_id", updatable = false, nullable = false)
     @NotNull
     private Document document;
-
-    @NaturalId
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "locale_id", nullable = false, updatable = false)
-    @NotNull
-    private Locale locale;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "triggered_account_id", nullable = false, updatable = false)
     @NotNull
     private Account triggeredBy;
 
+    @NotNull
+    private Long wordCount;
+
+    @NotNull
+    private Long charCount;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = " textflow_contenthash")
     private List<String> textFlowContentHashes = Lists.newArrayList();
 
-    public TextFlowMTRequest() {
+    protected TextFlowMTRequest() {
     }
 
     public TextFlowMTRequest(BackendID backendID, Date invokeDate,
-            Document document, Locale locale,
-            Account triggeredBy,
-            List<String> textFlowContentHashes) {
+            Document document, Account triggeredBy,
+            List<String> textFlowContentHashes, long wordCount, long charCount) {
         this.backendID = backendID;
         this.invokeDate = new Date(invokeDate.getTime());
         this.document = document;
-        this.locale = locale;
         this.triggeredBy = triggeredBy;
         this.textFlowContentHashes = textFlowContentHashes;
+        this.wordCount = wordCount;
+        this.charCount = charCount;
     }
 
     public Long getId() {
@@ -118,15 +116,19 @@ public class TextFlowMTRequest implements Serializable {
         return document;
     }
 
-    public Locale getLocale() {
-        return locale;
-    }
-
     public List<String> getTextFlowContentHashes() {
         return textFlowContentHashes;
     }
 
     public Account getTriggeredBy() {
         return triggeredBy;
+    }
+
+    public Long getWordCount() {
+        return wordCount;
+    }
+
+    public Long getCharCount() {
+        return charCount;
     }
 }

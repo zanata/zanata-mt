@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, Red Hat, Inc. and individual contributors
+ * Copyright 2018, Red Hat, Inc. and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -18,43 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.zanata.magpie.api;
+package org.zanata.magpie.dao;
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
-
+import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
 
-import org.zanata.magpie.model.Account;
+import org.zanata.magpie.model.Credential;
 
 /**
- * This is a mutable class that holds the authenticated account object.
  * @author Patrick Huang
  * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
 @RequestScoped
-public class AuthenticatedAccount implements Serializable {
+public class CredentialDAO extends AbstractDAO<Credential> {
+    private static final long serialVersionUID = 8592307918827135145L;
 
-    private static final long serialVersionUID = -7986651568502749384L;
-    private Account account;
-    private String username;
-
-    public void setAuthenticatedAccount(Account account) {
-        this.account = account;
-    }
-
-    public boolean hasAuthenticatedAccount() {
-        return account != null;
-    }
-
-    public Optional<Account> getAuthenticatedAccount() {
-        return Optional.ofNullable(account);
-    }
-
-    public void setAuthenticatedUsername(String username) {
-        this.username = username;
-    }
-    public Optional<String> getAuthenticatedUsername() {
-        return Optional.ofNullable(username);
+    public Optional<Credential> getCredentialByUsername(@Nonnull String username) {
+        List<Credential> credentials = getEntityManager()
+                .createQuery("from Credential c where c.username = :username",
+                        Credential.class).setParameter("username", username)
+                .getResultList();
+        if (credentials.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(credentials.get(0));
     }
 }

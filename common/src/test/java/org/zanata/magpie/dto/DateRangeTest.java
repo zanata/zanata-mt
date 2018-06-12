@@ -36,4 +36,10 @@ public class DateRangeTest {
         assertThat(df.format(dateRange.getFromDate())).isEqualTo("2017-01-01");
         assertThat(df.format(dateRange.getToDate())).isEqualTo("2017-08-08");
     }
+
+    @Test
+    public void testFromDateAfterToDate() {
+        assertThatThrownBy(() -> DateRange.from("2018-01-01..2017-01-01"))
+                .isInstanceOf(InvalidDateParamException.class);
+    }
 }

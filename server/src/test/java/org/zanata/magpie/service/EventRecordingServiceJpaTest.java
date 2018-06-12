@@ -1,7 +1,6 @@
 package org.zanata.magpie.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Date;
 import java.util.List;
@@ -11,10 +10,8 @@ import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.zanata.magpie.JPATest;
-import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.event.RequestedMTEvent;
-import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.BackendID;
@@ -29,12 +26,13 @@ public class EventRecordingServiceJpaTest extends JPATest {
     private TextFlow textFlow;
     private EventRecordingService service;
     private Locale en;
+    private Locale ja;
     private Account account;
 
     @Override
     protected void setupTestData() {
         en = new Locale(LocaleCode.EN_US, "English");
-        Locale ja = new Locale(LocaleCode.JA, "Japanese");
+        ja = new Locale(LocaleCode.JA, "Japanese");
         getEm().persist(en);
         getEm().persist(ja);
         document = new Document("https://example.com", en, ja);
@@ -53,9 +51,9 @@ public class EventRecordingServiceJpaTest extends JPATest {
 
     @Test
     public void canRecordMTRequest() {
-        service.onMTRequest(new RequestedMTEvent(document, en,
+        service.onMTRequest(new RequestedMTEvent(document,
                 Lists.newArrayList(textFlow.getContentHash()), BackendID.DEV,
-                new Date(), account));
+                new Date(), account, textFlow.getWordCount(), textFlow.getCharCount()));
         getEm().flush();
 
         List<TextFlowMTRequest> requests =

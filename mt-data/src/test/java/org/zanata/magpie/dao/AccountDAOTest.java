@@ -70,4 +70,15 @@ public class AccountDAOTest extends JPATest {
         Credential credential = account.getCredentials().iterator().next();
         assertThat(credential.getUsername()).isEqualTo("username");
     }
+
+    @Test
+    public void canFindAccountByEmail() {
+
+        Optional<Account> accountOpt = accountDAO.findAccountByEmail("admin@example.com");
+
+        assertThat(accountOpt.isPresent()).isTrue();
+        Account account = accountOpt.get();
+        assertThat(account.getId()).isNotNull();
+        assertThat(account.getName()).isEqualTo("John Smith");
+    }
 }

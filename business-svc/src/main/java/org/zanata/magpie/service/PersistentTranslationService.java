@@ -192,6 +192,8 @@ public class PersistentTranslationService {
                 fromLocale.getLocaleCode(), toLocale.getLocaleCode());
 
         List<String> requestedTextFlows = Lists.newLinkedList();
+        long wordCount = 0;
+        long charCount = 0;
         for (int i = 0; i < sourcesToTranslate.size(); i++) {
             String source = sourcesToTranslate.get(i);
             AugmentedTranslation translation = translations.get(i);
@@ -207,6 +209,8 @@ public class PersistentTranslationService {
                 if (tf == null) {
                     tf = createTextFlow(document, source, fromLocale);
                 }
+                wordCount += tf.getWordCount();
+                charCount += tf.getCharCount();
                 requestedTextFlows.add(tf.getContentHash());
                 TextFlowTarget target =
                         new TextFlowTarget(translation.getPlainTranslation(),
@@ -226,9 +230,9 @@ public class PersistentTranslationService {
                 }
             }
         }
-        requestedMTEvent.fire(new RequestedMTEvent(document, fromLocale,
+        requestedMTEvent.fire(new RequestedMTEvent(document,
                 requestedTextFlows, backendID, engineInvokeTime,
-                authenticatedAccount.getAuthenticatedAccount().get()));
+                authenticatedAccount.getAuthenticatedAccount().get(), wordCount, charCount));
 
         return results;
     }

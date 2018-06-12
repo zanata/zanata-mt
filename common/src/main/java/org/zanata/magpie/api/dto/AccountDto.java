@@ -84,6 +84,7 @@ public class AccountDto {
         this.name = name;
     }
 
+    @NotNull
     public String getEmail() {
         return email;
     }

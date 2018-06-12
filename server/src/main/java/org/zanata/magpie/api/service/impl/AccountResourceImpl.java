@@ -22,14 +22,14 @@ package org.zanata.magpie.api.service.impl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.Callable;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -41,12 +41,12 @@ import javax.ws.rs.core.UriInfo;
 import org.hibernate.exception.ConstraintViolationException;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
-import org.zanata.magpie.api.dto.APIResponse;
+import org.zanata.magpie.api.ValidatePayload;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.dto.CredentialDto;
+import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
-import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.service.AccountService;
 
 import com.google.common.base.Throwables;
@@ -69,7 +69,6 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResourceImpl {
     private AccountService accountService;
-    private Validator validator;
     private Event<AccountCreated> accountCreatedEvent;
 
     @Context
@@ -79,7 +78,6 @@ public class AccountResourceImpl {
     public AccountResourceImpl(AccountService accountService,
             Validator validator, Event<AccountCreated> accountCreatedEvent) {
         this.accountService = accountService;
-        this.validator = validator;
         this.accountCreatedEvent = accountCreatedEvent;
     }
 
@@ -94,27 +92,42 @@ public class AccountResourceImpl {
         return accountService.getAllAccounts(!enabledOnly);
     }
 
+    @ValidatePayload(AccountDto.class)
     @POST
     @CheckRole("admin")
     public Response registerNewAccount(AccountDto accountDto) {
-        Set<ConstraintViolation<AccountDto>> violations =
-                validator.validate(accountDto);
-
-        if (!violations.isEmpty()) {
-            String message =
-                    violations.stream().map(
-                            v -> String.format("%s %s", v.getPropertyPath(), v.getMessage()))
-                            .reduce("error: ", (a, b) -> a + b + "; ");
-            return Response.status(Response.Status.BAD_REQUEST).entity(
-                    new APIResponse(Response.Status.BAD_REQUEST, message))
-                    .build();
-        }
         // TODO only support one credential for now
-        CredentialDto credentialDto = accountDto.getCredentials().iterator().next();
-        AccountDto dto;
+        CredentialDto credentialDto =
+                accountDto.getCredentials().iterator().next();
+        AccountDto dto =
+                tryApplyChange(() -> accountService.registerNewAccount(
+                        accountDto, credentialDto.getUsername(),
+                        credentialDto.getSecret()));
+
+        // as soon as we have an admin user, we should remove initial password
+        accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
+        return Response.created(uriInfo.getRequestUriBuilder().path("id")
+                .path(dto.getId().toString()).build()).build();
+    }
+
+    @ValidatePayload(AccountDto.class)
+    @PUT
+    @CheckRole("admin")
+    public Response updateAccount(AccountDto accountDto) {
+        Boolean updated =
+                tryApplyChange(() -> accountService.updateAccount(accountDto));
+
+        if (updated) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    // TODO this is a temporary solution for having meaningful error message for constraint violation
+    private static <T> T tryApplyChange(Callable<T> callable) {
         try {
-            dto = accountService.registerNewAccount(accountDto,
-                    credentialDto.getUsername(), credentialDto.getSecret());
+            return callable.call();
         } catch (Exception e) {
             Optional<Throwable>
                     anyConstraintViolation = Throwables.getCausalChain(e).stream()
@@ -125,11 +138,5 @@ public class AccountResourceImpl {
             }
             throw new MTException("error registering new account", e);
         }
-
-
-        // as soon as we have an admin user, we should remove initial password
-        accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
-        return Response.created(uriInfo.getRequestUriBuilder().path("id")
-                .path(dto.getId().toString()).build()).build();
     }
 }
