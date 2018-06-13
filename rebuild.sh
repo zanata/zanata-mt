@@ -19,7 +19,7 @@ TEST="-DskipTests"
 while getopts ":fehtg:m:d:" opt; do
   case ${opt} in
     h)
-      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-fht]" >&2
+      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-efht]" >&2
       echo "-h This help" >&2
       echo "-f Skip frontend build" >&2
       echo "-g Google credentials JSON file location" >&2
