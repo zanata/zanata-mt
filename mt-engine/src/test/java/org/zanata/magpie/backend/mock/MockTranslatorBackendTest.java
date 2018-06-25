@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.zanata.magpie.backend.mock.MockTranslatorBackend.PREFIX_MOCK_STRING;
+import static org.zanata.magpie.backend.mock.MockTranslatorBackend.UNICODE;
 import static org.zanata.magpie.backend.mock.MockTranslatorBackend.UNICODE_SUPPLEMENTARY;
 
 /**
@@ -55,8 +56,8 @@ public class MockTranslatorBackendTest {
                         Optional
                                 .of("tech")).get(0);
         assertThat(translation.getRawTranslation())
-                .contains(content, PREFIX_MOCK_STRING, UNICODE_SUPPLEMENTARY);
+                .contains(content, PREFIX_MOCK_STRING, UNICODE);
         assertThat(translation.getPlainTranslation())
-                .contains(content, PREFIX_MOCK_STRING, UNICODE_SUPPLEMENTARY);
+                .contains(content, PREFIX_MOCK_STRING, UNICODE);
     }
 }

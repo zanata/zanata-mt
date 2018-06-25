@@ -149,6 +149,7 @@
                     <!-- this need to match the volume binding below -->
                     <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
                     <DEFAULT_TRANSLATION_PROVIDER>${DEFAULT_TRANSLATION_PROVIDER}</DEFAULT_TRANSLATION_PROVIDER>
+                    <DEV_BACKEND>${DEV_BACKEND}</DEV_BACKEND>
                     <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
                   </env>
                   <dependsOn>

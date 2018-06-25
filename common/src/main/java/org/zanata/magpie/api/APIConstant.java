@@ -32,6 +32,11 @@ public interface APIConstant {
 
     String DEFAULT_PROVIDER = "DEFAULT_TRANSLATION_PROVIDER";
 
+    /**
+     * Whether to enable dev backend.
+     */
+    String DEV_BACKEND = "DEV_BACKEND";
+
     // HTTP header request authentication
     String HEADER_API_KEY = "X-Auth-Token";
     String HEADER_USERNAME = "X-Auth-User";

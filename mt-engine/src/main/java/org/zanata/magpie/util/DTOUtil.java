@@ -1,6 +1,5 @@
 package org.zanata.magpie.util;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,8 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ApplicationScoped
 public class DTOUtil {
