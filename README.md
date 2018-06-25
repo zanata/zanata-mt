@@ -22,7 +22,7 @@ Alternatively, run `restart.sh`. It will rebuild the package and redeploy to doc
 
 ### DEV mode
 
-DEV mode is enabled when both **MT_AZURE_KEY** and **GOOGLE_APPLICATION_CREDENTIALS** are not present in environment variable. You can also enable it by passing a non-empty **DEV_BACKEND** environment variable to the running instance. Once enabled and requested, the service will not use any paid service backend but will return wrapped string: 'translated[𠾴 string 𠾴]'.
+DEV mode is enabled when both **MT_AZURE_KEY** and **GOOGLE_APPLICATION_CREDENTIALS** are not present in environment variable. You can also enable it by passing a non-empty **DEV_BACKEND** environment variable to the running instance. Once enabled and requested, the service will not use any paid service backend but will return wrapped string: 'translated[网 string 网]'.
                   
 ----
 
