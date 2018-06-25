@@ -40,7 +40,6 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="resources.html">Resources</a></li>
-          <li><a href="data.html">Data Types</a></li>
         </ul>
       </div>
     </div>
@@ -122,26 +121,20 @@
           <tr>
             <th>code</th>
             <th>condition</th>
-            <th>type</th>
           </tr>
           </thead>
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">Return statistics for given document</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_DocumentStatistics.html">Document Statistics</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-warning response-code">400</span></td>
             <td><span class="response-condition">Missing url parameter</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">500</span></td>
             <td><span class="response-condition">Unexpected error</span></td>
-            <td><ul class="list-unstyled"></ul></td>
           </tr>
           </tbody>
         </table>
@@ -157,8 +150,8 @@
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference"><a href="json_DocumentStatistics.html">Document Statistics</a>
- (JSON)</span></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
           </tr>
           </tbody>
         </table>
@@ -182,21 +175,8 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-{
-  &quot;url&quot; : &quot;http://example.com&quot;,
-  &quot;requestCounts&quot; : [ {
-    &quot;fromLocaleCode&quot; : &quot;en-us&quot;,
-    &quot;toLocaleCode&quot; : &quot;fr&quot;,
-    &quot;count&quot; : 42,
-    &quot;wordCount&quot; : 12345
-  }, {
-    &quot;fromLocaleCode&quot; : &quot;...&quot;,
-    &quot;toLocaleCode&quot; : &quot;...&quot;,
-    &quot;count&quot; : 12345,
-    &quot;wordCount&quot; : 12345
-  } ]
-}
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>
@@ -270,8 +250,8 @@ See LanguagesResource#getSupportedLanguages() for supported locales.</p>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Content-Type: application/json&quot; HTTP header to specify this media type to the server."><span class="request-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference"><a href="json_DocumentContent.html">DocumentContent</a>
- (JSON)</span></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
             <td><span class="request-description">Content to be translated</span></td>
           </tr>
           </tbody>
@@ -283,31 +263,24 @@ See LanguagesResource#getSupportedLanguages() for supported locales.</p>
           <tr>
             <th>code</th>
             <th>condition</th>
-            <th>type</th>
           </tr>
           </thead>
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">Document is translated with given locale</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_DocumentContent.html">DocumentContent</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-warning response-code">400</span></td>
             <td><span class="response-condition">Missing toLocaleCode, invalid DocumentContent</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_APIResponse.html">APIResponse</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">500</span></td>
             <td><span class="response-condition">Unexpected error during translation</span></td>
-            <td><ul class="list-unstyled"></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">501</span></td>
             <td><span class="response-condition">Requested translation provider is not set up</span></td>
-            <td><ul class="list-unstyled"></ul></td>
           </tr>
           </tbody>
         </table>
@@ -323,8 +296,8 @@ See LanguagesResource#getSupportedLanguages() for supported locales.</p>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference"><a href="json_DocumentContent.html">DocumentContent</a>
- (JSON)</span></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
           </tr>
           </tbody>
         </table>
@@ -341,32 +314,8 @@ Accept: application/json
 X-Auth-Token: ...
 X-Auth-User: ...
 
-                <code class="prettyprint language-js">
-{
-  &quot;url&quot; : &quot;http://example.com&quot;,
-  &quot;contents&quot; : [ {
-    &quot;value&quot; : &quot;...&quot;,
-    &quot;type&quot; : &quot;...&quot;,
-    &quot;metadata&quot; : &quot;...&quot;
-  }, {
-    &quot;value&quot; : &quot;...&quot;,
-    &quot;type&quot; : &quot;...&quot;,
-    &quot;metadata&quot; : &quot;...&quot;
-  } ],
-  &quot;localeCode&quot; : &quot;en-us&quot;,
-  &quot;backendId&quot; : &quot;ms&quot;,
-  &quot;warnings&quot; : [ {
-    &quot;status&quot; : 12345,
-    &quot;title&quot; : &quot;...&quot;,
-    &quot;details&quot; : &quot;...&quot;,
-    &quot;timestamp&quot; : &quot;...&quot;
-  }, {
-    &quot;status&quot; : 12345,
-    &quot;title&quot; : &quot;...&quot;,
-    &quot;details&quot; : &quot;...&quot;,
-    &quot;timestamp&quot; : &quot;...&quot;
-  } ]
-}
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>
@@ -376,32 +325,8 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-{
-  &quot;url&quot; : &quot;http://example.com&quot;,
-  &quot;contents&quot; : [ {
-    &quot;value&quot; : &quot;...&quot;,
-    &quot;type&quot; : &quot;...&quot;,
-    &quot;metadata&quot; : &quot;...&quot;
-  }, {
-    &quot;value&quot; : &quot;...&quot;,
-    &quot;type&quot; : &quot;...&quot;,
-    &quot;metadata&quot; : &quot;...&quot;
-  } ],
-  &quot;localeCode&quot; : &quot;en-us&quot;,
-  &quot;backendId&quot; : &quot;ms&quot;,
-  &quot;warnings&quot; : [ {
-    &quot;status&quot; : 12345,
-    &quot;title&quot; : &quot;...&quot;,
-    &quot;details&quot; : &quot;...&quot;,
-    &quot;timestamp&quot; : &quot;...&quot;
-  }, {
-    &quot;status&quot; : 12345,
-    &quot;title&quot; : &quot;...&quot;,
-    &quot;details&quot; : &quot;...&quot;,
-    &quot;timestamp&quot; : &quot;...&quot;
-  } ]
-}
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>

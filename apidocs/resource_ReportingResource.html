@@ -40,7 +40,6 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="resources.html">Resources</a></li>
-          <li><a href="data.html">Data Types</a></li>
         </ul>
       </div>
     </div>
@@ -111,20 +110,16 @@ range, for requests by the current user.</p>
           <tr>
             <th>code</th>
             <th>condition</th>
-            <th>type</th>
           </tr>
           </thead>
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">List of requests that sent to the MT backend</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference">array of <a href="json_MTRequestStatistics.html">MTRequestStatistics</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">500</span></td>
             <td><span class="response-condition">Unexpected error</span></td>
-            <td><ul class="list-unstyled"></ul></td>
           </tr>
           </tbody>
         </table>
@@ -141,8 +136,8 @@ range, for requests by the current user.</p>
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference">array of <a href="json_MTRequestStatistics.html">MTRequestStatistics</a>
- (JSON)</span></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
             <td><span class="response-description">statistics about character count and word count</span></td>
           </tr>
           </tbody>
@@ -167,15 +162,8 @@ X-Auth-User: ...
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-[ {
-  &quot;docUrl&quot; : &quot;http://example.com&quot;,
-  &quot;fromLocaleCode&quot; : &quot;en-us&quot;,
-  &quot;toLocaleCode&quot; : &quot;fr&quot;,
-  &quot;charCount&quot; : 50,
-  &quot;wordCount&quot; : 10,
-  &quot;engine&quot; : &quot;Google&quot;
-} ]
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>

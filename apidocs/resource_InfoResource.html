@@ -40,7 +40,6 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="resources.html">Resources</a></li>
-          <li><a href="data.html">Data Types</a></li>
         </ul>
       </div>
     </div>
@@ -78,20 +77,16 @@
           <tr>
             <th>code</th>
             <th>condition</th>
-            <th>type</th>
           </tr>
           </thead>
           <tbody>
           <tr>
             <td><span class="label label-success response-code">200</span></td>
             <td><span class="response-condition">Application info</span></td>
-            <td><ul class="list-unstyled"><li><span class="datatype-reference"><a href="json_ApplicationInfo.html">ApplicationInfo</a>
- (JSON)</span></li></ul></td>
           </tr>
           <tr>
             <td><span class="label label-danger response-code">500</span></td>
             <td><span class="response-condition">Unexpected error</span></td>
-            <td><ul class="list-unstyled"></ul></td>
           </tr>
           </tbody>
         </table>
@@ -108,8 +103,8 @@
           <tbody>
           <tr>
             <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
-            <td><span class="datatype-reference"><a href="json_ApplicationInfo.html">ApplicationInfo</a>
- (JSON)</span></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
             <td><span class="response-description">General information of the application</span></td>
           </tr>
           </tbody>
@@ -132,13 +127,8 @@ Accept: application/json
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-                <code class="prettyprint language-js">
-{
-  &quot;name&quot; : &quot;...&quot;,
-  &quot;version&quot; : &quot;...&quot;,
-  &quot;buildDate&quot; : &quot;...&quot;,
-  &quot;devMode&quot; : true
-}
+                <code class="prettyprint language-txt">
+...
                 </code>
               </pre>
             </div>
