@@ -33,7 +33,9 @@ public class MockTranslatorBackend implements TranslatorBackend {
     private final static int MAX_LENGTH = 10000;
 
     public final static String PREFIX_MOCK_STRING = "translated[";
+    // zanata don't suport unicode summplementary yet (Database), so we can not return this as result.
     public final static String UNICODE_SUPPLEMENTARY = "\uD843\uDFB4";
+    public final static String UNICODE = "网";
 
     @SuppressWarnings("unused")
     public MockTranslatorBackend() {
@@ -71,7 +73,7 @@ public class MockTranslatorBackend implements TranslatorBackend {
     }
 
     private String wrapContentInBlock(String content) {
-        return PREFIX_MOCK_STRING + UNICODE_SUPPLEMENTARY + " " + content +
-                " " + UNICODE_SUPPLEMENTARY + "]";
+        return PREFIX_MOCK_STRING + UNICODE + " " + content +
+                " " + UNICODE + "]";
     }
 }
