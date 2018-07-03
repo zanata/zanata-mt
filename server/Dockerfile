@@ -6,7 +6,7 @@ EXPOSE 8080
 EXPOSE 8787
 
 # Install postgresql driver
-RUN curl --retry 3 -L -o $JBOSS_HOME/standalone/deployments/postgresql-connector.jar https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar
+RUN curl -s -v --retry 3 -L -o $JBOSS_HOME/standalone/deployments/postgresql-connector.jar https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar
 
 # Parent image defaults to POSIX(ASCII). This ensures that java uses UTF-8
 ENV LANG=en_US.UTF-8
