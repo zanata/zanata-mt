@@ -109,6 +109,19 @@
           <includes>${apidocs.dir}/**</includes>
         </configuration>
       </plugin>
+
+      <!--
+       The following 2 plugins are required for
+       https://stackoverflow.com/questions/51091539/maven-site-plugins-3-3-java-lang-classnotfoundexception-org-apache-maven-doxia
+     -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
     </plugins>
 
 

@@ -85,6 +85,9 @@
     <maven-surefire-plugin.version>2.20.1</maven-surefire-plugin.version>
     <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
 
+    <maven-site-plugin.version>3.3</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
+
     <coverage.complexity.min>0.70</coverage.complexity.min>
     <coverage.line.min>0.85</coverage.line.min>
 
@@ -603,6 +606,16 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+        </plugin>
+        <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco-maven-plugin.version}</version>
@@ -775,6 +788,9 @@
               <phase>site</phase>
             </execution>
           </executions>
+          <dependencies>
+
+          </dependencies>
         </plugin>
 
         <plugin>
