@@ -121,6 +121,20 @@
         <groupId>com.webcohesion.enunciate</groupId>
         <artifactId>enunciate-slim-maven-plugin</artifactId>
       </plugin>
+      <!--
+        The following 2 plugins are required for
+        https://stackoverflow.com/questions/51091539/maven-site-plugins-3-3-java-lang-classnotfoundexception-org-apache-maven-doxia
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>${maven-site-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${maven-project-info-reports-plugin.version}</version>
+      </plugin>
     </plugins>
   </reporting>
 </project>
