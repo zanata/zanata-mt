@@ -299,7 +299,7 @@ void mavenSite() {
     withCredentials(
             [[$class          : 'UsernamePasswordMultiBinding', credentialsId: 'zanata-jenkins',
               usernameVariable: 'GIT_USERNAME', passwordVariable: 'GITHUB_OAUTH2_TOKEN']]) {
-      sh "./mvnw -e package site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode -pl common -am"
+      sh "./mvnw package site -DskipTests -Dfindbugs.skip -Dgithub.global.oauth2Token=$GITHUB_OAUTH2_TOKEN --batch-mode -pl common -am"
     }
   }
 }
@@ -434,24 +434,25 @@ void processTestResults() {
 }
 
 void buildAndTagDockerImage(workspace, dockerImage, dockerRegistryUrl) {
-  echo "Copy Dockerfile-OPENSHIFT and ROOT.war to $workspace/"
+  echo "Copy certs and ROOT.war to $workspace/"
 
-  sh "mkdir -p $workspace/certs"
-  sh "cp server/target/deployments/ROOT.war $workspace/"
-  sh "cp server/docker/Dockerfile-OPENSHIFT $workspace/"
+  sh "mkdir -p $workspace/docker/certs"
+  sh "mkdir -p $workspace/target/deployments/"
+  sh "cp server/target/deployments/ROOT.war $workspace/target/deployments/"
+  sh "cp server/Dockerfile $workspace/"
 
   /**
    * Cert is downloaded in host as workaround for connection issue in container
    * TODO: move download cert task to Dockerfile when docker host is stable
    */
   def certName = 'rds-combined-ca-bundle.pem'
-  sh "curl -o $workspace/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
-  sh "curl -o $workspace/certs/RH-IT-Root-CA.crt $env.SSL_CA_CERT"
-  sh "curl -o $workspace/certs/newca.crt $env.OLD_SSL_CA_CERT"
-  sh "curl -o $workspace/certs/RH-IT-pki-ca-chain.crt $env.SSL_INTERMEDIATE_CA_CERT"
+  sh "curl -o $workspace/docker/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
+  sh "curl -o $workspace/docker/certs/RH-IT-Root-CA.crt $env.SSL_CA_CERT"
+  sh "curl -o $workspace/docker/certs/newca.crt $env.OLD_SSL_CA_CERT"
+  sh "curl -o $workspace/docker/certs/RH-IT-pki-ca-chain.crt $env.SSL_INTERMEDIATE_CA_CERT"
 
   echo "Building docker MT $version..."
-  sh "docker build --pull --no-cache -f $workspace/Dockerfile-OPENSHIFT -t $dockerImage:$version $workspace"
+  sh "docker build --pull --no-cache -f $workspace/Dockerfile -t $dockerImage:$version $workspace"
 
   sh "echo Creating tag for $version..."
   sh "docker tag $dockerImage:$version $dockerRegistryUrl/$dockerImage:$version"

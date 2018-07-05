@@ -1,24 +1,29 @@
-FROM jboss/wildfly:10.1.0.Final
+#
+# DATASOURCE IS BEING CONFIGURED USING ENVIRONMENT VARIABLES IN OPENSHIFT INSTANCE
+#
+# Required file in same directory:
+# - target/deployments/ROOT.war - packaged war file
+# - docker/certs/ - all required certificates
+#
+# https://access.redhat.com/containers/?tab=overview#/registry.access.redhat.com/jboss-eap-7/eap71-openshift
+#
+FROM registry.access.redhat.com/jboss-eap-7/eap71-openshift:latest
 
 MAINTAINER "Alex Eng" <aeng@redhat.com>
+MAINTAINER "Patrick Huang" <pahuang@redhat.com>
 
 EXPOSE 8080
-EXPOSE 8787
 
-# Install postgresql driver
-RUN curl -s -v --retry 3 -L -o $JBOSS_HOME/standalone/deployments/postgresql-connector.jar https://repo1.maven.org/maven2/org/postgresql/postgresql/9.4.1212/postgresql-9.4.1212.jar
+USER root
 
-# Parent image defaults to POSIX(ASCII). This ensures that java uses UTF-8
-ENV LANG=en_US.UTF-8
+# copy all certs from certs/ directory
+COPY docker/certs/ /etc/pki/ca-trust/source/anchors/
 
-# Copy config script
-COPY docker/mt-config.cli /tmp/
+RUN update-ca-trust extract
 
-# run config script to edit standalone-full.xml
-RUN $JBOSS_HOME/bin/jboss-cli.sh --file=/tmp/mt-config.cli
-
-# use standalone.xml
-CMD $JBOSS_HOME/bin/standalone.sh -c  standalone-full-ha.xml -b 0.0.0.0 --debug
+# need to use numeric uid so it's more suitable in Openshift
+# 185 is used in parent image and it's reserved for jboss as
+USER 185
 
 # copy war file
 COPY target/deployments/ROOT.war $JBOSS_HOME/standalone/deployments/ROOT.war

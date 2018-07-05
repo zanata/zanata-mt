@@ -101,6 +101,7 @@
           <configuration>
             <logDate>default</logDate>
             <autoPull>true</autoPull>
+            <verbose>true</verbose>
             <images>
               <!-- Postgres image is used 'as-is' and is linked into the service image -->
               <image>
@@ -139,11 +140,14 @@
                 </build>
                 <run>
                   <env>
-                    <POSTGRESQL_URL>MTDB</POSTGRESQL_URL>
-                    <POSTGRESQL_PORT>${postgresql.port}</POSTGRESQL_PORT>
-                    <POSTGRESQL_DATABASE>${db.name}</POSTGRESQL_DATABASE>
-                    <POSTGRESQL_USER>${postgresql.user}</POSTGRESQL_USER>
-                    <POSTGRESQL_PASSWORD>${postgresql.password}</POSTGRESQL_PASSWORD>
+                    <DB_SERVICE_PREFIX_MAPPING>datasource-POSTGRESQL=DB</DB_SERVICE_PREFIX_MAPPING>
+                    <DATASOURCE_POSTGRESQL_SERVICE_PORT>${postgresql.port}</DATASOURCE_POSTGRESQL_SERVICE_PORT>
+                    <DATASOURCE_POSTGRESQL_SERVICE_HOST>MTDB</DATASOURCE_POSTGRESQL_SERVICE_HOST>
+                    <DB_JNDI>java:jboss/datasources/zanataMT</DB_JNDI>
+                    <DB_USERNAME>${postgresql.user}</DB_USERNAME>
+                    <DB_PASSWORD>${postgresql.password}</DB_PASSWORD>
+                    <DB_DATABASE>${db.name}</DB_DATABASE>
+
                     <MT_AZURE_KEY>${MT_AZURE_KEY}</MT_AZURE_KEY>
                     <DEEPL_KEY>${DEEPL_KEY}</DEEPL_KEY>
                     <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>

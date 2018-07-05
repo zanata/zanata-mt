@@ -55,7 +55,7 @@ public interface ReportingResource {
      * range, for requests by the current user.
      *
      * @param dateRange
-     *         date range
+     *         date range for the reports. Format: from..to (yyyy-mm-dd..yyyy-mm-dd)
      * @return statistics about character count and word count
      */
     @GET
