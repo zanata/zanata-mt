@@ -87,6 +87,8 @@
 
     <coverage.complexity.min>0.70</coverage.complexity.min>
     <coverage.line.min>0.85</coverage.line.min>
+    <maven-site-plugin.version>3.3</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
 
     <db.name>zanataMT</db.name>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
@@ -775,6 +777,9 @@
               <phase>site</phase>
             </execution>
           </executions>
+          <dependencies>
+
+          </dependencies>
         </plugin>
 
         <plugin>
