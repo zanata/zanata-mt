@@ -5,7 +5,7 @@ import * as Actions from '../constants/actions'
 import {createAction} from 'redux-actions'
 import {getUsername, getToken} from "../config"
 import CryptoJS from 'crypto-js'
-import {CommonData} from "../types/models"
+import {AuthData, CommonData} from "../types/models"
 
 export const buildAPIRequest =
         (endpoint: string, method: HTTPVerb,
@@ -43,24 +43,20 @@ export const getAuthHeaders = () => {
   }
 }
 
-export const login = createAction<CommonData>(Actions.LOGIN_SUCCESS)
 export const logout = createAction(Actions.LOGOUT)
 
 export const toggleLoginFormDisplay = createAction<CommonData>(Actions.TOGGLE_LOGIN_FORM_DISPLAY)
 
-/**
- * TODO: get API KEY from server after verification the username and password
- */
-export const loginDisabled = (username: string, password: string) => {
-  const endpoint = API_URL + '/login'
+export const login = (auth: AuthData) => {
+  const {username, password} = auth
+  const endpoint = API_URL + '/account/login'
   const apiTypes = [
     Actions.LOGIN_REQUEST,
     {
       type: Actions.LOGIN_SUCCESS,
       payload: (action: typeof Actions, state: CommonData, res: Response) => {
         return {
-          username,
-          password
+          auth: {username, password}
         }
       },
       meta: {
@@ -77,6 +73,5 @@ export const loginDisabled = (username: string, password: string) => {
   }
 }
 const getAuthDigest = (username: string, password: string, endpoint: string) => {
-    const sha256 = CryptoJS.HmacSHA256(endpoint + '/' + username, password)
-    return CryptoJS.enc.Base64.stringify(sha256)
+  return CryptoJS.AES.encrypt(password, endpoint + '/' + username)
 }

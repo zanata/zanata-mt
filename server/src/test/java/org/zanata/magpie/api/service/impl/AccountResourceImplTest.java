@@ -7,6 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.enterprise.event.Event;
 import javax.ws.rs.core.Response;
@@ -122,6 +125,40 @@ public class AccountResourceImplTest {
 
         Response response = accountResource.updateAccount(accountDto);
         assertThat(response.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void testLoginInvalid() {
+        Response response = accountResource.login("");
+        assertThat(response.getStatus()).isEqualTo(401);
+
+        accountResource.login("testing 124");
+        assertThat(response.getStatus()).isEqualTo(401);
+    }
+
+    @Test
+    public void testFailLogin() {
+        accountResource.uriInfo = new ResteasyUriInfo("account/login", "", "");
+
+        String header = "hmac test:U2FsdGVkX18yRsxRcAMD+FUvQ1OqXIoSpps96iVs/Ug=";
+        when(accountService.authenticate("test", "testing")).thenReturn(Optional
+            .empty());
+        Response response = accountResource.login(header);
+        assertThat(response.getStatus()).isEqualTo(401);
+    }
+
+    @Test
+    public void testLogin() {
+        accountResource.uriInfo = new ResteasyUriInfo("account/login", "", "");
+        AccountDto accountDto = new AccountDto();
+        String header = "hmac test:U2FsdGVkX18yRsxRcAMD+FUvQ1OqXIoSpps96iVs/Ug=";
+        when(accountService.authenticate("test", "testing")).thenAnswer(
+            (Answer<Optional<AccountDto>>) invocationOnMock -> {
+                accountDto.setId(1L);
+                return Optional.of(accountDto);
+            });
+        Response response = accountResource.login(header);
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
 }

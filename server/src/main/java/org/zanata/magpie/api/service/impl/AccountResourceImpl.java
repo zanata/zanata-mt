@@ -23,11 +23,15 @@ package org.zanata.magpie.api.service.impl;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -38,6 +42,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
@@ -47,12 +52,14 @@ import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
+import org.zanata.magpie.model.Account;
 import org.zanata.magpie.service.AccountService;
 
 import com.google.common.base.Throwables;
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
 import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
+import org.zanata.magpie.util.CryptoUtil;
 
 /**
  * This is an internal API for managing users in the system.
@@ -68,6 +75,11 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 @ResourceLabel("Account")
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResourceImpl {
+
+    // expected format "hmac {username}:{digest}"
+    private static String PATTERN = "hmac\\s(.+):(.+)";
+    private static Pattern AUTHPATTERN = Pattern.compile(PATTERN);
+
     private AccountService accountService;
     private Event<AccountCreated> accountCreatedEvent;
 
@@ -124,6 +136,28 @@ public class AccountResourceImpl {
         }
     }
 
+    @POST
+    @Path("/login")
+    public Response login(@HeaderParam("Authentication") String authHeader) {
+        if (StringUtils.isBlank(authHeader)) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        Optional<Auth> auth = processAuthHeader(authHeader);
+        if (!auth.isPresent()) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        String username = auth.get().getUsername();
+        String digest = auth.get().getDigest();
+        String key =
+            "/" + APIConstant.API_CONTEXT + uriInfo.getPath() + "/" + username;
+        String password = CryptoUtil.decrypt(key, digest);
+        Optional<Account> account = accountService.authenticate(username, password);
+        if (account.isPresent()) {
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
     // TODO this is a temporary solution for having meaningful error message for constraint violation
     private static <T> T tryApplyChange(Callable<T> callable) {
         try {
@@ -137,6 +171,40 @@ public class AccountResourceImpl {
                 throw new DataConstraintViolationException(Throwables.getRootCause(e));
             }
             throw new MTException("error registering new account", e);
+        }
+    }
+
+    protected Optional<Auth> processAuthHeader(@NotNull String authHeader) {
+        Matcher m = AUTHPATTERN.matcher(authHeader);
+        if (m.find()) {
+            if (m.groupCount() == 2) {
+                return Optional.of(new Auth(m.group(1), m.group(2)));
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * expected format "hmac {username}:{digest}"
+     * digest:
+     *   Passphrase = {endpoint + '/' + username}
+     *   var encryptedAES = CryptoJS.AES.encrypt({password}, Passphrase);
+     */
+    private static class Auth {
+        private String username;
+        private String digest;
+
+        public Auth(@NotNull String username, @NotNull String digest) {
+            this.username = username;
+            this.digest = digest;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getDigest() {
+            return digest;
         }
     }
 }

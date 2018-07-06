@@ -1,20 +1,25 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import {Provider} from 'react-redux'
-import {Router, Route, Switch} from 'react-router'
+import {
+  Router,
+  Route,
+  Switch,
+  Redirect, RouteComponentProps, RouteProps,
+} from 'react-router'
 import {createBrowserHistory} from 'history'
 import {apiMiddleware} from 'redux-api-middleware'
 import {createLogger} from 'redux-logger'
 import {createStore, applyMiddleware, compose} from 'redux'
 import rootReducer, {RootState} from './reducers'
-import {App, Info, NavBar} from './containers'
+import {App, Info, NavBar, TranslateFile} from './containers'
 import thunk from 'redux-thunk'
 import { NoMatch, Health } from './components'
-
-
 import { Layout } from 'antd'
+import { isLoggedIn } from './config'
 
 import './styles/index.less'
+import {Component} from 'react'
 
 function configureStore(initialState?: RootState) {
   const logger = createLogger({
@@ -48,6 +53,20 @@ function configureStore(initialState?: RootState) {
 const store = configureStore();
 const history = createBrowserHistory();
 
+type RouteComponent = React.StatelessComponent<RouteComponentProps<{}>> | React.ComponentClass<any>
+const PrivateRoute: React.StatelessComponent<RouteProps> = ({component, ...rest}) => {
+  const renderFn = (Component?: RouteComponent) => (props: RouteProps) => {
+    if (!Component) {
+      return null
+    } else if (isLoggedIn()) {
+      return <Component {...props} />
+    } else {
+      return <Redirect to='/app/404'/>
+    }
+  }
+  return <Route {...rest} render={renderFn(component)} />
+}
+
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
@@ -55,9 +74,11 @@ ReactDOM.render(
         <NavBar />
         <Layout>
           <Switch>
-            <Route exact path='/' component={App}/>
+            <Route exact strict path="(/|/app|/app/)" component={App} />
             <Route path='/app/info' component={Info}/>
             <Route path='/app/health' component={Health}/>
+            <Route path='/app/404' component={NoMatch}/>
+            <PrivateRoute path='/app/translate' component={TranslateFile} />
             <Route component={NoMatch}/>
           </Switch>
         </Layout>
@@ -66,3 +87,4 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 );
+

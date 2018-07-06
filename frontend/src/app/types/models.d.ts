@@ -37,3 +37,16 @@ declare interface CommonData extends ReduxMiddlewareError {
   showLoginForm?: boolean
 }
 declare type CommonState = CommonData
+
+declare interface Locale {
+  localeCode: string,
+  name: string
+}
+
+declare interface TranslateFileData extends ReduxMiddlewareError {
+  errorData?: ErrorData,
+  uploading: boolean,
+  loading: boolean,
+  supportedLocales: Locale[]
+}
+declare type TranslateFileState = TranslateFileData

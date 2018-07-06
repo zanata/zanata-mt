@@ -20,7 +20,6 @@
  */
 package org.zanata.magpie.api.security;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,7 +57,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
     private static ImmutableList<String> PUBLIC_API;
 
     static {
-        PUBLIC_API = ImmutableList.of("/api/info");
+        PUBLIC_API = ImmutableList.of("/api/info", "/api/account/login");
     }
 
     @Inject
@@ -72,8 +71,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext)
-            throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         if (isPublicAPI(
                 requestContext.getUriInfo().getRequestUri().getPath())) {
             return;

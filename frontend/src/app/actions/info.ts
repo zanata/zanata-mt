@@ -2,7 +2,6 @@ import { API_URL } from '../config'
 import * as Actions from '../constants/actions'
 import {
   buildAPIRequest,
-  getJsonHeaders,
   getJsonHeadersWithoutAuth
 } from './common'
 import { RSAA } from 'redux-api-middleware'

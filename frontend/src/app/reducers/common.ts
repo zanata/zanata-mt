@@ -17,8 +17,8 @@ const loginFailed = (payload: CommonData) => {
   const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
   return {
     summary: 'Invalid username and password',
-    message: payload.message,
-    stack: payload.stack,
+    message: '',
+    stack: '',
     timestamp: now,
     type: Actions.MSG_TYPE.ERROR
   }
@@ -66,7 +66,8 @@ export default handleActions<CommonState, CommonData>({
   [Actions.LOGOUT]: (state, action) => {
     logout()
     return {
-      ...initialState
+      ...state,
+      auth: null
     }
   },
 

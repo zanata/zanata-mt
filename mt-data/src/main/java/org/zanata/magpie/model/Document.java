@@ -2,7 +2,6 @@ package org.zanata.magpie.model;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.URL;
 import org.zanata.magpie.util.HashUtil;
 
 import javax.persistence.Access;
@@ -27,7 +26,6 @@ public class Document extends ModelEntity {
 
     private static final long serialVersionUID = -3394088546058798299L;
 
-    @URL
     @NotNull
     private String url;
 
