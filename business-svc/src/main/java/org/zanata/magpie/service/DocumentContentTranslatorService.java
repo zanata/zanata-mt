@@ -285,12 +285,14 @@ public class DocumentContentTranslatorService {
                                             mediaType, Optional.of(CATEGORY));
                     assert translated.size() == 1;
                     Element replacement = ArticleUtil.asElement(translated.get(0));
-                    if (child == content) {
-                        //replace this item in contents list, exit while loop
-                        contents.set(i, replacement);
-                        break;
-                    } else {
-                        child.replaceWith(replacement);
+                    if (replacement != null) {
+                        if (child == content) {
+                            //replace this item in contents list, exit while loop
+                            contents.set(i, replacement);
+                            break;
+                        } else {
+                            child.replaceWith(replacement);
+                        }
                     }
                 } else {
                     // show warning if there is no more children under this node

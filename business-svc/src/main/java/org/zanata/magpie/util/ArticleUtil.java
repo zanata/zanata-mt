@@ -3,6 +3,7 @@ package org.zanata.magpie.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
@@ -11,6 +12,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.zanata.magpie.service.TranslatableHTMLNode;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
@@ -152,8 +154,12 @@ public final class ArticleUtil {
     }
 
     // parse html string into element
-    public static Element asElement(String html) {
-        return unwrapAsElements(wrapHTML(html)).get(0);
+    public static @Nullable Element asElement(String html) {
+        if (StringUtils.isBlank(html)) {
+            return null;
+        }
+        List<Element> elements = unwrapAsElements(wrapHTML(html));
+        return elements.isEmpty() ? null :  elements.get(0);
     }
 
     /**
