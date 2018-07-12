@@ -52,6 +52,13 @@ public class ArticleUtilTest {
                 .contains(html);
     }
 
+    @Test
+    public void asElementEmptyContent() {
+        String html = "";
+        Node node = ArticleUtil.asElement(html);
+        assertThat(node).isNull();
+    }
+
     private void assertWrapAndUnwrapHTML(String html) {
         Element wrappedElement = ArticleUtil.wrapHTML(html);
 
