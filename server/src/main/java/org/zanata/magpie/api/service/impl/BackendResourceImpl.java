@@ -82,7 +82,7 @@ public class BackendResourceImpl implements BackendResource {
         if (is == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new APIResponse(Response.Status.NOT_FOUND,
-                            "attribution image can not be found:" + imageResource))
+                            "attribution image can not be found: " + imageResource))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -129,7 +129,7 @@ public class BackendResourceImpl implements BackendResource {
         } catch (BadRequestException e) {
             APIResponse response =
                     new APIResponse(Response.Status.NOT_FOUND,
-                            "Not supported id:" + id);
+                            "Not supported id: " + id);
             return Optional.of(response);
         }
 
