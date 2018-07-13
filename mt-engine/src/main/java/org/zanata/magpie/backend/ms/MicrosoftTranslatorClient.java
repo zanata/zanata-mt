@@ -85,7 +85,7 @@ class MicrosoftTranslatorClient {
 
         if (response.getStatusInfo() != Response.Status.OK) {
             throw new MTException(
-                    "Error from Microsoft Translator API:"
+                    "Error from Microsoft Translator API: "
                             + response.getStatusInfo().getReasonPhrase());
         }
         String xml = response.readEntity(String.class);
@@ -111,7 +111,7 @@ class MicrosoftTranslatorClient {
 
             if (response.getStatusInfo() != Response.Status.OK) {
                 throw new MTException(
-                        "Error getting token:" + response.getStatusInfo().getReasonPhrase());
+                        "Error getting token: " + response.getStatusInfo().getReasonPhrase());
             }
             return response.readEntity(String.class);
         } finally {
