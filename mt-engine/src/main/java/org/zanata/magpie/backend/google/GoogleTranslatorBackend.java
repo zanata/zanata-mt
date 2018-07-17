@@ -100,6 +100,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
                 .targetLanguage(
                         targetLocale.getLocaleCode()));
         options.add(Translate.TranslateOption.format(format));
+        Translate.TranslateOption[] translateOptions = options
+                .toArray(new Translate.TranslateOption[options.size()]);
         if (!googleCredential.exists()) {
             throw new BadRequestException("Google Default Credential file is not setup");
         }
@@ -113,9 +115,7 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
             while (batchStart < contents.size()) {
                 int batchEnd = Math.min(batchStart + BATCH_SIZE, contents.size());
                 translations.addAll(translate.translate(
-                        contents.subList(batchStart, batchEnd),
-                        options.toArray(
-                                new Translate.TranslateOption[options.size()])));
+                        contents.subList(batchStart, batchEnd), translateOptions));
                 batchStart = batchEnd;
             }
             return translations.stream()
