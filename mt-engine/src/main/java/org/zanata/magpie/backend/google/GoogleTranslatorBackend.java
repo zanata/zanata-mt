@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.backend.google;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,6 +54,8 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 
     // Max length per request for Google Cloud Translation API
     private final static int MAX_LENGTH = 5000;
+    // Max number of "text segments" that can be sent in a request
+    private final static int BATCH_SIZE = 100;
 
     private Translate translate;
 
@@ -105,10 +108,16 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
 //        srcLocale.ifPresent(l -> options.add(
 //                Translate.TranslateOption.sourceLanguage(l.getLocaleCode())));
         try {
-            List<Translation> translations =
-                    translate.translate(
-                            contents,
-                            options.toArray(new Translate.TranslateOption[options.size()]));
+            List<Translation> translations = new ArrayList<>();
+            int batchStart = 0;
+            while (batchStart < contents.size()) {
+                int batchEnd = Math.min(batchStart + BATCH_SIZE, contents.size());
+                translations.addAll(translate.translate(
+                        contents.subList(batchStart, batchEnd),
+                        options.toArray(
+                                new Translate.TranslateOption[options.size()])));
+                batchStart = batchEnd;
+            }
             return translations.stream()
                     .map(translation -> new AugmentedTranslation(
                             translation.getTranslatedText(),
