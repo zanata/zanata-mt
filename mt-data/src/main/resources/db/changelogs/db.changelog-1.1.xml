@@ -155,4 +155,47 @@
     <customChange class="org.zanata.magpie.liquibase.UpdateCharCountToTextFlow" />
   </changeSet>
 
+  <changeSet id="11" author="sflaniga@redhat.com">
+    <comment>add LocaleAlias table</comment>
+    <createTable tableName="localealias">
+      <column name="id" type="SERIAL" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="localecode" type="varchar(128)">
+        <constraints nullable="false" />
+      </column>
+      <column name="creationdate" defaultValue="${now}" type="datetime">
+        <constraints nullable="false" />
+      </column>
+      <column name="lastchanged" defaultValue="${now}" type="datetime">
+        <constraints nullable="false" />
+      </column>
+      <column name="localeid" type="bigint">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="localealias"
+        baseColumnNames="localeid"
+        constraintName="FK_localealias_locale"
+        referencedTableName="locale"
+        referencedColumnNames="id" />
+  </changeSet>
+
+  <changeSet id="12" author="sflaniga@redhat.com">
+    <comment>Insert locale alias list</comment>
+    <sql endDelimiter=";" splitStatements="true">
+      INSERT INTO localealias (localecode, localeid) VALUES ('de-de', (SELECT id FROM Locale WHERE localecode='de'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('es-es', (SELECT id FROM Locale WHERE localecode='es'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('fr-fr', (SELECT id FROM Locale WHERE localecode='fr'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('it-it', (SELECT id FROM Locale WHERE localecode='it'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('ja-jp', (SELECT id FROM Locale WHERE localecode='ja'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('ko-kr', (SELECT id FROM Locale WHERE localecode='ko'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('pt-br', (SELECT id FROM Locale WHERE localecode='pt'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('ru-ru', (SELECT id FROM Locale WHERE localecode='ru'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('zh-cn', (SELECT id FROM Locale WHERE localecode='zh-hans'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('zh-tw', (SELECT id FROM Locale WHERE localecode='zh-hant'));
+      INSERT INTO localealias (localecode, localeid) VALUES ('hi-in', (SELECT id FROM Locale WHERE localecode='hi'));
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

@@ -1,6 +1,7 @@
 package org.zanata.magpie.dao;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
@@ -26,7 +27,8 @@ public class LocaleDAO extends AbstractDAO<Locale> {
         setEntityManager(entityManager);
     }
 
-    public Locale getByLocaleCode(LocaleCode localeCode) {
+    public @Nullable Locale getByLocaleCode(LocaleCode localeCode) {
+        @SuppressWarnings("unchecked")
         List<Locale> locales = getEntityManager()
                 .createQuery("from Locale where lower(localeCode) = :localeCode")
                 .setParameter("localeCode", localeCode)
@@ -47,6 +49,7 @@ public class LocaleDAO extends AbstractDAO<Locale> {
     }
 
     public List<Locale> getSupportedLocales() {
+        //noinspection unchecked
         return getEntityManager()
                 .createQuery("from Locale").getResultList();
     }

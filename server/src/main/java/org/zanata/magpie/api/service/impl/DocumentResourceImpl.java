@@ -22,11 +22,13 @@ import org.zanata.magpie.api.dto.DocumentStatistics;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.api.service.DocumentResource;
+import org.zanata.magpie.dao.LocaleAliasDAO;
 import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.dto.DateRange;
+import org.zanata.magpie.model.LocaleAlias;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
 import org.zanata.magpie.util.UrlUtil;
@@ -44,6 +46,7 @@ public class DocumentResourceImpl implements DocumentResource {
     private DocumentContentTranslatorService documentContentTranslatorService;
 
     private LocaleDAO localeDAO;
+    private LocaleAliasDAO localeAliasDAO;
 
     private DocumentService documentService;
     private boolean isDevMode;
@@ -57,13 +60,15 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentService documentService,
+            LocaleDAO localeDAO, LocaleAliasDAO localeAliasDAO,
+            DocumentService documentService,
             @DevMode boolean isDevMode,
             @DefaultProvider BackendID defaultProvider,
             @BackEndProviders Set<BackendID> availableProviders) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
         this.localeDAO = localeDAO;
+        this.localeAliasDAO = localeAliasDAO;
         this.documentService = documentService;
         this.isDevMode = isDevMode;
         this.defaultProvider = defaultProvider;
@@ -203,7 +208,13 @@ public class DocumentResourceImpl implements DocumentResource {
         }
         Locale locale = localeDAO.getByLocaleCode(localeCode);
         if (locale == null) {
-            throw new BadRequestException("Unsupported locale: " + localeCode);
+            LocaleAlias alias = localeAliasDAO.getByLocaleCode(localeCode);
+            if (alias == null) {
+                throw new BadRequestException(
+                        "Unsupported locale: " + localeCode);
+            } else {
+                return alias.getLocale();
+            }
         }
         return locale;
     }
