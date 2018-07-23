@@ -10,6 +10,7 @@
     <!-- This list should be in sync with main/resources/META-INF/persistence.xml -->
     <class>org.zanata.magpie.model.Document</class>
     <class>org.zanata.magpie.model.Locale</class>
+    <class>org.zanata.magpie.model.LocaleAlias</class>
     <class>org.zanata.magpie.model.TextFlow</class>
     <class>org.zanata.magpie.model.TextFlowTarget</class>
     <class>org.zanata.magpie.model.Account</class>

@@ -10,7 +10,6 @@ import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.infinispan.AdvancedCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,10 +20,12 @@ import org.zanata.magpie.api.dto.DocumentStatistics;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.api.service.impl.DocumentResourceImpl;
+import org.zanata.magpie.dao.LocaleAliasDAO;
 import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
+import org.zanata.magpie.model.LocaleAlias;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
 
@@ -45,6 +46,9 @@ public class DocumentResourceImplTest {
     private LocaleDAO localeDAO;
 
     @Mock
+    private LocaleAliasDAO localeAliasDAO;
+
+    @Mock
     private DocumentService documentService;
 
     private BackendID defaultProvider = BackendID.GOOGLE;
@@ -54,7 +58,7 @@ public class DocumentResourceImplTest {
         MockitoAnnotations.initMocks(this);
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentService,
+                        localeDAO, localeAliasDAO, documentService,
                         false, defaultProvider,
                         Sets.newHashSet(BackendID.values()));
         when(documentContentTranslatorService
@@ -346,7 +350,7 @@ public class DocumentResourceImplTest {
     public void testDevMode() {
         documentResource =
                 new DocumentResourceImpl(documentContentTranslatorService,
-                        localeDAO, documentService,
+                        localeDAO, localeAliasDAO, documentService,
                         true, BackendID.GOOGLE,
                         Sets.newHashSet(BackendID.values()));
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
@@ -367,6 +371,43 @@ public class DocumentResourceImplTest {
                 .thenReturn(fromLocale);
         when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
                 .thenReturn(toLocale);
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocale)).thenReturn(doc);
+
+        documentResource
+                .translate(docContent, toLocale.getLocaleCode());
+        verify(documentContentTranslatorService)
+                .translateDocument(doc, docContent, BackendID.DEV);
+    }
+
+
+    @Test
+    public void testDevModeByAlias() {
+        documentResource =
+                new DocumentResourceImpl(documentContentTranslatorService,
+                        localeDAO, localeAliasDAO, documentService,
+                        true, BackendID.GOOGLE,
+                        Sets.newHashSet(BackendID.values()));
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
+        LocaleAlias toLocaleAlias = new LocaleAlias(new LocaleCode("de-de"), toLocale);
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html><body>Entry 1</body></html>",
+                        MediaType.TEXT_HTML, "meta1"));
+
+        Document doc = Mockito.mock(Document.class);
+
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost",
+                fromLocale.getLocaleCode().getId());
+
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+                .thenReturn(fromLocale);
+        when(localeAliasDAO.getByLocaleCode(toLocale.getLocaleCode()))
+                .thenReturn(toLocaleAlias);
+//        when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
+//                .thenReturn(toLocale);
         when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
                 toLocale)).thenReturn(doc);
 
