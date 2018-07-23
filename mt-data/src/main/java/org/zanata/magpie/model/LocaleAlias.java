@@ -11,6 +11,10 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.zanata.magpie.api.dto.LocaleCode;
 
+/**
+ * @author Sean Flanigan <a
+ *         href="mailto:sflaniga@redhat.com">sflaniga@redhat.com</a>
+ */
 @Entity
 @Access(AccessType.FIELD)
 public class LocaleAlias extends ModelEntity {

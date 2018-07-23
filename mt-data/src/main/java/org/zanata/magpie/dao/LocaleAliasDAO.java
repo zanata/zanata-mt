@@ -11,6 +11,10 @@ import org.zanata.magpie.model.LocaleAlias;
 import com.google.common.annotations.VisibleForTesting;
 import com.ibm.icu.util.ULocale;
 
+/**
+ * @author Sean Flanigan <a
+ *         href="mailto:sflaniga@redhat.com">sflaniga@redhat.com</a>
+ */
 @RequestScoped
 public class LocaleAliasDAO extends AbstractDAO<LocaleAlias> {
     private static final long serialVersionUID = 1L;
