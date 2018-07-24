@@ -2,7 +2,9 @@ const Webpack = require('webpack');
 const Path = require('path');
 const _ = require('lodash')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+// Uncomment and include in plugins to run the webpack build analyzer
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+// Uncomment and include in plugins to optimize CSS
 // const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -163,6 +165,8 @@ module.exports = {
       //   canPrint: true
       // })
     ],
+    // Configure splitchunks for vendor & frontend entrypoints
+    // https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-chunks
     splitChunks: {
       name: 'vendor',
       chunks(chunk) {
