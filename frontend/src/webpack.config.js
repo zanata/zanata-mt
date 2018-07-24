@@ -1,6 +1,11 @@
 const Webpack = require('webpack');
 const Path = require('path');
 const _ = require('lodash')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+// Uncomment and include in plugins to run the webpack build analyzer
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+// Uncomment and include in plugins to optimize CSS
+// const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin')
@@ -133,8 +138,42 @@ module.exports = {
       : new HtmlWebpackPlugin({
         template: 'index.html'
       }),
+    // Ignore the very large locale files from moment (~1mb)
+    // see: https://webpack.js.org/plugins/context-replacement-plugin/#usage
+    new Webpack.ContextReplacementPlugin(/moment[\\/]locale$/, /^\.\/(en)$/),
+    // // Enable to run the Webpack Bundle Analyzer
+    // new BundleAnalyzerPlugin(),
     new ManifestPlugin()
   ]),
+  /**
+   * Webpack 4 optimization options.
+   * Overwrite the default plugins/options here.
+   * See: https://webpack.js.org/configuration/optimization/
+   */
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        cache: true,
+        sourceMap: true
+      }),
+      // // Optimize CSS, slows build considerably (+ ~30sec)
+      // new OptimizeCSSAssetsPlugin({
+      //   cssProcessor: require('cssnano'),
+      //   cssProcessorOptions: {
+      //     safe: true, discardComments: { removeAll: true }
+      //   },
+      //   canPrint: true
+      // })
+    ],
+    // Configure splitchunks for vendor & frontend entrypoints
+    // https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-chunks
+    splitChunks: {
+      name: 'vendor',
+      chunks(chunk) {
+        return chunk.name !== 'frontend'
+      }
+    }
+  },
   devServer: {
     contentBase: sourcePath,
     hot: true,
