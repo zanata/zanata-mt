@@ -10,7 +10,6 @@ import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.infinispan.AdvancedCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -372,6 +371,43 @@ public class DocumentResourceImplTest {
 
         documentResource
                 .translate(docContent, toLocale.getLocaleCode());
+        verify(documentContentTranslatorService)
+                .translateDocument(doc, docContent, BackendID.DEV);
+    }
+
+
+    @Test
+    public void testDevModeByAlias() {
+        documentResource =
+                new DocumentResourceImpl(documentContentTranslatorService,
+                        localeDAO, documentService,
+                        true, BackendID.GOOGLE,
+                        Sets.newHashSet(BackendID.values()));
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        LocaleCode toLocaleRequested = new LocaleCode("zh-CN");
+        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html><body>Entry 1</body></html>",
+                        MediaType.TEXT_HTML, "meta1"));
+
+        Document doc = Mockito.mock(Document.class);
+
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost",
+                fromLocale.getLocaleCode().getId());
+
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+                .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleCode(toLocaleRequested))
+                .thenReturn(null);
+        when(localeDAO.getByLocaleCode(toLocaleActual.getLocaleCode()))
+                .thenReturn(toLocaleActual);
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocaleActual)).thenReturn(doc);
+
+        documentResource
+                .translate(docContent, toLocaleRequested);
         verify(documentContentTranslatorService)
                 .translateDocument(doc, docContent, BackendID.DEV);
     }
