@@ -1,5 +1,6 @@
 package org.zanata.magpie.service;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +44,12 @@ public class MTStartupTest {
         File googleADC = temporaryFolder.newFile();
         config = new ConfigurationService("azureKey", googleADC.getAbsolutePath(), "{}", "ms", null);
         mtStartup = new MTStartup(config, accountService, replCache);
+    }
+
+    @Test
+    public void testEmptyConstructor() {
+        mtStartup = new MTStartup();
+        assertThat(mtStartup).isNotNull();
     }
 
     @Test

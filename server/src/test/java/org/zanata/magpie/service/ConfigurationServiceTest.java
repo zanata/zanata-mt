@@ -19,6 +19,11 @@ public class ConfigurationServiceTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
+    public void testEmptyConstructor() {
+        assertThat(new ConfigurationService()).isNotNull();
+    }
+
+    @Test
     public void testConstructor() throws IOException {
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config =

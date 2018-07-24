@@ -24,6 +24,8 @@ package org.zanata.magpie.filter;
 import org.fedorahosted.tennera.jgettext.Message;
 import org.fedorahosted.tennera.jgettext.catalog.parse.MessageStreamParser;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -50,6 +52,9 @@ import java.util.Map;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class PoFilter implements Filter {
+
+    private static final Logger LOG =
+        LoggerFactory.getLogger(PoFilter.class);
 
     private static final String TRANSLATION_FILE_EXTENSION = "po";
     private final static String HEADER = "X-Generator: Magpie Machine Translations";
@@ -88,11 +93,27 @@ public class PoFilter implements Filter {
 
     }
 
+    /**
+     * Requires #parseDocument to be triggered first. This is meant to be a
+     * single process from parseDocument to writeTranslatedFile.
+     *
+     * @param output
+     * @param fromLocaleCode
+     * @param toLocaleCode
+     * @param translatedDocContent
+     * @throws IOException
+     */
     @Override
     public void writeTranslatedFile(@NotNull OutputStream output,
         LocaleCode fromLocaleCode, LocaleCode toLocaleCode,
         DocumentContent translatedDocContent) throws IOException {
         Writer writer = new BufferedWriter(new OutputStreamWriter(output, charset));
+
+        if (messages == null || messages.isEmpty()) {
+            LOG.warn(
+                "No messages to output. Please make sure parseDocument is triggered before output file");
+            return;
+        }
 
         for (TypeString trans : translatedDocContent.getContents()) {
             Message message = messages.get(trans.getMetadata());

@@ -25,13 +25,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.infinispan.AdvancedCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -43,8 +49,8 @@ import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TranslateDocumentForm;
 import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.api.service.DocumentResource;
-import org.zanata.magpie.api.service.impl.DocumentResourceImpl;
 import org.zanata.magpie.dao.LocaleDAO;
+import org.zanata.magpie.filter.Filter;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -429,16 +435,52 @@ public class DocumentResourceImplTest {
     }
 
     @Test
-    public void testTranslateFile() {
-        String filename = "abc.pot";
-        TranslateDocumentForm form = Mockito.mock(TranslateDocumentForm.class);
-        when(form.getFileName()).thenReturn(filename);
-        when(form.getType()).thenReturn("text/plain");
+    public void testTranslateFile() throws FileNotFoundException {
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        Locale toLocale = new Locale(LocaleCode.DE, "German");
 
-        LocaleCode fromLocale = LocaleCode.EN;
-        LocaleCode toLocale = LocaleCode.DE;
+
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+            .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
+            .thenReturn(fromLocale);
+
+        File sourceFile =
+            new File("src/test/resources/test.pot");
+        InputStream inputStream = new FileInputStream(sourceFile);
+        String filename = "test.pot";
+        TranslateDocumentForm form = new TranslateDocumentForm();
+        form.setFileName(filename);
+        form.setFileStream(inputStream);
+        form.setType("text/plain");
 
         Response response =
-            documentResource.translateFile(form, fromLocale, toLocale);
+            documentResource.translateFile(form, fromLocale.getLocaleCode(), toLocale.getLocaleCode());
+
+        String expectedFilename = "test_" + toLocale.getLocaleCode().getId() + ".po";
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getHeaders()).containsKey("content-disposition");
+        assertThat(response.getHeaderString("content-disposition")).contains(expectedFilename);
+    }
+
+    @Test
+    public void testFilterStreamingOutput() throws IOException {
+        LocaleCode fromLocaleCode = LocaleCode.EN;
+        LocaleCode toLocaleCode = LocaleCode.DE;
+        OutputStream outputStream = Mockito.mock(OutputStream.class);
+
+        Filter filter = Mockito.mock(Filter.class);
+        DocumentContent translatedDocContent = new DocumentContent(new ArrayList<>(), "testing", toLocaleCode.getId());
+
+
+        DocumentResourceImpl.FilterStreamingOutput output =
+            new DocumentResourceImpl.FilterStreamingOutput(filter,
+                translatedDocContent, fromLocaleCode, toLocaleCode);
+
+        output.write(outputStream);
+        verify(filter)
+            .writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
+                translatedDocContent);
     }
 }

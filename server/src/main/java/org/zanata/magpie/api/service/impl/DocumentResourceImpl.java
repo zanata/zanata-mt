@@ -286,7 +286,7 @@ public class DocumentResourceImpl implements DocumentResource {
         return locale;
     }
 
-    private static class FilterStreamingOutput implements StreamingOutput {
+    protected static class FilterStreamingOutput implements StreamingOutput {
         private final Filter filter;
         private final DocumentContent translatedDocContent;
         private final LocaleCode fromLocaleCode;

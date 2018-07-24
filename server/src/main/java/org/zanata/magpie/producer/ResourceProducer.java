@@ -27,6 +27,7 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.infinispan.Cache;
 import org.infinispan.manager.CacheContainer;
 import org.zanata.magpie.annotation.ClusteredCache;
@@ -63,5 +64,10 @@ public class ResourceProducer {
         return em;
     }
 
+
+    @VisibleForTesting
+    protected void setWebCacheManager(CacheContainer webCacheManager) {
+        this.webCacheManager = webCacheManager;
+    }
 
 }
