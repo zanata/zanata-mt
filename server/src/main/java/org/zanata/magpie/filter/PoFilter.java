@@ -57,8 +57,6 @@ public class PoFilter implements Filter {
         LoggerFactory.getLogger(PoFilter.class);
 
     private static final String TRANSLATION_FILE_EXTENSION = "po";
-    private final static String HEADER = "X-Generator: Magpie Machine Translations";
-
     private Map<String, Message> messages;
     private final Charset charset;
 
@@ -106,7 +104,7 @@ public class PoFilter implements Filter {
     @Override
     public void writeTranslatedFile(@NotNull OutputStream output,
         LocaleCode fromLocaleCode, LocaleCode toLocaleCode,
-        DocumentContent translatedDocContent) throws IOException {
+        DocumentContent translatedDocContent, String attribution) throws IOException {
         Writer writer = new BufferedWriter(new OutputStreamWriter(output, charset));
 
         if (messages == null || messages.isEmpty()) {
@@ -114,7 +112,6 @@ public class PoFilter implements Filter {
                 "No messages to output. Please make sure parseDocument is triggered before output file");
             return;
         }
-
         for (TypeString trans : translatedDocContent.getContents()) {
             Message message = messages.get(trans.getMetadata());
             message.setMsgstr(trans.getValue());
@@ -123,14 +120,14 @@ public class PoFilter implements Filter {
         for (Map.Entry<String, Message> entry : messages.entrySet()) {
             if (entry.getValue().isHeader()) {
                 if (!insertHeader) {
-                    entry.getValue().addComment(HEADER);
+                    entry.getValue().addComment(attribution);
                     insertHeader = true;
                 }
                 write(entry.getValue(), writer);
             } else {
                 if (!insertHeader) {
                     Message message = new Message();
-                    message.addComment(HEADER);
+                    message.addComment(attribution);
                     write(message, writer);
                     insertHeader = true;
                 }

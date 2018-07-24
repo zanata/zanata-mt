@@ -30,6 +30,7 @@ import org.zanata.magpie.api.dto.DocumentStatistics;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TranslateDocumentForm;
 import org.zanata.magpie.api.dto.TypeString;
+import org.zanata.magpie.api.service.BackendResource;
 import org.zanata.magpie.api.service.DocumentResource;
 import org.zanata.magpie.dao.LocaleDAO;
 import org.zanata.magpie.filter.PoFilter;
@@ -54,6 +55,7 @@ public class DocumentResourceImpl implements DocumentResource {
     private DocumentContentTranslatorService documentContentTranslatorService;
 
     private LocaleDAO localeDAO;
+    private BackendResource backendResourceImpl;
 
     private DocumentService documentService;
     private boolean isDevMode;
@@ -71,13 +73,15 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Inject
     public DocumentResourceImpl(
-            DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentService documentService,
-            @DevMode boolean isDevMode,
+        DocumentContentTranslatorService documentContentTranslatorService,
+        LocaleDAO localeDAO, DocumentService documentService,
+        BackendResource backendResourceImpl,
+        @DevMode boolean isDevMode,
             @DefaultProvider BackendID defaultProvider,
             @BackEndProviders Set<BackendID> availableProviders) {
         this.documentContentTranslatorService =
                 documentContentTranslatorService;
+        this.backendResourceImpl = backendResourceImpl;
         this.localeDAO = localeDAO;
         this.documentService = documentService;
         this.isDevMode = isDevMode;
@@ -207,11 +211,14 @@ public class DocumentResourceImpl implements DocumentResource {
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
-            DocumentContent newDocContent = (DocumentContent) response.getEntity();
-
+            DocumentContent newDocContent =
+                (DocumentContent) response.getEntity();
+            String attribution = backendResourceImpl
+                .getStringAttribution(newDocContent.getBackendId()).getEntity()
+                .toString();
             FilterStreamingOutput stream =
                 new FilterStreamingOutput(filter, newDocContent, fromLocaleCode,
-                    toLocaleCode);
+                    toLocaleCode, attribution);
 
             String docName = getTransFilename(filter.getTranslationFileExtension(), form.getFileName(), toLocaleCode.getId());
 
@@ -248,28 +255,28 @@ public class DocumentResourceImpl implements DocumentResource {
         if (docContent == null || docContent.getContents() == null ||
                 docContent.getContents().isEmpty()) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Empty content:" + docContent));
+                    "Empty content: " + docContent));
         }
         if (StringUtils.isBlank(docContent.getLocaleCode())) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Empty localeCode"));
+                    "Blank localeCode"));
         }
         if (StringUtils.isBlank(docContent.getUrl())) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
-                    "Invalid url:" + docContent.getUrl()));
+                    "Invalid url: " + docContent.getUrl()));
         }
         for (TypeString string : docContent.getContents()) {
             if (StringUtils.isBlank(string.getValue()) ||
                     StringUtils.isBlank(string.getType())) {
                 return Optional
                         .of(new APIResponse(Response.Status.BAD_REQUEST,
-                                "Empty content: " + string.toString()));
+                                "Blank content: " + string.toString()));
             }
             if (!documentContentTranslatorService
                     .isMediaTypeSupported(string.getType())) {
                 return Optional
                         .of(new APIResponse(Response.Status.BAD_REQUEST,
-                                "Invalid mediaType: " + string.getType()));
+                                "Unsupported media type: " + string.getType()));
             }
         }
         return Optional.empty();
@@ -281,7 +288,7 @@ public class DocumentResourceImpl implements DocumentResource {
         }
         Locale locale = localeDAO.getByLocaleCode(localeCode);
         if (locale == null) {
-            throw new BadRequestException("Not supported locale:" + localeCode);
+            throw new BadRequestException("Unsupported locale: " + localeCode);
         }
         return locale;
     }
@@ -291,21 +298,23 @@ public class DocumentResourceImpl implements DocumentResource {
         private final DocumentContent translatedDocContent;
         private final LocaleCode fromLocaleCode;
         private final LocaleCode toLocaleCode;
+        private final String attribution;
 
         FilterStreamingOutput(Filter filter,
             DocumentContent translatedDocContent, LocaleCode fromLocaleCode,
-            LocaleCode toLocaleCode) {
+            LocaleCode toLocaleCode, String attribution) {
             this.filter = filter;
             this.translatedDocContent = translatedDocContent;
             this.fromLocaleCode = fromLocaleCode;
             this.toLocaleCode = toLocaleCode;
+            this.attribution = attribution;
         }
 
         @Override
         public void write(OutputStream output)
             throws IOException, WebApplicationException {
             filter.writeTranslatedFile(output, fromLocaleCode,
-                toLocaleCode, translatedDocContent);
+                toLocaleCode, translatedDocContent, attribution);
         }
     }
 }

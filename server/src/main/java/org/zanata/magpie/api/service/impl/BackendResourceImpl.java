@@ -82,7 +82,7 @@ public class BackendResourceImpl implements BackendResource {
         if (is == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(new APIResponse(Response.Status.NOT_FOUND,
-                            "attribution image can not be found:" + imageResource))
+                            "attribution image can not be found: " + imageResource))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .build();
         }
@@ -91,6 +91,31 @@ public class BackendResourceImpl implements BackendResource {
         return Response.ok().header("Content-Disposition",
                 "attachment; filename=\"" + docName + "\"")
                 .entity(output).type("image/png").build();
+    }
+
+    @Override
+    public Response getStringAttribution(String id) {
+        Optional<APIResponse> response = validateId(id);
+        if (response.isPresent()) {
+            return Response.status(response.get().getStatus())
+                .entity(response.get())
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
+        }
+
+        BackendID backendID = BackendID.fromString(id);
+        String attr;
+        switch (backendID) {
+            case MS:
+                attr = MS_ATTRIBUTION_STRING;
+                break;
+            case GOOGLE:
+                attr = GOOGLE_ATTRIBUTION_STRING;
+                break;
+            case DEV: default:
+                attr = DEV_ATTRIBUTION_STRING;
+                break;
+        }
+        return Response.ok(attr).build();
     }
 
     @VisibleForTesting
@@ -129,7 +154,7 @@ public class BackendResourceImpl implements BackendResource {
         } catch (BadRequestException e) {
             APIResponse response =
                     new APIResponse(Response.Status.NOT_FOUND,
-                            "Not supported id:" + id);
+                            "Not supported id: " + id);
             return Optional.of(response);
         }
 

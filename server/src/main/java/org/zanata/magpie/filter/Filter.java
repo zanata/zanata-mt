@@ -39,7 +39,7 @@ public interface Filter {
 
     void writeTranslatedFile(@NotNull OutputStream output,
         LocaleCode fromLocaleCode, LocaleCode toLocaleCode,
-        DocumentContent translatedDocContent)
+        DocumentContent translatedDocContent, String attribution)
         throws IOException;
 
     String getTranslationFileExtension();

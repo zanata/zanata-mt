@@ -81,12 +81,13 @@ public class PoFilterTest {
         OutputStream outputStream = Mockito.mock(OutputStream.class);
         LocaleCode fromLocaleCode = LocaleCode.EN;
         LocaleCode toLocaleCode = LocaleCode.DE;
+        String attribution = "translated by test";
         List<TypeString> contents = new ArrayList<>();
         contents.add(new TypeString("testing", "text/plain", null));
         DocumentContent translatedDocContent = new DocumentContent(contents, "testing", toLocaleCode.getId());
 
         filter.writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
-            translatedDocContent);
+            translatedDocContent, attribution);
         verifyZeroInteractions(outputStream);
     }
 
@@ -99,6 +100,7 @@ public class PoFilterTest {
 
         LocaleCode fromLocaleCode = LocaleCode.EN;
         LocaleCode toLocaleCode = LocaleCode.DE;
+        String attribution = "translated by test";
 
         String filename = "test.pot";
         DocumentContent documentContent =
@@ -111,7 +113,7 @@ public class PoFilterTest {
 
         OutputStream outputStream = Mockito.mock(OutputStream.class);
         filter.writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
-            documentContent);
+            documentContent, attribution);
         verify(outputStream, times(entriesCount + 1))
             .write(any(byte[].class), anyInt(), anyInt());
     }

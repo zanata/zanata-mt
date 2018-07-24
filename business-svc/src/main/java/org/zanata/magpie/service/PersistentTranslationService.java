@@ -242,7 +242,7 @@ public class PersistentTranslationService {
         if (translatorBackendMap.containsKey(backendID)) {
             return translatorBackendMap.get(backendID);
         }
-        throw new BadRequestException("Unsupported backendId:" + backendID);
+        throw new BadRequestException("Unsupported backendId: " + backendID);
     }
 
     /**

@@ -29,11 +29,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.service.BackendResource;
-import org.zanata.magpie.api.service.impl.BackendResourceImpl;
 
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.zanata.magpie.api.service.BackendResource.DEV_ATTRIBUTION_STRING;
+import static org.zanata.magpie.api.service.BackendResource.GOOGLE_ATTRIBUTION_STRING;
+import static org.zanata.magpie.api.service.BackendResource.MS_ATTRIBUTION_STRING;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -106,5 +108,32 @@ public class BackendResourceImplTest {
         Response response = backendResource.getAttribution("google");
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetStringAttributionDev() {
+        String id = "dev";
+        Response response = backendResource.getStringAttribution(id);
+        assertThat(response.getStatus())
+            .isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity().toString()).isEqualTo(DEV_ATTRIBUTION_STRING);
+    }
+
+    @Test
+    public void testGetStringAttributionMS() {
+        String id = "ms";
+        Response response = backendResource.getStringAttribution(id);
+        assertThat(response.getStatus())
+            .isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity().toString()).isEqualTo(MS_ATTRIBUTION_STRING);
+    }
+
+    @Test
+    public void testGetStringAttributionGoogle() {
+        String id = "google";
+        Response response = backendResource.getStringAttribution(id);
+        assertThat(response.getStatus())
+            .isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity().toString()).isEqualTo(GOOGLE_ATTRIBUTION_STRING);
     }
 }

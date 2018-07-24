@@ -1,0 +1,113 @@
+#!/bin/sh
+### USAGE
+###     liquibase [liquibase options] <command>
+###
+### EXAMPLE
+###     bash liquibase --logLevel=debug update
+###
+### DESCRIPTION
+###     This script finds required jar files and runs liquibase.
+###     See http://liquibase.org/manual/command_line
+###     for liquibase commands and options.
+###
+###     This script requires an exploded WAR.
+###     
+### ENVIRONMENT
+###     LIQUIBASE_JVM_OPTS:
+###         To pass options to JVM, e.g. -Dzanata.file.directory=/var/lib/zanata/files
+###
+###     LIQUIBASE_PROPERTIES:
+###         Location of liquibase.properties file.
+###         If not specified, following directories will be searched:
+###
+###             $HOME/.config $WEB_INF_DIR $SCRIPT_DIR .
+###
+###         If liquibase.properties does not exist in either of the directory.
+###         A template liquibase.properties will be created in current directory.
+###
+###     WEB_INF_DIR:
+###         Location of WEB-INF
+###
+
+set -e
+SCRIPT_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+
+find_jar(){
+    for d in $WEB_INF_DIR/lib $SCRIPT_DIR /usr/share/java .; do
+        for j in $@; do
+            if [ -r $d/$j ]; then
+                echo $d/$j
+                return
+            fi
+        done
+    done
+    echo "Failed to found $* in $WEB_INF_DIR/lib $SCRIPT_DIR /usr/share/java ." > /dev/stderr
+    exit 1
+}
+
+if [ -z "$WEB_INF_DIR" ]; then
+    for d in $(dirname $SCRIPT_DIR)/WEB-INF $SCRIPT_DIR/WEB-INF ../WEB-INF ./WEB-INF; do
+        if [ -d "$d" ]; then
+            WEB_INF_DIR=$d
+            break
+        fi
+    done
+    if [ -z "$WEB_INF_DIR" ]; then
+        echo "Failed to found WEB-INF" > /dev/stderr
+        exit 1
+    fi
+fi
+
+
+if [ -z "$POSTGRESQL_JAR" ]; then
+    POSTGRESQL_JAR=$(find_jar "postgresql-jdbc.jar" "postgresql.jar" "postgresql-*.jar")
+fi
+
+if [ -z "$SLF4J_API_JAR" ]; then
+    SLF4J_API_JAR=$(find_jar "slf4j-api.jar" "slf4j-api-*.jar")
+fi
+
+if [ -z "$SLF4J_SIMPLE_JAR" ]; then
+    SLF4J_SIMPLE_JAR=$(find_jar "slf4j-simple.jar" "slf4j-simple-*.jar" "slf4j/simple.jar" "slf4j/simple-*.jar" "simple.jar" "simple-*.jar")
+fi
+
+if [ -z "$LIQUIBASE_CORE_JAR" ]; then
+    LIQUIBASE_CORE_JAR=$(find_jar "liquibase.jar" "liquibase-*.jar")
+fi
+
+classpath=$(echo $WEB_INF_DIR/classes/ \
+$POSTGRESQL_JAR \
+$SLF4J_SIMPLE_JAR \
+$SLF4J_API_JAR \
+$WEB_INF_DIR/lib/*.jar \
+| sed 's/ /:/g')
+
+# slf4j simple.jar needs to be before api.jar due to
+# https://bugzilla.redhat.com/show_bug.cgi?id=828644
+
+if [ -z "$LIQUIBASE_PROPERTIES" ]; then
+    for d in $HOME/.config $WEB_INF_DIR $SCRIPT_DIR .; do
+        if [ -r $d/liquibase.properties ]; then
+            LIQUIBASE_PROPERTIES=$d/liquibase.properties
+            break
+        fi
+    done
+
+    if [ -z "$LIQUIBASE_PROPERTIES" ]; then
+        cat >$PWD/liquibase.properties <<END
+driver=org.postgresql.Driver
+url=jdbc:postgresql://local:15433/machine_translations_db?sslmode=require
+username=mt_db_user
+password=CHANGE_ME
+END
+        LIQUIBASE_PROPERTIES=$PWD/liquibase.properties
+    fi
+fi
+
+exec java $LIQUIBASE_JVM_OPTS \
+    -jar $LIQUIBASE_CORE_JAR \
+    --classpath "$classpath" \
+    --changeLogFile db/db.changelog.xml \
+    --defaultsFile=$LIQUIBASE_PROPERTIES \
+    "$@"
+

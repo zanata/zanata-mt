@@ -323,7 +323,7 @@ public class DocumentContentTranslatorService {
         if (isMediaTypeSupported(mediaType)) {
             return MediaType.valueOf(mediaType);
         }
-        throw new BadRequestException("Unsupported media type:" + mediaType);
+        throw new BadRequestException("Unsupported media type: " + mediaType);
     }
 
     public boolean isMediaTypeSupported(String mediaType) {
