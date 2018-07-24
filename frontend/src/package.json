@@ -37,7 +37,6 @@
     "@types/redux-actions": "^2.2.4",
     "@types/redux-logger": "^3.0.5",
     "@types/redux-thunk": "^2.1.0",
-    "@types/universal-cookie": "git+ssh://git@github.com:S64/types-universal-cookie.git#v2.1.2-2",
     "@types/webpack": "3.8.1",
     "@types/webpack-env": "1.13.2",
     "awesome-typescript-loader": "^5.2.0",

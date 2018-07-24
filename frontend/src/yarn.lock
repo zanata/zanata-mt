@@ -118,10 +118,6 @@
   dependencies:
     source-map "^0.6.1"
 
-"@types/universal-cookie@git+ssh://git@github.com:S64/types-universal-cookie.git#v2.1.2-2":
-  version "2.1.2-2"
-  resolved "git+ssh://git@github.com:S64/types-universal-cookie.git#94d1b4813879268d335f8751e1a07b6d2fd2aa6a"
-
 "@types/webpack-env@1.13.2":
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.13.2.tgz#c290b99dbef74df21b06671aea36e355bf3b27e1"
