@@ -42,9 +42,7 @@ public class DocumentResourceImpl implements DocumentResource {
             LoggerFactory.getLogger(DocumentResourceImpl.class);
 
     private DocumentContentTranslatorService documentContentTranslatorService;
-
     private LocaleDAO localeDAO;
-
     private DocumentService documentService;
     private boolean isDevMode;
     private BackendID defaultProvider;
@@ -57,7 +55,8 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
             DocumentContentTranslatorService documentContentTranslatorService,
-            LocaleDAO localeDAO, DocumentService documentService,
+            LocaleDAO localeDAO,
+            DocumentService documentService,
             @DevMode boolean isDevMode,
             @DefaultProvider BackendID defaultProvider,
             @BackEndProviders Set<BackendID> availableProviders) {
@@ -202,9 +201,15 @@ public class DocumentResourceImpl implements DocumentResource {
             return null;
         }
         Locale locale = localeDAO.getByLocaleCode(localeCode);
-        if (locale == null) {
-            throw new BadRequestException("Unsupported locale: " + localeCode);
+        if (locale != null) {
+            return locale;
         }
-        return locale;
+        LocaleCode langCode = new LocaleCode(localeCode.getLanguage());
+        Locale langLocale = localeDAO.getByLocaleCode(langCode);
+        if (langLocale != null) {
+            return langLocale;
+        }
+        throw new BadRequestException(
+                "Unsupported locale: " + localeCode);
     }
 }

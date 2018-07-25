@@ -12,7 +12,7 @@ public class LocaleCodeTest {
 
     @Test
     public void testEmptyConstructor() {
-        LocaleCode localeCode = new LocaleCode();
+        LocaleCode _ignored = new LocaleCode();
     }
 
     @Test
@@ -28,6 +28,21 @@ public class LocaleCodeTest {
     }
 
     @Test
+    public void testGetLanguage() {
+        assertThat(new LocaleCode("en-US").getLanguage()).isEqualTo("en");
+        assertThat(new LocaleCode("en").getLanguage()).isEqualTo("en");
+        assertThat(new LocaleCode("zh-CN").getLanguage()).isEqualTo("zh-hans");
+        assertThat(new LocaleCode("zh-SG").getLanguage()).isEqualTo("zh-hans");
+        assertThat(new LocaleCode("zh-Hans-CN").getLanguage()).isEqualTo("zh-hans");
+        assertThat(new LocaleCode("zh-Hans").getLanguage()).isEqualTo("zh-hans");
+        assertThat(new LocaleCode("zh-HK").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-MO").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-TW").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-Hant").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-Hant-TW").getLanguage()).isEqualTo("zh-hant");
+    }
+
+    @Test
     public void testToJavaName() {
         LocaleCode localeCode = new LocaleCode("en-US");
         assertThat(localeCode.toJavaName()).isEqualTo("en_us");
@@ -35,8 +50,9 @@ public class LocaleCodeTest {
 
     @Test
     public void testFromJavaName() {
-        LocaleCode localeCode = new LocaleCode("en-us");
-        assertThat(LocaleCode.fromJavaName("en_US")).isEqualTo(localeCode);
+        LocaleCode localeCode = LocaleCode.fromJavaName("en_US");
+        LocaleCode expected = new LocaleCode("en-us");
+        assertThat(localeCode).isEqualTo(expected);
     }
 
     @Test
