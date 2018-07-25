@@ -74,7 +74,7 @@ object EnsureAdminAccountRule : TestRule {
     private fun readInitialPasswordFromFile(): String {
         val initialPasswordFile = File("/tmp/initialPassword")
         // we will write the initial password to file
-        "docker cp MT:/opt/jboss/magpie_initial_password $initialPasswordFile".runCommand(5)
+        "docker cp MT:/home/jboss/magpie_initial_password $initialPasswordFile".runCommand(5)
 
         Assume.assumeTrue("can copy initialPassword file",
                 initialPasswordFile.exists() && initialPasswordFile.canRead())
