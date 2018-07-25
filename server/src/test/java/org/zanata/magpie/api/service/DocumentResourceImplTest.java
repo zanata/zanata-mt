@@ -384,8 +384,8 @@ public class DocumentResourceImplTest {
                         true, BackendID.GOOGLE,
                         Sets.newHashSet(BackendID.values()));
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
-        LocaleCode toLocaleRequested = new LocaleCode("zh-CN");
-        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
+        LocaleCode toLocaleRequested = new LocaleCode("zh-hant-TW");
+        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANT, "Traditional Chinese");
 
         List<TypeString> contents = Lists.newArrayList(
                 new TypeString("<html><body>Entry 1</body></html>",
