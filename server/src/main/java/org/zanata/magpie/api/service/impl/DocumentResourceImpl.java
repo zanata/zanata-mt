@@ -137,7 +137,7 @@ public class DocumentResourceImpl implements DocumentResource {
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
-            LOG.info("Returning request as FROM and TO localeCode are the same: {}", fromLocaleCode);
+            LOG.info("Returning request as is, because FROM and TO localeCode are the same: {}", fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
 
