@@ -393,9 +393,8 @@ String getOpenshiftClient() {
  * Process test results/coverage after build. Marks build as unstable if any tests fail.
  */
 void processTestResults() {
-  def surefireTestReports = 'target/surefire-reports/TEST-*.xml'
   // Marks build as unstable if any tests fail.
-  junit testResults: "**/${surefireTestReports}"
+  junit testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
 
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
