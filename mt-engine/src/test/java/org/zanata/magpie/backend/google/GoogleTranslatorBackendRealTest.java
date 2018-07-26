@@ -3,7 +3,6 @@ package org.zanata.magpie.backend.google;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-
 import javax.ws.rs.core.MediaType;
 
 import org.assertj.core.api.Assertions;
@@ -14,8 +13,7 @@ import org.junit.Test;
 import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.util.DTOUtil;
-
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 /**
  * This test will check for existence of environment variable
@@ -55,7 +53,7 @@ public class GoogleTranslatorBackendRealTest {
     private AugmentedTranslation translateSingle(String content,
             String targetLocale, MediaType mediaType) {
         List<AugmentedTranslation> translations =
-                translatorBackend.translate(Lists.newArrayList(content),
+                translatorBackend.translate(ImmutableList.of(content),
                         new BackendLocaleCodeImpl("en"),
                         new BackendLocaleCodeImpl(targetLocale), mediaType,
                         Optional.empty());

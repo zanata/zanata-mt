@@ -21,6 +21,7 @@
 package org.zanata.magpie.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class TextFlowMTRequest implements Serializable {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = " textflow_contenthash")
-    private List<String> textFlowContentHashes = Lists.newArrayList();
+    private List<String> textFlowContentHashes = new ArrayList<>();
 
     protected TextFlowMTRequest() {
     }

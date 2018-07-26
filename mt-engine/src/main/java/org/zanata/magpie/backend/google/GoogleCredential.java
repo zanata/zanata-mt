@@ -37,7 +37,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Encapsulates Google credential information.
@@ -90,7 +90,7 @@ public class GoogleCredential {
         try {
 
             Files.write(googleADCFile.toPath(),
-                    Lists.newArrayList(googleADCContent));
+                    ImmutableList.of(googleADCContent));
         } catch (IOException e) {
             throw new RuntimeException(
                     "failed to write Google Application Default Credentials file to "

@@ -23,6 +23,7 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlowMTRequest;
+import com.google.common.collect.ImmutableList;
 
 public class ReportingServiceTest {
     @Mock
@@ -47,11 +48,11 @@ public class ReportingServiceTest {
         int charCount = 10;
         int wordCount = 4;
         when(requestDAO.getRequestsByDateRange(dateRange, account))
-                .thenReturn(Lists.newArrayList(
+                .thenReturn(ImmutableList.of(
                         new TextFlowMTRequest(BackendID.DEV, new Date(),
                                 new Document("https://example.com", fromLocale,
                                         toLocale),
-                                account, Lists.newArrayList("abc"), wordCount,
+                                account, ImmutableList.of("abc"), wordCount,
                                 charCount)));
         List<MTRequestStatistics> requestStats =
                 service.getMTRequestStats(account, dateRange);

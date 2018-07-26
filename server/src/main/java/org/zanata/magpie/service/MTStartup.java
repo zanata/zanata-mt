@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
@@ -29,13 +28,12 @@ import org.zanata.magpie.annotation.ClusteredCache;
 import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
+import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
-import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.util.PasswordUtil;
-
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
 
@@ -141,7 +139,7 @@ public class MTStartup {
     private static void writeInitialPasswordToFile(String initialPassword) {
         try {
             Files.write(INITIAL_PASSWORD_FILE,
-                    Lists.newArrayList(initialPassword));
+                    ImmutableList.of(initialPassword));
         } catch (IOException e) {
             log.warn("failed writing initial password to disk", e);
         }

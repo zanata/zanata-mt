@@ -182,7 +182,7 @@ public class PersistentTranslationService {
         }
 
         // translate using requested MT engine
-        List<String> sourcesToTranslate = Lists.newArrayList(untranslatedIndexMap.keySet());
+        List<String> sourcesToTranslate = new ArrayList<>(untranslatedIndexMap.keySet());
         Date engineInvokeTime = new Date();
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,

@@ -21,6 +21,7 @@ import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.service.ReportingService;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class ReportingResourceImplTest {
@@ -52,7 +53,7 @@ public class ReportingResourceImplTest {
         authenticatedAccount.setAuthenticatedAccount(account);
         DateRange dateRange = DateRange.fromString("2018-05-01..2018-05-30");
         List<MTRequestStatistics> stats =
-                Lists.newArrayList(new MTRequestStatistics("en", "ja",
+                ImmutableList.of(new MTRequestStatistics("en", "ja",
                         "https://example.com", 10, 4, BackendID.DEV));
         when(reportingService.getMTRequestStats(account, dateRange))
                 .thenReturn(stats);

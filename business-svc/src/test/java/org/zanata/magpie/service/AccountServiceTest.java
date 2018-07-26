@@ -26,6 +26,7 @@ import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 public class AccountServiceTest {
@@ -83,7 +84,7 @@ public class AccountServiceTest {
         Account account = new Account("joe", "joe@example.com", AccountType.Normal, Sets.newHashSet(Role.admin));
 
         given(accountDAO.findAllEnabled()).willReturn(
-                Lists.newArrayList(account));
+                ImmutableList.of(account));
 
         List<AccountDto> result = service.getAllAccounts(false);
         assertThat(result).hasSize(1);
@@ -93,7 +94,7 @@ public class AccountServiceTest {
     public final void canGetAllAccounts() {
         Account account = new Account("joe", "joe@example.com", AccountType.Normal, Sets.newHashSet(Role.admin));
 
-        given(accountDAO.findAll()).willReturn(Lists.newArrayList(account));
+        given(accountDAO.findAll()).willReturn(ImmutableList.of(account));
 
         List<AccountDto> result = service.getAllAccounts(true);
         assertThat(result).hasSize(1);

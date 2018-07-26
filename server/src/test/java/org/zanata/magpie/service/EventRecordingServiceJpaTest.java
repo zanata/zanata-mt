@@ -19,6 +19,7 @@ import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowMTRequest;
+import com.google.common.collect.ImmutableList;
 
 public class EventRecordingServiceJpaTest extends JPATest {
 
@@ -52,7 +53,7 @@ public class EventRecordingServiceJpaTest extends JPATest {
     @Test
     public void canRecordMTRequest() {
         service.onMTRequest(new RequestedMTEvent(document,
-                Lists.newArrayList(textFlow.getContentHash()), BackendID.DEV,
+                ImmutableList.of(textFlow.getContentHash()), BackendID.DEV,
                 new Date(), account, textFlow.getWordCount(), textFlow.getCharCount()));
         getEm().flush();
 

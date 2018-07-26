@@ -3,13 +3,6 @@ package org.zanata.magpie.service;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +12,13 @@ import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.dao.DocumentDAO;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
+import com.google.common.collect.ImmutableList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DocumentServiceTest {
 
@@ -64,7 +64,7 @@ public class DocumentServiceTest {
 
     @Test
     public void canGetByUrlAndOptionalOptions() {
-        List<Document> expectedResult = Lists.newArrayList(new Document());
+        List<Document> expectedResult = ImmutableList.of(new Document());
         when(dao.getByUrl(url, Optional.of(fromLocale.getLocaleCode()),
                 Optional.of(toLocale.getLocaleCode()),
                 Optional.empty())).thenReturn(

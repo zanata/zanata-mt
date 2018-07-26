@@ -1,5 +1,6 @@
 package org.zanata.magpie.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import liquibase.util.StringUtils;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class ShortStringTest {
         String s1 = StringUtils.repeat("t1", ShortString.MAX_LENGTH);
         String s2 = StringUtils.repeat("t2", ShortString.MAX_LENGTH);
 
-        List<String> longStrings = Lists.newArrayList(s1, s2);
+        List<String> longStrings = ImmutableList.of(s1, s2);
         List<String>
                 shortStrings = ShortString.shorten(longStrings);
 

@@ -39,6 +39,7 @@ import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowTarget;
 import org.zanata.magpie.util.HashUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
@@ -73,7 +74,7 @@ public class PersistentTranslationServiceTest {
         when(googleTranslatorBackend.getId()).thenReturn(GOOGLE);
         when(mockTranslatorBackend.getId()).thenReturn(DEV);
         when(translators.iterator())
-                .thenReturn(Lists.newArrayList(googleTranslatorBackend,
+                .thenReturn(ImmutableList.of(googleTranslatorBackend,
                         mockTranslatorBackend, msBackend).iterator());
         authenticatedAccount = new AuthenticatedAccount();
         authenticatedAccount.setAuthenticatedAccount(new Account());
@@ -90,7 +91,7 @@ public class PersistentTranslationServiceTest {
     @Test
     public void willThrowExceptionIfNoAuthenticatedAccount() {
         authenticatedAccount.setAuthenticatedAccount(null);
-        List<String> source = Lists.newArrayList("testing source");
+        List<String> source = ImmutableList.of("testing source");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
         assertThatThrownBy(() -> persistentTranslationService.translate(new Document(), source,
                 new Locale(LocaleCode.EN_US, "English"), targetLocale,
@@ -100,7 +101,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testValidateEmptySrcLocale() {
-        List<String> source = Lists.newArrayList("testing source");
+        List<String> source = ImmutableList.of("testing source");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
         assertThatThrownBy(() -> persistentTranslationService
@@ -113,7 +114,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testValidateEmptyTargetLocale() {
-        List<String> source = Lists.newArrayList("testing source");
+        List<String> source = ImmutableList.of("testing source");
         Locale sourceLocale = new Locale(LocaleCode.EN, "English");
 
         assertThatThrownBy(
@@ -127,7 +128,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testValidateEmptyProvider() {
-        List<String> source = Lists.newArrayList("testing source");
+        List<String> source = ImmutableList.of("testing source");
         Locale sourceLocale = new Locale(LocaleCode.EN, "English");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
@@ -141,9 +142,9 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testNewTranslation()
             throws BadRequestException {
-        List<String> sources = Lists.newArrayList("string to translate");
+        List<String> sources = ImmutableList.of("string to translate");
         List<AugmentedTranslation> expectedTranslations =
-                Lists.newArrayList(new AugmentedTranslation(
+                ImmutableList.of(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                         + "translation of:" + sources.get(0) + "</MSString>"));
         Document doc = new Document();
@@ -193,9 +194,9 @@ public class PersistentTranslationServiceTest {
     @Test
     public void testNewTranslationDuplicateString()
             throws BadRequestException {
-        List<String> sources = Lists.newArrayList("string to translate", "string to translate");
+        List<String> sources = ImmutableList.of("string to translate", "string to translate");
         List<AugmentedTranslation> expectedTranslations =
-                Lists.newArrayList(new AugmentedTranslation(
+                ImmutableList.of(new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
                         + "translation of:" + sources.get(0) + "</MSString>"), new AugmentedTranslation(
                         "translation of:" + sources.get(0), "<MSString>"
@@ -249,7 +250,7 @@ public class PersistentTranslationServiceTest {
 
     @Test
     public void testTranslationExists() throws BadRequestException {
-        List<String> sources = Lists.newArrayList("string to translate");
+        List<String> sources = ImmutableList.of("string to translate");
         String expectedTranslation = "translation of:" + sources.get(0);
         String expectedRawContent =
                 "<MSString>" + expectedTranslation + "</MSString>";

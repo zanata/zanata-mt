@@ -1,5 +1,6 @@
 package org.zanata.magpie.api.service;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class DocumentsResourceImplTest {
         Optional<DateRange> dateParam = Optional.empty();
 
         List<String> urls =
-                Lists.newArrayList("http://locale", "http://locale2",
+                ImmutableList.of("http://locale", "http://locale2",
                         "http://locale3");
         when(documentDAO.getUrlList(dateParam)).thenReturn(urls);
         Response response = documentsResource.getDocumentUrls(null);
