@@ -26,6 +26,8 @@
     <tag>HEAD</tag>
   </scm>
   <properties>
+    <!-- This will be updated by directory-maven-plugin after POM interpolation -->
+    <basedirRoot>${project.basedir}</basedirRoot>
     <github.global.server>github</github.global.server>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -93,7 +95,24 @@
 
     <db.name>zanataMT</db.name>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
+
+    <!-- These properties will be set by the Maven Dependency plugin -->
+    <annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
   </properties>
+
+  <dependencies>
+    <!-- Annotations from the Checker Framework: nullness, interning, locking, ... -->
+    <dependency>
+      <groupId>org.checkerframework</groupId>
+      <artifactId>checker-qual</artifactId>
+      <version>2.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.checkerframework</groupId>
+      <artifactId>jdk8</artifactId>
+      <version>2.5.3</version>
+    </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -706,6 +725,17 @@
           <configuration>
             <xmlOutput>true</xmlOutput>
             <failOnError>${findbugs.failOnError}</failOnError>
+            <!--
+            Note: The rule RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE interacts
+            badly with IntelliJ's automatic null checks.
+            cf. https://stackoverflow.com/questions/19213158/how-do-i-turn-off-findbugs-redundant-nullcheck-in-maven
+
+            Until we create a build-tools module for MT (to share findbugs
+            config across modules), the following is the quick and dirty way
+            to disable several null rules including this one. You can also
+            disable it per-build with -Dfindbugs.omitVisitors=FindNullDeref
+            -->
+            <!--<omitVisitors>FindNullDeref</omitVisitors>-->
           </configuration>
           <executions>
             <execution>
@@ -853,6 +883,26 @@
         </plugin>
 
         <plugin>
+          <groupId>org.commonjava.maven.plugins</groupId>
+          <artifactId>directory-maven-plugin</artifactId>
+          <version>0.3.1</version>
+          <executions>
+            <execution>
+              <id>directories</id>
+              <goals>
+                <goal>highest-basedir</goal>
+              </goals>
+              <phase>initialize</phase>
+              <configuration>
+                <!-- Set basedirRoot to the root of the project modules
+                (NB: late binding; too late for pom interpolation) -->
+                <property>basedirRoot</property>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
@@ -884,6 +934,47 @@
               </goals>
             </execution>
           </executions>
+          <configuration>
+            <compilerArguments>
+              <Xmaxerrs>10000</Xmaxerrs>
+              <Xmaxwarns>10000</Xmaxwarns>
+            </compilerArguments>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker</artifactId>
+                <version>2.5.3</version>
+              </path>
+            </annotationProcessorPaths>
+            <annotationProcessors>
+              <!-- Add all the checkers you want to enable here -->
+              <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+            </annotationProcessors>
+            <compilerArgs>
+              <!-- Idea stolen from https://github.com/maggu2810/kat/blob/072f2bfaac8f273d9f2f5c57b8cb26d8c2a50338/pom.xml#L454-L471 -->
+              <!-- directory containing annotated library stubs -->
+              <arg>-Astubs=${basedirRoot}/tools/checkerframework/stubs</arg>
+              <arg>-AstubWarnIfNotFound</arg>
+              <arg>-AstubWarnIfOverwritesBytecode</arg>
+              <arg>-AstubDebug</arg>
+
+              <arg>-Alint</arg>
+              <arg>-AprintErrorStack</arg>
+              <!-- location of the annotated JDK, which comes from a Maven dependency -->
+              <arg>-Xbootclasspath/p:${annotatedJdk}</arg>
+              <!-- turn type-checking errors into warnings for now. -->
+              <arg>-Awarns</arg>
+
+              <!--<arg>-AsuggestPureMethods</arg>-->
+              <!--<arg>-Ainfer</arg>-->
+              <arg>-AshowSuppressWarningKeys</arg>
+              <arg>-AwarnUnneededSuppressions</arg>
+
+
+              <!-- Uncomment the following line to use the type annotations compiler. -->
+              <!-- <arg>-J-Xbootclasspath/p:${fixloc.dir}/${fixloc.checkerframework.compiler.jar}</arg> -->
+            </compilerArgs>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -912,6 +1003,18 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- This plugin will set properties values using dependency information -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
