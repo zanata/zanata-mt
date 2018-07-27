@@ -36,6 +36,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-war-plugin.version>2.6</maven-war-plugin.version>
     <resteasy.version>3.1.0.Final</resteasy.version>
+    <checker.version>2.5.3</checker.version>
     <!-- resteasy-jackson2-provider depends on this jackson2 version -->
     <jackson2.version>2.8.3</jackson2.version>
     <javamelody.version>1.62.0</javamelody.version>
@@ -97,19 +98,19 @@
     <annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
   </properties>
 
-  <dependencies>
-    <!-- Annotations from the Checker Framework: nullness, interning, locking, ... -->
-    <dependency>
-      <groupId>org.checkerframework</groupId>
-      <artifactId>checker-qual</artifactId>
-      <version>2.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.checkerframework</groupId>
-      <artifactId>jdk8</artifactId>
-      <version>2.5.3</version>
-    </dependency>
-  </dependencies>
+  <!--<dependencies>-->
+    <!--&lt;!&ndash; Annotations from the Checker Framework: nullness, interning, locking, ... &ndash;&gt;-->
+    <!--<dependency>-->
+      <!--<groupId>org.checkerframework</groupId>-->
+      <!--<artifactId>checker-qual</artifactId>-->
+      <!--<version>${checker.version}</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.checkerframework</groupId>-->
+      <!--<artifactId>jdk8</artifactId>-->
+      <!--<version>${checker.version}</version>-->
+    <!--</dependency>-->
+  <!--</dependencies>-->
 
   <dependencyManagement>
     <dependencies>
@@ -856,48 +857,50 @@
               </goals>
             </execution>
           </executions>
-          <configuration>
-            <compilerArguments>
-              <Xmaxerrs>10000</Xmaxerrs>
-              <Xmaxwarns>10000</Xmaxwarns>
-            </compilerArguments>
-            <annotationProcessorPaths>
-              <path>
-                <groupId>org.checkerframework</groupId>
-                <artifactId>checker</artifactId>
-                <version>2.5.3</version>
-              </path>
-            </annotationProcessorPaths>
-            <annotationProcessors>
-              <!-- Add all the checkers you want to enable here -->
-              <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
-            </annotationProcessors>
-            <compilerArgs>
-              <!-- Idea stolen from https://github.com/maggu2810/kat/blob/072f2bfaac8f273d9f2f5c57b8cb26d8c2a50338/pom.xml#L454-L471 -->
-              <!-- directory containing annotated library stubs -->
-              <arg>-Astubs=${basedirRoot}/tools/checkerframework/stubs</arg>
-              <arg>-AstubWarnIfNotFound</arg>
-              <arg>-AstubWarnIfOverwritesBytecode</arg>
-              <arg>-AstubDebug</arg>
 
-              <arg>-Alint</arg>
-              <arg>-AprintErrorStack</arg>
-              <!-- location of the annotated JDK, which comes from a Maven dependency -->
-              <arg>-Xbootclasspath/p:${annotatedJdk}</arg>
-              <!-- turn type-checking errors into warnings for now. -->
-              <arg>-Awarns</arg>
+          <!--<configuration>-->
+            <!--<compilerArguments>-->
+              <!--<Xmaxerrs>10000</Xmaxerrs>-->
+              <!--<Xmaxwarns>10000</Xmaxwarns>-->
+            <!--</compilerArguments>-->
+            <!--<annotationProcessorPaths>-->
+              <!--<path>-->
+                <!--<groupId>org.checkerframework</groupId>-->
+                <!--<artifactId>checker</artifactId>-->
+                <!--<version>${checker.version}</version>-->
+              <!--</path>-->
+            <!--</annotationProcessorPaths>-->
+            <!--<annotationProcessors>-->
+              <!--&lt;!&ndash; Add all the checkers you want to enable here &ndash;&gt;-->
+              <!--<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>-->
+            <!--</annotationProcessors>-->
+            <!--<compilerArgs>-->
+              <!--&lt;!&ndash; Idea stolen from https://github.com/maggu2810/kat/blob/072f2bfaac8f273d9f2f5c57b8cb26d8c2a50338/pom.xml#L454-L471 &ndash;&gt;-->
+              <!--&lt;!&ndash; directory containing annotated library stubs &ndash;&gt;-->
+              <!--<arg>-Astubs=${basedirRoot}/tools/checkerframework/stubs</arg>-->
+              <!--<arg>-AstubWarnIfNotFound</arg>-->
+              <!--<arg>-AstubWarnIfOverwritesBytecode</arg>-->
+              <!--<arg>-AstubDebug</arg>-->
 
-              <!--<arg>-AsuggestPureMethods</arg>-->
-              <!--<arg>-Ainfer</arg>-->
-              <arg>-AshowSuppressWarningKeys</arg>
-              <arg>-AwarnUnneededSuppressions</arg>
+              <!--<arg>-Alint</arg>-->
+              <!--<arg>-AprintErrorStack</arg>-->
+              <!--&lt;!&ndash; location of the annotated JDK, which comes from a Maven dependency &ndash;&gt;-->
+              <!--<arg>-Xbootclasspath/p:${annotatedJdk}</arg>-->
+              <!--&lt;!&ndash; turn type-checking errors into warnings for now. &ndash;&gt;-->
+              <!--<arg>-Awarns</arg>-->
 
+              <!--&lt;!&ndash;<arg>-AsuggestPureMethods</arg>&ndash;&gt;-->
+              <!--&lt;!&ndash;<arg>-Ainfer</arg>&ndash;&gt;-->
+              <!--<arg>-AshowSuppressWarningKeys</arg>-->
+              <!--<arg>-AwarnUnneededSuppressions</arg>-->
 
-              <!-- Uncomment the following line to use the type annotations compiler. -->
-              <!-- <arg>-J-Xbootclasspath/p:${fixloc.dir}/${fixloc.checkerframework.compiler.jar}</arg> -->
-            </compilerArgs>
-          </configuration>
+              <!--&lt;!&ndash; Uncomment the following line to use the type annotations compiler. &ndash;&gt;-->
+              <!--&lt;!&ndash; <arg>-J-Xbootclasspath/p:${fixloc.dir}/${fixloc.checkerframework.compiler.jar}</arg> &ndash;&gt;-->
+            <!--</compilerArgs>-->
+          <!--</configuration>-->
+
         </plugin>
+
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>${maven-clean-plugin.version}</version>
