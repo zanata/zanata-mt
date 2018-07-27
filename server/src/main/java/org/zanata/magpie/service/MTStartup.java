@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -127,9 +130,9 @@ public class MTStartup {
         if (allAccounts.isEmpty()) {
 
             String initialPassword = getInitialPassword();
-            log.info("=== no account exists in the system ===");
-            log.info("=== to authenticate, use admin as username and ===");
-            log.info("=== initial password (without leading spaces):  {}", initialPassword);
+            log.info("There are no accounts in the system.");
+            log.info("To create an account via REST, use admin as username and");
+            log.info("initial password (without leading space): {}", initialPassword);
 
             cache.put(INITIAL_PASSWORD_CACHE, initialPassword);
             writeInitialPasswordToFile(initialPassword);
@@ -138,18 +141,13 @@ public class MTStartup {
 
     private static void writeInitialPasswordToFile(String initialPassword) {
         try {
-            Files.write(INITIAL_PASSWORD_FILE,
-                    ImmutableList.of(initialPassword));
+            log.info("Writing initial password to file: {}", INITIAL_PASSWORD_FILE);
+            Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-------");
+            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(perms);
+            Files.createFile(INITIAL_PASSWORD_FILE, attr);
+            Files.write(INITIAL_PASSWORD_FILE, ImmutableList.of(initialPassword));
         } catch (IOException e) {
             log.warn("failed writing initial password to disk", e);
-        }
-        try {
-            Runtime.getRuntime()
-                    .exec(new String[] {"chmod", "400", INITIAL_PASSWORD_FILE
-                            .toAbsolutePath().toString()});
-        } catch (IOException e) {
-            log.info("unable to change permission on {}",
-                    INITIAL_PASSWORD_FILE);
         }
     }
 
@@ -157,7 +155,7 @@ public class MTStartup {
     private String getInitialPassword() {
         String valueInCache = cache.get(INITIAL_PASSWORD_CACHE);
         if (valueInCache == null) {
-            log.info("no initial password yet. Generate one.");
+            log.info("No initial password yet. Generating one.");
             return new PasswordUtil().generateRandomPassword(32);
         }
         return valueInCache;
