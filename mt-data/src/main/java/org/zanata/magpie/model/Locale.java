@@ -1,5 +1,6 @@
 package org.zanata.magpie.model;
 
+import javax.annotation.Nullable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Entity;
@@ -47,7 +48,7 @@ public class Locale extends ModelEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Locale)) return false;
 

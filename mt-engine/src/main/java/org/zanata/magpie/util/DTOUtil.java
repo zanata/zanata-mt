@@ -3,6 +3,7 @@ package org.zanata.magpie.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -22,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DTOUtil {
     private final static Logger LOG = LoggerFactory.getLogger(DTOUtil.class);
 
-    @SuppressWarnings({ "unchecked" })
-    public <T> String toXML(T obj) {
+    @SuppressWarnings({ "unchecked", "known.nonnull" })
+    public <T> String toXML(@Nonnull T obj) {
         try {
             JAXBContext jc = JAXBContext.newInstance(obj.getClass());
             Marshaller m = jc.createMarshaller();

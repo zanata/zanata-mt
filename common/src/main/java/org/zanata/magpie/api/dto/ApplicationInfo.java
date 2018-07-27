@@ -22,7 +22,7 @@ public class ApplicationInfo {
 
     private String buildDate;
 
-    private Boolean devMode;
+    private @Nullable Boolean devMode;
 
     @SuppressWarnings("unused")
     protected ApplicationInfo() {
@@ -89,7 +89,7 @@ public class ApplicationInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ApplicationInfo that = (ApplicationInfo) o;

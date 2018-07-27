@@ -45,7 +45,7 @@ public class DocumentContentTranslatorService {
 
     private PersistentTranslationService persistentTranslationService;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "uninitialized"})
     public DocumentContentTranslatorService() {
     }
 

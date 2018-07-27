@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.service.impl.BackendResourceImpl;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +78,7 @@ public class BackendResourceTest {
     public void returnNotFoundIfGetAttributionCanNotFindImage() {
         backendResource = new BackendResourceImpl() {
             @Override
-            protected InputStream getResourceAsStream(String imageResource) {
+            protected @Nullable InputStream getResourceAsStream(String imageResource) {
                 return null;
             }
         };

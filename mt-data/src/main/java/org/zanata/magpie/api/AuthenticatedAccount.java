@@ -23,6 +23,7 @@ package org.zanata.magpie.api;
 import java.io.Serializable;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 
 import org.zanata.magpie.model.Account;
@@ -36,7 +37,7 @@ import org.zanata.magpie.model.Account;
 public class AuthenticatedAccount implements Serializable {
 
     private static final long serialVersionUID = -7986651568502749384L;
-    private Account account;
+    private @Nullable Account account;
     private String username;
 
     public void setAuthenticatedAccount(Account account) {

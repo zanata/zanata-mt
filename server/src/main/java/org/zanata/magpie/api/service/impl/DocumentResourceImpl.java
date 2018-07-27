@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -196,7 +197,7 @@ public class DocumentResourceImpl implements DocumentResource {
         return Optional.empty();
     }
 
-    private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
+    private @Nullable Locale getLocale(LocaleCode localeCode) throws BadRequestException {
         if (localeCode == null) {
             return null;
         }

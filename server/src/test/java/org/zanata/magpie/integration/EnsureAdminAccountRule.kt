@@ -61,7 +61,7 @@ object EnsureAdminAccountRule : TestRule {
         if (!adminUserCreated && !isAdminCreatedOnServer()) {
             // we can use initial password to authenticate as an admin and create a user
             val client = RestTest.setCommonHeaders(RestTest.newClient("account"), RestTest.adminUsername, initialPassword)
-            val response = client.post(Entity.json(AccountDto(null, "Admin", "admin@example.com",
+            val response = client.post(Entity.json(AccountDto(1, "Admin", "admin@example.com",
                     AccountType.Normal, setOf(Role.admin),
                     setOf(CredentialDto(RestTest.adminUsername, RestTest.adminSecret.toCharArray())))))
 

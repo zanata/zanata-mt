@@ -21,6 +21,7 @@
 package org.zanata.magpie.model;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.DiscriminatorColumn;
@@ -83,7 +84,7 @@ public abstract class Credential extends ModelEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Credential)) return false;
         Credential that = (Credential) o;

@@ -21,8 +21,11 @@
 package org.zanata.magpie.api.dto;
 
 import java.util.Arrays;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author Patrick Huang
@@ -37,6 +40,7 @@ public class CredentialDto {
         this.secret = nullSafeArrayCopy(secret);
     }
 
+    @VisibleForTesting
     public CredentialDto() {
     }
 
@@ -61,9 +65,6 @@ public class CredentialDto {
     }
 
     private static char[] nullSafeArrayCopy(char[] arr) {
-        if (arr == null) {
-            return null;
-        }
         return Arrays.copyOf(arr, arr.length);
     }
 }

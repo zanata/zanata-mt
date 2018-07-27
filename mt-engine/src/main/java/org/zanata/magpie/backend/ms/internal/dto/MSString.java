@@ -1,6 +1,7 @@
 package org.zanata.magpie.backend.ms.internal.dto;
 
 import java.io.Serializable;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
@@ -29,7 +30,7 @@ public class MSString implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof MSString)) return false;
 
