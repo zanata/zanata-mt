@@ -324,8 +324,8 @@ void dockerBuildAndPushToManagedPaaS(String dockerImage) {
       sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused ${env.MT_DOCKER_REGISTRY_URL}"
 
       echo "Pushing to docker registry..."
-      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
-      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
+      dockerPush "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
+      dockerPush "${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
 
       echo "Docker logout.."
       sh "docker logout ${env.MT_DOCKER_REGISTRY_URL}"
@@ -359,14 +359,19 @@ void dockerBuildAndPushToOpenPaaS(String dockerImage) {
   }
 
   echo "Pushing to docker registry..."
-  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
-  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+  dockerPush "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
+  dockerPush "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
 
   echo "Docker logout.."
   sh "docker logout ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
 
   echo "Remove local docker image $dockerImage:$version"
   sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+}
+
+// workaround from https://github.com/moby/moby/issues/28596#issuecomment-261648948
+def dockerPush(String image) {
+  sh "for i in {1..5}; do docker push $image && break || sleep 15; done"
 }
 
 /**
