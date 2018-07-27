@@ -45,16 +45,13 @@ import com.google.common.collect.Lists;
  */
 @Stateless
 public class ReportingService {
-    private AccountDAO accountDAO;
     private TextFlowMTRequestDAO textFlowMTRequestDAO;
 
     public ReportingService() {
     }
 
     @Inject
-    public ReportingService(AccountDAO accountDAO,
-            TextFlowMTRequestDAO textFlowMTRequestDAO) {
-        this.accountDAO = accountDAO;
+    public ReportingService(TextFlowMTRequestDAO textFlowMTRequestDAO) {
         this.textFlowMTRequestDAO = textFlowMTRequestDAO;
     }
 
