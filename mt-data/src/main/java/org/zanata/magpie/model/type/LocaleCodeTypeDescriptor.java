@@ -49,6 +49,7 @@ public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode>
         return value.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public @Nullable <X> X unwrap(LocaleCode value, Class<X> type, WrapperOptions options) {
         if (value == null) {
@@ -65,7 +66,7 @@ public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode>
         if (value == null) {
             return null;
         }
-        if (String.class.isInstance(value)) {
+        if (value instanceof String) {
             return new LocaleCode((String) value);
         }
         throw unknownWrap(value.getClass());

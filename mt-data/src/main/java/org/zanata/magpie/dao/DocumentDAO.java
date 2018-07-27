@@ -31,6 +31,7 @@ public class DocumentDAO extends AbstractDAO<Document> {
         setEntityManager(entityManager);
     }
 
+    @SuppressWarnings("unchecked")
     public List<Document> getByUrl(@NotNull String url,
             Optional<LocaleCode> fromLocaleCode, Optional<LocaleCode> toLocaleCode,
             Optional<DateRange> dateParam) {
@@ -48,12 +49,10 @@ public class DocumentDAO extends AbstractDAO<Document> {
         }
         Query query = getEntityManager().createQuery(queryBuilder.toString())
                 .setParameter("urlHash", urlHash);
-        if (fromLocaleCode.isPresent()) {
-            query.setParameter("fromLocaleCode", fromLocaleCode.get());
-        }
-        if (toLocaleCode.isPresent()) {
-            query.setParameter("toLocaleCode", toLocaleCode.get());
-        }
+        fromLocaleCode.ifPresent(
+                localeCode -> query.setParameter("fromLocaleCode", localeCode));
+        toLocaleCode.ifPresent(
+                localeCode -> query.setParameter("toLocaleCode", localeCode));
         if (dateParam.isPresent()) {
             query.setParameter("fromDate", dateParam.get().getFromDate());
             query.setParameter("toDate", dateParam.get().getToDate());
@@ -69,6 +68,7 @@ public class DocumentDAO extends AbstractDAO<Document> {
         return documents.isEmpty() ? null : documents.get(0);
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getUrlList(Optional<DateRange> dateParam) {
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("SELECT DISTINCT url FROM Document");

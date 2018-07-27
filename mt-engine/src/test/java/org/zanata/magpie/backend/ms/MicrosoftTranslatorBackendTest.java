@@ -20,7 +20,7 @@ import org.zanata.magpie.util.DTOUtil;
 import com.google.common.collect.ImmutableList;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
