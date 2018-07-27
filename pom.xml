@@ -26,8 +26,7 @@
     <tag>HEAD</tag>
   </scm>
   <properties>
-    <!-- This will be updated by directory-maven-plugin after POM interpolation -->
-    <basedirRoot>${project.basedir}</basedirRoot>
+    <!-- basedirRoot will be set by directory-maven-plugin (after POM interpolation) -->
     <github.global.server>github</github.global.server>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -69,8 +68,6 @@
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
     <checkstyle.version>7.2</checkstyle.version>
     <checkstyle.skip>false</checkstyle.skip>
-    <checkstyle.config.location>resources/checkstyle.xml</checkstyle.config.location>
-    <checkstyle.suppressions.location>resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
     <enunciate.version>2.8.0</enunciate.version>
@@ -718,62 +715,7 @@
             </dependency>
           </dependencies>
         </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.4</version>
-          <configuration>
-            <xmlOutput>true</xmlOutput>
-            <failOnError>${findbugs.failOnError}</failOnError>
-            <!--
-            Note: The rule RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE interacts
-            badly with IntelliJ's automatic null checks.
-            cf. https://stackoverflow.com/questions/19213158/how-do-i-turn-off-findbugs-redundant-nullcheck-in-maven
 
-            Until we create a build-tools module for MT (to share findbugs
-            config across modules), the following is the quick and dirty way
-            to disable several null rules including this one. You can also
-            disable it per-build with -Dfindbugs.omitVisitors=FindNullDeref
-            -->
-            <!--<omitVisitors>FindNullDeref</omitVisitors>-->
-          </configuration>
-          <executions>
-            <execution>
-              <id>default</id>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${checkstyle.maven.version}</version>
-          <configuration>
-            <skip>${checkstyle.skip}</skip>
-            <configLocation>${checkstyle.config.location}</configLocation>
-            <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
-            <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
-          </configuration>
-
-          <executions>
-            <execution>
-              <id>check</id>
-              <goals>
-                <goal>check</goal>
-              </goals>
-              <phase>verify</phase>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${checkstyle.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
@@ -883,26 +825,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.commonjava.maven.plugins</groupId>
-          <artifactId>directory-maven-plugin</artifactId>
-          <version>0.3.1</version>
-          <executions>
-            <execution>
-              <id>directories</id>
-              <goals>
-                <goal>highest-basedir</goal>
-              </goals>
-              <phase>initialize</phase>
-              <configuration>
-                <!-- Set basedirRoot to the root of the project modules
-                (NB: late binding; too late for pom interpolation) -->
-                <property>basedirRoot</property>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
@@ -1000,6 +922,102 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.3.1</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <goals>
+              <goal>highest-basedir</goal>
+              <!--<goal>directory-of</goal>-->
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <!-- Set basedirRoot to the root of the project modules
+              (NB: late binding; too late for pom interpolation) -->
+              <property>basedirRoot</property>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--<plugin>-->
+        <!--<artifactId>maven-antrun-plugin</artifactId>-->
+        <!--<version>1.7</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>echo</id>-->
+            <!--<phase>initialize</phase>-->
+            <!--<goals>-->
+              <!--<goal>run</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+              <!--<target>-->
+                <!--<echo>basedirRoot: ${basedirRoot}</echo>-->
+              <!--</target>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      <!--</plugin>-->
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>3.0.4</version>
+        <configuration>
+          <xmlOutput>true</xmlOutput>
+          <failOnError>${findbugs.failOnError}</failOnError>
+          <excludeFilterFile>${basedirRoot}/resources/findbugs-filter.xml</excludeFilterFile>
+          <!--
+          Note: The rule RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE interacts
+          badly with IntelliJ's automatic null checks.
+          cf. https://stackoverflow.com/questions/19213158/how-do-i-turn-off-findbugs-redundant-nullcheck-in-maven
+
+          Until we create a build-tools module for MT (to share findbugs
+          config across modules), the following is the quick and dirty way
+          to disable several null rules including this one. You can also
+          disable it per-build with -Dfindbugs.omitVisitors=FindNullDeref
+          -->
+          <!--<omitVisitors>FindNullDeref</omitVisitors>-->
+        </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${checkstyle.maven.version}</version>
+        <executions>
+          <execution>
+            <id>check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <configLocation>${basedirRoot}/resources/checkstyle.xml</configLocation>
+          <suppressionsLocation>${basedirRoot}/resources/checkstyle-suppressions.xml</suppressionsLocation>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${checkstyle.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
