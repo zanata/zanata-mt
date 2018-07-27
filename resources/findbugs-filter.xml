@@ -11,4 +11,9 @@
     (or traute, or intellij-annotations-instrumenter-maven-plugin) -->
     <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
   </Match>
+  <Match>
+    <!-- Interacts badly with IntelliJ IDEA's runtime null checks
+    (or traute, or intellij-annotations-instrumenter-maven-plugin) -->
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+  </Match>
 </FindBugsFilter>

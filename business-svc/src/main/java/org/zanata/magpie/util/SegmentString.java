@@ -1,10 +1,9 @@
 package org.zanata.magpie.util;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.zanata.magpie.api.dto.LocaleCode;
 
-import javax.validation.constraints.NotNull;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;

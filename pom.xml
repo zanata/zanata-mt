@@ -112,6 +112,13 @@
     <!--</dependency>-->
   <!--</dependencies>-->
 
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+    </dependency>
+  </dependencies>
+
   <dependencyManagement>
     <dependencies>
       <!-- enunciate -->
@@ -537,6 +544,12 @@
             <artifactId>slf4j-simple</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations</artifactId>
+        <version>16.0.2</version>
       </dependency>
 
       <!-- kotlin -->

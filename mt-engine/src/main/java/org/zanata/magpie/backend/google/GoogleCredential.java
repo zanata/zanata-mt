@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +50,10 @@ public class GoogleCredential {
     private static final Logger log =
             LoggerFactory.getLogger(GoogleCredential.class);
     public static final GoogleCredential ABSENT = new GoogleCredential(null);
-    private final File credentialsFile;
+    private final @Nullable File credentialsFile;
 
     @VisibleForTesting
-    public GoogleCredential(File credentialsFile) {
+    public GoogleCredential(@Nullable File credentialsFile) {
         this.credentialsFile = credentialsFile;
     }
 
