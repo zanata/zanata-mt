@@ -87,7 +87,7 @@ public class DocumentContentTranslatorService {
             if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
                 if (source.length() <= maxLength) {
                     indexTextMap.put(index, typeString);
-                } else {
+                } else if (!StringUtils.isBlank(source)) {
                     String translatedString =
                             translateLargeString(doc, backendID,
                                     mediaType, source, maxLength, warnings);
@@ -101,7 +101,7 @@ public class DocumentContentTranslatorService {
 
                 if (html.length() <= maxLength) {
                     indexHTMLMap.put(index, typeString);
-                } else {
+                } else  if (!StringUtils.isBlank(source)) {
                     String translatedString =
                             translateLargeHTMLElement(doc, backendID, mediaType,
                                     maxLength, html, warnings);
