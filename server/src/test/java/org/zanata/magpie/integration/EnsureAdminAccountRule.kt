@@ -28,7 +28,6 @@ import org.junit.runners.model.Statement
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.zanata.magpie.api.dto.AccountDto
-import org.zanata.magpie.api.dto.CredentialDto
 import org.zanata.magpie.model.AccountType
 import org.zanata.magpie.model.Role
 import java.io.File
@@ -51,7 +50,7 @@ object EnsureAdminAccountRule : TestRule {
      * In IDE we have to rely on this. In maven, the adminUserCreated variable will play its role.
      */
     private fun isAdminCreatedOnServer(): Boolean {
-        val client = RestTest.setCommonHeaders(RestTest.newClient("account"), RestTest.adminUsername, RestTest.adminSecret)
+        val client = RestTest.setCommonHeaders(RestTest.newClient("account"), RestTest.adminUsername, RestTest.adminPassword)
 
         val response = client.get()
         return response.status == Response.Status.OK.statusCode
@@ -61,9 +60,8 @@ object EnsureAdminAccountRule : TestRule {
         if (!adminUserCreated && !isAdminCreatedOnServer()) {
             // we can use initial password to authenticate as an admin and create a user
             val client = RestTest.setCommonHeaders(RestTest.newClient("account"), RestTest.adminUsername, initialPassword)
-            val response = client.post(Entity.json(AccountDto(null, "Admin", "admin@example.com",
-                    AccountType.Normal, setOf(Role.admin),
-                    setOf(CredentialDto(RestTest.adminUsername, RestTest.adminSecret.toCharArray())))))
+            val response = client.post(Entity.json(AccountDto(null, "Admin", "admin@example.com", RestTest.adminUsername, RestTest.adminPassword.toCharArray(),
+                    AccountType.Normal, setOf(Role.admin))))
 
             Assertions.assertThat(response.status).isEqualTo(201)
             response.close()

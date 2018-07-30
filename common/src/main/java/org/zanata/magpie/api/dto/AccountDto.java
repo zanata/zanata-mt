@@ -20,9 +20,9 @@
  */
 package org.zanata.magpie.api.dto;
 
+import java.util.Arrays;
 import java.util.Set;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -41,17 +41,19 @@ public class AccountDto {
     private String email;
     private AccountType accountType;
     private Set<Role> roles;
-    private Set<CredentialDto> credentials;
 
-    public AccountDto(Long id, String name, String email,
-            AccountType accountType, Set<Role> roles,
-            Set<CredentialDto> credentials) {
+    private String username;
+    private char[] password;
+
+    public AccountDto(Long id, String name, String email, String username,
+        char[] password, AccountType accountType, Set<Role> roles) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.accountType = accountType;
         this.roles = roles;
-        this.credentials = credentials;
+        this.username = username;
+        this.password = nullSafeArrayCopy(password);
     }
 
     public AccountDto(Long id, String name, String email,
@@ -110,15 +112,30 @@ public class AccountDto {
         this.roles = roles;
     }
 
-    @Valid
     @NotNull
-    @Size(min = 1, max = 10)
-    public Set<CredentialDto> getCredentials() {
-        return credentials;
+    @Size(min = 2, max = 128)
+    public String getUsername() {
+        return username;
     }
 
-    public void setCredentials(
-            Set<CredentialDto> credentials) {
-        this.credentials = credentials;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @NotNull
+    @Size(min = 6)
+    public char[] getPassword() {
+        return nullSafeArrayCopy(password);
+    }
+
+    public void setPassword(char[] password) {
+        this.password = nullSafeArrayCopy(password);
+    }
+
+    private static char[] nullSafeArrayCopy(char[] arr) {
+        if (arr == null) {
+            return null;
+        }
+        return Arrays.copyOf(arr, arr.length);
     }
 }

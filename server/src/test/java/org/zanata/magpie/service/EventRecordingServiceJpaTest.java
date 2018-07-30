@@ -19,6 +19,7 @@ import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowMTRequest;
+import org.zanata.magpie.util.PasswordUtil;
 
 public class EventRecordingServiceJpaTest extends JPATest {
 
@@ -31,14 +32,16 @@ public class EventRecordingServiceJpaTest extends JPATest {
 
     @Override
     protected void setupTestData() {
+        PasswordUtil passwordUtil = new PasswordUtil();
         en = new Locale(LocaleCode.EN_US, "English");
         ja = new Locale(LocaleCode.JA, "Japanese");
         getEm().persist(en);
         getEm().persist(ja);
         document = new Document("https://example.com", en, ja);
         textFlow = new TextFlow(document, "hello world", en);
-        account = new Account("Joe", "joe@example.com", AccountType.Normal,
-                Sets.newHashSet());
+        account = new Account("Joe", "joe@example.com", "username",
+            passwordUtil.hash("password".toCharArray()),
+            AccountType.Normal, Sets.newHashSet());
         getEm().persist(document);
         getEm().persist(textFlow);
         getEm().persist(account);

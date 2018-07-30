@@ -1,6 +1,5 @@
 package org.zanata.magpie.api.service.impl;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -11,7 +10,6 @@ import java.sql.SQLException;
 import javax.enterprise.event.Event;
 import javax.ws.rs.core.Response;
 
-import org.assertj.core.util.Sets;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jboss.resteasy.spi.ResteasyUriInfo;
 import org.junit.Before;
@@ -20,9 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AccountType;
@@ -51,13 +47,11 @@ public class AccountResourceImplTest {
         accountDto.setName("name");
         accountDto.setEmail("admin@example.com");
         accountDto.setAccountType(AccountType.Normal);
-        CredentialDto credentialDto = new CredentialDto();
-        credentialDto.setUsername("admin");
-        char[] secret = "secret".toCharArray();
-        credentialDto.setSecret(secret);
-        accountDto.setCredentials(Sets.newLinkedHashSet(credentialDto));
+        accountDto.setUsername("admin");
+        char[] password = "password".toCharArray();
+        accountDto.setPassword(password);
 
-        when(accountService.registerNewAccount(accountDto, "admin", secret)).thenAnswer(
+        when(accountService.registerNewAccount(accountDto, "admin", password)).thenAnswer(
                 (Answer<AccountDto>) invocationOnMock -> {
                     accountDto.setId(1L);
                     return accountDto;
@@ -73,12 +67,10 @@ public class AccountResourceImplTest {
         AccountDto accountDto = new AccountDto();
         accountDto.setName("name");
         accountDto.setAccountType(AccountType.Normal);
-        CredentialDto credentialDto = new CredentialDto();
-        credentialDto.setUsername("admin");
-        char[] secret = "secret".toCharArray();
-        credentialDto.setSecret(secret);
-        accountDto.setCredentials(Sets.newLinkedHashSet(credentialDto));
-        when(accountService.registerNewAccount(accountDto, "admin", secret))
+        accountDto.setUsername("admin");
+        char[] password = "password".toCharArray();
+        accountDto.setPassword(password);
+        when(accountService.registerNewAccount(accountDto, "admin", password))
                 .thenThrow(
                         new ConstraintViolationException("constraint violation",
                                 new SQLException("key violation"),
@@ -93,12 +85,10 @@ public class AccountResourceImplTest {
         AccountDto accountDto = new AccountDto();
         accountDto.setName("name");
         accountDto.setAccountType(AccountType.Normal);
-        CredentialDto credentialDto = new CredentialDto();
-        credentialDto.setUsername("admin");
-        char[] secret = "secret".toCharArray();
-        credentialDto.setSecret(secret);
-        accountDto.setCredentials(Sets.newLinkedHashSet(credentialDto));
-        when(accountService.registerNewAccount(accountDto, "admin", secret))
+        accountDto.setUsername("admin");
+        char[] password = "password".toCharArray();
+        accountDto.setPassword(password);
+        when(accountService.registerNewAccount(accountDto, "admin", password))
                 .thenThrow(
                         new IllegalStateException());
 

@@ -33,10 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.dao.AccountDAO;
-import org.zanata.magpie.dao.CredentialDAO;
 import org.zanata.magpie.model.Account;
-import org.zanata.magpie.model.Credential;
-import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.util.PasswordUtil;
 
 /**
@@ -50,13 +47,11 @@ public class AccountService implements Serializable {
             LoggerFactory.getLogger(AccountService.class);
 
     private AccountDAO accountDAO;
-    private CredentialDAO credentialDAO;
     private final PasswordUtil passwordUtil = new PasswordUtil();
 
     @Inject
-    public AccountService(AccountDAO accountDAO, CredentialDAO credentialDAO) {
+    public AccountService(AccountDAO accountDAO) {
         this.accountDAO = accountDAO;
-        this.credentialDAO = credentialDAO;
     }
 
     @SuppressWarnings("unused")
@@ -65,37 +60,35 @@ public class AccountService implements Serializable {
 
     @TransactionAttribute
     public AccountDto registerNewAccount(AccountDto accountDto, String username,
-            char[] secret) {
-        String secretToken = passwordUtil.hash(secret);
+            char[] password) {
+        String passwordString = passwordUtil.hash(password);
 
         Account account =
-                new Account(accountDto.getName(), accountDto.getEmail(),
-                        accountDto.getAccountType(), accountDto.getRoles());
-        LocalCredential credential =
-                new LocalCredential(account, username, secretToken);
-        account = accountDAO.saveCredentialAndAccount(credential, account);
+            new Account(accountDto.getName(), accountDto.getEmail(), username,
+                passwordString, accountDto.getAccountType(),
+                accountDto.getRoles());
+
+        account = accountDAO.persist(account);
 
         accountDto.setId(account.getId());
         return accountDto;
     }
 
     /**
-     * Try to authenticate using given username and secret.
+     * Try to authenticate using given username and password.
      *
      * @return the matching Account if there is a match on the username and
-     *         secret.
+     *         password.
      */
-    public Optional<Account> authenticate(String username, String secret) {
+    public Optional<Account> authenticate(String username, String password) {
         Optional<Account> account = accountDAO.findAccountByUsername(username);
-        Optional<Credential> credential = account.flatMap(acc -> acc
-                .getCredentials().stream().filter(c -> passwordUtil
-                        .authenticate(secret.toCharArray(), c.getSecret()))
-                .findAny());
-        if (credential.isPresent()) {
-            return account;
-        } else {
-            return Optional.empty();
+        if ((account.isPresent())) {
+            if (passwordUtil.authenticate(password.toCharArray(),
+                account.get().getPassword())) {
+                return account;
+            }
         }
+        return Optional.empty();
     }
 
     public List<AccountDto> getAllAccounts(boolean showDisabled) {
@@ -120,21 +113,8 @@ public class AccountService implements Serializable {
             a.setAccountType(accountDto.getAccountType());
             a.setName(accountDto.getName());
             a.setRoles(accountDto.getRoles());
-            accountDto.getCredentials().forEach(dto -> {
-                Optional<Credential> credential = credentialDAO
-                        .getCredentialByUsername(dto.getUsername());
-                if (credential.isPresent()) {
-                    log.info("secret for username [{}] is updated", credential.get().getUsername());
-                    credential.get().setSecret(passwordUtil.hash(dto.getSecret()));
-                } else {
-                    log.info("adding new credential to account {}", a.getEmail());
-                    LocalCredential c =
-                            new LocalCredential(a, dto.getUsername(),
-                                    passwordUtil.hash(dto.getSecret()));
-                    credentialDAO.persist(c);
-                    a.getCredentials().add(c);
-                }
-            });
+            a.setUsername(accountDto.getUsername());
+            a.setPassword(passwordUtil.hash(accountDto.getPassword()));
         });
         return account.isPresent();
     }

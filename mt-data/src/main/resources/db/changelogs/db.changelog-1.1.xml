@@ -155,4 +155,25 @@
     <customChange class="org.zanata.magpie.liquibase.UpdateCharCountToTextFlow" />
   </changeSet>
 
+  <changeSet id="11" author="aeng@redhat.com">
+    <comment>add username and password columns to account</comment>
+    <addColumn tableName="account">
+      <column name="username" type="varchar(128)">
+        <constraints nullable="false" />
+      </column>
+      <column name="password" type="char(50)" />
+    </addColumn>
+    <addUniqueConstraint tableName="account" columnNames="username" />
+  </changeSet>
+
+  <changeSet id="12" author="aeng@redhat.com">
+    <comment>migrate credential to account</comment>
+    <sql>update account as acc set username=(select username from credential where account_id = acc.id), password=(select secret from credential where account_id = acc.id)</sql>
+  </changeSet>
+
+  <changeSet id="13" author="aeng@redhat.com">
+    <comment>drop credential table</comment>
+    <dropTable tableName="credential"/>
+  </changeSet>
+
 </databaseChangeLog>

@@ -137,10 +137,10 @@ class SecurityInterceptorTest {
     @Test
     fun canAuthenticateUsingDatabase() {
         given(requestContext.getHeaderString(headerUser)).willReturn("admin")
-        given(requestContext.getHeaderString(headerToken)).willReturn("secret")
+        given(requestContext.getHeaderString(headerToken)).willReturn("password")
         given(initialPasswordProvider.get()).willReturn(null)
         val account = Account()
-        given(accountService.authenticate("admin", "secret"))
+        given(accountService.authenticate("admin", "password"))
                 .willReturn(Optional.of(account))
 
         interceptor.filter(requestContext)

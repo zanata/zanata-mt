@@ -43,7 +43,6 @@ import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.ValidatePayload;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
@@ -96,13 +95,10 @@ public class AccountResourceImpl {
     @POST
     @CheckRole("admin")
     public Response registerNewAccount(AccountDto accountDto) {
-        // TODO only support one credential for now
-        CredentialDto credentialDto =
-                accountDto.getCredentials().iterator().next();
         AccountDto dto =
-                tryApplyChange(() -> accountService.registerNewAccount(
-                        accountDto, credentialDto.getUsername(),
-                        credentialDto.getSecret()));
+            tryApplyChange(() -> accountService.registerNewAccount(
+                accountDto, accountDto.getUsername(),
+                accountDto.getPassword()));
 
         // as soon as we have an admin user, we should remove initial password
         accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
