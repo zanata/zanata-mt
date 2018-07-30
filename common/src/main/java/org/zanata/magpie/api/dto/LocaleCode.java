@@ -52,6 +52,25 @@ public class LocaleCode implements Serializable {
         return id;
     }
 
+    public @NotNull String getLanguage() {
+        switch (id) {
+            case "zh-cn":
+            case "zh-hans":
+            case "zh-sg":
+                return "zh-hans";
+            case "zh-hk":
+            case "zh-mo":
+            case "zh-hant":
+            case "zh-tw":
+                return "zh-hant";
+            default:
+                if (id.startsWith("zh-hans-")) return "zh-hans";
+                if (id.startsWith("zh-hant-")) return "zh-hant";
+                int pos = id.indexOf('-');
+                return pos < 0 ? id : id.substring(0, pos);
+        }
+    }
+
     @Size(max = 128)
     @NotNull
     public String getId() {

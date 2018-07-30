@@ -82,7 +82,8 @@ public interface DocumentResource {
      * The content in parent element of the translated child element will not be
      * translated.</p>
      *
-     * See {@link LanguagesResource#getSupportedLanguages()} for supported locales.
+     * See {@link LanguagesResource#getSupportedLanguages()} for supported locales. Note that
+     * locales may have extra aliases (eg 'de-de' for 'de').
      *
      * @param docContent
      *      Content to be translated

@@ -49,7 +49,9 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     /**
      * Map from request locale to MS supported locale code
      *
-     * https://msdn.microsoft.com/en-us/library/hh456380.aspx
+     * https://docs.microsoft.com/en-us/azure/cognitive-services/translator/languages
+     *
+     * Old list: http://web.archive.org/web/20171230230133/https://msdn.microsoft.com/en-us/library/hh456380.aspx
      */
     private final ImmutableMap<LocaleCode, BackendLocaleCode> LOCALE_MAP =
             ImmutableMap.of(
