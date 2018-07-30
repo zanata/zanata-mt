@@ -37,8 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.BackEndProviders;
 import org.zanata.magpie.api.InputStreamStreamingOutput;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -52,8 +50,6 @@ import com.google.common.annotations.VisibleForTesting;
 @RequestScoped
 public class BackendResourceImpl implements BackendResource {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(BackendResourceImpl.class);
     private Set<BackendID> availableProviders;
 
     @SuppressWarnings("unused")

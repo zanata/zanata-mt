@@ -22,6 +22,7 @@
 package org.zanata.magpie.api.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -409,6 +410,42 @@ public class DocumentResourceImplTest {
     }
 
     @Test
+    public void testDevModeByAlias() {
+        documentResource =
+            new DocumentResourceImpl(documentContentTranslatorService,
+                localeDAO, documentService, backendResource,
+                true, BackendID.GOOGLE,
+                        Sets.newHashSet(BackendID.values()));
+        Locale fromLocale = new Locale(LocaleCode.EN, "English");
+        LocaleCode toLocaleRequested = new LocaleCode("zh-CN");
+        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
+
+        List<TypeString> contents = Lists.newArrayList(
+                new TypeString("<html><body>Entry 1</body></html>",
+                        MediaType.TEXT_HTML, "meta1"));
+
+        Document doc = Mockito.mock(Document.class);
+
+        DocumentContent
+                docContent = new DocumentContent(contents, "http://localhost",
+                fromLocale.getLocaleCode().getId());
+
+        when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
+                .thenReturn(fromLocale);
+        when(localeDAO.getByLocaleCode(toLocaleRequested))
+                .thenReturn(null);
+        when(localeDAO.getByLocaleCode(toLocaleActual.getLocaleCode()))
+                .thenReturn(toLocaleActual);
+        when(documentService.getOrCreateByUrl(docContent.getUrl(), fromLocale,
+                toLocaleActual)).thenReturn(doc);
+
+        documentResource
+                .translate(docContent, toLocaleRequested);
+        verify(documentContentTranslatorService)
+                .translateDocument(doc, docContent, BackendID.DEV);
+    }
+
+    @Test
     public void testDefaultProvider() {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
@@ -441,12 +478,22 @@ public class DocumentResourceImplTest {
     public void testTranslateFile() throws FileNotFoundException {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
+        BackendID backendID = BackendID.DEV;
+        DocumentContent translatedDocContent =
+            new DocumentContent(new ArrayList<>(), "testing",
+                toLocale.getLocaleCode().getId(), backendID.getId(), new ArrayList<>());
 
-
+        Response attrResponse = Mockito.mock(Response.class);
+        when(attrResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(attrResponse.getEntity()).thenReturn("Translated by testing");
         when(localeDAO.getByLocaleCode(fromLocale.getLocaleCode()))
             .thenReturn(fromLocale);
         when(localeDAO.getByLocaleCode(toLocale.getLocaleCode()))
             .thenReturn(fromLocale);
+        when(documentContentTranslatorService
+            .translateDocument(any(), any(), any()))
+            .thenReturn(translatedDocContent);
+        when(backendResource.getStringAttribution(backendID.getId())).thenReturn(attrResponse);
 
         File sourceFile =
             new File("src/test/resources/test.pot");

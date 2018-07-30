@@ -25,16 +25,15 @@ import javax.ws.rs.core.StreamingOutput;
 })
 @ResourceLabel("Backend")
 public interface BackendResource {
-    String MS_ATTRIBUTION_IMAGE =
-            "/images/MS_attribution.png";
-    String GOOGLE_ATTRIBUTION_IMAGE =
-                    "/images/google_attribution.png";
-    String DEV_ATTRIBUTION_IMAGE =
-                            "/images/logo-256.png";
+    String MS_ATTRIBUTION_IMAGE = "/images/MS_attribution.png";
+    String GOOGLE_ATTRIBUTION_IMAGE = "/images/google_attribution.png";
+    String DEV_ATTRIBUTION_IMAGE = "/images/logo-256.png";
 
     String MS_ATTRIBUTION_STRING = "Translated by Microsoft";
     String GOOGLE_ATTRIBUTION_STRING = "Translated by Google";
     String DEV_ATTRIBUTION_STRING = "Translated by Magpie MT";
+
+    String ATTRIBUTION_KEY = "X-MAGPIE-MT-Attribution";
 
     /**
      * Retrieve backend attribution (image) based on given id
