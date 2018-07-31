@@ -81,8 +81,9 @@ public class Account extends ModelEntity {
     @Size(min = 2, max = 20)
     private String username;
 
-    @Size(min = 6, max = 50)
-    private String password;
+    @Size(min = 50, max = 50)
+    @NotNull
+    private String passwordHash;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -96,12 +97,12 @@ public class Account extends ModelEntity {
             mappedBy = "triggeredBy")
     private Set<TextFlowMTRequest> mtRequests;
 
-    public Account(String name, String email, String username, String password,
+    public Account(String name, String email, String username, String passwordHash,
         AccountType accountType, Set<Role> roles) {
         this.name = name;
         this.email = email;
         this.username = username;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.accountType = accountType;
         this.roles = roles;
     }
@@ -133,12 +134,12 @@ public class Account extends ModelEntity {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void setName(String name) {
@@ -179,7 +180,7 @@ public class Account extends ModelEntity {
             Objects.equals(email, account.email) &&
             accountType == account.accountType &&
             Objects.equals(username, account.username) &&
-            Objects.equals(password, account.password) &&
+            Objects.equals(passwordHash, account.passwordHash) &&
             Objects.equals(roles, account.roles) &&
             Objects.equals(mtRequests, account.mtRequests);
     }
@@ -187,7 +188,7 @@ public class Account extends ModelEntity {
     @Override
     public int hashCode() {
         return Objects
-            .hash(name, email, accountType, username, password, roles, enabled,
+            .hash(name, email, accountType, username, passwordHash, roles, enabled,
                 mtRequests);
     }
 

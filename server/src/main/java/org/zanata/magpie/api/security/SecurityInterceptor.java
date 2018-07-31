@@ -96,18 +96,18 @@ public class SecurityInterceptor implements ContainerRequestFilter {
                 .abortWith(Response.status(Status.UNAUTHORIZED).build());
     }
 
-    private Optional<Account> tryAuthenticate(String username, String password,
+    private Optional<Account> tryAuthenticate(String username, String passwordHash,
             ContainerRequestContext requestContext) {
         String initialPass = initialPassword.get();
         if (initialPass == null) {
-            return accountService.authenticate(username, password);
+            return accountService.authenticate(username, passwordHash);
         } else if ("admin".equals(username)
-                && Objects.equals(password, initialPass)) {
+                && Objects.equals(passwordHash, initialPass)) {
             log.info("authenticating using initial password");
 
             if (isAccessingAccountCreation(requestContext)) {
                 Account initialAdmin = new Account("initial",
-                    "magpie@zanata.org", username, password, AccountType.Normal,
+                    "magpie@zanata.org", username, passwordHash, AccountType.Normal,
                     Sets.newHashSet(Role.admin));
                 return Optional.of(initialAdmin);
             } else {

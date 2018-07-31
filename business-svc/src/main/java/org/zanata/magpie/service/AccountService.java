@@ -61,11 +61,11 @@ public class AccountService implements Serializable {
     @TransactionAttribute
     public AccountDto registerNewAccount(AccountDto accountDto, String username,
             char[] password) {
-        String passwordString = passwordUtil.hash(password);
+        String passwordHash = passwordUtil.hash(password);
 
         Account account =
             new Account(accountDto.getName(), accountDto.getEmail(), username,
-                passwordString, accountDto.getAccountType(),
+                passwordHash, accountDto.getAccountType(),
                 accountDto.getRoles());
 
         account = accountDAO.persist(account);
@@ -84,7 +84,7 @@ public class AccountService implements Serializable {
         Optional<Account> account = accountDAO.findAccountByUsername(username);
         return account.flatMap(acc -> {
             if (passwordUtil.authenticate(password.toCharArray(),
-                acc.getPassword())) {
+                acc.getPasswordHash())) {
                 return account;
             } else {
                 return Optional.empty();
@@ -115,7 +115,7 @@ public class AccountService implements Serializable {
             a.setName(accountDto.getName());
             a.setRoles(accountDto.getRoles());
             a.setUsername(accountDto.getUsername());
-            a.setPassword(passwordUtil.hash(accountDto.getPassword()));
+            a.setPasswordHash(passwordUtil.hash(accountDto.getPassword()));
         });
         return account.isPresent();
     }

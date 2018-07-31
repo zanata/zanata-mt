@@ -161,14 +161,16 @@
       <column name="username" type="varchar(128)">
         <constraints nullable="false" />
       </column>
-      <column name="password" type="char(50)" />
+      <column name="passwordhash" type="char(50)">
+        <constraints nullable="false" />
+      </column>
     </addColumn>
     <addUniqueConstraint tableName="account" columnNames="username" />
   </changeSet>
 
   <changeSet id="12" author="aeng@redhat.com">
     <comment>migrate credential to account</comment>
-    <sql>update account as acc set username=(select username from credential where account_id = acc.id), password=(select secret from credential where account_id = acc.id)</sql>
+    <sql>update account as acc set username=(select username from credential where account_id = acc.id), passwordhash=(select secret from credential where account_id = acc.id)</sql>
   </changeSet>
 
   <changeSet id="13" author="aeng@redhat.com">

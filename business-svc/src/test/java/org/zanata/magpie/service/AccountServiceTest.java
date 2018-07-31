@@ -49,7 +49,7 @@ public class AccountServiceTest {
     public final void canNotAuthenticateIfAccountCredentialCanNotMatchPassword() {
         Account account = new Account();
         account.setUsername("user");
-        account.setPassword("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
+        account.setPasswordHash("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.of(account));
         Optional<Account> result = service.authenticate("user", "notMatch");
         assertThat(result).isEmpty();
@@ -59,7 +59,7 @@ public class AccountServiceTest {
     public final void canAuthenticateIfAccountCredentialCanMatchPassword() {
         Account account = new Account();
         account.setUsername("user");
-        account.setPassword("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
+        account.setPasswordHash("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
 
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.of(account));
 
@@ -71,7 +71,7 @@ public class AccountServiceTest {
     @Test
     public final void canGetAllEnabledAccounts() {
         Account account =
-            new Account("joe", "joe@example.com", "username", "password",
+            new Account("joe", "joe@example.com", "username", "passwordHash",
                 AccountType.Normal, Sets.newHashSet(Role.admin));
 
         given(accountDAO.findAllEnabled()).willReturn(
@@ -84,7 +84,7 @@ public class AccountServiceTest {
     @Test
     public final void canGetAllAccounts() {
         Account account =
-            new Account("joe", "joe@example.com", "username", "password",
+            new Account("joe", "joe@example.com", "username", "passwordHash",
                 AccountType.Normal, Sets.newHashSet(Role.admin));
 
         given(accountDAO.findAll()).willReturn(Lists.newArrayList(account));
@@ -106,14 +106,14 @@ public class AccountServiceTest {
 
         Account accountCaptured = accountCaptor.getValue();
         assertThat(accountCaptured.getUsername()).isEqualTo("user");
-        assertThat(accountCaptured.getPassword()).startsWith((CharSequence)"$31$16");
+        assertThat(accountCaptured.getPasswordHash()).startsWith((CharSequence)"$31$16");
     }
 
     @Test
     public void updateAccountIfCanFindAccountByEmailAndCredential() {
         Account account = new Account();
         account.setUsername("admin");
-        account.setPassword("somepass");
+        account.setPasswordHash("somepass");
 
         Set<Role> roles = Sets.newHashSet(Role.admin);
         char[] newPassword = "password".toCharArray();
@@ -130,7 +130,7 @@ public class AccountServiceTest {
         assertThat(account.getAccountType()).isEqualTo(AccountType.Normal);
         assertThat(account.getRoles()).isEqualTo(roles);
         // password will be updated to a hashed text
-        assertThat(new PasswordUtil().authenticate(newPassword, account.getPassword())).isTrue();
+        assertThat(new PasswordUtil().authenticate(newPassword, account.getPasswordHash())).isTrue();
     }
 
     @Test
@@ -153,7 +153,7 @@ public class AccountServiceTest {
         assertThat(account.getRoles()).isEqualTo(roles);
         // password will be updated to a hashed text
         assertThat(
-            new PasswordUtil().authenticate(newPassword, account.getPassword()))
+            new PasswordUtil().authenticate(newPassword, account.getPasswordHash()))
             .isTrue();
     }
 }
