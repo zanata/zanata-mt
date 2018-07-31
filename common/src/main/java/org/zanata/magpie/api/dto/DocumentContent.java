@@ -68,7 +68,7 @@ public class DocumentContent implements Serializable {
     /**
      * Content of this document in array of {@link TypeString}
      */
-    @JsonProperty("contents")
+    @JsonProperty(value = "contents", required = true)
     @NotNull
     public List<TypeString> getContents() {
         return contents;
