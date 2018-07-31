@@ -82,13 +82,14 @@ public class AccountService implements Serializable {
      */
     public Optional<Account> authenticate(String username, String password) {
         Optional<Account> account = accountDAO.findAccountByUsername(username);
-        if ((account.isPresent())) {
+        return account.flatMap(acc -> {
             if (passwordUtil.authenticate(password.toCharArray(),
-                account.get().getPassword())) {
+                acc.getPassword())) {
                 return account;
+            } else {
+                return Optional.empty();
             }
-        }
-        return Optional.empty();
+        });
     }
 
     public List<AccountDto> getAllAccounts(boolean showDisabled) {

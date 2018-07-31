@@ -61,7 +61,7 @@ import com.google.common.collect.Sets;
     name = "account",
     uniqueConstraints = {
         @UniqueConstraint(name = "UK_account_email", columnNames = { "email" }),
-        @UniqueConstraint(name = "CredentialUsernameUnique", columnNames = {
+        @UniqueConstraint(name = "UsernameUnique", columnNames = {
             "username" }) }
 )
 public class Account extends ModelEntity {
@@ -81,7 +81,7 @@ public class Account extends ModelEntity {
     @Size(min = 2, max = 20)
     private String username;
 
-    @Size(min = 50, max = 50)
+    @Size(min = 6, max = 50)
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
