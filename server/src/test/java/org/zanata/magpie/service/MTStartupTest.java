@@ -41,7 +41,8 @@ public class MTStartupTest {
     public void setUp() throws IOException {
         MockitoAnnotations.initMocks(this);
         File googleADC = temporaryFolder.newFile();
-        config = new ConfigurationService("azureKey", googleADC.getAbsolutePath(), "{}", "ms", null);
+        config = new ConfigurationService("azureKey",
+                googleADC.getAbsolutePath(), "{}", "", "ms", null);
         mtStartup = new MTStartup(config, accountService, replCache);
     }
 

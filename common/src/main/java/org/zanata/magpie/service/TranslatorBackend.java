@@ -43,4 +43,10 @@ public interface TranslatorBackend {
     int getCharLimitPerRequest();
 
     BackendID getId();
+
+    /**
+     * Return list of supported locales for this backend.
+     * Return  Optional.empty() if all locales are supported.
+     */
+    Optional<List<BackendLocaleCode>> getSupportedLocales();
 }

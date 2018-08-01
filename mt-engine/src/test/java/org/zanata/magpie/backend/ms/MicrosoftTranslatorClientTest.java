@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReq;
 import org.zanata.magpie.exception.MTException;
-import org.zanata.magpie.util.DTOUtil;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -31,7 +30,7 @@ public class MicrosoftTranslatorClientTest {
     @Before
     public void setup() {
         restClient = Mockito.mock(MicrosoftRestEasyClient.class);
-        api = new MicrosoftTranslatorClient(subscriptionKey, restClient, new DTOUtil());
+        api = new MicrosoftTranslatorClient(subscriptionKey, restClient);
 
         builder = Mockito.mock(Invocation.Builder.class);
         invocation = Mockito.mock(Invocation.class);

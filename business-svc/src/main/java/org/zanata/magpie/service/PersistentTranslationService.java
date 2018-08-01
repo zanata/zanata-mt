@@ -132,6 +132,14 @@ public class PersistentTranslationService {
         BackendLocaleCode mappedToLocaleCode =
                 translatorBackend.getMappedLocale(toLocale.getLocaleCode());
 
+        Optional<List<BackendLocaleCode>> supportedLocales =
+                translatorBackend.getSupportedLocales();
+        if (supportedLocales.isPresent() &&
+                (!supportedLocales.get().contains(mappedFromLocaleCode) ||
+                        !supportedLocales.get().contains(mappedToLocaleCode))) {
+            throw new BadRequestException();
+        }
+
         List<String> results = new ArrayList<>(sourceStrings);
         Multimap<String, Integer> untranslatedIndexMap = ArrayListMultimap.create();
 

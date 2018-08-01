@@ -22,6 +22,7 @@ package org.zanata.magpie.service;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.zanata.magpie.api.APIConstant.AZURE_KEY;
+import static org.zanata.magpie.api.APIConstant.DEEPL_KEY;
 import static org.zanata.magpie.api.APIConstant.DEFAULT_PROVIDER;
 import static org.zanata.magpie.api.APIConstant.DEV_BACKEND;
 import static org.zanata.magpie.api.APIConstant.GOOGLE_ADC;
@@ -65,6 +66,7 @@ public class ConfigurationService {
     private String version;
     private String buildDate;
     private String msAPIKey;
+    private String deepLAPIKey;
     private boolean isDevMode;
 
     private BackendID defaultTranslationProvider;
@@ -78,15 +80,21 @@ public class ConfigurationService {
             @EnvVariable(AZURE_KEY) String msAPIKey,
             @EnvVariable(GOOGLE_ADC) String googleADC,
             @EnvVariable(GOOGLE_CREDENTIAL_CONTENT) String googleADCContent,
+            @EnvVariable(DEEPL_KEY) String deepLAPIKey,
             @EnvVariable(DEFAULT_PROVIDER) String defaultProvider,
             @EnvVariable(DEV_BACKEND) String enableDevBackend) {
+
         this.msAPIKey = msAPIKey;
+
+        this.deepLAPIKey = deepLAPIKey;
 
         this.googleCredential = GoogleCredential.from(googleADC, googleADCContent);
 
         defaultTranslationProvider = BackendID.fromString(defaultProvider);
 
-        isDevMode = !isBlank(enableDevBackend) || (isBlank(msAPIKey) && !googleCredential.exists());
+        isDevMode = !isBlank(enableDevBackend) ||
+                (isBlank(msAPIKey) && !googleCredential.exists() &&
+                        isBlank(deepLAPIKey));
 
         Properties properties = new Properties();
         try (InputStream is = getClass().getClassLoader()
@@ -134,10 +142,17 @@ public class ConfigurationService {
     }
 
     @Produces
+    @Credentials(BackendID.DEEPL)
+    protected String getDeepLAPIKey() {
+        return deepLAPIKey;
+    }
+
+    @Produces
     @BackEndProviders
     protected Set<BackendID> availableProviders(
             @Credentials(BackendID.GOOGLE) GoogleCredential googleCredential,
             @Credentials(BackendID.MS) String msCredential,
+            @Credentials(BackendID.DEEPL) String deepLCredential,
             @DevMode boolean isDevMode) {
         Set<BackendID> providers = Sets.newHashSet();
         if (googleCredential.exists()) {
@@ -145,6 +160,9 @@ public class ConfigurationService {
         }
         if (!isBlank(msCredential)) {
             providers.add(BackendID.MS);
+        }
+        if (!isBlank(deepLCredential)) {
+            providers.add(BackendID.DEEPL);
         }
         if (isDevMode) {
             providers.add(BackendID.DEV);

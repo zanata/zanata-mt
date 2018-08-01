@@ -9,7 +9,6 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.service.TranslatorBackend;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +70,11 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public BackendID getId() {
         return BackendID.DEV;
+    }
+
+    @Override
+    public Optional<List<BackendLocaleCode>> getSupportedLocales() {
+        return Optional.empty();
     }
 
     private String wrapContentInBlock(String content) {

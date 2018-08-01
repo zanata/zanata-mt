@@ -27,8 +27,6 @@ public class GoogleTranslatorBackendTest {
     private Translate translate;
     private GoogleTranslatorBackend backend;
     @Mock
-    private DTOUtil dtoUtil;
-    @Mock
     private Translation translation;
 
     @Before
@@ -36,8 +34,7 @@ public class GoogleTranslatorBackendTest {
         MockitoAnnotations.initMocks(this);
 
         backend = new GoogleTranslatorBackend(translate,
-                dtoUtil, new GoogleCredential(new File(".")));
-        when(dtoUtil.toJSON(translate)).thenReturn("{}");
+                new GoogleCredential(new File(".")));
         when(translation.getTranslatedText()).thenReturn("你好");
     }
 

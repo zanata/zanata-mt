@@ -12,14 +12,16 @@ import javax.validation.constraints.Size;
 public class LocaleCode implements Serializable {
     private static final long serialVersionUID = 2193027706150405364L;
 
+    public static final LocaleCode DE = new LocaleCode("de");
     public static final LocaleCode EN = new LocaleCode("en");
     public static final LocaleCode EN_US = new LocaleCode("en-us");
-    public static final LocaleCode DE = new LocaleCode("de");
+    public static final LocaleCode ES = new LocaleCode("es");
     public static final LocaleCode FR = new LocaleCode("fr");
     public static final LocaleCode IT = new LocaleCode("it");
-    public static final LocaleCode ES = new LocaleCode("es");
     public static final LocaleCode JA = new LocaleCode("ja");
     public static final LocaleCode KO = new LocaleCode("ko");
+    public static final LocaleCode NL = new LocaleCode("nl");
+    public static final LocaleCode PL = new LocaleCode("pl");
     public static final LocaleCode PT = new LocaleCode("pt");
     public static final LocaleCode RU = new LocaleCode("ru");
     public static final LocaleCode ZH_HANS = new LocaleCode("zh-hans");
