@@ -26,6 +26,7 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
@@ -84,9 +85,9 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
-                .thenReturn(Lists.newArrayList("<span>translated</span>"));
+                .thenReturn(ImmutableList.of("<span>translated</span>"));
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString(html, MediaType.TEXT_HTML, "meta"));
         DocumentContent docContent =
                 new DocumentContent(contents, "http://localhost", "en");
@@ -114,9 +115,9 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
-                .thenReturn(Lists.newArrayList("<span>translated</span>"));
+                .thenReturn(ImmutableList.of("<span>translated</span>"));
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString(html, MediaType.TEXT_HTML, "meta"));
         DocumentContent docContent =
                 new DocumentContent(contents, "http://localhost", "en");
@@ -143,9 +144,9 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(any(),
                 any(), any(), any(), any(), any(), any()))
-                .thenReturn(Lists.newArrayList("<span>translated</span>"));
+                .thenReturn(ImmutableList.of("<span>translated</span>"));
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString(html, MediaType.TEXT_HTML, "meta"));
         DocumentContent docContent =
                 new DocumentContent(contents, "http://localhost", "en");
@@ -176,25 +177,25 @@ public class DocumentContentTranslatorServiceTest {
         when(persistentTranslationService.translate(document,
                 strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
-                .thenReturn(Lists.newArrayList("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
+                .thenReturn(ImmutableList.of("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(2, 3), fromLocale, toLocale, BackendID.MS,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
-                .thenReturn(Lists.newArrayList("Translated:The mysterious diary records the voice. "));
+                .thenReturn(ImmutableList.of("Translated:The mysterious diary records the voice. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(3, 4), fromLocale, toLocale, BackendID.MS,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
-                .thenReturn(Lists.newArrayList("Translated:She was too short to see over the fence. "));
+                .thenReturn(ImmutableList.of("Translated:She was too short to see over the fence. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(4, 5), fromLocale, toLocale, BackendID.MS,
                 MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
-                .thenReturn(Lists.newArrayList("Translated:Everyone was busy, so I went to the movie alone. "));
+                .thenReturn(ImmutableList.of("Translated:Everyone was busy, so I went to the movie alone. "));
 
         DocumentContent docContent =
-                new DocumentContent(Lists.newArrayList(
+                new DocumentContent(ImmutableList.of(
                         new TypeString(text, MediaType.TEXT_PLAIN, "meta")), "http://localhost", "en");
 
         DocumentContent translatedDocContent = documentContentTranslatorService
@@ -214,7 +215,7 @@ public class DocumentContentTranslatorServiceTest {
         String maxString = StringUtils.repeat("t", maxLength + 1);
 
         List<String> htmls =
-                Lists.newArrayList("<div>Entry 1</div>",
+                ImmutableList.of("<div>Entry 1</div>",
                         "<div>Entry 2</div>",
                         "<div>Entry 6</div>",
                         "<code>KCS code section</code>",
@@ -222,26 +223,26 @@ public class DocumentContentTranslatorServiceTest {
                         "<div id=\"private-notes\"><span>private notes</span></div>");
 
         List<String> processedHtmls =
-                Lists.newArrayList("<div>Entry 1</div>",
+                ImmutableList.of("<div>Entry 1</div>",
                         "<div>Entry 2</div>",
                         "<div>Entry 6</div>",
                         "<var id=\"ZNTA-6-0\" translate=\"no\"></var>",
                         "<var id=\"ZNTA-7-0\" translate=\"no\"></var>",
                         "<var id=\"ZNTA-8-0\" translate=\"no\"></var>");
 
-        List<String> text = Lists.newArrayList("Entry 3", "Entry 4", longText);
+        List<String> text = ImmutableList.of("Entry 3", "Entry 4", longText);
 
         List<String> translatedHtmls =
-                Lists.newArrayList("<div>MS: Entry 1</div>",
+                ImmutableList.of("<div>MS: Entry 1</div>",
                         "<div>MS: Entry 2</div>",
                         "<div>MS: Entry 6</div>",
                         "<var id=\"ZNTA-6-0\" translate=\"no\"></var>",
                         "<var id=\"ZNTA-7-0\" translate=\"no\"></var>",
                         "<var id=\"ZNTA-8-0\" translate=\"no\"></var>");
 
-        List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4", "MS: Long text");
+        List<String> translatedText = ImmutableList.of("MS: Entry 3", "MS: Entry 4", "MS: Long text");
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString(htmls.get(0), MediaType.TEXT_HTML, "meta1"),
                 new TypeString(htmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(text.get(0), MediaType.TEXT_PLAIN, "meta3"),
@@ -253,7 +254,7 @@ public class DocumentContentTranslatorServiceTest {
                 new TypeString(htmls.get(5), MediaType.TEXT_HTML, "meta9"),
                 new TypeString(maxString, MediaType.TEXT_PLAIN, "meta10"));
 
-        List<TypeString> translatedContents = Lists.newArrayList(
+        List<TypeString> translatedContents = ImmutableList.of(
                 new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
                 new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN, "meta3"),

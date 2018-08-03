@@ -21,9 +21,9 @@
 package org.zanata.magpie.api;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
-
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -35,8 +35,6 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.APIResponse;
-
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -68,7 +66,7 @@ public class ValidatePayloadInterceptor implements Serializable {
                 getAnnotationFromClassOrMethod(invocation);
         Class payloadType = validatePayload.value();
         Optional<Object> matchedParam =
-                Lists.newArrayList(invocation.getParameters()).stream().filter(
+                Arrays.stream(invocation.getParameters()).filter(
                         payloadType::isInstance).findAny();
 
         if (matchedParam.isPresent()) {

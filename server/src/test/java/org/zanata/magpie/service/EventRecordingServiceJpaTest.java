@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Date;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Sets;
 import org.junit.Before;
@@ -55,7 +56,7 @@ public class EventRecordingServiceJpaTest extends JPATest {
     @Test
     public void canRecordMTRequest() {
         service.onMTRequest(new RequestedMTEvent(document,
-                Lists.newArrayList(textFlow.getContentHash()), BackendID.DEV,
+                ImmutableList.of(textFlow.getContentHash()), BackendID.DEV,
                 new Date(), account, textFlow.getWordCount(), textFlow.getCharCount()));
         getEm().flush();
 

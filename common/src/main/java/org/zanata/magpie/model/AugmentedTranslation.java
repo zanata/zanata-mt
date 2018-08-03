@@ -1,5 +1,7 @@
 package org.zanata.magpie.model;
 
+import javax.annotation.Nullable;
+
 /**
  * Object for extracted plainTranslation and raw plainTranslation
  *
@@ -31,7 +33,7 @@ public class AugmentedTranslation {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof AugmentedTranslation)) return false;
 

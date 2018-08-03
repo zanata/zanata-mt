@@ -1,6 +1,10 @@
 package org.zanata.magpie.backend.ms;
 
-import org.assertj.core.util.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.ws.rs.core.MediaType;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -13,15 +17,10 @@ import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResponse;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.util.DTOUtil;
-
-import javax.ws.rs.core.MediaType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.google.common.collect.ImmutableList;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -68,7 +67,7 @@ public class MicrosoftTranslatorBackendTest {
         msBackend = new MicrosoftTranslatorBackend("subscriptionKey", dtoUtil);
         msBackend.setApi(api);
         List<AugmentedTranslation> translations = msBackend
-                .translate(Lists.newArrayList(content), srcLocale, transLocale,
+                .translate(ImmutableList.of(content), srcLocale, transLocale,
                         MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
 
         assertThat(translations).hasSize(1);

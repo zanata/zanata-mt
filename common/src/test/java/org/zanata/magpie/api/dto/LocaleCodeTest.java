@@ -40,6 +40,8 @@ public class LocaleCodeTest {
         assertThat(new LocaleCode("zh-TW").getLanguage()).isEqualTo("zh-hant");
         assertThat(new LocaleCode("zh-Hant").getLanguage()).isEqualTo("zh-hant");
         assertThat(new LocaleCode("zh-Hant-TW").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-hant-TW").getLanguage()).isEqualTo("zh-hant");
+        assertThat(new LocaleCode("zh-hant-tw").getLanguage()).isEqualTo("zh-hant");
     }
 
     @Test

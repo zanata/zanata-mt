@@ -6,9 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -23,10 +21,9 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlowMTRequest;
+import com.google.common.collect.ImmutableList;
 
 public class ReportingServiceTest {
-    @Mock
-    private AccountDAO accountDAO;
     @Mock
     private TextFlowMTRequestDAO requestDAO;
     private ReportingService service;
@@ -34,24 +31,23 @@ public class ReportingServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        service = new ReportingService(accountDAO, requestDAO);
+        service = new ReportingService(requestDAO);
     }
 
     @Test
     public void canQueryMTRequests() {
         DateRange dateRange = DateRange.fromString("2018-05-01..2018-05-31");
         Account account = new Account();
-        when(accountDAO.findAccountByUsername("admin")).thenReturn(of(account));
         Locale toLocale = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
         Locale fromLocale = new Locale(LocaleCode.EN_US, "English");
         int charCount = 10;
         int wordCount = 4;
         when(requestDAO.getRequestsByDateRange(dateRange, account))
-                .thenReturn(Lists.newArrayList(
+                .thenReturn(ImmutableList.of(
                         new TextFlowMTRequest(BackendID.DEV, new Date(),
                                 new Document("https://example.com", fromLocale,
                                         toLocale),
-                                account, Lists.newArrayList("abc"), wordCount,
+                                account, ImmutableList.of("abc"), wordCount,
                                 charCount)));
         List<MTRequestStatistics> requestStats =
                 service.getMTRequestStats(account, dateRange);

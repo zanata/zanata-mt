@@ -19,7 +19,7 @@ public class TypeString implements Serializable {
     private String type;
     private String metadata;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "initialization"})
     public TypeString() {
     }
 
@@ -78,7 +78,7 @@ public class TypeString implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof TypeString)) return false;
 
@@ -90,8 +90,9 @@ public class TypeString implements Serializable {
         if (!getType().equals(that.getType())) {
             return false;
         }
-        return getMetadata() != null ?
-                getMetadata().equals(that.getMetadata()) :
+        String thisMetadata = getMetadata();
+        return thisMetadata != null ?
+                thisMetadata.equals(that.getMetadata()) :
                 that.getMetadata() == null;
     }
 

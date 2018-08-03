@@ -20,6 +20,8 @@
  */
 package org.zanata.magpie.model.type;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.type.descriptor.java.AbstractTypeDescriptor;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -34,7 +36,7 @@ public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode>
     }
 
     @Override
-    public LocaleCode fromString(String string) {
+    public @Nullable LocaleCode fromString(String string) {
         if (string == null) {
             return null;
         } else {
@@ -47,8 +49,9 @@ public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode>
         return value.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <X> X unwrap(LocaleCode value, Class<X> type, WrapperOptions options) {
+    public @Nullable <X> X unwrap(LocaleCode value, Class<X> type, WrapperOptions options) {
         if (value == null) {
             return null;
         }
@@ -59,11 +62,11 @@ public class LocaleCodeTypeDescriptor extends AbstractTypeDescriptor<LocaleCode>
     }
 
     @Override
-    public <X> LocaleCode wrap(X value, WrapperOptions options) {
+    public @Nullable <X> LocaleCode wrap(X value, WrapperOptions options) {
         if (value == null) {
             return null;
         }
-        if (String.class.isInstance(value)) {
+        if (value instanceof String) {
             return new LocaleCode((String) value);
         }
         throw unknownWrap(value.getClass());

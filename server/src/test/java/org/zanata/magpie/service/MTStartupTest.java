@@ -1,13 +1,7 @@
 package org.zanata.magpie.service;
 
-import static org.assertj.core.util.Lists.newArrayList;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
-
 import java.io.File;
 import java.io.IOException;
-
 import javax.servlet.ServletContext;
 
 import org.assertj.core.api.Assertions;
@@ -19,11 +13,15 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
+import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
-import org.zanata.magpie.event.AccountCreated;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -55,7 +53,7 @@ public class MTStartupTest {
     @Test
     public void willNotCreateInitialPasswordIfThereAreAccounts() {
         when(accountService.getAllAccounts(true)).thenReturn(
-                newArrayList(new AccountDto()));
+                ImmutableList.of(new AccountDto()));
 
         mtStartup.onStartUp(context, false, Sets.newHashSet(BackendID.values()));
 

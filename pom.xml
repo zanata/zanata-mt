@@ -26,6 +26,7 @@
     <tag>HEAD</tag>
   </scm>
   <properties>
+    <!-- basedirRoot will be set by directory-maven-plugin (after POM interpolation) -->
     <github.global.server>github</github.global.server>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -35,6 +36,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-war-plugin.version>2.6</maven-war-plugin.version>
     <resteasy.version>3.1.0.Final</resteasy.version>
+    <checker.version>2.5.3</checker.version>
     <!-- resteasy-jackson2-provider depends on this jackson2 version -->
     <jackson2.version>2.8.3</jackson2.version>
     <javamelody.version>1.62.0</javamelody.version>
@@ -67,8 +69,6 @@
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
     <checkstyle.version>7.2</checkstyle.version>
     <checkstyle.skip>false</checkstyle.skip>
-    <checkstyle.config.location>resources/checkstyle.xml</checkstyle.config.location>
-    <checkstyle.suppressions.location>resources/checkstyle-suppressions.xml</checkstyle.suppressions.location>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     <jacoco-maven-plugin.version>0.7.8</jacoco-maven-plugin.version>
     <enunciate.version>2.8.0</enunciate.version>
@@ -93,7 +93,31 @@
 
     <db.name>zanataMT</db.name>
     <datasource.name>java:jboss/datasources/${db.name}</datasource.name>
+
+    <!-- These properties will be set by the Maven Dependency plugin -->
+    <annotatedJdk>${org.checkerframework:jdk8:jar}</annotatedJdk>
   </properties>
+
+  <!--<dependencies>-->
+    <!--&lt;!&ndash; Annotations from the Checker Framework: nullness, interning, locking, ... &ndash;&gt;-->
+    <!--<dependency>-->
+      <!--<groupId>org.checkerframework</groupId>-->
+      <!--<artifactId>checker-qual</artifactId>-->
+      <!--<version>${checker.version}</version>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>org.checkerframework</groupId>-->
+      <!--<artifactId>jdk8</artifactId>-->
+      <!--<version>${checker.version}</version>-->
+    <!--</dependency>-->
+  <!--</dependencies>-->
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+    </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
@@ -522,6 +546,12 @@
         </exclusions>
       </dependency>
 
+      <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations</artifactId>
+        <version>16.0.2</version>
+      </dependency>
+
       <!-- kotlin -->
       <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -699,51 +729,7 @@
             </dependency>
           </dependencies>
         </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.4</version>
-          <configuration>
-            <xmlOutput>true</xmlOutput>
-            <failOnError>${findbugs.failOnError}</failOnError>
-          </configuration>
-          <executions>
-            <execution>
-              <id>default</id>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>${checkstyle.maven.version}</version>
-          <configuration>
-            <skip>${checkstyle.skip}</skip>
-            <configLocation>${checkstyle.config.location}</configLocation>
-            <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
-            <consoleOutput>${checkstyle.consoleOutput}</consoleOutput>
-          </configuration>
 
-          <executions>
-            <execution>
-              <id>check</id>
-              <goals>
-                <goal>check</goal>
-              </goals>
-              <phase>verify</phase>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${checkstyle.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
@@ -884,7 +870,50 @@
               </goals>
             </execution>
           </executions>
+
+          <!--<configuration>-->
+            <!--<compilerArguments>-->
+              <!--<Xmaxerrs>10000</Xmaxerrs>-->
+              <!--<Xmaxwarns>10000</Xmaxwarns>-->
+            <!--</compilerArguments>-->
+            <!--<annotationProcessorPaths>-->
+              <!--<path>-->
+                <!--<groupId>org.checkerframework</groupId>-->
+                <!--<artifactId>checker</artifactId>-->
+                <!--<version>${checker.version}</version>-->
+              <!--</path>-->
+            <!--</annotationProcessorPaths>-->
+            <!--<annotationProcessors>-->
+              <!--&lt;!&ndash; Add all the checkers you want to enable here &ndash;&gt;-->
+              <!--<annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>-->
+            <!--</annotationProcessors>-->
+            <!--<compilerArgs>-->
+              <!--&lt;!&ndash; Idea stolen from https://github.com/maggu2810/kat/blob/072f2bfaac8f273d9f2f5c57b8cb26d8c2a50338/pom.xml#L454-L471 &ndash;&gt;-->
+              <!--&lt;!&ndash; directory containing annotated library stubs &ndash;&gt;-->
+              <!--<arg>-Astubs=${basedirRoot}/tools/checkerframework/stubs</arg>-->
+              <!--<arg>-AstubWarnIfNotFound</arg>-->
+              <!--<arg>-AstubWarnIfOverwritesBytecode</arg>-->
+              <!--<arg>-AstubDebug</arg>-->
+
+              <!--<arg>-Alint</arg>-->
+              <!--<arg>-AprintErrorStack</arg>-->
+              <!--&lt;!&ndash; location of the annotated JDK, which comes from a Maven dependency &ndash;&gt;-->
+              <!--<arg>-Xbootclasspath/p:${annotatedJdk}</arg>-->
+              <!--&lt;!&ndash; turn type-checking errors into warnings for now. &ndash;&gt;-->
+              <!--<arg>-Awarns</arg>-->
+
+              <!--&lt;!&ndash;<arg>-AsuggestPureMethods</arg>&ndash;&gt;-->
+              <!--&lt;!&ndash;<arg>-Ainfer</arg>&ndash;&gt;-->
+              <!--<arg>-AshowSuppressWarningKeys</arg>-->
+              <!--<arg>-AwarnUnneededSuppressions</arg>-->
+
+              <!--&lt;!&ndash; Uncomment the following line to use the type annotations compiler. &ndash;&gt;-->
+              <!--&lt;!&ndash; <arg>-J-Xbootclasspath/p:${fixloc.dir}/${fixloc.checkerframework.compiler.jar}</arg> &ndash;&gt;-->
+            <!--</compilerArgs>-->
+          <!--</configuration>-->
+
         </plugin>
+
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>${maven-clean-plugin.version}</version>
@@ -910,8 +939,116 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.3.1</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <goals>
+              <goal>highest-basedir</goal>
+              <!--<goal>directory-of</goal>-->
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <!-- Set basedirRoot to the root of the project modules
+              (NB: late binding; too late for pom interpolation) -->
+              <property>basedirRoot</property>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--<plugin>-->
+        <!--<artifactId>maven-antrun-plugin</artifactId>-->
+        <!--<version>1.7</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>echo</id>-->
+            <!--<phase>initialize</phase>-->
+            <!--<goals>-->
+              <!--<goal>run</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+              <!--<target>-->
+                <!--<echo>basedirRoot: ${basedirRoot}</echo>-->
+              <!--</target>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      <!--</plugin>-->
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>3.0.4</version>
+        <configuration>
+          <xmlOutput>true</xmlOutput>
+          <failOnError>${findbugs.failOnError}</failOnError>
+          <excludeFilterFile>${basedirRoot}/resources/findbugs-filter.xml</excludeFilterFile>
+          <!--
+          Note: The rule RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE interacts
+          badly with IntelliJ's automatic null checks.
+          cf. https://stackoverflow.com/questions/19213158/how-do-i-turn-off-findbugs-redundant-nullcheck-in-maven
+
+          Until we create a build-tools module for MT (to share findbugs
+          config across modules), the following is the quick and dirty way
+          to disable several null rules including this one. You can also
+          disable it per-build with -Dfindbugs.omitVisitors=FindNullDeref
+          -->
+          <!--<omitVisitors>FindNullDeref</omitVisitors>-->
+        </configuration>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${checkstyle.maven.version}</version>
+        <executions>
+          <execution>
+            <id>check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <configLocation>${basedirRoot}/resources/checkstyle.xml</configLocation>
+          <suppressionsLocation>${basedirRoot}/resources/checkstyle-suppressions.xml</suppressionsLocation>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${checkstyle.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- This plugin will set properties values using dependency information -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

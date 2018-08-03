@@ -1,0 +1,23 @@
+// Thanks to https://github.com/maggu2810/kat/blob/072f2bfaac8f273d9f2f5c57b8cb26d8c2a50338/tools/checkerframework/stubs/org.slf4j.Logger.astub
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+package org.slf4j;
+
+interface Logger {
+    void trace(String format, @Nullable Object arg);
+    void trace(String format, @Nullable Object arg1, @Nullable Object arg2);
+    void trace(String format, @Nullable Object... arguments);
+    void debug(String format, @Nullable Object arg);
+    void debug(String format, @Nullable Object arg1, @Nullable Object arg2);
+    void debug(String format, @Nullable Object... arguments);
+    void info(String format, @Nullable Object arg);
+    void info(String format, @Nullable Object arg1, @Nullable Object arg2);
+    void info(String format, @Nullable Object... arguments);
+    void warn(String format, @Nullable Object arg);
+    void warn(String format, @Nullable Object arg1, @Nullable Object arg2);
+    void warn(String format, @Nullable Object... arguments);
+    void error(String format, @Nullable Object arg);
+    void error(String format, @Nullable Object arg1, @Nullable Object arg2);
+    void error(String format, @Nullable Object... arguments);
+}

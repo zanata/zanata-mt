@@ -1,14 +1,14 @@
 package org.zanata.magpie.service;
 
-import org.assertj.core.util.Lists;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Tag;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,7 +22,7 @@ public class TranslatableHTMLNodeTest {
         Map<String, Node> map = new HashMap<>();
         Element doc = new Element(Tag.valueOf("span"), "", new Attributes());
         TranslatableHTMLNode node = new TranslatableHTMLNode(
-                Lists.newArrayList(doc), map);
+                ImmutableList.of(doc), map);
         assertThat(node.getPlaceholderIdMap()).isEqualTo(map);
         assertThat(node.getHtml()).isEqualTo(doc.outerHtml());
     }

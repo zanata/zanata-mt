@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -137,7 +138,7 @@ public class DocumentResourceImpl implements DocumentResource {
         // if source locale == target locale, return docContent
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
-            LOG.info("Returning request as FROM and TO localeCode are the same: {}", fromLocaleCode);
+            LOG.info("Returning request as is, because FROM and TO localeCode are the same: {}", fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
 
@@ -196,7 +197,7 @@ public class DocumentResourceImpl implements DocumentResource {
         return Optional.empty();
     }
 
-    private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
+    private @Nullable Locale getLocale(LocaleCode localeCode) throws BadRequestException {
         if (localeCode == null) {
             return null;
         }

@@ -26,7 +26,6 @@ import java.util.Optional;
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.core.Response;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,9 +34,10 @@ import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.producer.ValidatorProducer;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
+import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -54,7 +54,7 @@ public class ValidatePayloadInterceptorTest {
         interceptor = new ValidatePayloadInterceptor(new ValidatorProducer().getValidator());
         when(invocationContext.getTarget())
                 .thenReturn(new AccountResourceImpl());
-        List<Method> methods = Lists.newArrayList(
+        List<Method> methods = asList(
                 AccountResourceImpl.class.getDeclaredMethods());
         Optional<Method> methodWithAnno = methods.stream()
                 .filter(m -> m.getAnnotation(ValidatePayload.class) != null)

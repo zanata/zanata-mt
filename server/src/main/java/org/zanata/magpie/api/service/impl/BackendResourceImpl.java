@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -94,7 +95,7 @@ public class BackendResourceImpl implements BackendResource {
     }
 
     @VisibleForTesting
-    protected InputStream getResourceAsStream(String imageResource) {
+    protected @Nullable InputStream getResourceAsStream(String imageResource) {
         ClassLoader classLoader = this.getClass().getClassLoader();
         return classLoader.getResourceAsStream(imageResource);
     }

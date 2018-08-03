@@ -18,7 +18,7 @@ public class TranslatableHTMLNode {
 
     private final List<Node> nodes;
 
-    private Map<String, Node> placeholderIdMap = new HashMap<>();
+    private final Map<String, Node> placeholderIdMap;
 
     public TranslatableHTMLNode(@NotNull List<Node> nodes,
             @NotNull Map<String, Node> placeholderIdMap) {
