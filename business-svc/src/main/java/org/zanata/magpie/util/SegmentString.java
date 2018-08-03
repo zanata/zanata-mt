@@ -1,11 +1,11 @@
 package org.zanata.magpie.util;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.zanata.magpie.api.dto.LocaleCode;
 
-import javax.validation.constraints.NotNull;
 import java.text.BreakIterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -21,7 +21,7 @@ public final class SegmentString {
     public static List<String> segmentString(@NotNull String text,
             Optional<LocaleCode> localeCode) {
         if (StringUtils.isBlank(text)) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
 
         Locale locale =
@@ -34,7 +34,7 @@ public final class SegmentString {
 
     private static List<String> extractList(BreakIterator boundary,
             String source) {
-        List<String> strings = Lists.newArrayList();
+        List<String> strings = new ArrayList<>();
         int start = boundary.first();
         for (int end = boundary.next();
                 end != BreakIterator.DONE;

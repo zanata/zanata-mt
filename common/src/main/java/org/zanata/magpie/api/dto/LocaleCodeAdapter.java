@@ -1,16 +1,17 @@
 package org.zanata.magpie.api.dto;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class LocaleCodeAdapter extends XmlAdapter<String, LocaleCode> {
-    public LocaleCode unmarshal(String s) throws Exception {
+    public @Nullable LocaleCode unmarshal(@Nullable String s) throws Exception {
         if (s == null) {
             return null;
         }
         return new LocaleCode(s);
     }
 
-    public String marshal(LocaleCode localeCode) throws Exception {
+    public @Nullable String marshal(@Nullable LocaleCode localeCode) throws Exception {
         if (localeCode == null) {
             return null;
         }

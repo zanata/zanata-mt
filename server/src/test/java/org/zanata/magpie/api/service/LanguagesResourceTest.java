@@ -1,5 +1,6 @@
 package org.zanata.magpie.api.service;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +42,9 @@ public class LanguagesResourceTest {
     @Test
     public void testGetSupportedLocales() {
         List<Locale> locales =
-                Lists.newArrayList(new Locale(LocaleCode.EN_US, "English"),
+                ImmutableList.of(new Locale(LocaleCode.EN_US, "English"),
                         new Locale(LocaleCode.DE, "German"));
-        List<org.zanata.magpie.api.dto.Locale> expectedLocales = Lists.newArrayList(
+        List<org.zanata.magpie.api.dto.Locale> expectedLocales = ImmutableList.of(
                 new org.zanata.magpie.api.dto.Locale("en-us", "English"),
                 new org.zanata.magpie.api.dto.Locale("de", "German"));
 

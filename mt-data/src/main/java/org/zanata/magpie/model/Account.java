@@ -22,6 +22,7 @@ package org.zanata.magpie.model;
 
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
@@ -154,7 +155,7 @@ public class Account extends ModelEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Account)) return false;
         Account account = (Account) o;

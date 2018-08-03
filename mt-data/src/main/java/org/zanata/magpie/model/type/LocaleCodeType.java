@@ -20,6 +20,8 @@
  */
 package org.zanata.magpie.model.type;
 
+import javax.annotation.Nullable;
+
 import org.hibernate.dialect.Dialect;
 import org.hibernate.type.AbstractSingleColumnStandardBasicType;
 import org.hibernate.type.LiteralType;
@@ -43,7 +45,7 @@ public class LocaleCodeType extends
     }
 
     @Override
-    public String objectToSQLString(LocaleCode value, Dialect dialect)
+    public String objectToSQLString(LocaleCode value, @Nullable Dialect dialect)
             throws Exception {
         return "\'" + toString(value) + "\'";
     }

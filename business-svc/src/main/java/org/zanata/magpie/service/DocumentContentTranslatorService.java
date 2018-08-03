@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -26,7 +27,7 @@ import org.zanata.magpie.util.ArticleUtil;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
 
@@ -44,7 +45,7 @@ public class DocumentContentTranslatorService {
 
     private PersistentTranslationService persistentTranslationService;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "uninitialized"})
     public DocumentContentTranslatorService() {
     }
 
@@ -75,9 +76,9 @@ public class DocumentContentTranslatorService {
         Map<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
         int maxLength = persistentTranslationService.getMaxLength(backendID);
 
-        List<APIResponse> warnings = Lists.newArrayList();
+        List<APIResponse> warnings = new ArrayList<>();
         List<TypeString> results =
-                Lists.newArrayList(documentContent.getContents());
+                new ArrayList<>(documentContent.getContents());
 
         int index = 0;
         for (TypeString typeString: results) {
@@ -142,9 +143,9 @@ public class DocumentContentTranslatorService {
                         Optional.of(doc.getFromLocale().getLocaleCode()));
         List<String> results = new ArrayList<>(segmentedStrings);
 
-        List<String> batchedStrings = Lists.newArrayList();
-        List<Integer> indexOrderList = Lists.newArrayList();
-        List<String> translatedStrings = Lists.newArrayList();
+        List<String> batchedStrings = new ArrayList<>();
+        List<Integer> indexOrderList = new ArrayList<>();
+        List<String> translatedStrings = new ArrayList<>();
         int charCount = 0;
         for (int index = 0; index < segmentedStrings.size(); index++) {
             String string = segmentedStrings.get(index);
@@ -189,8 +190,8 @@ public class DocumentContentTranslatorService {
             MediaType mediaType, int maxLength,
             Map<Integer, TypeString> indexTypeStringMap,
             List<TypeString> results) {
-        List<String> batchedStrings = Lists.newArrayList();
-        List<Integer> indexOrderList = Lists.newArrayList();
+        List<String> batchedStrings = new ArrayList<>();
+        List<Integer> indexOrderList = new ArrayList<>();
         Map<Integer, TranslatableHTMLNode> htmlNodeCache = new HashMap<>();
 
         int charCount = 0;
@@ -279,7 +280,7 @@ public class DocumentContentTranslatorService {
                 if (html.length() <= maxLength) {
                     List<String> translated =
                             persistentTranslationService
-                                    .translate(doc, Lists.newArrayList(html),
+                                    .translate(doc, ImmutableList.of(html),
                                             doc.getFromLocale(),
                                             doc.getToLocale(), backendID,
                                             mediaType, Optional.of(CATEGORY));
@@ -303,7 +304,7 @@ public class DocumentContentTranslatorService {
                 index++;
             }
         }
-        return contents.stream().map(node -> node.outerHtml())
+        return contents.stream().map(Node::outerHtml)
                 .collect(Collectors.joining());
     }
 

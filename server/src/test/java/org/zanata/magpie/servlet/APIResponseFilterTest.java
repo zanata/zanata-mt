@@ -19,7 +19,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;

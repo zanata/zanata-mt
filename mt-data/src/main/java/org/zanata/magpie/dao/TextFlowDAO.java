@@ -26,6 +26,7 @@ public class TextFlowDAO extends AbstractDAO<TextFlow> {
         setEntityManager(entityManager);
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<TextFlow> getLatestByContentHash(LocaleCode localeCode,
             String contentHash) {
         String query =

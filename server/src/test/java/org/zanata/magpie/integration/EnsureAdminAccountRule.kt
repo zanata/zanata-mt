@@ -61,7 +61,7 @@ object EnsureAdminAccountRule : TestRule {
         if (!adminUserCreated && !isAdminCreatedOnServer()) {
             // we can use initial password to authenticate as an admin and create a user
             val client = RestTest.setCommonHeaders(RestTest.newClient("account"), RestTest.adminUsername, initialPassword)
-            val response = client.post(Entity.json(AccountDto(null, "Admin", "admin@example.com",
+            val response = client.post(Entity.json(AccountDto(1, "Admin", "admin@example.com",
                     AccountType.Normal, setOf(Role.admin),
                     setOf(CredentialDto(RestTest.adminUsername, RestTest.adminSecret.toCharArray())))))
 
@@ -74,7 +74,7 @@ object EnsureAdminAccountRule : TestRule {
     private fun readInitialPasswordFromFile(): String {
         val initialPasswordFile = File("/tmp/initialPassword")
         // we will write the initial password to file
-        "docker cp MT:/opt/jboss/magpie_initial_password $initialPasswordFile".runCommand(5)
+        "docker cp MT:/home/jboss/magpie_initial_password $initialPasswordFile".runCommand(5)
 
         Assume.assumeTrue("can copy initialPassword file",
                 initialPasswordFile.exists() && initialPasswordFile.canRead())

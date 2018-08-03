@@ -1,6 +1,7 @@
 package org.zanata.magpie.model;
 
 import java.io.Serializable;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 
@@ -45,7 +46,7 @@ public enum  BackendID implements Serializable {
      *            string representation of the enum constants
      * @return the enum constant
      */
-    public static BackendID fromString(String value) {
+    public static @Nullable BackendID fromString(String value) {
         if (Strings.isNullOrEmpty(value)) {
             return null;
         }

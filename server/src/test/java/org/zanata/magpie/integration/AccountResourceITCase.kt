@@ -32,7 +32,7 @@ class AccountResourceITCase {
     fun nonAdminUserCanNotCallAccountAPI() {
         val username = System.currentTimeMillis().toString()
         // create an non admin user first
-        val accountDto = AccountDto(null, "User", username + "@example.com",
+        val accountDto = AccountDto(1, "User", username + "@example.com",
                 AccountType.Normal, setOf(), setOf(
                 CredentialDto(username, "password".toCharArray())
         ))

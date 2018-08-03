@@ -324,8 +324,8 @@ void dockerBuildAndPushToManagedPaaS(String dockerImage) {
       sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused ${env.MT_DOCKER_REGISTRY_URL}"
 
       echo "Pushing to docker registry..."
-      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
-      sh "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
+      dockerPush "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
+      dockerPush "${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
 
       echo "Docker logout.."
       sh "docker logout ${env.MT_DOCKER_REGISTRY_URL}"
@@ -359,14 +359,19 @@ void dockerBuildAndPushToOpenPaaS(String dockerImage) {
   }
 
   echo "Pushing to docker registry..."
-  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
-  sh "docker push ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+  dockerPush "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version"
+  dockerPush "${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
 
   echo "Docker logout.."
   sh "docker logout ${env.MT_DOCKER_REGISTRY_URL_OPEN}"
 
   echo "Remove local docker image $dockerImage:$version"
   sh "docker rmi $dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:$version; docker rmi ${env.MT_DOCKER_REGISTRY_URL_OPEN}/$dockerImage:latest"
+}
+
+// workaround from https://github.com/moby/moby/issues/28596#issuecomment-261648948
+def dockerPush(String image) {
+  sh "for i in {1..5}; do docker push $image && break || sleep 15; done"
 }
 
 /**
@@ -393,9 +398,8 @@ String getOpenshiftClient() {
  * Process test results/coverage after build. Marks build as unstable if any tests fail.
  */
 void processTestResults() {
-  def surefireTestReports = 'target/surefire-reports/TEST-*.xml'
   // Marks build as unstable if any tests fail.
-  junit testResults: "**/${surefireTestReports}"
+  junit testResults: '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
 
   // notify if compile+unit test successful
   notify.testResults("UNIT", currentBuild.result)
@@ -446,10 +450,11 @@ void buildAndTagDockerImage(workspace, dockerImage, dockerRegistryUrl) {
    * TODO: move download cert task to Dockerfile when docker host is stable
    */
   def certName = 'rds-combined-ca-bundle.pem'
-  sh "curl -o $workspace/docker/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
-  sh "curl -o $workspace/docker/certs/RH-IT-Root-CA.crt $env.SSL_CA_CERT"
-  sh "curl -o $workspace/docker/certs/newca.crt $env.OLD_SSL_CA_CERT"
-  sh "curl -o $workspace/docker/certs/RH-IT-pki-ca-chain.crt $env.SSL_INTERMEDIATE_CA_CERT"
+  def quiet = '--silent --show-error'
+  sh "curl $quiet -o $workspace/docker/certs/$certName http://s3.amazonaws.com/rds-downloads/$certName"
+  sh "curl $quiet -o $workspace/docker/certs/RH-IT-Root-CA.crt $env.SSL_CA_CERT"
+  sh "curl $quiet -o $workspace/docker/certs/newca.crt $env.OLD_SSL_CA_CERT"
+  sh "curl $quiet -o $workspace/docker/certs/RH-IT-pki-ca-chain.crt $env.SSL_INTERMEDIATE_CA_CERT"
 
   echo "Building docker MT $version..."
   sh "docker build --pull --no-cache -f $workspace/Dockerfile -t $dockerImage:$version $workspace"
