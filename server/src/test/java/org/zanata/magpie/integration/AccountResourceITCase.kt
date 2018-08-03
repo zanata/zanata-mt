@@ -6,9 +6,7 @@ import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.zanata.magpie.api.dto.AccountDto
-import org.zanata.magpie.api.dto.CredentialDto
 import org.zanata.magpie.model.AccountType
-import java.util.*
 import javax.ws.rs.client.Entity
 import javax.ws.rs.core.GenericType
 import javax.ws.rs.core.Response
@@ -32,10 +30,8 @@ class AccountResourceITCase {
     fun nonAdminUserCanNotCallAccountAPI() {
         val username = System.currentTimeMillis().toString()
         // create an non admin user first
-        val accountDto = AccountDto(1, "User", username + "@example.com",
-                AccountType.Normal, setOf(), setOf(
-                CredentialDto(username, "password".toCharArray())
-        ))
+        val accountDto = AccountDto(null, "User", username + "@example.com",
+                username,  "password".toCharArray(), AccountType.Normal, setOf())
         val response = RestTest.setCommonHeadersAsAdmin(RestTest.newClient("account"))
                 .post(Entity.json(accountDto))
 

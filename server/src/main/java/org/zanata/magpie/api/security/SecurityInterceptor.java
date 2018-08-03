@@ -80,11 +80,11 @@ public class SecurityInterceptor implements ContainerRequestFilter {
         }
         String username =
                 requestContext.getHeaderString(APIConstant.HEADER_USERNAME);
-        String token =
+        String password =
                 requestContext.getHeaderString(APIConstant.HEADER_API_KEY);
-        if (username != null && token != null) {
+        if (username != null && password != null) {
             Optional<Account> account =
-                    tryAuthenticate(username, token, requestContext);
+                    tryAuthenticate(username, password, requestContext);
             if (account.isPresent()) {
                 log.debug("authenticated {}", username);
                 authenticatedAccount.setAuthenticatedAccount(account.get());
@@ -96,19 +96,19 @@ public class SecurityInterceptor implements ContainerRequestFilter {
                 .abortWith(Response.status(Status.UNAUTHORIZED).build());
     }
 
-    private Optional<Account> tryAuthenticate(String username, String token,
+    private Optional<Account> tryAuthenticate(String username, String passwordHash,
             ContainerRequestContext requestContext) {
         String initialPass = initialPassword.get();
         if (initialPass == null) {
-            return accountService.authenticate(username, token);
+            return accountService.authenticate(username, passwordHash);
         } else if ("admin".equals(username)
-                && Objects.equals(token, initialPass)) {
+                && Objects.equals(passwordHash, initialPass)) {
             log.info("authenticating using initial password");
 
             if (isAccessingAccountCreation(requestContext)) {
                 Account initialAdmin = new Account("initial",
-                        "magpie@zanata.org", AccountType.Normal,
-                        Sets.newHashSet(Role.admin));
+                    "magpie@zanata.org", username, passwordHash, AccountType.Normal,
+                    Sets.newHashSet(Role.admin));
                 return Optional.of(initialAdmin);
             } else {
                 log.warn(

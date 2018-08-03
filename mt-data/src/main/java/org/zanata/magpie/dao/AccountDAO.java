@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 
-import org.zanata.magpie.model.Credential;
 import org.zanata.magpie.model.Account;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -61,13 +60,6 @@ public class AccountDAO extends AbstractDAO<Account> {
         } else {
             return Optional.of(accounts.get(0));
         }
-    }
-
-    public Account saveCredentialAndAccount(Credential credential, Account account) {
-        account.getCredentials().add(credential);
-        getEntityManager().persist(account);
-        getEntityManager().persist(credential);
-        return account;
     }
 
     public List<Account> findAll() {
