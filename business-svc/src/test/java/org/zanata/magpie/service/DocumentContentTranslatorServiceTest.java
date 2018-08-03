@@ -49,6 +49,12 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
+    public void testEmptyConstructor() {
+        DocumentContentTranslatorService
+                documentContentTranslatorService = new DocumentContentTranslatorService();
+    }
+
+    @Test
     public void testGetMediaType() {
         assertThatThrownBy(
                 () -> documentContentTranslatorService.getMediaType("notSupportType"))
