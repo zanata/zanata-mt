@@ -6,6 +6,7 @@ import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.service.TranslatorBackend;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,7 +46,7 @@ public class MockTranslatorBackend implements TranslatorBackend {
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType, Optional<String> category)
+            StringType stringType, Optional<String> category)
             throws MTException {
         List<AugmentedTranslation> translations = contents.stream()
                 .map(source -> new AugmentedTranslation(

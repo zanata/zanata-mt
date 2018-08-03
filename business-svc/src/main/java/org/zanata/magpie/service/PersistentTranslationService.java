@@ -51,6 +51,7 @@ import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowTarget;
 import org.zanata.magpie.util.HashUtil;
@@ -113,7 +114,7 @@ public class PersistentTranslationService {
     public List<String> translate(@NotNull Document document,
             @NotNull List<String> sourceStrings,
             @NotNull Locale fromLocale, @NotNull Locale toLocale,
-            @NotNull BackendID backendID, @NotNull MediaType mediaType,
+            @NotNull BackendID backendID, @NotNull StringType stringType,
             Optional<String> category)
             throws BadRequestException, MTException {
         if (sourceStrings == null || sourceStrings.isEmpty() || fromLocale == null
@@ -186,7 +187,7 @@ public class PersistentTranslationService {
         Date engineInvokeTime = new Date();
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(sourcesToTranslate, mappedFromLocaleCode,
-                        mappedToLocaleCode, mediaType, category);
+                        mappedToLocaleCode, stringType, category);
 
         LOG.info("triggered MT engine {} from {} to {}", backendID,
                 fromLocale.getLocaleCode(), toLocale.getLocaleCode());

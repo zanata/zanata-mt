@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
 
 import org.zanata.magpie.annotation.Credentials;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -36,6 +35,7 @@ import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.service.TranslatorBackend;
 import org.zanata.magpie.util.DTOUtil;
 
@@ -93,15 +93,27 @@ public class GoogleTranslatorBackend implements TranslatorBackend {
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale, BackendLocaleCode targetLocale,
-            MediaType mediaType, Optional<String> category) throws MTException {
-        String format = MediaType.TEXT_HTML_TYPE.isCompatible(mediaType) ? "html" : "text";
+            StringType stringType, Optional<String> category) throws MTException {
+        // treat XML as HTML for Google
+        String format;
+        switch (stringType) {
+            case HTML:
+            case XML:
+                format = "html";
+                break;
+            case TEXT_PLAIN:
+                format = "text";
+                break;
+            default:
+                throw new RuntimeException(stringType.name());
+        }
         List<Translate.TranslateOption> options = Lists.newLinkedList();
         options.add(Translate.TranslateOption
                 .targetLanguage(
                         targetLocale.getLocaleCode()));
         options.add(Translate.TranslateOption.format(format));
         Translate.TranslateOption[] translateOptions = options
-                .toArray(new Translate.TranslateOption[options.size()]);
+                .toArray(new Translate.TranslateOption[0]);
         if (!googleCredential.exists()) {
             throw new BadRequestException("Google Default Credential file is not setup");
         }

@@ -25,6 +25,7 @@ import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayReqOptions;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.service.TranslatorBackend;
 import org.zanata.magpie.util.DTOUtil;
 
@@ -86,7 +87,7 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
     @Override
     public List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode fromLocale,
-            BackendLocaleCode toLocale, MediaType mediaType,
+            BackendLocaleCode toLocale, StringType stringType,
             Optional<String> category)
             throws MTException {
         try {
@@ -97,7 +98,20 @@ public class MicrosoftTranslatorBackend implements TranslatorBackend {
                 req.getTexts().add(new MSString(content));
             }
             MSTranslateArrayReqOptions options = new MSTranslateArrayReqOptions();
-            options.setContentType(mediaType.toString());
+            // treat XML as HTML for MS
+            String format;
+            switch (stringType) {
+                case HTML:
+                case XML:
+                    format = MediaType.TEXT_HTML;
+                    break;
+                case TEXT_PLAIN:
+                    format = MediaType.TEXT_PLAIN;
+                    break;
+                default:
+                    throw new RuntimeException(stringType.name());
+            }
+            options.setContentType(format);
             category.ifPresent(options::setCategory);
             req.setOptions(options);
 

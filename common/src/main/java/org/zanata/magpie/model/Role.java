@@ -22,6 +22,5 @@ package org.zanata.magpie.model;
 
 public enum Role {
     admin,
-    user;
-
+    user
 }

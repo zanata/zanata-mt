@@ -21,7 +21,7 @@ public class TranslatableHTMLNodeTest {
     public void testConstructor() {
         Map<String, Node> map = new HashMap<>();
         Element doc = new Element(Tag.valueOf("span"), "", new Attributes());
-        TranslatableHTMLNode node = new TranslatableHTMLNode(
+        TranslatableNodeList node = new TranslatableNodeList(
                 ImmutableList.of(doc), map);
         assertThat(node.getPlaceholderIdMap()).isEqualTo(map);
         assertThat(node.getHtml()).isEqualTo(doc.outerHtml());
