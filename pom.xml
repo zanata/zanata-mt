@@ -672,11 +672,12 @@
                   <rule>
                     <element>BUNDLE</element>
                     <limits>
-                      <limit>
-                        <counter>COMPLEXITY</counter>
-                        <value>COVEREDRATIO</value>
-                        <minimum>${coverage.complexity.min}</minimum>
-                      </limit>
+                      <!-- Too easily confused by Kotlin compiler. Try again with 0.8.2 -->
+                      <!--<limit>-->
+                        <!--<counter>COMPLEXITY</counter>-->
+                        <!--<value>COVEREDRATIO</value>-->
+                        <!--<minimum>${coverage.complexity.min}</minimum>-->
+                      <!--</limit>-->
                       <limit>
                         <counter>LINE</counter>
                         <value>COVEREDRATIO</value>
@@ -813,6 +814,7 @@
 
               <!-- CDI beans (so they can be proxied) -->
               <option>all-open:annotation=javax.enterprise.context.NormalScope</option>
+              <option>all-open:annotation=javax.ejb.Stateless</option>
               <!-- Hibernate/JPA entities -->
               <option>all-open:annotation=javax.persistence.Entity</option>
               <!-- JUnit tests (CDI-Unit or Mockito) -->
@@ -821,6 +823,7 @@
               <!-- Create synthetic no-arg constructors for JPA entities and CDI beans: -->
               <option>no-arg:annotation=javax.persistence.Entity</option>
               <option>no-arg:annotation=javax.enterprise.context.NormalScope</option>
+              <option>no-arg:annotation=javax.ejb.Stateless</option>
             </pluginOptions>
           </configuration>
           <dependencies>
