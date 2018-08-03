@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
-import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.model.TextFlowTarget;
 import com.google.common.collect.ImmutableList;
 
@@ -78,7 +78,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
     public void canTranslateSameFromDifferentProvider() {
         List<String> sourceString = ImmutableList.of("hello");
         Optional<String> category = Optional.empty();
-        MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
+        StringType stringType = StringType.TEXT_PLAIN;
 
         BackendLocaleCode devFromLocale =
                 new BackendLocaleCodeImpl(
@@ -91,12 +91,12 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
         when(devBackend.getMappedLocale(toLocale.getLocaleCode()))
                 .thenReturn(devToLocale);
         when(devBackend.translate(sourceString, devFromLocale,
-                devToLocale, mediaType, category))
+                devToLocale, stringType, category))
                         .thenReturn(ImmutableList.of(
                                 new AugmentedTranslation("hola", "hola")));
 
         service.translate(document, sourceString, fromLocale, toLocale,
-                BackendID.DEV, mediaType, category);
+                BackendID.DEV, stringType, category);
 
         getEm().flush();
 
@@ -107,12 +107,12 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
                 .thenReturn(devToLocale);
         when(msBackend.translate(sourceString, devFromLocale,
-                devToLocale, mediaType, category))
+                devToLocale, stringType, category))
                 .thenReturn(ImmutableList.of(
                         new AugmentedTranslation("hola", "hola")));
 
         service.translate(document, sourceString, fromLocale, toLocale,
-                BackendID.MS, mediaType, category);
+                BackendID.MS, stringType, category);
 
         getEm().flush();
         assertThat(getAllTextFlowTargets()).hasSize(2);

@@ -7,9 +7,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-import javax.ws.rs.core.MediaType;
-
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.model.AugmentedTranslation;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.DTOUtil;
 
 import com.google.cloud.translate.Translate;
@@ -65,7 +63,7 @@ public class GoogleTranslatorBackendTest {
                         .thenReturn(expectedTrans);
         List<AugmentedTranslation> translations = backend.translate(source,
                 new BackendLocaleCodeImpl("en"), new BackendLocaleCodeImpl("zh"),
-                MediaType.TEXT_HTML_TYPE, Optional.empty());
+                StringType.HTML, Optional.empty());
 
         assertThat(translations).hasSize(expectedTrans.size());
         AugmentedTranslation augmentedTranslation = translations.get(0);
@@ -83,7 +81,7 @@ public class GoogleTranslatorBackendTest {
                 .thenReturn(expectedTrans);
         List<AugmentedTranslation> translations = backend.translate(source,
                 new BackendLocaleCodeImpl("en"), new BackendLocaleCodeImpl("zh"),
-                MediaType.TEXT_PLAIN_TYPE, Optional.empty());
+                StringType.TEXT_PLAIN, Optional.empty());
 
         assertThat(translations).hasSize(expectedTrans.size());
         AugmentedTranslation augmentedTranslation = translations.get(0);

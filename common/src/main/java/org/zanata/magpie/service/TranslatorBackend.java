@@ -11,6 +11,7 @@ import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
+import org.zanata.magpie.model.StringType;
 
 /**
  * Interface for machine translation provider
@@ -25,7 +26,7 @@ public interface TranslatorBackend {
      */
     List<AugmentedTranslation> translate(List<String> contents,
             BackendLocaleCode srcLocale,
-            BackendLocaleCode targetLocale, MediaType mediaType,
+            BackendLocaleCode targetLocale, StringType stringType,
             Optional<String> category)
             throws MTException;
 

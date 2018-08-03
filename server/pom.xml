@@ -21,7 +21,6 @@
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <GOOGLE_APPLICATION_CREDENTIALS>${project.build.testOutputDirectory}/mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
-    <kotlin.version>1.1.51</kotlin.version>
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
     <DEFAULT_TRANSLATION_PROVIDER>DEV</DEFAULT_TRANSLATION_PROVIDER>
@@ -501,13 +500,11 @@
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-jre8</artifactId>
-      <version>${kotlin.version}</version>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test-junit</artifactId>
-      <version>${kotlin.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

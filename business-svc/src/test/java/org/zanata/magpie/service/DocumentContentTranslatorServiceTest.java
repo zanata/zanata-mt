@@ -27,7 +27,7 @@ import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
 
@@ -160,6 +160,35 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
+    public void testXMLTags() {
+        int maxLength = 250;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "The <literal>@watch</literal> annotation is not working with accumulate in rules. [<link xlink:href=\"https://issues.jboss.org/browse/RHDM-509\">RHDM-509</link>]";
+        String expectedHtml = "translated[网 The <literal>@watch</literal> annotation is not working with accumulate in rules. [<link xlink:href=\"https://issues.jboss.org/browse/RHDM-509\">RHDM-509</link>] 网]";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of(expectedHtml));
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_XML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+    }
+
+    @Test
     public void testTranslateLongPlainText() {
         int maxLength = 50;
 
@@ -176,22 +205,22 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document,
                 strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(2, 3), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:The mysterious diary records the voice. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(3, 4), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:She was too short to see over the fence. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(4, 5), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:Everyone was busy, so I went to the movie alone. "));
 
         DocumentContent docContent =
@@ -275,18 +304,18 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document, processedHtmls,
                 srcLocale, transLocale, BackendID.MS,
-                MediaType.TEXT_HTML_TYPE, Optional.of("tech"))).thenReturn(translatedHtmls);
+                StringType.HTML, Optional.of("tech"))).thenReturn(translatedHtmls);
 
         when(persistentTranslationService
                 .translate(document, text.subList(0, 2),
                         srcLocale, transLocale, BackendID.MS,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(translatedText.subList(0, 2));
 
         when(persistentTranslationService
                 .translate(document, text.subList(2, 3),
                         srcLocale, transLocale, BackendID.MS,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(translatedText.subList(2, 3));
 
         DocumentContent translatedDocContent = documentContentTranslatorService
@@ -311,7 +340,7 @@ public class DocumentContentTranslatorServiceTest {
                 times(requestsCount))
                 .translate(any(), anyList(), any(Locale.class),
                         any(Locale.class),
-                        any(BackendID.class), any(MediaType.class),
+                        any(BackendID.class), any(StringType.class),
                         any());
     }
 }
