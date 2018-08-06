@@ -84,10 +84,11 @@ public class DocumentContentTranslatorService {
         for (TypeString typeString: results) {
             MediaType mediaType = getMediaType(typeString.getType());
             String source = typeString.getValue();
-            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
+            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)
+                    && !StringUtils.isBlank(source)) {
                 if (source.length() <= maxLength) {
                     indexTextMap.put(index, typeString);
-                } else if (!StringUtils.isBlank(source)) {
+                } else {
                     String translatedString =
                             translateLargeString(doc, backendID,
                                     mediaType, source, maxLength, warnings);
@@ -101,7 +102,7 @@ public class DocumentContentTranslatorService {
 
                 if (html.length() <= maxLength) {
                     indexHTMLMap.put(index, typeString);
-                } else  if (!StringUtils.isBlank(source)) {
+                } else {
                     String translatedString =
                             translateLargeHTMLElement(doc, backendID, mediaType,
                                     maxLength, html, warnings);
