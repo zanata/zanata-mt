@@ -48,7 +48,6 @@ import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.ValidatePayload;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
@@ -108,13 +107,10 @@ public class AccountResourceImpl {
     @POST
     @CheckRole("admin")
     public Response registerNewAccount(AccountDto accountDto) {
-        // TODO only support one credential for now
-        CredentialDto credentialDto =
-                accountDto.getCredentials().iterator().next();
         AccountDto dto =
-                tryApplyChange(() -> accountService.registerNewAccount(
-                        accountDto, credentialDto.getUsername(),
-                        credentialDto.getSecret()));
+            tryApplyChange(() -> accountService.registerNewAccount(
+                accountDto, accountDto.getUsername(),
+                accountDto.getPassword()));
 
         // as soon as we have an admin user, we should remove initial password
         accountCreatedEvent.fire(new AccountCreated(dto.getEmail(), dto.getRoles()));
@@ -136,6 +132,12 @@ public class AccountResourceImpl {
         }
     }
 
+    /**
+     * Login API
+     *
+     * @param authHeader
+     * @return
+     */
     @POST
     @Path("/login")
     public Response login(@HeaderParam("Authentication") String authHeader) {
@@ -174,6 +176,12 @@ public class AccountResourceImpl {
         }
     }
 
+    /**
+     * authHeader: expected format "hmac {username}:{digest}"
+     * digest:
+     *    Passphrase = {endpoint + '/' + username}
+     *    var encryptedAES = CryptoJS.AES.encrypt({password}, Passphrase);
+     */
     protected Optional<Auth> processAuthHeader(@NotNull String authHeader) {
         Matcher m = AUTHPATTERN.matcher(authHeader);
         if (m.find()) {
@@ -184,12 +192,6 @@ public class AccountResourceImpl {
         return Optional.empty();
     }
 
-    /**
-     * expected format "hmac {username}:{digest}"
-     * digest:
-     *   Passphrase = {endpoint + '/' + username}
-     *   var encryptedAES = CryptoJS.AES.encrypt({password}, Passphrase);
-     */
     private static class Auth {
         private String username;
         private String digest;

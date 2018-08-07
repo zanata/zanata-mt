@@ -21,6 +21,7 @@
 package org.zanata.magpie.backend;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -49,7 +50,7 @@ public class BackendLocaleCodeImpl implements BackendLocaleCode {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof BackendLocaleCodeImpl)) return false;
         BackendLocaleCodeImpl that = (BackendLocaleCodeImpl) o;

@@ -1,6 +1,7 @@
 package org.zanata.magpie.api.dto;
 
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -56,7 +57,7 @@ public class Locale implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Locale)) return false;
 

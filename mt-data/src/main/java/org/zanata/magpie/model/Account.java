@@ -22,6 +22,7 @@ package org.zanata.magpie.model;
 
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
@@ -49,17 +50,20 @@ import com.google.common.collect.Sets;
 @Access(AccessType.FIELD)
 @NamedQueries({
         @NamedQuery(name = Account.QUERY_BY_USERNAME,
-                query = "select a from Account a join fetch a.credentials c where c.username = :username and a.enabled = true"),
+                query = "select a from Account a where a.username = :username and a.enabled = true"),
         @NamedQuery(name = Account.QUERY_BY_EMAIL,
-                query = "select a from Account a join fetch a.credentials c where a.email = :email and a.enabled = true"),
+                query = "select a from Account a where a.email = :email and a.enabled = true"),
         @NamedQuery(name = Account.QUERY_ALL_ACCOUNTS,
                 query = "from Account a join fetch a.roles order by a.creationDate"),
         @NamedQuery(name = Account.QUERY_ENABLED_ACCOUNTS,
                 query = "from Account a join fetch a.roles where a.enabled = true order by a.creationDate")
 })
 @Table(
-        name = "account",
-        uniqueConstraints = @UniqueConstraint(name = "UK_account_email", columnNames = {"email"})
+    name = "account",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "UK_account_email", columnNames = { "email" }),
+        @UniqueConstraint(name = "UsernameUnique", columnNames = {
+            "username" }) }
 )
 public class Account extends ModelEntity {
     private static final long serialVersionUID = -8177299694942674381L;
@@ -74,9 +78,13 @@ public class Account extends ModelEntity {
     private String email;
     private AccountType accountType;
 
-    @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL },
-            orphanRemoval = true)
-    private Set<Credential> credentials = Sets.newHashSet();
+    @NotNull
+    @Size(min = 2, max = 20)
+    private String username;
+
+    @Size(min = 50, max = 50)
+    @NotNull
+    private String passwordHash;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -90,10 +98,12 @@ public class Account extends ModelEntity {
             mappedBy = "triggeredBy")
     private Set<TextFlowMTRequest> mtRequests;
 
-    public Account(String name, String email,
-            AccountType accountType, Set<Role> roles) {
+    public Account(String name, String email, String username, String passwordHash,
+        AccountType accountType, Set<Role> roles) {
         this.name = name;
         this.email = email;
+        this.username = username;
+        this.passwordHash = passwordHash;
         this.accountType = accountType;
         this.roles = roles;
     }
@@ -117,8 +127,20 @@ public class Account extends ModelEntity {
         return roles;
     }
 
-    public Set<Credential> getCredentials() {
-        return credentials;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void setName(String name) {
@@ -131,10 +153,6 @@ public class Account extends ModelEntity {
 
     public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
-    }
-
-    public void setCredentials(Set<Credential> credentials) {
-        this.credentials = credentials;
     }
 
     public void setRoles(Set<Role> roles) {
@@ -154,20 +172,25 @@ public class Account extends ModelEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof Account)) return false;
         Account account = (Account) o;
-        return Objects.equals(name, account.name) &&
-                Objects.equals(email, account.email) &&
-                accountType == account.accountType &&
-                Objects.equals(roles, account.roles);
+        return enabled == account.enabled &&
+            Objects.equals(name, account.name) &&
+            Objects.equals(email, account.email) &&
+            accountType == account.accountType &&
+            Objects.equals(username, account.username) &&
+            Objects.equals(passwordHash, account.passwordHash) &&
+            Objects.equals(roles, account.roles) &&
+            Objects.equals(mtRequests, account.mtRequests);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(name, email, accountType, roles);
+        return Objects
+            .hash(name, email, accountType, username, passwordHash, roles, enabled,
+                mtRequests);
     }
 
     public boolean hasRole(String role) {

@@ -1,6 +1,6 @@
 package org.zanata.magpie.api.dto;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -20,7 +20,7 @@ public class DocumentContentTest {
 
     @Test
     public void testConstructor() {
-        List<TypeString> lists = Lists.newArrayList(
+        List<TypeString> lists = ImmutableList.of(
                 new TypeString("test", "text/plain", "meta"));
         DocumentContent
                 docContent = new DocumentContent(lists, "http://localhost", "en");
@@ -33,9 +33,9 @@ public class DocumentContentTest {
 
     @Test
     public void testConstructor2() {
-        List<TypeString> lists = Lists.newArrayList(
+        List<TypeString> lists = ImmutableList.of(
                 new TypeString("test", "text/plain", "meta"));
-        List<APIResponse> warnings = Lists.newArrayList(
+        List<APIResponse> warnings = ImmutableList.of(
                 new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
         DocumentContent
                 docContent = new DocumentContent(lists, "http://localhost", "en", "backendId", warnings);
@@ -58,7 +58,7 @@ public class DocumentContentTest {
     public void testContents() {
         DocumentContent docContent = new DocumentContent();
         List<TypeString> lists =
-                Lists.newArrayList(
+                ImmutableList.of(
                         new TypeString("test", "text/plain", "meta"));
         docContent.setContents(lists);
         assertThat(docContent.getContents()).isEqualTo(lists);
@@ -81,7 +81,7 @@ public class DocumentContentTest {
     @Test
     public void testWarnings() {
         DocumentContent docContent = new DocumentContent();
-        List<APIResponse> warnings = Lists.newArrayList(
+        List<APIResponse> warnings = ImmutableList.of(
                 new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
         docContent.setWarnings(warnings);
         assertThat(docContent.getWarnings()).isEqualTo(warnings);
@@ -115,7 +115,7 @@ public class DocumentContentTest {
         // change contents
         docContent2 = getDefaultDocContent();
         docContent2.setContents(
-                Lists.newArrayList(
+                ImmutableList.of(
                         new TypeString("test2", "text/plain", "meta")));
 
         assertThat(docContent1.equals(docContent2)).isFalse();
@@ -128,10 +128,10 @@ public class DocumentContentTest {
     }
 
     private DocumentContent getDefaultDocContent() {
-        List<APIResponse> warnings = Lists.newArrayList(
+        List<APIResponse> warnings = ImmutableList.of(
                 new APIResponse(Response.Status.BAD_REQUEST, "bad request"));
         List<TypeString> lists =
-                Lists.newArrayList(
+                ImmutableList.of(
                         new TypeString("test", "text/plain", "meta"));
         return new DocumentContent(lists, "http://localhost", "en", "backendId",
                 warnings);

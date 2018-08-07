@@ -1,7 +1,6 @@
 package org.zanata.magpie.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Mockito.when;
 import static org.zanata.magpie.model.BackendID.DEV;
 import static org.zanata.magpie.model.BackendID.GOOGLE;
@@ -34,6 +33,7 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlowTarget;
+import com.google.common.collect.ImmutableList;
 
 public class PersistentTranslationServiceJpaTest extends JPATest {
     @Mock
@@ -66,7 +66,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
         when(googleBackend.getId()).thenReturn(GOOGLE);
         when(devBackend.getId()).thenReturn(DEV);
         when(backendInstances.iterator()).thenReturn(
-                newArrayList(msBackend, googleBackend, devBackend).iterator());
+                ImmutableList.of(msBackend, googleBackend, devBackend).iterator());
         AuthenticatedAccount authenticatedAccount = new AuthenticatedAccount();
         authenticatedAccount.setAuthenticatedAccount(new Account());
         service = new PersistentTranslationService(new TextFlowDAO(getEm()),
@@ -76,7 +76,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
 
     @Test
     public void canTranslateSameFromDifferentProvider() {
-        List<String> sourceString = newArrayList("hello");
+        List<String> sourceString = ImmutableList.of("hello");
         Optional<String> category = Optional.empty();
         MediaType mediaType = MediaType.TEXT_PLAIN_TYPE;
 
@@ -92,7 +92,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
                 .thenReturn(devToLocale);
         when(devBackend.translate(sourceString, devFromLocale,
                 devToLocale, mediaType, category))
-                        .thenReturn(newArrayList(
+                        .thenReturn(ImmutableList.of(
                                 new AugmentedTranslation("hola", "hola")));
 
         service.translate(document, sourceString, fromLocale, toLocale,
@@ -108,7 +108,7 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
                 .thenReturn(devToLocale);
         when(msBackend.translate(sourceString, devFromLocale,
                 devToLocale, mediaType, category))
-                .thenReturn(newArrayList(
+                .thenReturn(ImmutableList.of(
                         new AugmentedTranslation("hola", "hola")));
 
         service.translate(document, sourceString, fromLocale, toLocale,

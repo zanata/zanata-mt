@@ -32,7 +32,7 @@ object RestTest {
     val port = System.getProperty("http.port", "8080")
     val baseUrl = "http://localhost:$port/api/"
     val adminUsername = "admin"
-    val adminSecret = "secret"
+    val adminPassword = "password"
 
     fun newClient(path: String) = ResteasyClientBuilder().build()
                 .target(RestTest.baseUrl).path(path)
@@ -47,7 +47,7 @@ object RestTest {
             .request(MediaType.APPLICATION_JSON_TYPE)
             .accept(MediaType.APPLICATION_JSON_TYPE)
             .header(APIConstant.HEADER_USERNAME, adminUsername)
-            .header(APIConstant.HEADER_API_KEY, adminSecret)
+            .header(APIConstant.HEADER_API_KEY, adminPassword)
 
 //    fun clearDatabaseTable(tableName: String) {
 ////        "docker exec MTDB psql --username=root --dbname=zanataMT --command=truncate account".runCommand(1)

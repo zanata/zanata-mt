@@ -31,7 +31,7 @@ public interface BackendResource {
 
     String MS_ATTRIBUTION_STRING = "Translated by Microsoft";
     String GOOGLE_ATTRIBUTION_STRING = "Translated by Google";
-    String DEV_ATTRIBUTION_STRING = "Translated by Magpie MT";
+    String DEV_ATTRIBUTION_STRING = "Pseudo-translated by MT (DEV)";
 
     String ATTRIBUTION_KEY = "X-MAGPIE-MT-Attribution";
 

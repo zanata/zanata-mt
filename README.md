@@ -47,7 +47,7 @@ Enable dev backend for testing.
 Header fields that are used for authentication:
 
 ### `X-Auth-User` the account username
-### `X-Auth-Token` the account secret
+### `X-Auth-Token` the account password
 
 If the instance starts with an empty account table in the database e.g. first load, it will display
 a random hash as initial password in the server log. The value of the hash will also be
@@ -66,13 +66,8 @@ POST /api/account
 	"email": "jsmith@example.com",
 	"accountType": "Normal",
 	"roles": ["admin"],
-	"credentials": [
-	    {
-		    "username": "devID",
-	        "secret": ["d", "e", "v", "K", "E", "Y"]
-	    }
-    ]
-	
+  "username": "devID",
+  "password": ["d", "e", "v", "K", "E", "Y"]
 }
 ```
 Once an admin account is created, the initial password is no longer valid.

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -51,7 +52,7 @@ import static org.zanata.magpie.model.BackendID.fromStringWithDefault;
 @RequestScoped
 public class DocumentResourceImpl implements DocumentResource {
     private static final Logger LOG =
-        LoggerFactory.getLogger(DocumentResourceImpl.class);
+            LoggerFactory.getLogger(DocumentResourceImpl.class);
 
     private DocumentContentTranslatorService documentContentTranslatorService;
     private LocaleDAO localeDAO;
@@ -73,16 +74,17 @@ public class DocumentResourceImpl implements DocumentResource {
     @Inject
     public DocumentResourceImpl(
         DocumentContentTranslatorService documentContentTranslatorService,
-        LocaleDAO localeDAO, DocumentService documentService,
+        LocaleDAO localeDAO,
+        DocumentService documentService,
         BackendResource backendResourceImpl,
         @DevMode boolean isDevMode,
         @DefaultProvider BackendID defaultProvider,
         @BackEndProviders Set<BackendID> availableProviders) {
         this.documentContentTranslatorService =
-            documentContentTranslatorService;
-        this.backendResourceImpl = backendResourceImpl;
+                documentContentTranslatorService;
         this.localeDAO = localeDAO;
         this.documentService = documentService;
+        this.backendResourceImpl = backendResourceImpl;
         this.isDevMode = isDevMode;
         this.defaultProvider = defaultProvider;
         this.availableProviders = availableProviders;
@@ -90,14 +92,14 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response getStatistics(@QueryParam("url") String url,
-        @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
-        @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
-        @QueryParam("dateRange") String dateRangeParam) {
+            @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
+            @QueryParam("toLocaleCode") LocaleCode toLocaleCode,
+            @QueryParam("dateRange") String dateRangeParam) {
         if (StringUtils.isBlank(url)) {
             APIResponse response =
-                new APIResponse(Response.Status.BAD_REQUEST, "Empty url");
+                    new APIResponse(Response.Status.BAD_REQUEST, "Empty url");
             return Response.status(response.getStatus()).entity(response)
-                .build();
+                    .build();
         }
 
         Optional<DateRange> dateParam =
@@ -109,7 +111,7 @@ public class DocumentResourceImpl implements DocumentResource {
                 Optional.ofNullable(toLocaleCode), dateParam);
 
         DocumentStatistics statistics = new DocumentStatistics(url);
-        for (Document document : documents) {
+        for (Document document: documents) {
             int wordCount = getTotalWordCount(document,
                 document.getFromLocale().getLocaleCode());
 
@@ -123,10 +125,10 @@ public class DocumentResourceImpl implements DocumentResource {
 
     private int getTotalWordCount(Document doc, LocaleCode localeCode) {
         return doc.getTextFlows().values().stream()
-            .filter(tf -> tf.getLocale().getLocaleCode()
-                .equals(localeCode))
-            .mapToInt(tf -> tf.getWordCount().intValue())
-            .sum();
+                .filter(tf -> tf.getLocale().getLocaleCode()
+                        .equals(localeCode))
+                .mapToInt(tf -> tf.getWordCount().intValue())
+                .sum();
     }
 
     @Override
@@ -293,7 +295,8 @@ public class DocumentResourceImpl implements DocumentResource {
         return Optional.empty();
     }
 
-    private Locale getLocale(LocaleCode localeCode) throws BadRequestException {
+    private @Nullable
+    Locale getLocale(LocaleCode localeCode) throws BadRequestException {
         if (localeCode == null) {
             return null;
         }

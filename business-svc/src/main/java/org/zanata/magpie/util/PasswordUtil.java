@@ -43,7 +43,7 @@ public final class PasswordUtil implements Serializable {
 
     private static final String ALGORITHM = "PBKDF2WithHmacSHA1";
 
-    private static final int SIZE = 128;
+    private static final int SALT_SIZE = 128;
 
     private static final Pattern layout =
             Pattern.compile("\\$31\\$(\\d\\d?)\\$(.{43})");
@@ -110,7 +110,7 @@ public final class PasswordUtil implements Serializable {
      *         authentication
      */
     public String hash(char[] password) {
-        byte[] salt = new byte[SIZE / 8];
+        byte[] salt = new byte[SALT_SIZE / 8];
         random.nextBytes(salt);
         byte[] dk = pbkdf2(password, salt, 1 << cost);
         byte[] hash = new byte[salt.length + dk.length];
@@ -125,15 +125,15 @@ public final class PasswordUtil implements Serializable {
      *
      * @return true if the password and token match
      */
-    public boolean authenticate(char[] password, String storedToken) {
-        Matcher m = layout.matcher(storedToken);
+    public boolean authenticate(char[] password, String passwordHash) {
+        Matcher m = layout.matcher(passwordHash);
         if (!m.matches()) {
             log.debug("Invalid token format");
             return false;
         }
         int iterations = iterations(Integer.parseInt(m.group(1)));
         byte[] hash = Base64.getUrlDecoder().decode(m.group(2));
-        byte[] salt = Arrays.copyOfRange(hash, 0, SIZE / 8);
+        byte[] salt = Arrays.copyOfRange(hash, 0, SALT_SIZE / 8);
         byte[] check = pbkdf2(password, salt, iterations);
         int zero = 0;
         for (int idx = 0; idx < check.length; ++idx)
@@ -142,7 +142,7 @@ public final class PasswordUtil implements Serializable {
     }
 
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations) {
-        KeySpec spec = new PBEKeySpec(password, salt, iterations, SIZE);
+        KeySpec spec = new PBEKeySpec(password, salt, iterations, SALT_SIZE);
         try {
             SecretKeyFactory f = SecretKeyFactory.getInstance(ALGORITHM);
             return f.generateSecret(spec).getEncoded();

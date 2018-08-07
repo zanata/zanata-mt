@@ -26,19 +26,18 @@ import java.util.Optional;
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.core.Response;
 
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.producer.ValidatorProducer;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
+import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -55,7 +54,7 @@ public class ValidatePayloadInterceptorTest {
         interceptor = new ValidatePayloadInterceptor(new ValidatorProducer().getValidator());
         when(invocationContext.getTarget())
                 .thenReturn(new AccountResourceImpl());
-        List<Method> methods = Lists.newArrayList(
+        List<Method> methods = asList(
                 AccountResourceImpl.class.getDeclaredMethods());
         Optional<Method> methodWithAnno = methods.stream()
                 .filter(m -> m.getAnnotation(ValidatePayload.class) != null)
@@ -75,7 +74,6 @@ public class ValidatePayloadInterceptorTest {
 
         accountDto.setName("name");
         accountDto.setAccountType(AccountType.Normal);
-        accountDto.setCredentials(Sets.newHashSet());
         result = interceptor.aroundInvoke(invocationContext);
         assertThat(result).isInstanceOf(Response.class);
         assertThat(((Response) result).getStatus()).isEqualTo(BAD_REQUEST.getStatusCode());
@@ -83,11 +81,10 @@ public class ValidatePayloadInterceptorTest {
 
     @Test
     public void proceedIfThereIsNoValidationError() throws Exception {
-        CredentialDto credentialDto =
-                new CredentialDto("username", "secret".toCharArray());
-        AccountDto accountDto = new AccountDto(1L, "name", "name@example.com",
-                AccountType.ServiceAccount, Sets.newHashSet(),
-                Sets.newHashSet(credentialDto));
+        AccountDto accountDto =
+            new AccountDto(1L, "name", "name@example.com", "username",
+                "password".toCharArray(),
+                AccountType.ServiceAccount, Sets.newHashSet());
         when(invocationContext.getParameters())
                 .thenReturn(new Object[]{ accountDto });
         Object expectedResult = new Object();

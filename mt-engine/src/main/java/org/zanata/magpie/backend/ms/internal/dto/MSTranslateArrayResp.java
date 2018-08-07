@@ -3,6 +3,7 @@ package org.zanata.magpie.backend.ms.internal.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -43,7 +44,7 @@ public class MSTranslateArrayResp implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof MSTranslateArrayResp)) return false;
 

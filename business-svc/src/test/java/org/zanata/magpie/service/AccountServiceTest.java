@@ -2,7 +2,6 @@ package org.zanata.magpie.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,33 +15,26 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.AccountDto;
-import org.zanata.magpie.api.dto.CredentialDto;
 import org.zanata.magpie.dao.AccountDAO;
-import org.zanata.magpie.dao.CredentialDAO;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
-import org.zanata.magpie.model.Credential;
-import org.zanata.magpie.model.LocalCredential;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 public class AccountServiceTest {
     private AccountService service;
     @Mock
     private AccountDAO accountDAO;
-    @Mock
-    private CredentialDAO credentialDAO;
-    @Captor
-    private ArgumentCaptor<Credential> credentialCaptor;
     @Captor
     private ArgumentCaptor<Account> accountCaptor;
 
     @Before
     public final void setUp() {
         MockitoAnnotations.initMocks(this);
-        service = new AccountService(accountDAO, credentialDAO);
+        service = new AccountService(accountDAO);
     }
 
     @Test
@@ -50,26 +42,25 @@ public class AccountServiceTest {
 
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.empty());
 
-        Optional<Account> result = service.authenticate("user", "secret");
+        Optional<Account> result = service.authenticate("user", "password");
         assertThat(result).isEmpty();
     }
 
     @Test
-    public final void canNotAuthenticateIfAccountCredentialCanNotMatchSecret() {
+    public final void canNotAuthenticateIfAccountCredentialCanNotMatchPassword() {
         Account account = new Account();
-        account.setCredentials(Sets
-                .newHashSet(new LocalCredential(account, "user", "$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I")));
-
+        account.setUsername("user");
+        account.setPasswordHash("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.of(account));
-
         Optional<Account> result = service.authenticate("user", "notMatch");
         assertThat(result).isEmpty();
     }
 
     @Test
-    public final void canAuthenticateIfAccountCredentialCanMatchSecret() {
+    public final void canAuthenticateIfAccountCredentialCanMatchPassword() {
         Account account = new Account();
-        account.setCredentials(Sets.newHashSet(new LocalCredential(account, "user", "$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I")));
+        account.setUsername("user");
+        account.setPasswordHash("$31$16$ErL2RQyoK4C3N_0woVfE5De37d6t-XI1sIfEpldJl9I");
 
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.of(account));
 
@@ -80,10 +71,12 @@ public class AccountServiceTest {
 
     @Test
     public final void canGetAllEnabledAccounts() {
-        Account account = new Account("joe", "joe@example.com", AccountType.Normal, Sets.newHashSet(Role.admin));
+        Account account =
+            new Account("joe", "joe@example.com", "username", "passwordHash",
+                AccountType.Normal, Sets.newHashSet(Role.admin));
 
         given(accountDAO.findAllEnabled()).willReturn(
-                Lists.newArrayList(account));
+                ImmutableList.of(account));
 
         List<AccountDto> result = service.getAllAccounts(false);
         assertThat(result).hasSize(1);
@@ -91,9 +84,11 @@ public class AccountServiceTest {
 
     @Test
     public final void canGetAllAccounts() {
-        Account account = new Account("joe", "joe@example.com", AccountType.Normal, Sets.newHashSet(Role.admin));
+        Account account =
+            new Account("joe", "joe@example.com", "username", "passwordHash",
+                AccountType.Normal, Sets.newHashSet(Role.admin));
 
-        given(accountDAO.findAll()).willReturn(Lists.newArrayList(account));
+        given(accountDAO.findAll()).willReturn(ImmutableList.of(account));
 
         List<AccountDto> result = service.getAllAccounts(true);
         assertThat(result).hasSize(1);
@@ -103,35 +98,31 @@ public class AccountServiceTest {
     public final void canCreateNewAccount() {
         Account account = new Account();
 
-        given(accountDAO.saveCredentialAndAccount(credentialCaptor.capture(),
-                accountCaptor.capture())).willReturn(account);
+        given(accountDAO.persist(accountCaptor.capture())).willReturn(account);
 
         AccountDto accountDto = new AccountDto(null, "joe", "joe@example.com", AccountType.Normal, Sets.newHashSet(Role.admin));
-        String secret = "secret";
+        String password = "password";
         String username = "user";
-        service.registerNewAccount(accountDto, username, secret.toCharArray());
+        service.registerNewAccount(accountDto, username, password.toCharArray());
 
-
-        Credential credential = credentialCaptor.getValue();
-        assertThat(credential.getUsername()).isEqualTo("user");
-        assertThat(credential.getSecret()).startsWith((CharSequence)"$31$16");
+        Account accountCaptured = accountCaptor.getValue();
+        assertThat(accountCaptured.getUsername()).isEqualTo("user");
+        assertThat(accountCaptured.getPasswordHash()).startsWith((CharSequence)"$31$16");
     }
 
     @Test
     public void updateAccountIfCanFindAccountByEmailAndCredential() {
         Account account = new Account();
-        Credential credential =
-                new LocalCredential(account, "admin", "somepass");
+        account.setUsername("admin");
+        account.setPasswordHash("somepass");
 
         Set<Role> roles = Sets.newHashSet(Role.admin);
-        char[] newSecret = "password".toCharArray();
-        Set<CredentialDto> credentials = Sets.newHashSet(new CredentialDto("admin",
-                newSecret));
+        char[] newPassword = "password".toCharArray();
         AccountDto accountDto = new AccountDto(null, "joe",
-                "joe@example.com", AccountType.Normal, roles, credentials);
+            "joe@example.com", "admin", newPassword, AccountType.Normal, roles);
 
-        given(accountDAO.findAccountByEmail("joe@example.com")).willReturn(Optional.of(account));
-        given(credentialDAO.getCredentialByUsername("admin")).willReturn(Optional.of(credential));
+        given(accountDAO.findAccountByEmail("joe@example.com"))
+            .willReturn(Optional.of(account));
 
         boolean result = service.updateAccount(accountDto);
 
@@ -139,8 +130,8 @@ public class AccountServiceTest {
         assertThat(account.getName()).isEqualTo("joe");
         assertThat(account.getAccountType()).isEqualTo(AccountType.Normal);
         assertThat(account.getRoles()).isEqualTo(roles);
-        // secret will be updated to a hashed text
-        assertThat(new PasswordUtil().authenticate(newSecret, credential.getSecret())).isTrue();
+        // password will be updated to a hashed text
+        assertThat(new PasswordUtil().authenticate(newPassword, account.getPasswordHash())).isTrue();
     }
 
     @Test
@@ -148,14 +139,12 @@ public class AccountServiceTest {
         Account account = new Account();
 
         Set<Role> roles = Sets.newHashSet(Role.admin);
-        char[] newSecret = "password".toCharArray();
-        Set<CredentialDto> credentials = Sets.newHashSet(new CredentialDto("admin",
-                newSecret));
+        char[] newPassword = "password".toCharArray();
         AccountDto accountDto = new AccountDto(null, "joe",
-                "joe@example.com", AccountType.Normal, roles, credentials);
+            "joe@example.com", "admin", newPassword, AccountType.Normal, roles);
 
-        given(accountDAO.findAccountByEmail("joe@example.com")).willReturn(Optional.of(account));
-        given(credentialDAO.getCredentialByUsername("admin")).willReturn(Optional.empty());
+        given(accountDAO.findAccountByEmail("joe@example.com"))
+            .willReturn(Optional.of(account));
 
         boolean result = service.updateAccount(accountDto);
 
@@ -163,10 +152,9 @@ public class AccountServiceTest {
         assertThat(account.getName()).isEqualTo("joe");
         assertThat(account.getAccountType()).isEqualTo(AccountType.Normal);
         assertThat(account.getRoles()).isEqualTo(roles);
-        assertThat(account.getCredentials()).hasSize(1);
-        // secret will be updated to a hashed text
-        Credential credential = account.getCredentials().iterator().next();
-        assertThat(new PasswordUtil().authenticate(newSecret, credential.getSecret())).isTrue();
-        verify(credentialDAO).persist(credentialCaptor.capture());
+        // password will be updated to a hashed text
+        assertThat(
+            new PasswordUtil().authenticate(newPassword, account.getPasswordHash()))
+            .isTrue();
     }
 }

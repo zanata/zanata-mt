@@ -21,6 +21,7 @@ import org.zanata.magpie.util.DTOUtil;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.Translation;
+import com.google.common.collect.ImmutableList;
 
 public class GoogleTranslatorBackendTest {
     @Mock
@@ -55,8 +56,8 @@ public class GoogleTranslatorBackendTest {
 
     @Test
     public void canTranslateHTML() {
-        List<String> source = Lists.newArrayList("hello");
-        List<Translation> expectedTrans = Lists.newArrayList(translation);
+        List<String> source = ImmutableList.of("hello");
+        List<Translation> expectedTrans = ImmutableList.of(translation);
 
         when(translate.translate(source,
                 Translate.TranslateOption.targetLanguage("zh"),
@@ -73,8 +74,8 @@ public class GoogleTranslatorBackendTest {
 
     @Test
     public void canTranslateText() {
-        List<String> source = Lists.newArrayList("hello");
-        List<Translation> expectedTrans = Lists.newArrayList(translation);
+        List<String> source = ImmutableList.of("hello");
+        List<Translation> expectedTrans = ImmutableList.of(translation);
 
         when(translate.translate(source,
                 Translate.TranslateOption.targetLanguage("zh"),

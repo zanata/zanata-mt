@@ -23,6 +23,8 @@ package org.zanata.magpie.event;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.model.Role;
 
@@ -53,7 +55,7 @@ public class AccountCreated {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (!(o instanceof AccountCreated)) return false;
         AccountCreated that = (AccountCreated) o;

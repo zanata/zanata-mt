@@ -59,6 +59,7 @@ import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -99,7 +100,7 @@ public class DocumentResourceImplTest {
 
     @Test
     public void testConstructor() {
-        DocumentResource resource = new DocumentResourceImpl();
+        assertThat(new DocumentResourceImpl()).isNotNull();
     }
 
     @Test
@@ -121,13 +122,12 @@ public class DocumentResourceImplTest {
         LocaleCode toLocaleCode = LocaleCode.DE;
         Locale toLocale = new Locale(toLocaleCode, "German");
 
-        List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
         document1.incrementCount();
         Document document2 = new Document(url, toLocale, fromLocale);
         document2.incrementCount();
-        expectedDocList.add(document1);
-        expectedDocList.add(document2);
+        List<Document> expectedDocList = ImmutableList.of(
+                document1, document2);
 
         when(documentService.getByUrl(url, Optional.empty(), Optional.empty(),
                 Optional.empty()))
@@ -152,10 +152,9 @@ public class DocumentResourceImplTest {
         LocaleCode toLocaleCode = LocaleCode.DE;
         Locale toLocale = new Locale(toLocaleCode, "German");
 
-        List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
         document1.incrementCount();
-        expectedDocList.add(document1);
+        List<Document> expectedDocList = ImmutableList.of(document1);
 
         when(documentService
                 .getByUrl(url, Optional.of(fromLocaleCode), Optional.empty(),
@@ -183,10 +182,9 @@ public class DocumentResourceImplTest {
         LocaleCode toLocaleCode = LocaleCode.DE;
         Locale toLocale = new Locale(toLocaleCode, "German");
 
-        List<Document> expectedDocList = Lists.newArrayList();
         Document document1 = new Document(url, fromLocale, toLocale);
         document1.incrementCount();
-        expectedDocList.add(document1);
+        List<Document> expectedDocList = ImmutableList.of(document1);
 
         when(documentService
                 .getByUrl(url, Optional.empty(), Optional.of(toLocaleCode),
@@ -240,7 +238,7 @@ public class DocumentResourceImplTest {
 
         // empty locale
         documentContent = new DocumentContent(
-                Lists.newArrayList(new TypeString("string", "text/plain", "meta")),
+                ImmutableList.of(new TypeString("string", "text/plain", "meta")),
                 "http://localhost", null);
         response = documentResource
                 .translate(documentContent, LocaleCode.DE);
@@ -248,7 +246,7 @@ public class DocumentResourceImplTest {
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // docContent with content but no url
-        documentContent = new DocumentContent(Lists.newArrayList(new TypeString("test",
+        documentContent = new DocumentContent(ImmutableList.of(new TypeString("test",
                 MediaType.TEXT_PLAIN, "meta")), null, "en");
         response = documentResource
                 .translate(documentContent, LocaleCode.DE);
@@ -256,7 +254,7 @@ public class DocumentResourceImplTest {
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty content in typeString
-        List<TypeString> strings = Lists.newArrayList(
+        List<TypeString> strings = ImmutableList.of(
                 new TypeString("", "text/plain", "meta"));
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
@@ -266,7 +264,7 @@ public class DocumentResourceImplTest {
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty type in typeString
-        strings = Lists.newArrayList(
+        strings = ImmutableList.of(
                 new TypeString("test", "", "meta"));
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
@@ -276,7 +274,7 @@ public class DocumentResourceImplTest {
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // invalid type in typeString
-        strings = Lists.newArrayList(
+        strings = ImmutableList.of(
                 new TypeString("test", "text/invalid", "meta"));
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
@@ -314,25 +312,25 @@ public class DocumentResourceImplTest {
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
         List<String> htmls =
-                Lists.newArrayList("<html><body>Entry 1</body></html>",
+                ImmutableList.of("<html><body>Entry 1</body></html>",
                         "<html><body>Entry 2</body></html>",
                         "<html><body>Entry 5</body></html>");
-        List<String> text = Lists.newArrayList("Entry 3", "Entry 4");
+        List<String> text = ImmutableList.of("Entry 3", "Entry 4");
 
         List<String> translatedHtmls =
-                Lists.newArrayList("<html><body>MS: Entry 1</body></html>",
+                ImmutableList.of("<html><body>MS: Entry 1</body></html>",
                         "<html><body>MS: Entry 2</body></html>",
                         "<html><body>MS: Entry 5</body></html>");
-        List<String> translatedText = Lists.newArrayList("MS: Entry 3", "MS: Entry 4");
+        List<String> translatedText = ImmutableList.of("MS: Entry 3", "MS: Entry 4");
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString(htmls.get(0), MediaType.TEXT_HTML, "meta1"),
                 new TypeString(htmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(text.get(0), MediaType.TEXT_PLAIN, "meta3"),
                 new TypeString(text.get(1), MediaType.TEXT_PLAIN, "meta4"),
                 new TypeString(htmls.get(2), MediaType.TEXT_HTML, "meta5"));
 
-        List<TypeString> translatedContents = Lists.newArrayList(
+        List<TypeString> translatedContents = ImmutableList.of(
                 new TypeString(translatedHtmls.get(0), MediaType.TEXT_HTML, "meta1"),
                 new TypeString(translatedHtmls.get(1), MediaType.TEXT_HTML, "meta2"),
                 new TypeString(translatedText.get(0), MediaType.TEXT_PLAIN, "meta3"),
@@ -385,7 +383,7 @@ public class DocumentResourceImplTest {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString("<html><body>Entry 1</body></html>",
                         MediaType.TEXT_HTML, "meta1"));
 
@@ -412,15 +410,15 @@ public class DocumentResourceImplTest {
     @Test
     public void testDevModeByAlias() {
         documentResource =
-            new DocumentResourceImpl(documentContentTranslatorService,
-                localeDAO, documentService, backendResource,
-                true, BackendID.GOOGLE,
+                new DocumentResourceImpl(documentContentTranslatorService,
+                        localeDAO, documentService, backendResource,
+                        true, BackendID.GOOGLE,
                         Sets.newHashSet(BackendID.values()));
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
-        LocaleCode toLocaleRequested = new LocaleCode("zh-CN");
-        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANS, "Simplified Chinese");
+        LocaleCode toLocaleRequested = new LocaleCode("zh-hant-TW");
+        Locale toLocaleActual = new Locale(LocaleCode.ZH_HANT, "Traditional Chinese");
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString("<html><body>Entry 1</body></html>",
                         MediaType.TEXT_HTML, "meta1"));
 
@@ -450,7 +448,7 @@ public class DocumentResourceImplTest {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
 
-        List<TypeString> contents = Lists.newArrayList(
+        List<TypeString> contents = ImmutableList.of(
                 new TypeString("<html><body>Entry 1</body></html>",
                         MediaType.TEXT_HTML, "meta1"));
 
@@ -473,7 +471,7 @@ public class DocumentResourceImplTest {
         verify(documentContentTranslatorService)
                 .translateDocument(doc, docContent, defaultProvider);
     }
-
+    
     @Test
     public void testTranslateFile() throws FileNotFoundException {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
