@@ -10,24 +10,44 @@
 # - tail the container log
 
 SKIP_FRONTEND=false
+SKIP_BUILD=false
+BUILD_ONLY=false
 GOOGLE_CREDENTIAL_FILE=""
 GOOGLE_OPTION=""
 MS_OPTION=""
 DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
 TEST="-DskipTests"
 
-while getopts ":fehtg:m:d:" opt; do
+while getopts ":sbfehtg:m:d:" opt; do
   case ${opt} in
     h)
       echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-efht]" >&2
       echo "-h This help" >&2
       echo "-f Skip frontend build" >&2
+      echo "-s Skip all builds, just restart" >&2
+      echo "-b Build only, do not run" >&2
       echo "-g Google credentials JSON file location" >&2
       echo "-m Microsoft translate API key" >&2
       echo "-d Default provider - DEV, MS, GOOGLE" >&2
       echo "-e enable DEV backend" >&2
       echo "-t Run tests" >&2
       exit 0
+      ;;
+    s)
+      SKIP_BUILD=true
+      if ${BUILD_ONLY}
+      then
+          echo "Cannot set -s and -b" >&2
+          exit 0
+      fi
+      ;;
+    b)
+      BUILD_ONLY=true
+      if ${SKIP_BUILD}
+      then
+          echo "Cannot set -s and -b" >&2
+          exit 0
+      fi
       ;;
     f)
       SKIP_FRONTEND=true
@@ -72,13 +92,22 @@ GOOGLE_OPTION="-DGOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CREDENTIAL_FILE"
 
 ./mvnw docker:stop -pl :mt-server || true
 
-if ${SKIP_FRONTEND}
+if ${SKIP_BUILD}
+then
+    echo "Skipping build..."
+elif ${SKIP_FRONTEND}
 then
     echo "Skipping frontend build..."
     ./mvnw clean install ${TEST} -pl \!frontend
 else
     echo "Full build..."
     ./mvnw clean install ${TEST}
+fi
+
+if ${BUILD_ONLY}
+then
+    echo "Build only, exiting"
+    exit 0
 fi
 
 ./mvnw docker:build -pl :mt-server -DskipTests && \
