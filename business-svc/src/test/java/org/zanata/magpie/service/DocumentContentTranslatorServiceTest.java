@@ -11,12 +11,16 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.DocumentContent;
@@ -34,19 +38,15 @@ import org.zanata.magpie.util.ShortString;
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(CdiRunner.class)
 public class DocumentContentTranslatorServiceTest {
 
+    @Inject
     private DocumentContentTranslatorService documentContentTranslatorService;
 
+    @Produces
     @Mock
     private PersistentTranslationService persistentTranslationService;
-
-    @Before
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        documentContentTranslatorService =
-                new DocumentContentTranslatorService(persistentTranslationService);
-    }
 
     @Test
     public void testEmptyConstructor() {
