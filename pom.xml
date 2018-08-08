@@ -87,7 +87,7 @@
     <maven-site-plugin.version>3.3</maven-site-plugin.version>
     <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
 
-    <coverage.complexity.min>0.70</coverage.complexity.min>
+    <coverage.complexity.min>0.69</coverage.complexity.min>
     <coverage.line.min>0.85</coverage.line.min>
 
     <db.name>zanataMT</db.name>
