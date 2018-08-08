@@ -114,21 +114,6 @@ public final class ArticleUtil {
         );
     }
 
-//    private static int usePlaceholdersForAttributes(
-//            Element document, Map<String, Node> placeholderIdMap, int prefix,
-//            int counter) {
-//        for (Pair<String, String> entry : NON_TRANSLATABLE_ATTRIBUTE) {
-//            for (Element element : document
-//                    .getElementsByAttributeValueContaining(
-//                            entry.getFirst(), entry.getSecond())) {
-//                replaceNodeWithPlaceholder(placeholderIdMap, prefix,
-//                        counter, element);
-//                counter++;
-//            }
-//        }
-//        return counter;
-//    }
-
     private static Elements getElementsByAttributeValue(
             Element document, Pair<String, String> attr) {
         return document.getElementsByAttributeValueContaining(
@@ -143,38 +128,12 @@ public final class ArticleUtil {
                 document::getElementsByTag);
     }
 
-//    private static int usePlaceholdersForHTMLNodes(
-//            Element document, Map<String, Node> placeholderIdMap, int prefix,
-//            int counter) {
-//        for (String tag : NON_TRANSLATABLE_HTML_NODE) {
-//            for (Element element : document.getElementsByTag(tag)) {
-//                replaceNodeWithPlaceholder(placeholderIdMap, prefix,
-//                        counter, element);
-//                counter++;
-//            }
-//        }
-//        return counter;
-//    }
-
     private static int usePlaceholdersForHTMLClass(
             Element document, Map<String, Node> placeholderIdMap, int prefix,
             int counter) {
         return usePlaceholders(placeholderIdMap, prefix, counter,
                 NON_TRANSLATABLE_HTML_CLASS, document::getElementsByClass);
     }
-
-//    private static int usePlaceholdersForHTMLClass(
-//            Element document, Map<String, Node> placeholderIdMap, int prefix,
-//            int counter) {
-//        for (String cssClass : NON_TRANSLATABLE_HTML_CLASS) {
-//            for (Element element : document.getElementsByClass(cssClass)) {
-//                replaceNodeWithPlaceholder(placeholderIdMap, prefix,
-//                        counter, element);
-//                counter++;
-//            }
-//        }
-//        return counter;
-//    }
 
     private static int usePlaceholdersForHtmlIds(
             Element document, Map<String, Node> placeholderIdMap, int prefix,
@@ -183,20 +142,6 @@ public final class ArticleUtil {
                 NON_TRANSLATABLE_HTML_ID,
                 id -> document.select("[id^='" + id + "']"));
     }
-
-//    private static int usePlaceholdersForHtmlIds(
-//            Element document, Map<String, Node> placeholderIdMap, int prefix,
-//            int counter) {
-//        for (String id : NON_TRANSLATABLE_HTML_ID) {
-//            String cssQuery = "[id^='" + id + "']";
-//            for (Element element : document.select(cssQuery)) {
-//                replaceNodeWithPlaceholder(placeholderIdMap, prefix,
-//                        counter, element);
-//                counter++;
-//            }
-//        }
-//        return counter;
-//    }
 
     /**
      * Replace non-translatable node with placeholder
