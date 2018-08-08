@@ -1,10 +1,10 @@
 import { API_URL } from '../config'
 import * as Actions from '../constants/actions'
 import {
-  buildAPIRequest, getAuthHeaders, getJsonHeadersWithoutAuth,
+  buildAPIRequest, getAuthHeaders
 } from './common'
 import { RSAA } from 'redux-api-middleware'
-import {CommonData} from "../types/models"
+import {TranslateFileData} from "../types/models"
 import {Action} from "redux-actions"
 import {RootState} from "../reducers"
 import {GenericDispatch} from "react-redux"
@@ -24,7 +24,7 @@ const translateFileAPI = (file: File, fromLocaleCode: string, toLocaleCode: stri
     Actions.TRANSLATE_FILE_REQUEST,
     {
       type: Actions.TRANSLATE_FILE_SUCCESS,
-      payload: (action: typeof Actions, state: CommonData, res: Response) => {
+      payload: (action: typeof Actions, state: TranslateFileData, res: Response) => {
         const contentDisposition = res.headers.get('content-disposition')
         return res.blob().then((blob) => {
           const fileName = generateFileName(file.name, toLocaleCode,
@@ -56,7 +56,7 @@ export const fetchSupportedLocales = () => {
     Actions.GET_SUPPORTED_LOCALES_REQUEST,
     {
       type: Actions.GET_SUPPORTED_LOCALES_SUCCESS,
-      payload: (action: typeof Actions, state: CommonData, res: Response) => {
+      payload: (action: typeof Actions, state: TranslateFileData, res: Response) => {
         return res.json().then((json) => {
           return json
         })

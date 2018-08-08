@@ -13,9 +13,11 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FilenameUtils;
@@ -42,6 +44,7 @@ import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
+import org.zanata.magpie.util.UrlUtil;
 
 import static org.zanata.magpie.api.service.BackendResource.ATTRIBUTION_KEY;
 import static org.zanata.magpie.model.BackendID.fromStringWithDefault;
@@ -53,6 +56,9 @@ import static org.zanata.magpie.model.BackendID.fromStringWithDefault;
 public class DocumentResourceImpl implements DocumentResource {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentResourceImpl.class);
+
+    @Context
+    protected UriInfo uriInfo;
 
     private DocumentContentTranslatorService documentContentTranslatorService;
     private LocaleDAO localeDAO;
@@ -187,8 +193,7 @@ public class DocumentResourceImpl implements DocumentResource {
 
     @Override
     public Response translateFile(TranslateDocumentForm form,
-        LocaleCode fromLocaleCode,
-        LocaleCode toLocaleCode) {
+        LocaleCode fromLocaleCode, LocaleCode toLocaleCode) {
 
         if (fromLocaleCode == null || toLocaleCode == null) {
             APIResponse apiResponse =
@@ -210,9 +215,9 @@ public class DocumentResourceImpl implements DocumentResource {
             String fileExt = FilenameUtils.getExtension(form.getFileName());
             Filter filter = FILTERS.get(fileExt.toUpperCase());
 
+            String url = getURL(uriInfo.getRequestUri().toString(), form.getFileName());
             DocumentContent documentContent = filter
-                .parseDocument(form.getFileStream(), form.getFileName(),
-                    fromLocaleCode);
+                .parseDocument(form.getFileStream(), url, fromLocaleCode);
 
             Response response = this.translate(documentContent, toLocaleCode);
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -250,6 +255,12 @@ public class DocumentResourceImpl implements DocumentResource {
         }
     }
 
+    private String getURL(String requestURL, String fileName) {
+        String url = requestURL.endsWith("/") ? requestURL.substring(0, requestURL.length() - 1) : requestURL;
+        String name = "&name=" + (fileName.startsWith("/") ?  fileName.substring(1) : fileName);
+        return url + name;
+    }
+
     private String getTransFilename(String ext, String filename,
         String localeCode) {
         String transFilename =
@@ -274,7 +285,8 @@ public class DocumentResourceImpl implements DocumentResource {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                 "Blank localeCode"));
         }
-        if (StringUtils.isBlank(docContent.getUrl())) {
+        if (StringUtils.isBlank(docContent.getUrl()) ||
+            !UrlUtil.isValidURL(docContent.getUrl())) {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                 "Invalid url: " + docContent.getUrl()));
         }

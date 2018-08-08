@@ -39,6 +39,7 @@ import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.spi.ResteasyUriInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -68,7 +69,7 @@ import com.google.common.collect.Sets;
  */
 public class DocumentResourceImplTest {
 
-    private DocumentResource documentResource;
+    private DocumentResourceImpl documentResource;
 
     @Mock
     private DocumentContentTranslatorService documentContentTranslatorService;
@@ -492,6 +493,9 @@ public class DocumentResourceImplTest {
             .translateDocument(any(), any(), any()))
             .thenReturn(translatedDocContent);
         when(backendResource.getStringAttribution(backendID.getId())).thenReturn(attrResponse);
+
+        documentResource.uriInfo =
+            new ResteasyUriInfo("http://localhost/document/translate", "fromLocale=en", "");
 
         File sourceFile =
             new File("src/test/resources/test.pot");

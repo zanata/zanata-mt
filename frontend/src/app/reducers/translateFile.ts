@@ -2,9 +2,7 @@ import {handleActions} from 'redux-actions'
 import * as Actions from '../constants/actions'
 import moment from 'moment'
 import {
-  ErrorData,
-  InfoState,
-  TranslateFileData,
+  TranslateFilePayload,
   TranslateFileState
 } from '../types/models'
 
@@ -15,7 +13,7 @@ const initialState: TranslateFileState = {
   supportedLocales: []
 }
 
-const uploadFailed = (payload: TranslateFileData) => {
+const uploadFailed = (payload: TranslateFilePayload) => {
   const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
   return {
     summary: 'Unable to translate file',
@@ -26,7 +24,7 @@ const uploadFailed = (payload: TranslateFileData) => {
   }
 }
 
-const getSupportedLocalesFailed = (payload: TranslateFileData) => {
+const getSupportedLocalesFailed = (payload: TranslateFilePayload) => {
   const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
   return {
     summary: 'Unable get supported locales',
@@ -37,8 +35,8 @@ const getSupportedLocalesFailed = (payload: TranslateFileData) => {
   }
 }
 
-export default handleActions<InfoState, TranslateFileData>({
-  [Actions.TRANSLATE_FILE_REQUEST]: (state: TranslateFileData, action) => {
+export default handleActions<TranslateFileState, TranslateFilePayload>({
+  [Actions.TRANSLATE_FILE_REQUEST]: (state, action) => {
     if (action.error) {
       return {
         ...state,
@@ -53,21 +51,21 @@ export default handleActions<InfoState, TranslateFileData>({
       }
     }
   },
-  [Actions.TRANSLATE_FILE_SUCCESS]: (state: TranslateFileData) => {
+  [Actions.TRANSLATE_FILE_SUCCESS]: (state) => {
     return {
       ...state,
       uploading: false,
       errorData: null
     }
   },
-  [Actions.TRANSLATE_FILE_FAILED]: (state: TranslateFileData, action) => {
+  [Actions.TRANSLATE_FILE_FAILED]: (state, action) => {
     return {
       ...state,
       uploading: false,
       errorData: uploadFailed(action.payload)
     }
   },
-  [Actions.GET_SUPPORTED_LOCALES_REQUEST]: (state: TranslateFileData, action) => {
+  [Actions.GET_SUPPORTED_LOCALES_REQUEST]: (state, action) => {
     if (action.error) {
       return {
         ...state,
@@ -81,14 +79,15 @@ export default handleActions<InfoState, TranslateFileData>({
       }
     }
   },
-  [Actions.GET_SUPPORTED_LOCALES_SUCCESS]: (state: TranslateFileData, action) => {
+  [Actions.GET_SUPPORTED_LOCALES_SUCCESS]: (state, action) => {
     return {
       ...state,
       loading: false,
+      errorData: null,
       supportedLocales: action.payload
     }
   },
-  [Actions.GET_SUPPORTED_LOCALES_FAILED]: (state: TranslateFileData, action) => {
+  [Actions.GET_SUPPORTED_LOCALES_FAILED]: (state, action) => {
     return {
       ...state,
       loading: false,

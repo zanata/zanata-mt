@@ -67,7 +67,7 @@ public class PoFilter implements Filter {
 
     @Override
     public DocumentContent parseDocument(InputStream inputStream,
-        String fileName, LocaleCode fromLocaleCode) {
+        String url, LocaleCode fromLocaleCode) {
         InputSource potInputSource = new InputSource(inputStream);
         List<TypeString> contents = new ArrayList<>();
         MessageStreamParser messageParser = createParser(potInputSource);
@@ -87,7 +87,7 @@ public class PoFilter implements Filter {
             messages.put(id, message);
 
         }
-        return new DocumentContent(contents, fileName, fromLocaleCode.getId());
+        return new DocumentContent(contents, url, fromLocaleCode.getId());
 
     }
 

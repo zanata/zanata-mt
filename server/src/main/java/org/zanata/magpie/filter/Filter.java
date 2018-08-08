@@ -35,7 +35,7 @@ import java.io.OutputStream;
 public interface Filter {
 
     DocumentContent parseDocument(InputStream inputStream,
-        String fileName, LocaleCode fromLocaleCode);
+        String url, LocaleCode fromLocaleCode);
 
     void writeTranslatedFile(@NotNull OutputStream output,
         LocaleCode fromLocaleCode, LocaleCode toLocaleCode,

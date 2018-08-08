@@ -130,7 +130,7 @@ public class AccountResourceImplTest {
     public void testFailLogin() {
         accountResource.uriInfo = new ResteasyUriInfo("account/login", "", "");
 
-        String header = "hmac test:U2FsdGVkX18yRsxRcAMD+FUvQ1OqXIoSpps96iVs/Ug=";
+        String header = "hmac test:testing";
         when(accountService.authenticate("test", "testing")).thenReturn(Optional
             .empty());
         Response response = accountResource.login(header);
@@ -141,7 +141,7 @@ public class AccountResourceImplTest {
     public void testLogin() {
         accountResource.uriInfo = new ResteasyUriInfo("account/login", "", "");
         AccountDto accountDto = new AccountDto();
-        String header = "hmac test:U2FsdGVkX18yRsxRcAMD+FUvQ1OqXIoSpps96iVs/Ug=";
+        String header = "hmac test testing";
         when(accountService.authenticate("test", "testing")).thenAnswer(
             (Answer<Optional<AccountDto>>) invocationOnMock -> {
                 accountDto.setId(1L);

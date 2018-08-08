@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.exception.ConstraintViolationException;
 import org.zanata.magpie.annotation.CheckRole;
 import org.zanata.magpie.api.APIConstant;
@@ -58,7 +59,6 @@ import com.google.common.base.Throwables;
 import com.webcohesion.enunciate.metadata.rs.RequestHeader;
 import com.webcohesion.enunciate.metadata.rs.RequestHeaders;
 import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
-import org.zanata.magpie.util.CryptoUtil;
 
 /**
  * This is an internal API for managing users in the system.
@@ -75,8 +75,8 @@ import org.zanata.magpie.util.CryptoUtil;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResourceImpl {
 
-    // expected format "hmac {username}:{digest}"
-    private static String PATTERN = "hmac\\s(.+):(.+)";
+    // expected format "hmac {username} {password}"
+    private static String PATTERN = "hmac\\s(.+)\\s(.+)";
     private static Pattern AUTHPATTERN = Pattern.compile(PATTERN);
 
     private AccountService accountService;
@@ -144,15 +144,12 @@ public class AccountResourceImpl {
         if (StringUtils.isBlank(authHeader)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        Optional<Auth> auth = processAuthHeader(authHeader);
+        Optional<Pair<String, String>> auth = processAuthHeader(authHeader);
         if (!auth.isPresent()) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        String username = auth.get().getUsername();
-        String digest = auth.get().getDigest();
-        String key =
-            "/" + APIConstant.API_CONTEXT + uriInfo.getPath() + "/" + username;
-        String password = CryptoUtil.decrypt(key, digest);
+        String username = auth.get().getKey();
+        String password = auth.get().getValue();
         Optional<Account> account = accountService.authenticate(username, password);
         if (account.isPresent()) {
             return Response.ok().build();
@@ -177,36 +174,15 @@ public class AccountResourceImpl {
     }
 
     /**
-     * authHeader: expected format "hmac {username}:{digest}"
-     * digest:
-     *    Passphrase = {endpoint + '/' + username}
-     *    var encryptedAES = CryptoJS.AES.encrypt({password}, Passphrase);
+     * authHeader: expected format "hmac {username} {password}"
      */
-    protected Optional<Auth> processAuthHeader(@NotNull String authHeader) {
+    protected Optional<Pair<String, String>> processAuthHeader(@NotNull String authHeader) {
         Matcher m = AUTHPATTERN.matcher(authHeader);
         if (m.find()) {
             if (m.groupCount() == 2) {
-                return Optional.of(new Auth(m.group(1), m.group(2)));
+                return Optional.of(Pair.of(m.group(1), m.group(2)));
             }
         }
         return Optional.empty();
-    }
-
-    private static class Auth {
-        private String username;
-        private String digest;
-
-        public Auth(@NotNull String username, @NotNull String digest) {
-            this.username = username;
-            this.digest = digest;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getDigest() {
-            return digest;
-        }
     }
 }

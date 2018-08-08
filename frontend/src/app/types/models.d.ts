@@ -43,10 +43,17 @@ declare interface Locale {
   name: string
 }
 
+declare interface LocaleArray {
+  [index: number]: Locale
+}
+
 declare interface TranslateFileData extends ReduxMiddlewareError {
   errorData?: ErrorData,
   uploading: boolean,
   loading: boolean,
-  supportedLocales: Locale[]
+  supportedLocales: LocaleArray
 }
 declare type TranslateFileState = TranslateFileData
+
+declare interface TranslateFilePayload extends ReduxMiddlewareError, LocaleArray {
+}

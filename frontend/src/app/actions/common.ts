@@ -4,7 +4,6 @@ import {RSAA, HTTPVerb, Types} from 'redux-api-middleware'
 import * as Actions from '../constants/actions'
 import {createAction} from 'redux-actions'
 import {getUsername, getToken} from "../config"
-import CryptoJS from 'crypto-js'
 import {AuthData, CommonData} from "../types/models"
 
 export const buildAPIRequest =
@@ -65,13 +64,9 @@ export const login = (auth: AuthData) => {
     },
     Actions.LOGIN_FAILED
   ]
-  const digest = getAuthDigest(username, password, endpoint)
-  const authContent = {Authentication: 'hmac ' + username + ':' + digest}
+  const authContent = {Authentication: 'hmac ' + username + ' ' + password}
   const headers = assign(getJsonHeadersWithoutAuth(), authContent)
   return {
     [RSAA]: buildAPIRequest(endpoint, 'POST', headers, apiTypes)
   }
-}
-const getAuthDigest = (username: string, password: string, endpoint: string) => {
-  return CryptoJS.AES.encrypt(password, endpoint + '/' + username)
 }
