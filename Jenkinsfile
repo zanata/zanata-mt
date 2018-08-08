@@ -324,7 +324,7 @@ void dockerBuildAndPushToManagedPaaS(String dockerImage) {
       sh "docker login -p $MT_REGISTRY_TOKEN -e unused -u unused ${env.MT_DOCKER_REGISTRY_URL}"
 
       echo "Pushing to docker registry..."
-      dockerPush "docker push ${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
+      dockerPush "${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:$version"
       dockerPush "${env.MT_DOCKER_REGISTRY_URL}/$dockerImage:latest"
 
       echo "Docker logout.."
