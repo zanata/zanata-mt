@@ -61,6 +61,20 @@ public class ArticleUtilTest {
     }
 
     @Test
+    public void asElementHTMLWithoutWrapper() {
+        String html = "test";
+        Node node = ArticleUtil.asElementHTML(html);
+        assertThat(node).isNotNull().extracting(Node::outerHtml).isEqualTo(html);
+    }
+
+    @Test
+    public void asElementHTMLWithDiv() {
+        String html = "<div>test</div>";
+        Node node = ArticleUtil.asElementHTML(html);
+        assertThat(node).isNotNull().extracting(Node::outerHtml).isEqualTo(html);
+    }
+
+    @Test
     public void asElementEmptyContentHTML() {
         String html = "";
         Node node = ArticleUtil.asElementHTML(html);
