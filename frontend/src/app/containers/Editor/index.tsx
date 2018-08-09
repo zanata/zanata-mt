@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Layout, Menu } from 'antd';
+import { EditorToolbar } from '../../components';
 const { Header, Content } = Layout;
 
 export class Editor extends React.Component<{}> {
@@ -18,8 +19,7 @@ export class Editor extends React.Component<{}> {
                     </Menu>
                 </Header>
                 <Content style={{ padding: '0 50px' }}>
-                    <div className='editorToolbar'>
-                    </div>
+                    <EditorToolbar />
                     <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>Content</div>
                 </Content>
             </Layout>
