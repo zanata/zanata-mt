@@ -15,12 +15,16 @@ GOOGLE_OPTION=""
 MS_OPTION=""
 DEFAULT_PROVIDER_OPTION="-DDEFAULT_TRANSLATION_PROVIDER=DEV"
 TEST="-DskipTests"
+clean=clean
+runDocker=true
 
-while getopts ":fehtg:m:d:" opt; do
+while getopts ":CDfehtg:m:d:" opt; do
   case ${opt} in
     h)
-      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-efht]" >&2
+      echo "Usage: $0 [-g google_credentials] [-m microsoft_key] [-d default_provider] [-CDefht]" >&2
       echo "-h This help" >&2
+      echo "-C Skip 'clean'" >&2
+      echo "-D Skip starting Docker container after build" >&2
       echo "-f Skip frontend build" >&2
       echo "-g Google credentials JSON file location" >&2
       echo "-m Microsoft translate API key" >&2
@@ -28,6 +32,14 @@ while getopts ":fehtg:m:d:" opt; do
       echo "-e enable DEV backend" >&2
       echo "-t Run tests" >&2
       exit 0
+      ;;
+    C)
+      echo "Skipping clean" >&2
+      clean=
+      ;;
+    D)
+      echo "Skipping Docker" >&2
+      runDocker=false
       ;;
     f)
       SKIP_FRONTEND=true
@@ -75,15 +87,16 @@ GOOGLE_OPTION="-DGOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_CREDENTIAL_FILE"
 if ${SKIP_FRONTEND}
 then
     echo "Skipping frontend build..."
-    ./mvnw clean install ${TEST} -pl \!frontend
+    ./mvnw ${clean} install ${TEST} -pl \!frontend
 else
     echo "Full build..."
-    ./mvnw clean install ${TEST}
+    ./mvnw ${clean} install ${TEST}
 fi
 
-./mvnw docker:build -pl :mt-server -DskipTests && \
-  ./mvnw docker:start -pl :mt-server ${GOOGLE_OPTION} ${MS_OPTION} \
-  ${ENABLE_DEV} ${DEFAULT_PROVIDER_OPTION}
+if ${runDocker}; then
+    ./mvnw docker:build -pl :mt-server -DskipTests && \
+      ./mvnw docker:start -pl :mt-server ${GOOGLE_OPTION} ${MS_OPTION} \
+      ${ENABLE_DEV} ${DEFAULT_PROVIDER_OPTION}
 
-docker logs --follow MT
-
+    docker logs --follow MT
+fi
