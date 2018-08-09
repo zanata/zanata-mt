@@ -3,7 +3,6 @@ package org.zanata.magpie.backend.ms;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,7 @@ import org.zanata.magpie.backend.ms.internal.dto.MSString;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResp;
 import org.zanata.magpie.backend.ms.internal.dto.MSTranslateArrayResponse;
 import org.zanata.magpie.model.AugmentedTranslation;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.DTOUtil;
 import com.google.common.collect.ImmutableList;
 
@@ -68,7 +68,7 @@ public class MicrosoftTranslatorBackendTest {
         msBackend.setApi(api);
         List<AugmentedTranslation> translations = msBackend
                 .translate(ImmutableList.of(content), srcLocale, transLocale,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
+                        StringType.TEXT_PLAIN, Optional.of("tech"));
 
         assertThat(translations).hasSize(1);
         AugmentedTranslation translation = translations.get(0);

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,12 +34,12 @@ import org.zanata.magpie.model.AugmentedTranslation;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.model.TextFlow;
 import org.zanata.magpie.model.TextFlowTarget;
 import org.zanata.magpie.util.HashUtil;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -95,7 +94,7 @@ public class PersistentTranslationServiceTest {
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
         assertThatThrownBy(() -> persistentTranslationService.translate(new Document(), source,
                 new Locale(LocaleCode.EN_US, "English"), targetLocale,
-                BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                BackendID.MS, StringType.TEXT_PLAIN,
                 Optional.of("tech"))).isInstanceOf(MTException.class);
     }
 
@@ -107,7 +106,7 @@ public class PersistentTranslationServiceTest {
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         null, targetLocale,
-                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        BackendID.MS, StringType.TEXT_PLAIN,
                         Optional.of("tech")))
                 .isInstanceOf(BadRequestException.class);
     }
@@ -121,7 +120,7 @@ public class PersistentTranslationServiceTest {
                 () -> persistentTranslationService.translate(new Document(),
                         source,
                         sourceLocale, null,
-                        BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        BackendID.MS, StringType.TEXT_PLAIN,
                         Optional.of("tech")))
                 .isInstanceOf(BadRequestException.class);
     }
@@ -135,7 +134,7 @@ public class PersistentTranslationServiceTest {
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         sourceLocale, targetLocale, null,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .isInstanceOf(BadRequestException.class);
     }
 
@@ -173,15 +172,15 @@ public class PersistentTranslationServiceTest {
                 .thenReturn(toLocaleCode);
 
         when(msBackend.translate(sources, fromLocaleCode, toLocaleCode,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"))).thenReturn(expectedTranslations);
+                StringType.TEXT_PLAIN, Optional.of("tech"))).thenReturn(expectedTranslations);
 
         List<String> translations =
                 persistentTranslationService.translate(doc, sources, fromLocale,
-                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        toLocale, BackendID.MS, StringType.TEXT_PLAIN,
                         Optional.of("tech"));
 
         verify(msBackend).translate(sources, fromLocaleCode, toLocaleCode,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
+                StringType.TEXT_PLAIN, Optional.of("tech"));
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
@@ -228,17 +227,17 @@ public class PersistentTranslationServiceTest {
 
         when(msBackend
                 .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(expectedTranslations);
 
         List<String> translations =
                 persistentTranslationService.translate(doc, sources, fromLocale,
-                        toLocale, BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                        toLocale, BackendID.MS, StringType.TEXT_PLAIN,
                         Optional.of("tech"));
 
         verify(msBackend)
                 .translate(sources.subList(0, 1), fromLocaleCode, toLocaleCode,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech"));
+                        StringType.TEXT_PLAIN, Optional.of("tech"));
         verify(textFlowDAO, times(2)).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         verify(textFlowTargetDAO).persist(expectedTft);
         assertThat(translations).isEqualTo(
@@ -274,7 +273,7 @@ public class PersistentTranslationServiceTest {
         List<String> translations =
                 persistentTranslationService
                         .translate(doc, sources, fromLocale, toLocale,
-                                BackendID.MS, MediaType.TEXT_PLAIN_TYPE,
+                                BackendID.MS, StringType.TEXT_PLAIN,
                                 Optional.of("tech"));
 
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
