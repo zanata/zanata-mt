@@ -22,6 +22,14 @@ public class SegmentStringTest {
     }
 
     @Test
+    public void segmentStringBlankTest() {
+        String text = " ";
+        List<String> strings = SegmentString.segmentString(text, Optional.of(
+            LocaleCode.DE));
+        assertThat(strings).isEmpty();
+    }
+
+    @Test
     public void segmentStringTest() {
         String text =
                 "Das nennen Sie ein Schinken-Sandwich? Nehmen Sie das sofort weg!";
