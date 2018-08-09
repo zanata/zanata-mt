@@ -20,6 +20,8 @@
  */
 package org.zanata.magpie.api.service.impl;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -74,10 +76,11 @@ import com.webcohesion.enunciate.metadata.rs.ResourceLabel;
 @ResourceLabel("Account")
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResourceImpl {
+    // expected format "Basic base64({username} {password})"
+    private static Pattern AUTH_HEADER_PATTERN = Pattern.compile("Basic\\s(.+)");
 
-    // expected format "hmac {username} {password}"
-    private static String PATTERN = "hmac\\s(.+)\\s(.+)";
-    private static Pattern AUTHPATTERN = Pattern.compile(PATTERN);
+    // expected format "username password"
+    private static Pattern AUTH_DECODE_PATTERN = Pattern.compile("^(.+)\\s(.+)");
 
     private AccountService accountService;
     private Event<AccountCreated> accountCreatedEvent;
@@ -133,14 +136,15 @@ public class AccountResourceImpl {
     }
 
     /**
-     * Login API
+     * Login API.
+     * Expecting: Authorization: Basic base64({username} {password})
      *
      * @param authHeader
      * @return
      */
     @POST
     @Path("/login")
-    public Response login(@HeaderParam("Authentication") String authHeader) {
+    public Response login(@HeaderParam("Authorization") String authHeader) {
         if (StringUtils.isBlank(authHeader)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
@@ -173,14 +177,16 @@ public class AccountResourceImpl {
         }
     }
 
-    /**
-     * authHeader: expected format "hmac {username} {password}"
-     */
     protected Optional<Pair<String, String>> processAuthHeader(@NotNull String authHeader) {
-        Matcher m = AUTHPATTERN.matcher(authHeader);
-        if (m.find()) {
-            if (m.groupCount() == 2) {
-                return Optional.of(Pair.of(m.group(1), m.group(2)));
+        Matcher headerMatcher = AUTH_HEADER_PATTERN.matcher(authHeader);
+        if (headerMatcher.find() && headerMatcher.groupCount() == 1) {
+            String base64Encoded = headerMatcher.group(1);
+            byte[] decodedBytes = Base64.getDecoder().decode(base64Encoded);
+            String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+
+            Matcher decodeMatcher = AUTH_DECODE_PATTERN.matcher(decodedString);
+            if (decodeMatcher.find() && decodeMatcher.groupCount() == 2) {
+                return Optional.of(Pair.of(decodeMatcher.group(1), decodeMatcher.group(2)));
             }
         }
         return Optional.empty();

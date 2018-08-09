@@ -141,8 +141,8 @@ public class AccountResourceImplTest {
     public void testLogin() {
         accountResource.uriInfo = new ResteasyUriInfo("account/login", "", "");
         AccountDto accountDto = new AccountDto();
-        String header = "hmac test testing";
-        when(accountService.authenticate("test", "testing")).thenAnswer(
+        String header = "Basic dXNlcm5hbWUgcGFzc3dvcmQ=";
+        when(accountService.authenticate("username", "password")).thenAnswer(
             (Answer<Optional<AccountDto>>) invocationOnMock -> {
                 accountDto.setId(1L);
                 return Optional.of(accountDto);
