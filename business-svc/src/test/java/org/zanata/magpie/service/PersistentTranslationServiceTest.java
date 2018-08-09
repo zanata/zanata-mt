@@ -67,6 +67,8 @@ public class PersistentTranslationServiceTest {
     @Mock private Event<RequestedMTEvent> requestedMTEvent;
     private AuthenticatedAccount authenticatedAccount;
 
+    private final int MAX_LENGTH = 10;
+
     @Before
     public void setup() {
         when(msBackend.getId()).thenReturn(BackendID.MS);
@@ -75,6 +77,7 @@ public class PersistentTranslationServiceTest {
         when(translators.iterator())
                 .thenReturn(ImmutableList.of(googleTranslatorBackend,
                         mockTranslatorBackend, msBackend).iterator());
+        when(googleTranslatorBackend.getCharLimitPerRequest()).thenReturn(MAX_LENGTH);
         authenticatedAccount = new AuthenticatedAccount();
         authenticatedAccount.setAuthenticatedAccount(new Account());
         persistentTranslationService = new PersistentTranslationService(
@@ -278,5 +281,11 @@ public class PersistentTranslationServiceTest {
 
         verify(textFlowDAO).getLatestByContentHash(fromLocale.getLocaleCode(), hash);
         assertThat(translations.get(0)).isEqualTo(expectedTranslation);
+    }
+
+    @Test
+    public void testGetMaxLength() {
+        assertThat(persistentTranslationService.getMaxLength(BackendID.GOOGLE))
+            .isEqualTo(MAX_LENGTH);
     }
 }

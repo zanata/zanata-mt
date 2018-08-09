@@ -22,6 +22,7 @@ package org.zanata.magpie.api.service.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -39,10 +40,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -156,7 +154,9 @@ public class AccountResourceImpl {
         String password = auth.get().getValue();
         Optional<Account> account = accountService.authenticate(username, password);
         if (account.isPresent()) {
-            return Response.ok().build();
+            NewCookie cookie = new NewCookie("Authorization", authHeader, "/", "*", 1, "", 3600, new Date(),
+                    true, true);
+            return Response.ok().cookie(cookie).build();
         }
         return Response.status(Response.Status.UNAUTHORIZED).build();
     }
