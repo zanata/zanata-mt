@@ -21,11 +21,9 @@
 
 package org.zanata.magpie.event;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.zanata.magpie.model.Role;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -33,34 +31,30 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 public class AccountCreatedTest {
-
     @Test
     public void testConstructor() {
-        String email = "test@test.com";
-        Set<Role> roles = new HashSet<>();
-
+        String email = "test@email.com";
+        ImmutableSet<Role> roles = ImmutableSet.of(Role.user);
         AccountCreated accountCreated = new AccountCreated(email, roles);
-
+        assertThat(accountCreated).isNotNull();
         assertThat(accountCreated.getEmail()).isEqualTo(email);
         assertThat(accountCreated.getRoles()).isEqualTo(roles);
     }
 
     @Test
-    public void testEquals() {
-        String email = "test@test.com";
-        Set<Role> roles = new HashSet<>();
-
-        AccountCreated accountCreated = new AccountCreated(email, roles);
-
-        AccountCreated accountCreated2 = new AccountCreated(email, roles);
-
+    public void testEqualHashCode() {
+        ImmutableSet<Role> roles = ImmutableSet.of(Role.user);
+        AccountCreated accountCreated = new AccountCreated("test@email.com", roles);
+        AccountCreated accountCreated2 = new AccountCreated("test@email.com", roles);
         assertThat(accountCreated.equals(accountCreated2)).isTrue();
-        assertThat(accountCreated.hashCode())
-            .isEqualTo(accountCreated2.hashCode());
+        assertThat(accountCreated.hashCode()).isEqualTo(accountCreated2.hashCode());
 
-        accountCreated2 = new AccountCreated("", roles);
+        accountCreated2 = new AccountCreated("test2@email.com", roles);
         assertThat(accountCreated.equals(accountCreated2)).isFalse();
-        assertThat(accountCreated.hashCode())
-            .isNotEqualTo(accountCreated2.hashCode());
+        assertThat(accountCreated.hashCode()).isNotEqualTo(accountCreated2.hashCode());
+
+        accountCreated2 = new AccountCreated("test@email.com", null);
+        assertThat(accountCreated.equals(accountCreated2)).isFalse();
+        assertThat(accountCreated.hashCode()).isNotEqualTo(accountCreated2.hashCode());
     }
 }
