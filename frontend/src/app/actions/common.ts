@@ -64,7 +64,8 @@ export const login = (auth: AuthData) => {
     },
     Actions.LOGIN_FAILED
   ]
-  const authContent = {Authentication: 'hmac ' + username + ' ' + password}
+  const base64 = btoa(username + ':' + password)
+  const authContent = {Authorization: 'Basic ' + base64}
   const headers = assign(getJsonHeadersWithoutAuth(), authContent)
   return {
     [RSAA]: buildAPIRequest(endpoint, 'POST', headers, apiTypes)
