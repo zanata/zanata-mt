@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
@@ -70,7 +71,7 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML() {
+    public void testLongHTMLWithOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -99,7 +100,7 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML2() {
+    public void testLongHTMLWithoutOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -326,9 +327,9 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());
 
-        assertThat(translatedDocContent.getWarnings()).hasSize(1);
-        assertThat(translatedDocContent.getWarnings().get(0).getDetails())
-                .contains(ShortString.shorten(maxString));
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(APIResponse::getDetails)
+                .containsExactly(ShortString.shorten(maxString));
 
         for (int i = 0; i < translatedDocContent.getContents().size() - 1; i++) {
             assertThat(translatedDocContent.getContents().get(i))
