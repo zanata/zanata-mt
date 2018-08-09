@@ -4,7 +4,7 @@
   <parent>
     <artifactId>mt-parent</artifactId>
     <groupId>org.zanata.magpie</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.142</version>
   </parent>
 
   <artifactId>common</artifactId>
