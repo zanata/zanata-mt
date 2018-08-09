@@ -25,7 +25,8 @@ export interface State {
 
 const items = [
   {name: 'Home', url: '/', icon: 'home'},
-  {name: 'Info', url: '/app/info', icon: 'info-circle'}
+  {name: 'Info', url: '/app/info', icon: 'info-circle'},
+  {name: 'Editor', url: '/app/editor', icon: 'info-circle'}
 ]
 
 @connect(mapStateToProps, mapDispatchToProps)
