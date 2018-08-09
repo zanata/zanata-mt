@@ -312,17 +312,16 @@ public class DocumentContentTranslatorService {
             Function<String, Element> toElement) {
 
         List<APIResponse> warnings = new ArrayList<>();
-        List<Element> contents =
+        List<Node> contents =
                 ArticleUtil.unwrapAsElements(toElement.apply(source));
 
-        // TODO try handling as Nodes, using childNode() and childNodeSize()
-        for (int i = 0; i < contents.size(); i++) {
-            Element content = contents.get(i);
-            int size = content.getAllElements().size();
-            int index = 0;
+        for (int contentIndex = 0; contentIndex < contents.size(); contentIndex++) {
+            Node content = contents.get(contentIndex);
+            int childCount = content.childNodeSize();
+            int childIndex = 0;
 
-            while (index < size) {
-                Element child = content.getAllElements().get(index);
+            while (childIndex < childCount) {
+                Node child = content.childNode(childIndex);
                 String html = child.outerHtml();
                 if (html.length() <= maxLength) {
                     List<String> translated =
@@ -333,11 +332,11 @@ public class DocumentContentTranslatorService {
                                             StringType.fromMediaType(mediaType),
                                             Optional.of(CATEGORY));
                     assert translated.size() == 1;
-                    Element replacement = ArticleUtil.asElement(translated.get(0), toElement);
+                    Node replacement = ArticleUtil.asElement(translated.get(0), toElement);
                     if (replacement != null) {
                         if (child == content) {
                             //replace this item in contents list, exit while loop
-                            contents.set(i, replacement);
+                            contents.set(contentIndex, replacement);
                             break;
                         } else {
                             child.replaceWith(replacement);
@@ -348,8 +347,8 @@ public class DocumentContentTranslatorService {
                     warnings.add(maxLengthWarning(html, maxLength));
                 }
                 // size changes if child node is being translated
-                size = content.getAllElements().size();
-                index++;
+                childCount = content.childNodeSize();
+                childIndex++;
             }
         }
         String translation = contents.stream()
