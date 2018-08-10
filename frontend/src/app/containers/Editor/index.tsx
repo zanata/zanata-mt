@@ -26,7 +26,7 @@ export class Editor extends React.Component<{}> {
                 <Content style={{ padding: '0 50px' }}>
                     <EditorToolbar />
                     <Col span={12}>
-                        <h4>SOURCE</h4>
+                        <span className='columnHeading'>SOURCE</span>
                         <SourceTrans />
                         <SourceTrans />
                         <SourceTrans />
@@ -39,7 +39,7 @@ export class Editor extends React.Component<{}> {
                         <SourceTrans />
                     </Col>
                     <Col span={12}>
-                        <h4>TARGET</h4>
+                        <span className='columnHeading'>TARGET</span>
                         <TargetTrans />
                         <TargetTrans />
                         <TargetTrans />
