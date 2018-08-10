@@ -323,7 +323,7 @@ public class DocumentContentTranslatorService {
                 warnings.add(maxLengthWarning(source, maxLength));
             } else {
                 translateChildNodes(doc, backendID, mediaType, maxLength,
-                        toElement, warnings, contents, contentIndex, content);
+                        toElement, warnings, content);
             }
         }
         String translation = contents.stream()
@@ -332,10 +332,10 @@ public class DocumentContentTranslatorService {
         return new StringTranslationResult(translation, warnings);
     }
 
-    private void translateChildNodes(Document doc, BackendID backendID, MediaType mediaType,
+    private void translateChildNodes(Document doc, BackendID backendID,
+            MediaType mediaType,
             int maxLength, Function<String, Element> toElement,
-            List<APIResponse> warnings, List<Node> contents, int contentIndex,
-            Node content) {
+            List<APIResponse> warnings, Node content) {
         int childCount = content.childNodeSize();
         int childIndex = 0;
 
@@ -354,13 +354,7 @@ public class DocumentContentTranslatorService {
                 Node replacement = ArticleUtil
                         .asElement(translated.get(0), toElement);
                 if (replacement != null) {
-                    if (child == content) {
-                        //replace this item in contents list, exit while loop
-                        contents.set(contentIndex, replacement);
-                        break;
-                    } else {
-                        child.replaceWith(replacement);
-                    }
+                    child.replaceWith(replacement);
                 }
             } else {
                 // show warning if there are no more children under this node
