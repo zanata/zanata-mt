@@ -51,7 +51,7 @@ public class Document extends ModelEntity {
     @NaturalId
     private String urlHash;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     @JoinColumn(name = "documentId", insertable = false, updatable = false)
     @MapKey(name = "contentHash")
     private Map<String, TextFlow> textFlows;

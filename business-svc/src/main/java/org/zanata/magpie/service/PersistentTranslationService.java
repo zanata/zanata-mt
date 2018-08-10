@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.backend.BackendLocaleCode;
+import org.zanata.magpie.dao.DocumentDAO;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
 import org.zanata.magpie.event.RequestedMTEvent;
@@ -72,8 +73,8 @@ public class PersistentTranslationService {
     private static final Logger LOG =
         LoggerFactory.getLogger(PersistentTranslationService.class);
 
+    private DocumentDAO documentDAO;
     private TextFlowDAO textFlowDAO;
-
     private TextFlowTargetDAO textFlowTargetDAO;
     private Event<RequestedMTEvent> requestedMTEvent;
     private AuthenticatedAccount authenticatedAccount;
@@ -85,11 +86,13 @@ public class PersistentTranslationService {
     }
 
     @Inject
-    public PersistentTranslationService(TextFlowDAO textFlowDAO,
+    public PersistentTranslationService(DocumentDAO documentDAO,
+            TextFlowDAO textFlowDAO,
             TextFlowTargetDAO textFlowTargetDAO,
             Instance<TranslatorBackend> translatorBackends,
             Event<RequestedMTEvent> requestedMTEvent,
             AuthenticatedAccount authenticatedAccount) {
+        this.documentDAO = documentDAO;
         this.textFlowDAO = textFlowDAO;
         this.textFlowTargetDAO = textFlowTargetDAO;
         this.requestedMTEvent = requestedMTEvent;
@@ -117,6 +120,9 @@ public class PersistentTranslationService {
             @NotNull BackendID backendID, @NotNull StringType stringType,
             Optional<String> category)
             throws BadRequestException, MTException {
+        // fetch the text flows for later (as part of this new transaction)
+        document = documentDAO.reload(document);
+        document.getTextFlows();
         if (sourceStrings == null || sourceStrings.isEmpty() || fromLocale == null
                 || toLocale == null || backendID == null) {
             throw new BadRequestException();
