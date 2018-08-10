@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -317,44 +318,58 @@ public class DocumentContentTranslatorService {
 
         for (int contentIndex = 0; contentIndex < contents.size(); contentIndex++) {
             Node content = contents.get(contentIndex);
-            int childCount = content.childNodeSize();
-            int childIndex = 0;
-
-            while (childIndex < childCount) {
-                Node child = content.childNode(childIndex);
-                String html = child.outerHtml();
-                if (html.length() <= maxLength) {
-                    List<String> translated =
-                            persistentTranslationService
-                                    .translate(doc, ImmutableList.of(html),
-                                            doc.getFromLocale(),
-                                            doc.getToLocale(), backendID,
-                                            StringType.fromMediaType(mediaType),
-                                            Optional.of(CATEGORY));
-                    assert translated.size() == 1;
-                    Node replacement = ArticleUtil.asElement(translated.get(0), toElement);
-                    if (replacement != null) {
-                        if (child == content) {
-                            //replace this item in contents list, exit while loop
-                            contents.set(contentIndex, replacement);
-                            break;
-                        } else {
-                            child.replaceWith(replacement);
-                        }
-                    }
-                } else {
-                    // show warning if there are no more children under this node
-                    warnings.add(maxLengthWarning(html, maxLength));
-                }
-                // size changes if child node is being translated
-                childCount = content.childNodeSize();
-                childIndex++;
+            // if content is a (large) TextNode ie no child nodes:
+            if (content instanceof TextNode) {
+                warnings.add(maxLengthWarning(source, maxLength));
+            } else {
+                translateChildNodes(doc, backendID, mediaType, maxLength,
+                        toElement, warnings, contents, contentIndex, content);
             }
         }
         String translation = contents.stream()
                 .map(Node::outerHtml)
                 .collect(Collectors.joining());
         return new StringTranslationResult(translation, warnings);
+    }
+
+    private void translateChildNodes(Document doc, BackendID backendID, MediaType mediaType,
+            int maxLength, Function<String, Element> toElement,
+            List<APIResponse> warnings, List<Node> contents, int contentIndex,
+            Node content) {
+        int childCount = content.childNodeSize();
+        int childIndex = 0;
+
+        while (childIndex < childCount) {
+            Node child = content.childNode(childIndex);
+            String html = child.outerHtml();
+            if (html.length() <= maxLength) {
+                List<String> translated =
+                        persistentTranslationService
+                                .translate(doc, ImmutableList.of(html),
+                                        doc.getFromLocale(),
+                                        doc.getToLocale(), backendID,
+                                        StringType.fromMediaType(mediaType),
+                                        Optional.of(CATEGORY));
+                assert translated.size() == 1;
+                Node replacement = ArticleUtil
+                        .asElement(translated.get(0), toElement);
+                if (replacement != null) {
+                    if (child == content) {
+                        //replace this item in contents list, exit while loop
+                        contents.set(contentIndex, replacement);
+                        break;
+                    } else {
+                        child.replaceWith(replacement);
+                    }
+                }
+            } else {
+                // show warning if there are no more children under this node
+                warnings.add(maxLengthWarning(html, maxLength));
+            }
+            // size changes if child node is being translated
+            childCount = content.childNodeSize();
+            childIndex++;
+        }
     }
 
     private APIResponse maxLengthWarning(String source,
