@@ -3,7 +3,7 @@ import Layout from 'antd/lib/layout';
 import 'antd/lib/layout/style/css';
 import Card from 'antd/lib/card';
 import 'antd/lib/card/style/css';
-import MtAttribution from '../MtAttribution';
+import { MtAttribution } from '../MtAttribution';
 
 export class TargetTrans extends React.Component<{}> {
     public render() {
