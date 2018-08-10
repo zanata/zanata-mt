@@ -8,7 +8,7 @@
 
   .logo {
     width: 110px;
-    background: rgba(255, 255, 255, .2);
+    background: transparent;
     float: left;
     color: #fff;
     font-size: 1.2rem;
@@ -16,11 +16,34 @@
   }
 
   .ant-layout-content {
-    padding: 0;
+    padding: 0 !important;
+  }
+
+  .ant-layout-header {
+    background: #111;
   }
 
   .ant-menu-dark {
     float: right;
   }
+}
 
+.EditorToolbar {
+  .ant-layout-header {
+    background: #002140;
+    min-height: 48px;
+    height: 48px;
+    color: rgba(255, 255, 255, .8);
+    line-height: 48px;
+  }
+  .editorPagination {
+    float: right;
+    padding: 0.5rem;
+  }
+  .ant-pagination {
+    color: rgba(255, 255, 255, .8);
+  }
+  .ant-pagination-simple .ant-pagination-simple-pager input {
+    color: #002140;
+  }
 }
