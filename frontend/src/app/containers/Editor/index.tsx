@@ -1,6 +1,11 @@
 import * as React from 'react';
-import { Layout, Menu } from 'antd';
-import { EditorToolbar } from '../../components';
+import Layout from 'antd/lib/layout';
+import 'antd/lib/layout/style/css';
+import Menu from 'antd/lib/menu';
+import 'antd/lib/menu/style/css';
+import Col from 'antd/lib/col';
+import 'antd/lib/col/style/css';
+import {EditorToolbar, SourceTrans, TargetTrans} from '../../components';
 const { Header, Content } = Layout;
 
 export class Editor extends React.Component<{}> {
@@ -20,7 +25,32 @@ export class Editor extends React.Component<{}> {
                 </Header>
                 <Content style={{ padding: '0 50px' }}>
                     <EditorToolbar />
-                    <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>Content</div>
+                    <Col span={12}>
+                        <h4>SOURCE</h4>
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                        <SourceTrans />
+                    </Col>
+                    <Col span={12}>
+                        <h4>TARGET</h4>
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                        <TargetTrans />
+                    </Col>
                 </Content>
             </Layout>
         )
