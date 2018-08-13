@@ -19,7 +19,7 @@ export class MtAttribution extends React.Component<Props, {}> {
         return (
                 <span className='Button--MT'>
         <Tooltip placement='right' title={title}>
-          <Button className='Button--snug u-roundish Button--neutral'>
+          <Button type='primary' ghost size='small'>
            MT
           </Button>
         </Tooltip>
