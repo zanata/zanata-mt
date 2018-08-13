@@ -9,10 +9,12 @@ export interface Props {
     autoComplete?:boolean,
     autoFocus?:boolean,
     clearTextOnFocus?:boolean,
+    className?:string,
     defaultValue?:string,
     editable?:boolean,
     keyboard?:['default', 'email-address', 'numeric',
             'phone-pad', 'url'],
+    keyboardType?:string,
     maxLength?:number,
     maxNumberOfLines?:number,
     multiline?:boolean,
@@ -32,20 +34,20 @@ export interface Props {
  * TextInput component <input> or <textArea> depending on property 'multiline'.
  */
 export class TextInput extends React.Component<Props, {}> {
-    _onBlur = (e) => {
+    _onBlur = (e:any) => {
         const {onBlur} = this.props
         if (onBlur) {
             onBlur(e)
         }
     }
 
-    _onChange = (e) => {
+    _onChange = (e:any) => {
         const {onChange, onChangeText} = this.props
         if (onChangeText) onChangeText(e.target.value)
         if (onChange) onChange(e)
     }
 
-    _onFocus = (e) => {
+    _onFocus = (e:any) => {
         const {clearTextOnFocus, onFocus, selectTextOnFocus} = this.props
         const node = ReactDOM.findDOMNode(this)
         if (clearTextOnFocus) node.value = ''
@@ -53,7 +55,7 @@ export class TextInput extends React.Component<Props, {}> {
         if (onFocus) onFocus(e)
     }
 
-    _onSelectionChange = (e) => {
+    _onSelectionChange = (e:any) => {
         const {onSelectionChange} = this.props
         const {selectionDirection, selectionEnd, selectionStart} = e.target
         if (onSelectionChange) {
@@ -67,14 +69,9 @@ export class TextInput extends React.Component<Props, {}> {
         }
     }
 
-    _onKeyDown = (e) => {
+    _onKeyDown = (e:any) => {
         const {onKeyDown} = this.props
         if (onKeyDown) onKeyDown(e)
-    }
-
-    _onClear = () => {
-        const node = ReactDOM.findDOMNode(this)
-        node.value = ''
     }
 
     public render () {
