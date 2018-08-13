@@ -10,7 +10,7 @@ export class SourceTrans extends React.Component<{}> {
         return (
                 <Layout className="sourceTrans">
                     <Card hoverable>
-                        <p>{sourceText}</p>
+                        <p className='sourceText'>{sourceText}</p>
                     </Card>
                 </Layout>
         )

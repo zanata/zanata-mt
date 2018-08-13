@@ -18,7 +18,7 @@ export class TransInfo extends React.Component<{}> {
         const content = (
             <span>
                 <Input placeholder='https://mt.magpie.org/app/editor/doc/language/translationid'
-                       addonAfter={<Icon type='copy' />}/>
+                       size='small' addonAfter={<Icon type='copy' />} style={{ width: 420 }} />
             </span>
         )
         return (
