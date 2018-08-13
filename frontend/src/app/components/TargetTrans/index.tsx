@@ -4,7 +4,7 @@ import 'antd/lib/layout/style/css';
 import Card from 'antd/lib/card';
 import 'antd/lib/card/style/css';
 import { TransInfo } from '../TransInfo';
-import EditableText from "../EditableText";
+import { EditableText } from '../EditableText'
 
 export class TargetTrans extends React.Component<{}> {
     public render() {
@@ -14,7 +14,6 @@ export class TargetTrans extends React.Component<{}> {
                     <Card hoverable >
                         <TransInfo />
                         <EditableText
-                           className='editable textInput textState ellipsis'
                            maxLength={255}
                            editable={true}
                            editing={true}

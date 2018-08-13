@@ -2,8 +2,7 @@
 import React from 'react'
 import Row from 'antd/lib/row'
 import 'antd/lib/row/style/css'
-import Input from 'antd/lib/input'
-import 'antd/lib/input/style/css'
+import {TextInput} from "../TextInput";
 
 /**
  * Text input that can switch between text field and label
@@ -22,12 +21,11 @@ export interface Props {
 }
 
 export class EditableText extends React.Component<Props, {}> {
-
-    render () {
+    public render () {
         const {
             children = '',
-            editable = false,
-            editing = false,
+            editable = true,
+            editing = true,
             emptyReadOnlyText = '',
             placeholder = '',
             title,
@@ -39,13 +37,14 @@ export class EditableText extends React.Component<Props, {}> {
             const cssClass = 'textInput w-100 tl ' +
                     (editable ? 'editable' : 'text') + (children ? '' : ' txt-muted')
             return (
-                <Input className={cssClass}
-                   {...props}
-                   maxLength={maxLength}
-                   placeholder={placeholder}
-                   value={children}>
-                    test text
-                </Input>
+                    <TextInput
+                               {...props}
+                               maxLength={maxLength}
+                               placeholder={placeholder}
+                               value={children}
+                               className={cssClass}>
+                        Test
+                    </TextInput>
             )
         }
         const emptyText = editable ? placeholder : emptyReadOnlyText
@@ -53,10 +52,8 @@ export class EditableText extends React.Component<Props, {}> {
                 <span className='txt-muted'>{emptyText}</span>
         return (
                 <Row className='textInput w-100 tl text ellipsis'
-                    title={title}>
+                     title={title}>
                     {content}
                 </Row>
         ) }
 }
-
-export default EditableText
