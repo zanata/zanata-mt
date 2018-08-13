@@ -234,26 +234,26 @@ public final class ArticleUtil {
     /**
      * Unwrap a wrapped element inside MT wrapper.
      */
-    public static List<Element> unwrapAsElements(@NotNull Element element) {
+    public static List<Node> unwrapAsElements(@NotNull Element element) {
         Element wrapper = element.select("#" + getWrapperId()).first();
         if (wrapper != null) {
-            return wrapper.children();
+            return wrapper.childNodes();
         }
         return Lists.newArrayList(element);
     }
 
     // parse html string into element
-    static @Nullable Element asElementHTML(String html) {
+    static @Nullable Node asElementHTML(String html) {
         return asElement(html, ArticleUtil::wrapHTML);
     }
 
     // parse html string into element
-    public static @Nullable Element asElement(String html, Function<String, Element> toElement) {
+    public static @Nullable Node asElement(String html, Function<String, Element> toElement) {
         if (StringUtils.isBlank(html)) {
             return null;
         }
-        List<Element> elements = unwrapAsElements(toElement.apply(html));
-        return elements.isEmpty() ? null :  elements.get(0);
+        List<Node> elements = unwrapAsElements(toElement.apply(html));
+        return elements.isEmpty() ? null : elements.get(0);
     }
 
     /**

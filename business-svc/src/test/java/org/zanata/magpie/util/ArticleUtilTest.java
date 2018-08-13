@@ -57,7 +57,21 @@ public class ArticleUtilTest {
         String html = "<html><head></head><body>test</body></html>";
         Node node = ArticleUtil.asElementHTML(html);
         assertThat(node).isNotNull().extracting(Node::outerHtml)
-                .contains(html);
+                .containsExactly(html);
+    }
+
+    @Test
+    public void asElementHTMLWithoutWrapper() {
+        String html = "test";
+        Node node = ArticleUtil.asElementHTML(html);
+        assertThat(node).isNotNull().extracting(Node::outerHtml).containsExactly(html);
+    }
+
+    @Test
+    public void asElementHTMLWithDiv() {
+        String html = "<div>test</div>";
+        Node node = ArticleUtil.asElementHTML(html);
+        assertThat(node).isNotNull().extracting(Node::outerHtml).containsExactly(html);
     }
 
     @Test

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
@@ -70,7 +72,66 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML() {
+    public void testLongHTMLWithNoTags() {
+        int maxLength = 25;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        // Longer than maxLength; no sentences for segmentation.
+        String html = "The quick brown fox jumps over the lazy dog.";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(html);
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(it -> it.getTitle() + "\n" + it.getDetails())
+                .containsExactly(
+                        "Warning: translation skipped: String length is over 25\n" +
+                                "The quick brown fox jumps over the lazy dog.");
+    }
+
+    @Test
+    public void testShortHTMLWithNoTags() {
+        int maxLength = 250;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "The quick brown fox jumps over the lazy dog.";
+        String expectedHtml = "Der schnelle braune Fuchs springt über den faulen Hund.";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("Der schnelle braune Fuchs springt über den faulen Hund."));
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+    }
+
+    @Test
+    public void testLongHTMLWithOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -99,7 +160,7 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML2() {
+    public void testLongHTMLWithoutOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -107,15 +168,18 @@ public class DocumentContentTranslatorServiceTest {
                 new Document("http://localhost", srcLocale, transLocale);
 
         String html = "<span>content1</span><span>content2</span>";
-        String expectedHtml = "<span>translated</span><span>translated</span>";
+        String expectedHtml = "<span>translated1</span><span>translated2</span>";
 
         when(persistentTranslationService.getMaxLength(BackendID.MS))
                 .thenReturn(maxLength);
 
+        when(persistentTranslationService.translate(any(),
+                eq(ImmutableList.of("content1")), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("translated1"));
 
         when(persistentTranslationService.translate(any(),
-                any(), any(), any(), any(), any(), any()))
-                .thenReturn(ImmutableList.of("<span>translated</span>"));
+                eq(ImmutableList.of("content2")), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("translated2"));
 
         List<TypeString> contents = ImmutableList.of(
                 new TypeString(html, MediaType.TEXT_HTML, "meta"));
@@ -156,7 +220,16 @@ public class DocumentContentTranslatorServiceTest {
                 .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents().get(0).getValue())
                 .isEqualTo(expectedHtml);
-        assertThat(translatedDocContent.getWarnings()).hasSize(2);
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(it -> it.getTitle() + "\n" + it.getDetails())
+                .containsExactly(
+                        // This first warning was generated by the old
+                        // JSoup Element-based implementation, but seems wrong:
+                        // TODO work out why
+//                        "Warning: translation skipped: String length is over 25\n" +
+//                                "<div><span>content1</span><span>content too long cannot be translated</span></div>",
+                        "Warning: translation skipped: String length is over 25\n" +
+                                "<span>content too long cannot be translated</span>");
     }
 
     @Test
@@ -326,9 +399,9 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());
 
-        assertThat(translatedDocContent.getWarnings()).hasSize(1);
-        assertThat(translatedDocContent.getWarnings().get(0).getDetails())
-                .contains(ShortString.shorten(maxString));
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(APIResponse::getDetails)
+                .containsExactly(ShortString.shorten(maxString));
 
         for (int i = 0; i < translatedDocContent.getContents().size() - 1; i++) {
             assertThat(translatedDocContent.getContents().get(i))
