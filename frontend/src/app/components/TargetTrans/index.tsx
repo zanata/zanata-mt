@@ -7,11 +7,12 @@ import { MtAttribution } from '../MtAttribution';
 
 export class TargetTrans extends React.Component<{}> {
     public render() {
+        const backendId = 'Google'
         const targetText = 'Guten morgen'
         return (
                 <Layout className="targetTrans">
                     <Card hoverable>
-                        <MtAttribution />
+                        <MtAttribution backendId={backendId} />
                         <p>{targetText}</p>
                     </Card>
                 </Layout>
