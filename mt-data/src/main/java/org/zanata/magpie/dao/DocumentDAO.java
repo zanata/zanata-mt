@@ -27,8 +27,12 @@ public class DocumentDAO extends AbstractDAO<Document> {
     }
 
     @VisibleForTesting
-    DocumentDAO(EntityManager entityManager) {
+    public DocumentDAO(EntityManager entityManager) {
         setEntityManager(entityManager);
+    }
+
+    public Document reload(Document entity) {
+        return getEntityManager().find(Document.class, entity.getId());
     }
 
     @SuppressWarnings("unchecked")

@@ -86,6 +86,7 @@ public class DocumentResourceImpl implements DocumentResource {
                 StringUtils.isBlank(dateRangeParam) ? Optional.empty() :
                         Optional.of(DateRange.from(dateRangeParam));
 
+        // TODO this could be faster if we eagerly fetch the TextFlows for all Documents
         List<Document> documents = documentService
                 .getByUrl(url, Optional.ofNullable(fromLocaleCode),
                         Optional.ofNullable(toLocaleCode), dateParam);
@@ -103,6 +104,7 @@ public class DocumentResourceImpl implements DocumentResource {
         return Response.ok().entity(statistics).build();
     }
 
+    // lazily loads the text flows in doc
     private int getTotalWordCount(Document doc, LocaleCode localeCode) {
         return doc.getTextFlows().values().stream()
                 .filter(tf -> tf.getLocale().getLocaleCode()
