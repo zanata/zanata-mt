@@ -158,14 +158,9 @@
   <changeSet id="11" author="aeng@redhat.com">
     <comment>add username and password columns to account</comment>
     <addColumn tableName="account">
-      <column name="username" type="varchar(128)">
-        <constraints nullable="false" />
-      </column>
-      <column name="passwordhash" type="char(50)">
-        <constraints nullable="false" />
-      </column>
+      <column name="username" type="varchar(128)"/>
+      <column name="passwordhash" type="char(50)"/>
     </addColumn>
-    <addUniqueConstraint tableName="account" columnNames="username" />
   </changeSet>
 
   <changeSet id="12" author="aeng@redhat.com">
@@ -174,6 +169,13 @@
   </changeSet>
 
   <changeSet id="13" author="aeng@redhat.com">
+    <comment>add constraint to username, password in account</comment>
+    <addNotNullConstraint columnName="username" tableName="account"/>
+    <addNotNullConstraint columnName="passwordhash" tableName="account"/>
+    <addUniqueConstraint tableName="account" columnNames="username" />
+  </changeSet>
+
+  <changeSet id="14" author="aeng@redhat.com">
     <comment>drop credential table</comment>
     <dropTable tableName="credential"/>
   </changeSet>
