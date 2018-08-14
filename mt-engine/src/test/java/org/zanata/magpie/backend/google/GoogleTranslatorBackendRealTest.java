@@ -3,7 +3,6 @@ package org.zanata.magpie.backend.google;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Assume;
@@ -12,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.model.AugmentedTranslation;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.DTOUtil;
 import com.google.common.collect.ImmutableList;
 
@@ -44,18 +44,18 @@ public class GoogleTranslatorBackendRealTest {
     public void canTranslateViaGoogle() {
         AugmentedTranslation result = translateSingle(
                 "<div>hello<a href='http://nowhere.com'>world</a></div>", "zh",
-                MediaType.TEXT_HTML_TYPE);
+                StringType.HTML);
 
         Assertions.assertThat(result.getPlainTranslation())
                 .isEqualTo("<div>你好<a href='http://nowhere.com'>世界</a> </div>");
     }
 
     private AugmentedTranslation translateSingle(String content,
-            String targetLocale, MediaType mediaType) {
+            String targetLocale, StringType stringType) {
         List<AugmentedTranslation> translations =
                 translatorBackend.translate(ImmutableList.of(content),
                         new BackendLocaleCodeImpl("en"),
-                        new BackendLocaleCodeImpl(targetLocale), mediaType,
+                        new BackendLocaleCodeImpl(targetLocale), stringType,
                         Optional.empty());
         return translations.get(0);
     }
@@ -64,7 +64,7 @@ public class GoogleTranslatorBackendRealTest {
     public void canTranslatePlainText() {
         AugmentedTranslation result =
                 translateSingle("Why &amp; is a nuisance in source code", "zh",
-                        MediaType.TEXT_PLAIN_TYPE);
+                        StringType.TEXT_PLAIN);
 
         Assertions.assertThat(result.getPlainTranslation())
                 .isEqualTo("为什么＆amp;是源代码的滋扰");

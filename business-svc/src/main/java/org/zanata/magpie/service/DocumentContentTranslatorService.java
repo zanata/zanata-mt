@@ -2,11 +2,11 @@ package org.zanata.magpie.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,12 +17,14 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.model.Document;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.ArticleUtil;
 import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
@@ -74,14 +76,17 @@ public class DocumentContentTranslatorService {
             throws BadRequestException, MTException {
         Map<Integer, TypeString> indexTextMap = new LinkedHashMap<>();
         Map<Integer, TypeString> indexHTMLMap = new LinkedHashMap<>();
+        Map<Integer, TypeString> indexXMLMap = new LinkedHashMap<>();
         int maxLength = persistentTranslationService.getMaxLength(backendID);
 
         List<APIResponse> warnings = new ArrayList<>();
-        List<TypeString> results =
+        List<TypeString> typeStrings =
                 new ArrayList<>(documentContent.getContents());
 
+        // counts short strings (less than maxLength) which are translated
+        // in a batch at the end
         int index = 0;
-        for (TypeString typeString: results) {
+        for (TypeString typeString: typeStrings) {
             MediaType mediaType = getMediaType(typeString.getType());
             String source = typeString.getValue();
             if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)
@@ -89,56 +94,67 @@ public class DocumentContentTranslatorService {
                 if (source.length() <= maxLength) {
                     indexTextMap.put(index, typeString);
                 } else {
-                    String translatedString =
+                    StringTranslationResult result =
                             translateLargeString(doc, backendID,
-                                    mediaType, source, maxLength, warnings);
-                   typeString.setValue(translatedString);
+                                    StringType.TEXT_PLAIN, source, maxLength);
+                    typeString.setValue(result.getTranslation());
+                    warnings.addAll(result.getWarnings());
                 }
-            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE)) {
-                // put placeholder on all non-translatable html
-                TranslatableHTMLNode translatableHTMLNode =
-                        ArticleUtil.replaceNonTranslatableNode(index, source);
-                String html = translatableHTMLNode.getHtml();
+            } else if (mediaType.equals(MediaType.TEXT_HTML_TYPE) ||
+                    mediaType.equals(MediaType.TEXT_XML_TYPE)) {
+                boolean xml = mediaType.equals(MediaType.TEXT_XML_TYPE);
 
+                // put placeholders in all non-translatable elements
+                TranslatableNodeList translatableNodeList = xml ?
+                        ArticleUtil.replaceNonTranslatableNodeXML(index, source) :
+                        ArticleUtil.replaceNonTranslatableNodeHTML(index, source);
+                String html = translatableNodeList.getHtml();
                 if (html.length() <= maxLength) {
-                    indexHTMLMap.put(index, typeString);
+                    Map<Integer, TypeString> indexMap = xml ? indexXMLMap : indexHTMLMap;
+                    indexMap.put(index, typeString);
                 } else {
-                    String translatedString =
-                            translateLargeHTMLElement(doc, backendID, mediaType,
-                                    maxLength, html, warnings);
+                    Function<String, Element> toElement = xml ? ArticleUtil::wrapXML : ArticleUtil::wrapHTML;
+                    StringTranslationResult result =
+                            translateLargeElement(doc, backendID, mediaType,
+                                    maxLength, html, toElement);
+                    String translationWithPlaceholders = result.getTranslation();
+
                     // replace placeholder with original node
-                    translatedString = ArticleUtil
-                            .replacePlaceholderWithNode(
-                                    translatableHTMLNode.getPlaceholderIdMap(),
-                                    translatedString);
+                    String translatedString =
+                            removePlaceholders(translationWithPlaceholders,
+                                    translatableNodeList, toElement);
                     typeString.setValue(translatedString);
+                    warnings.addAll(result.getWarnings());
                 }
             }
             index++;
         }
 
-        if (!indexTextMap.isEmpty()) {
-            translateAndMergeStringsInBatch(doc, backendID,
-                    MediaType.TEXT_PLAIN_TYPE,
-                    maxLength, indexTextMap, results);
-        }
-
-        if (!indexHTMLMap.isEmpty()) {
-            translateAndMergeStringsInBatch(doc, backendID,
-                    MediaType.TEXT_HTML_TYPE,
-                    maxLength, indexHTMLMap, results);
-        }
-        return new DocumentContent(results, documentContent.getUrl(),
+        translateAndMergeStringsInBatch(doc, backendID, StringType.TEXT_PLAIN,
+                maxLength, indexTextMap, typeStrings);
+        translateAndMergeStringsInBatch(doc, backendID, StringType.HTML,
+                maxLength, indexHTMLMap, typeStrings);
+        translateAndMergeStringsInBatch(doc, backendID, StringType.XML,
+                maxLength, indexXMLMap, typeStrings);
+        return new DocumentContent(typeStrings, documentContent.getUrl(),
                 doc.getToLocale().getLocaleCode().getId(), backendID.getId(),
                 warnings);
+    }
+
+    private String removePlaceholders(String translationWithPlaceholders,
+            TranslatableNodeList translatableNodeList,
+            Function<String, Element> toElement) {
+        return ArticleUtil.replacePlaceholderWithNode(
+                translatableNodeList.getPlaceholderIdMap(),
+                translationWithPlaceholders, toElement);
     }
 
     /**
      * Translate strings with batch of maxLength
      */
-    private String translateLargeString(Document doc, BackendID backendID,
-            MediaType mediaType, String source, int maxLength,
-            List<APIResponse> warnings) {
+    private StringTranslationResult translateLargeString(Document doc, BackendID backendID,
+            StringType stringType, String source, int maxLength) {
+        List<APIResponse> warnings = new ArrayList<>();
         List<String> segmentedStrings =
                 SegmentString.segmentString(source,
                         Optional.of(doc.getFromLocale().getLocaleCode()));
@@ -152,13 +168,13 @@ public class DocumentContentTranslatorService {
             String string = segmentedStrings.get(index);
             // ignore string if length is longer the maxLength
             if (string.length() > maxLength) {
-                addMaxLengthWarnings(string, warnings, maxLength);
+                warnings.add(maxLengthWarning(string, maxLength));
                 continue;
             }
             if (charCount + string.length() > maxLength) {
                 List<String> translated = persistentTranslationService
                         .translate(doc, batchedStrings, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, mediaType,
+                                doc.getToLocale(), backendID, stringType,
                                 Optional.of(CATEGORY));
                 translatedStrings.addAll(translated);
                 assert batchedStrings.size() == translated.size();
@@ -172,7 +188,7 @@ public class DocumentContentTranslatorService {
         if (!batchedStrings.isEmpty()) {
             List<String> translated = persistentTranslationService
                     .translate(doc, batchedStrings, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, mediaType,
+                            doc.getToLocale(), backendID, stringType,
                             Optional.of(CATEGORY));
             translatedStrings.addAll(translated);
             assert batchedStrings.size() == translated.size();
@@ -181,37 +197,48 @@ public class DocumentContentTranslatorService {
         for (int index = 0; index < translatedStrings.size(); index++) {
             results.set(indexOrderList.get(index), translatedStrings.get(index));
         }
-        return String.join("", results);
+        return new StringTranslationResult(String.join("", results), warnings);
     }
 
     /**
      * Translate strings with batch of maxLength
+     * @param docStringType text/plain, text/html or text/xml
      */
     private void translateAndMergeStringsInBatch(Document doc, BackendID backendID,
-            MediaType mediaType, int maxLength,
+            StringType docStringType, int maxLength,
             Map<Integer, TypeString> indexTypeStringMap,
             List<TypeString> results) {
+        if (indexTypeStringMap.isEmpty()) return;
         List<String> batchedStrings = new ArrayList<>();
         List<Integer> indexOrderList = new ArrayList<>();
-        Map<Integer, TranslatableHTMLNode> htmlNodeCache = new HashMap<>();
+        // html or xml nodes
+        Map<Integer, TranslatableNodeList> nodeCache = new HashMap<>();
 
         int charCount = 0;
-        Iterator<Map.Entry<Integer, TypeString>> iter =
-                indexTypeStringMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Integer, TypeString> entry = iter.next();
-            String stringToTranslate = entry.getValue().getValue();
-            if (mediaType == MediaType.TEXT_HTML_TYPE) {
-                int index = entry.getKey();
-                TranslatableHTMLNode translatableHTMLNode =
-                        ArticleUtil.replaceNonTranslatableNode(index,
+        for (Map.Entry<Integer, TypeString> entry : indexTypeStringMap
+                .entrySet()) {
+            int index = entry.getKey();
+            TypeString typeString = entry.getValue();
+
+            String stringToTranslate = typeString.getValue();
+            String stringType = typeString.getType();
+            if (stringType.equals(MediaType.TEXT_HTML)) {
+                TranslatableNodeList translatableNodeList =
+                        ArticleUtil.replaceNonTranslatableNodeHTML(index,
                                 stringToTranslate);
-                htmlNodeCache.put(index, translatableHTMLNode);
-                stringToTranslate = translatableHTMLNode.getHtml();
+                nodeCache.put(index, translatableNodeList);
+                stringToTranslate = translatableNodeList.getHtml();
+            } else if (stringType.equals(MediaType.TEXT_XML)) {
+                TranslatableNodeList translatableNodeList =
+                        ArticleUtil.replaceNonTranslatableNodeXML(index,
+                                stringToTranslate);
+                nodeCache.put(index, translatableNodeList);
+                stringToTranslate = translatableNodeList.getHtml();
             }
 
             if (charCount + stringToTranslate.length() > maxLength) {
-                translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,
+                translateAndMergeStrings(doc, backendID,
+                        StringType.fromMediaType(stringType), batchedStrings,
                         indexOrderList, results);
                 charCount = 0;
                 batchedStrings.clear();
@@ -221,18 +248,36 @@ public class DocumentContentTranslatorService {
             indexOrderList.add(entry.getKey());
             charCount += stringToTranslate.length();
         }
-        translateAndMergeStrings(doc, backendID, mediaType, batchedStrings,
+        translateAndMergeStrings(doc, backendID, docStringType, batchedStrings,
                 indexOrderList, results);
 
-        // restore placeholder into html
-        if (!htmlNodeCache.isEmpty()) {
-            for (Map.Entry<Integer, TranslatableHTMLNode> entry: htmlNodeCache.entrySet()) {
+        // restore placeholder nodes with original values in html/xml
+        if (!nodeCache.isEmpty()) {
+            for (Map.Entry<Integer, TranslatableNodeList> entry: nodeCache.entrySet()) {
                 int index = entry.getKey();
                 TypeString typeString = results.get(index);
-                String translatedString = ArticleUtil
-                        .replacePlaceholderWithNode(
-                                entry.getValue().getPlaceholderIdMap(),
-                                typeString.getValue());
+                Map<String, Node> placeholderIdMap =
+                        entry.getValue().getPlaceholderIdMap();
+                String translatedString;
+                switch (typeString.getType()) {
+                    case MediaType.TEXT_HTML:
+                        translatedString = ArticleUtil
+                                .replacePlaceholderWithNode(
+                                        placeholderIdMap,
+                                        typeString.getValue(),
+                                        ArticleUtil::wrapHTML);
+                        break;
+                    case MediaType.TEXT_XML:
+                        translatedString = ArticleUtil
+                                .replacePlaceholderWithNode(
+                                        placeholderIdMap,
+                                        typeString.getValue(),
+                                        ArticleUtil::wrapXML);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
                 typeString.setValue(translatedString);
                 results.set(index, typeString);
             }
@@ -241,12 +286,12 @@ public class DocumentContentTranslatorService {
 
     // perform translation on list of string and merge into results
     private void translateAndMergeStrings(Document doc, BackendID backendID,
-            MediaType mediaType, List<String> strings,
+            StringType stringType, List<String> strings,
             List<Integer> indexOrderList, List<TypeString> results) {
 
         List<String> translatedStrings = persistentTranslationService
                 .translate(doc, strings, doc.getFromLocale(),
-                        doc.getToLocale(), backendID, mediaType,
+                        doc.getToLocale(), backendID, stringType,
                         Optional.of(CATEGORY));
         assert translatedStrings.size() == strings.size();
 
@@ -262,63 +307,75 @@ public class DocumentContentTranslatorService {
      * its child nodes will not be translated again.
      *
      * root.getAllElements().size() changes once root is being translated.
+     * @param mediaType text/plain, text/html or text/xml
      */
-    private String translateLargeHTMLElement(Document doc, BackendID backendID,
+    private StringTranslationResult translateLargeElement(Document doc, BackendID backendID,
             MediaType mediaType, int maxLength, String source,
-            List<APIResponse> warnings) {
+            Function<String, Element> toElement) {
 
-        List<Element> contents =
-                ArticleUtil.unwrapAsElements(ArticleUtil.wrapHTML(source));
+        List<APIResponse> warnings = new ArrayList<>();
+        List<Node> contents =
+                ArticleUtil.unwrapAsElements(toElement.apply(source));
 
-        for (int i = 0; i < contents.size(); i++) {
-            Element content = contents.get(i);
-            int size = content.getAllElements().size();
-            int index = 0;
-
-            while (index < size) {
-                Element child = content.getAllElements().get(index);
-                String html = child.outerHtml();
-                if (html.length() <= maxLength) {
-                    List<String> translated =
-                            persistentTranslationService
-                                    .translate(doc, ImmutableList.of(html),
-                                            doc.getFromLocale(),
-                                            doc.getToLocale(), backendID,
-                                            mediaType, Optional.of(CATEGORY));
-                    assert translated.size() == 1;
-                    Element replacement = ArticleUtil.asElement(translated.get(0));
-                    if (replacement != null) {
-                        if (child == content) {
-                            //replace this item in contents list, exit while loop
-                            contents.set(i, replacement);
-                            break;
-                        } else {
-                            child.replaceWith(replacement);
-                        }
-                    }
-                } else {
-                    // show warning if there is no more children under this node
-                    addMaxLengthWarnings(html, warnings, maxLength);
-                }
-                // size changes if child node is being translated
-                size = content.getAllElements().size();
-                index++;
+        for (int contentIndex = 0; contentIndex < contents.size(); contentIndex++) {
+            Node content = contents.get(contentIndex);
+            // if content is a (large) TextNode ie no child nodes:
+            if (content instanceof TextNode) {
+                warnings.add(maxLengthWarning(source, maxLength));
+            } else {
+                translateChildNodes(doc, backendID, mediaType, maxLength,
+                        toElement, warnings, content);
             }
         }
-        return contents.stream().map(Node::outerHtml)
+        String translation = contents.stream()
+                .map(Node::outerHtml)
                 .collect(Collectors.joining());
+        return new StringTranslationResult(translation, warnings);
     }
 
-    private void addMaxLengthWarnings(String source, List<APIResponse> warnings,
+    private void translateChildNodes(Document doc, BackendID backendID,
+            MediaType mediaType,
+            int maxLength, Function<String, Element> toElement,
+            List<APIResponse> warnings, Node content) {
+        int childCount = content.childNodeSize();
+        int childIndex = 0;
+
+        while (childIndex < childCount) {
+            Node child = content.childNode(childIndex);
+            String html = child.outerHtml();
+            if (html.length() <= maxLength) {
+                List<String> translated =
+                        persistentTranslationService
+                                .translate(doc, ImmutableList.of(html),
+                                        doc.getFromLocale(),
+                                        doc.getToLocale(), backendID,
+                                        StringType.fromMediaType(mediaType),
+                                        Optional.of(CATEGORY));
+                assert translated.size() == 1;
+                Node replacement = ArticleUtil
+                        .asElement(translated.get(0), toElement);
+                if (replacement != null) {
+                    child.replaceWith(replacement);
+                }
+            } else {
+                // show warning if there are no more children under this node
+                warnings.add(maxLengthWarning(html, maxLength));
+            }
+            // size changes if child node is being translated
+            childCount = content.childNodeSize();
+            childIndex++;
+        }
+    }
+
+    private APIResponse maxLengthWarning(String source,
             int maxLength) {
         String title =
                 "Warning: translation skipped: String length is over " +
                         maxLength;
         String shortenString = ShortString.shorten(source);
         LOG.warn(title + " - " + shortenString);
-        warnings.add(new APIResponse(
-                Response.Status.BAD_REQUEST, new Exception(shortenString),
-                title));
+        return new APIResponse(Response.Status.BAD_REQUEST,
+                new Exception(shortenString), title);
     }
 
     public MediaType getMediaType(String mediaType) throws BadRequestException {
@@ -330,6 +387,6 @@ public class DocumentContentTranslatorService {
 
     public boolean isMediaTypeSupported(String mediaType) {
         return StringUtils.equalsAny(mediaType, MediaType.TEXT_HTML,
-                MediaType.TEXT_PLAIN);
+                MediaType.TEXT_PLAIN, MediaType.TEXT_XML);
     }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,16 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.zanata.magpie.api.AuthenticatedAccount;
+import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
@@ -30,26 +36,22 @@ import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import org.zanata.magpie.model.StringType;
 import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
 
 /**
  * @author Alex Eng<a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
+@RunWith(CdiRunner.class)
 public class DocumentContentTranslatorServiceTest {
 
+    @Inject
     private DocumentContentTranslatorService documentContentTranslatorService;
 
+    @Produces
     @Mock
     private PersistentTranslationService persistentTranslationService;
-
-    @Before
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        documentContentTranslatorService =
-                new DocumentContentTranslatorService(persistentTranslationService);
-    }
 
     @Test
     public void testEmptyConstructor() {
@@ -72,7 +74,66 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML() {
+    public void testLongHTMLWithNoTags() {
+        int maxLength = 25;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        // Longer than maxLength; no sentences for segmentation.
+        String html = "The quick brown fox jumps over the lazy dog.";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(html);
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(it -> it.getTitle() + "\n" + it.getDetails())
+                .containsExactly(
+                        "Warning: translation skipped: String length is over 25\n" +
+                                "The quick brown fox jumps over the lazy dog.");
+    }
+
+    @Test
+    public void testShortHTMLWithNoTags() {
+        int maxLength = 250;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "The quick brown fox jumps over the lazy dog.";
+        String expectedHtml = "Der schnelle braune Fuchs springt über den faulen Hund.";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("Der schnelle braune Fuchs springt über den faulen Hund."));
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+    }
+
+    @Test
+    public void testLongHTMLWithOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -101,7 +162,7 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTML2() {
+    public void testLongHTMLWithoutOuterDiv() {
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -109,15 +170,18 @@ public class DocumentContentTranslatorServiceTest {
                 new Document("http://localhost", srcLocale, transLocale);
 
         String html = "<span>content1</span><span>content2</span>";
-        String expectedHtml = "<span>translated</span><span>translated</span>";
+        String expectedHtml = "<span>translated1</span><span>translated2</span>";
 
         when(persistentTranslationService.getMaxLength(BackendID.MS))
                 .thenReturn(maxLength);
 
+        when(persistentTranslationService.translate(any(),
+                eq(ImmutableList.of("content1")), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("translated1"));
 
         when(persistentTranslationService.translate(any(),
-                any(), any(), any(), any(), any(), any()))
-                .thenReturn(ImmutableList.of("<span>translated</span>"));
+                eq(ImmutableList.of("content2")), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of("translated2"));
 
         List<TypeString> contents = ImmutableList.of(
                 new TypeString(html, MediaType.TEXT_HTML, "meta"));
@@ -158,7 +222,45 @@ public class DocumentContentTranslatorServiceTest {
                 .translateDocument(document, docContent, BackendID.MS);
         assertThat(getContentAt(translatedDocContent))
                 .isEqualTo(expectedHtml);
-        assertThat(translatedDocContent.getWarnings()).hasSize(2);
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(it -> it.getTitle() + "\n" + it.getDetails())
+                .containsExactly(
+                        // This first warning was generated by the old
+                        // JSoup Element-based implementation, but seems wrong:
+                        // TODO work out why
+//                        "Warning: translation skipped: String length is over 25\n" +
+//                                "<div><span>content1</span><span>content too long cannot be translated</span></div>",
+                        "Warning: translation skipped: String length is over 25\n" +
+                                "<span>content too long cannot be translated</span>");
+    }
+
+    @Test
+    public void testXMLTags() {
+        int maxLength = 250;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "The <literal>@watch</literal> annotation is not working with accumulate in rules. [<link xlink:href=\"https://issues.jboss.org/browse/RHDM-509\">RHDM-509</link>]";
+        String expectedHtml = "translated[网 The <literal>@watch</literal> annotation is not working with accumulate in rules. [<link xlink:href=\"https://issues.jboss.org/browse/RHDM-509\">RHDM-509</link>] 网]";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any(), any()))
+                .thenReturn(ImmutableList.of(expectedHtml));
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_XML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
     }
 
     @Test
@@ -178,22 +280,22 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document,
                 strings.subList(0, 2), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:Hurray!", "Translated:I am never at home on Sundays. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(2, 3), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:The mysterious diary records the voice. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(3, 4), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:She was too short to see over the fence. "));
 
         when(persistentTranslationService.translate(document,
                 strings.subList(4, 5), fromLocale, toLocale, BackendID.MS,
-                MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Translated:Everyone was busy, so I went to the movie alone. "));
 
         DocumentContent docContent =
@@ -278,18 +380,18 @@ public class DocumentContentTranslatorServiceTest {
 
         when(persistentTranslationService.translate(document, processedHtmls,
                 srcLocale, transLocale, BackendID.MS,
-                MediaType.TEXT_HTML_TYPE, Optional.of("tech"))).thenReturn(translatedHtmls);
+                StringType.HTML, Optional.of("tech"))).thenReturn(translatedHtmls);
 
         when(persistentTranslationService
                 .translate(document, text.subList(0, 2),
                         srcLocale, transLocale, BackendID.MS,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(translatedText.subList(0, 2));
 
         when(persistentTranslationService
                 .translate(document, text.subList(2, 3),
                         srcLocale, transLocale, BackendID.MS,
-                        MediaType.TEXT_PLAIN_TYPE, Optional.of("tech")))
+                        StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(translatedText.subList(2, 3));
 
         DocumentContent translatedDocContent = documentContentTranslatorService
@@ -300,9 +402,9 @@ public class DocumentContentTranslatorServiceTest {
         assertThat(translatedDocContent.getBackendId()).isEqualTo(BackendID.MS.getId());
         assertThat(translatedDocContent.getUrl()).isEqualTo(docContent.getUrl());
 
-        assertThat(translatedDocContent.getWarnings()).hasSize(1);
-        assertThat(translatedDocContent.getWarnings().get(0).getDetails())
-                .contains(ShortString.shorten(maxString));
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(APIResponse::getDetails)
+                .containsExactly(ShortString.shorten(maxString));
 
         for (int i = 0; i < translatedDocContent.getContents().size() - 1; i++) {
             assertThat(translatedDocContent.getContents().get(i))
@@ -314,7 +416,7 @@ public class DocumentContentTranslatorServiceTest {
                 times(requestsCount))
                 .translate(any(), anyList(), any(Locale.class),
                         any(Locale.class),
-                        any(BackendID.class), any(MediaType.class),
+                        any(BackendID.class), any(StringType.class),
                         any());
     }
 
