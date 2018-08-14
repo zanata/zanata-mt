@@ -292,7 +292,7 @@ public class DocumentResourceImpl implements DocumentResource {
             return Optional.of(new APIResponse(Response.Status.BAD_REQUEST,
                 "Invalid url: " + docContent.getUrl()));
         }
-        for (TypeString string : docContent.getContents()) {         
+        for (TypeString string : docContent.getContents()) {
             if (!documentContentTranslatorService
                 .isMediaTypeSupported(string.getType())) {
                 return Optional

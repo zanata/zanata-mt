@@ -255,7 +255,7 @@ public class DocumentResourceImplTest {
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         // empty type in typeString
-        List<TypeString> strings = Lists.newArrayList(
+        List<TypeString> strings = ImmutableList.of(
                 new TypeString("test", "", "meta"));
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
