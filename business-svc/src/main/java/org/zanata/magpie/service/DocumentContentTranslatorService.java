@@ -30,8 +30,8 @@ import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 
 import com.google.common.collect.ImmutableList;
-import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
+import static org.zanata.magpie.util.SegmentStringKt.segmentBySentences;
 
 /**
  *
@@ -153,49 +153,60 @@ public class DocumentContentTranslatorService {
      * Translate strings with batch of maxLength
      */
     private StringTranslationResult translateLargeString(Document doc, BackendID backendID,
-            StringType stringType, String source, int maxLength) {
+            StringType stringType, String sourceText, int maxBatchLength) {
         List<APIResponse> warnings = new ArrayList<>();
-        List<String> segmentedStrings =
-                SegmentString.segmentString(source,
+        List<String> sourceSentences =
+                segmentBySentences(sourceText,
                         Optional.of(doc.getFromLocale().getLocaleCode()));
-        List<String> results = new ArrayList<>(segmentedStrings);
-
-        List<String> batchedStrings = new ArrayList<>();
-        List<Integer> indexOrderList = new ArrayList<>();
-        List<String> translatedStrings = new ArrayList<>();
-        int charCount = 0;
-        for (int index = 0; index < segmentedStrings.size(); index++) {
-            String string = segmentedStrings.get(index);
-            // ignore string if length is longer the maxLength
-            if (string.length() > maxLength) {
-                warnings.add(maxLengthWarning(string, maxLength));
+        // source sentences which have been collected in a batch
+        List<String> batchSentences = new ArrayList<>();
+        // the indices (within sourceSentences) of sentences short enough to translate
+        List<Integer> translatableSentenceNums = new ArrayList<>();
+        // the translations of the translatable sentences. Same size as translatableSentenceNums?
+        List<String> translatedSentences = new ArrayList<>();
+        int charsInBatch = 0;
+        for (int sourceSentenceNum = 0; sourceSentenceNum < sourceSentences.size(); sourceSentenceNum++) {
+            String sourceSentence = sourceSentences.get(sourceSentenceNum);
+            // ignore string if length is longer than maxLength
+            if (sourceSentence.length() > maxBatchLength) {
+                warnings.add(maxLengthWarning(sourceSentence, maxBatchLength));
                 continue;
             }
-            if (charCount + string.length() > maxLength) {
-                List<String> translated = persistentTranslationService
-                        .translate(doc, batchedStrings, doc.getFromLocale(),
+            if (charsInBatch + sourceSentence.length() > maxBatchLength) {
+                // Adding this sentence to the batch would take us over the
+                // limit, so process the previous batch now.
+                List<String> batchTranslatedSentences = persistentTranslationService
+                        .translate(doc, batchSentences, doc.getFromLocale(),
                                 doc.getToLocale(), backendID, stringType,
                                 Optional.of(CATEGORY));
-                translatedStrings.addAll(translated);
-                assert batchedStrings.size() == translated.size();
-                charCount = 0;
-                batchedStrings.clear();
+                // Number of translations should match number of requests:
+                assert batchSentences.size() == batchTranslatedSentences.size();
+                translatedSentences.addAll(batchTranslatedSentences);
+                // start a new batch
+                charsInBatch = 0;
+                batchSentences.clear();
             }
-            batchedStrings.add(string);
-            indexOrderList.add(index);
-            charCount += string.length();
+            // add sentence to the batch (which may be brand new)
+            batchSentences.add(sourceSentence);
+            charsInBatch += sourceSentence.length();
+            translatableSentenceNums.add(sourceSentenceNum);
         }
-        if (!batchedStrings.isEmpty()) {
-            List<String> translated = persistentTranslationService
-                    .translate(doc, batchedStrings, doc.getFromLocale(),
+        if (!batchSentences.isEmpty()) {
+            // translate the leftovers in a last batch
+            List<String> batchTranslatedSentences = persistentTranslationService
+                    .translate(doc, batchSentences, doc.getFromLocale(),
                             doc.getToLocale(), backendID, stringType,
                             Optional.of(CATEGORY));
-            translatedStrings.addAll(translated);
-            assert batchedStrings.size() == translated.size();
+            // Number of translations should match number of requests:
+            assert batchSentences.size() == batchTranslatedSentences.size();
+            translatedSentences.addAll(batchTranslatedSentences);
+//            charsInBatch = 0;
+//            batchSentences.clear();
         }
 
-        for (int index = 0; index < translatedStrings.size(); index++) {
-            results.set(indexOrderList.get(index), translatedStrings.get(index));
+        List<String> results = new ArrayList<>(sourceSentences);
+        for (int index = 0; index < translatedSentences.size(); index++) {
+            results.set(translatableSentenceNums.get(index), translatedSentences.get(index));
         }
         return new StringTranslationResult(String.join("", results), warnings);
     }

@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.zanata.magpie.util.SegmentStringKt.segmentBySentences;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +22,10 @@ import javax.ws.rs.core.MediaType;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.jglue.cdiunit.CdiRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -37,7 +36,6 @@ import org.zanata.magpie.model.Locale;
 
 import com.google.common.collect.ImmutableList;
 import org.zanata.magpie.model.StringType;
-import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
 
 /**
@@ -273,7 +271,7 @@ public class DocumentContentTranslatorServiceTest {
         Locale toLocale = new Locale(LocaleCode.DE, "German");
         Document document =
                 new Document("http://localhost", fromLocale, toLocale);
-        List<String> strings = SegmentString.segmentString(text, Optional.empty());
+        List<String> strings = segmentBySentences(text, Optional.empty());
 
         when(persistentTranslationService.getMaxLength(BackendID.MS))
                 .thenReturn(maxLength);
