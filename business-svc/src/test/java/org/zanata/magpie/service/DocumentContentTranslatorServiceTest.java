@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,11 +18,13 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -52,8 +55,7 @@ public class DocumentContentTranslatorServiceTest {
 
     @Test
     public void testEmptyConstructor() {
-        DocumentContentTranslatorService
-                documentContentTranslatorService = new DocumentContentTranslatorService();
+        assertThat(new DocumentContentTranslatorService()).isNotEqualTo(null);
     }
 
     @Test
@@ -156,7 +158,7 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
-        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+        assertThat(getContentAt(translatedDocContent)).isEqualTo(expectedHtml);
     }
 
     @Test
@@ -189,7 +191,7 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
-        assertThat(translatedDocContent.getContents().get(0).getValue()).isEqualTo(expectedHtml);
+        assertThat(getContentAt(translatedDocContent)).isEqualTo(expectedHtml);
     }
 
     @Test
@@ -218,7 +220,7 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
-        assertThat(translatedDocContent.getContents().get(0).getValue())
+        assertThat(getContentAt(translatedDocContent))
                 .isEqualTo(expectedHtml);
         assertThat(translatedDocContent.getWarnings())
                 .extracting(it -> it.getTitle() + "\n" + it.getDetails())
@@ -303,7 +305,8 @@ public class DocumentContentTranslatorServiceTest {
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
         assertThat(translatedDocContent.getContents()).hasSize(1);
-        assertThat(StringUtils.countMatches(translatedDocContent.getContents().get(0).getValue(), "Translated")).isEqualTo(5);
+        assertThat(StringUtils.countMatches(getContentAt(translatedDocContent),
+                "Translated")).isEqualTo(5);
     }
 
     @Test
@@ -415,5 +418,47 @@ public class DocumentContentTranslatorServiceTest {
                         any(Locale.class),
                         any(BackendID.class), any(StringType.class),
                         any());
+    }
+
+    @Test
+    public void testEmptyPlainTextIsReturnedAsIs() {
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String emptyContent = "   ";
+
+        DocumentContent plainTextContent = new DocumentContent(Lists.newArrayList(
+                new TypeString("test", MediaType.TEXT_PLAIN, "meta"),
+                new TypeString(emptyContent, MediaType.TEXT_PLAIN, "meta"),
+                new TypeString("test2", MediaType.TEXT_PLAIN, "meta")),
+                "http://localhost", "en");
+
+        List<String> response = new ArrayList<>();
+        response.add("check1");
+        response.add("check2");
+
+        when(persistentTranslationService.translate(any(),
+                any(), any(), any(), any(), any(), any())).thenReturn(response);
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(100);
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, plainTextContent, BackendID.MS);
+
+        assertThat(translatedDocContent.getContents()).hasSize(3);
+        assertThat(getContentAt(translatedDocContent)).isEqualTo("check1");
+        assertThat(getContentAt(translatedDocContent, 1)).isEqualTo(emptyContent);
+        assertThat(getContentAt(translatedDocContent, 2)).isEqualTo("check2");
+    }
+
+    private String getContentAt(DocumentContent target) {
+        return getContentAt(target, 0);
+    }
+
+    private String getContentAt(DocumentContent target, int index) {
+        return target.getContents().get(index).getValue();
     }
 }

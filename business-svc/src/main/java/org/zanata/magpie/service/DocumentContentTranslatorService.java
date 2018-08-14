@@ -89,7 +89,8 @@ public class DocumentContentTranslatorService {
         for (TypeString typeString: typeStrings) {
             MediaType mediaType = getMediaType(typeString.getType());
             String source = typeString.getValue();
-            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)) {
+            if (mediaType.equals(MediaType.TEXT_PLAIN_TYPE)
+                    && !StringUtils.isBlank(source)) {
                 if (source.length() <= maxLength) {
                     indexTextMap.put(index, typeString);
                 } else {

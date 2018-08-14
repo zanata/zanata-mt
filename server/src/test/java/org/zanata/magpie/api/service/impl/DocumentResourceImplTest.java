@@ -254,18 +254,8 @@ public class DocumentResourceImplTest {
         assertThat(response.getStatus())
                 .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        // empty content in typeString
-        List<TypeString> strings = ImmutableList.of(
-                new TypeString("", "text/plain", "meta"));
-        documentContent =
-                new DocumentContent(strings, "http://localhost", "en");
-        response = documentResource
-                .translate(documentContent, LocaleCode.DE);
-        assertThat(response.getStatus())
-                .isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
         // empty type in typeString
-        strings = ImmutableList.of(
+        List<TypeString> strings = Lists.newArrayList(
                 new TypeString("test", "", "meta"));
         documentContent =
                 new DocumentContent(strings, "http://localhost", "en");
