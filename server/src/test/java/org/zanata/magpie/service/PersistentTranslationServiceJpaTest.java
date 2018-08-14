@@ -23,6 +23,7 @@ import org.zanata.magpie.backend.BackendLocaleCodeImpl;
 import org.zanata.magpie.backend.google.GoogleTranslatorBackend;
 import org.zanata.magpie.backend.mock.MockTranslatorBackend;
 import org.zanata.magpie.backend.ms.MicrosoftTranslatorBackend;
+import org.zanata.magpie.dao.DocumentDAO;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
 import org.zanata.magpie.event.RequestedMTEvent;
@@ -69,7 +70,8 @@ public class PersistentTranslationServiceJpaTest extends JPATest {
                 ImmutableList.of(msBackend, googleBackend, devBackend).iterator());
         AuthenticatedAccount authenticatedAccount = new AuthenticatedAccount();
         authenticatedAccount.setAuthenticatedAccount(new Account());
-        service = new PersistentTranslationService(new TextFlowDAO(getEm()),
+        service = new PersistentTranslationService(new DocumentDAO(getEm()),
+                new TextFlowDAO(getEm()),
                 new TextFlowTargetDAO(getEm()),
                 backendInstances, requestedMTEvent, authenticatedAccount);
     }

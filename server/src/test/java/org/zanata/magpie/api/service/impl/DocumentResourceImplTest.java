@@ -61,7 +61,6 @@ import org.zanata.magpie.service.DocumentContentTranslatorService;
 import org.zanata.magpie.service.DocumentService;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -101,7 +100,8 @@ public class DocumentResourceImplTest {
 
     @Test
     public void testConstructor() {
-        assertThat(new DocumentResourceImpl()).isNotNull();
+        DocumentResource
+                resource = new DocumentResourceImpl();
     }
 
     @Test
@@ -290,7 +290,7 @@ public class DocumentResourceImplTest {
         Locale locale = new Locale(LocaleCode.EN, "English");
 
         DocumentContent
-                docContent = new DocumentContent(Lists.newArrayList(
+                docContent = new DocumentContent(ImmutableList.of(
                 new TypeString("testing", MediaType.TEXT_HTML, "meta1")),
                 "http://localhost", locale.getLocaleCode().getId());
 

@@ -82,7 +82,7 @@ public class TextFlowMTRequest implements Serializable {
     @NotNull
     private Long charCount;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection()
     @Column(name = " textflow_contenthash")
     private List<String> textFlowContentHashes = new ArrayList<>();
 

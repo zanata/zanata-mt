@@ -2,6 +2,7 @@ package org.zanata.magpie.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,10 +22,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.zanata.magpie.api.AuthenticatedAccount;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCodeImpl;
+import org.zanata.magpie.dao.DocumentDAO;
 import org.zanata.magpie.dao.TextFlowDAO;
 import org.zanata.magpie.dao.TextFlowTargetDAO;
 import org.zanata.magpie.event.RequestedMTEvent;
@@ -48,6 +51,9 @@ import com.google.common.collect.ImmutableList;
 public class PersistentTranslationServiceTest {
 
     @Mock
+    private DocumentDAO documentDAO;
+
+    @Mock
     private TextFlowDAO textFlowDAO;
 
     @Mock
@@ -67,6 +73,7 @@ public class PersistentTranslationServiceTest {
     @Mock private Event<RequestedMTEvent> requestedMTEvent;
     private AuthenticatedAccount authenticatedAccount;
 
+    private Answer<Object> answerSame = it -> it.getArgument(0);
     private final int MAX_LENGTH = 10;
 
     @Before
@@ -81,6 +88,7 @@ public class PersistentTranslationServiceTest {
         authenticatedAccount = new AuthenticatedAccount();
         authenticatedAccount.setAuthenticatedAccount(new Account());
         persistentTranslationService = new PersistentTranslationService(
+                documentDAO,
                 textFlowDAO, textFlowTargetDAO, translators, requestedMTEvent,
                 authenticatedAccount);
     }
@@ -95,6 +103,7 @@ public class PersistentTranslationServiceTest {
         authenticatedAccount.setAuthenticatedAccount(null);
         List<String> source = ImmutableList.of("testing source");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
+        when(documentDAO.reload(any())).then(answerSame);
         assertThatThrownBy(() -> persistentTranslationService.translate(new Document(), source,
                 new Locale(LocaleCode.EN_US, "English"), targetLocale,
                 BackendID.MS, StringType.TEXT_PLAIN,
@@ -106,6 +115,7 @@ public class PersistentTranslationServiceTest {
         List<String> source = ImmutableList.of("testing source");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
+        when(documentDAO.reload(any())).then(answerSame);
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         null, targetLocale,
@@ -119,6 +129,7 @@ public class PersistentTranslationServiceTest {
         List<String> source = ImmutableList.of("testing source");
         Locale sourceLocale = new Locale(LocaleCode.EN, "English");
 
+        when(documentDAO.reload(any())).then(answerSame);
         assertThatThrownBy(
                 () -> persistentTranslationService.translate(new Document(),
                         source,
@@ -134,6 +145,7 @@ public class PersistentTranslationServiceTest {
         Locale sourceLocale = new Locale(LocaleCode.EN, "English");
         Locale targetLocale = new Locale(LocaleCode.DE, "German");
 
+        when(documentDAO.reload(any())).then(answerSame);
         assertThatThrownBy(() -> persistentTranslationService
                 .translate(new Document(), source,
                         sourceLocale, targetLocale, null,
@@ -161,6 +173,7 @@ public class PersistentTranslationServiceTest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
+        when(documentDAO.reload(any())).then(answerSame);
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.empty());
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
@@ -215,6 +228,7 @@ public class PersistentTranslationServiceTest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
+        when(documentDAO.reload(any())).then(answerSame);
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.empty());
         when(textFlowDAO.persist(expectedTf)).thenReturn(expectedTf);
@@ -268,6 +282,7 @@ public class PersistentTranslationServiceTest {
 
         String hash = HashUtil.generateHash(sources.get(0));
 
+        when(documentDAO.reload(any())).then(answerSame);
         when(textFlowDAO.getLatestByContentHash(fromLocale.getLocaleCode(), hash))
                 .thenReturn(Optional.of(expectedTf));
         when(msBackend.getMappedLocale(toLocale.getLocaleCode()))
