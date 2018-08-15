@@ -24,8 +24,8 @@ export class EditableText extends React.Component<Props, {}> {
     public render () {
         const {
             children = '',
-            editable = true,
-            editing = true,
+            editable = false,
+            editing = false,
             emptyReadOnlyText = '',
             placeholder = '',
             title,

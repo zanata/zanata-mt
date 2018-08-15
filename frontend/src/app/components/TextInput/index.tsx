@@ -34,20 +34,20 @@ export interface Props {
  * TextInput component <input> or <textArea> depending on property 'multiline'.
  */
 export class TextInput extends React.Component<Props, {}> {
-    _onBlur = (e:any) => {
+    _onBlur = (e) => {
         const {onBlur} = this.props
         if (onBlur) {
             onBlur(e)
         }
     }
 
-    _onChange = (e:any) => {
+    _onChange = (e) => {
         const {onChange, onChangeText} = this.props
         if (onChangeText) onChangeText(e.target.value)
         if (onChange) onChange(e)
     }
 
-    _onFocus = (e:any) => {
+    _onFocus = (e) => {
         const {clearTextOnFocus, onFocus, selectTextOnFocus} = this.props
         const node = ReactDOM.findDOMNode(this)
         if (clearTextOnFocus) node.value = ''
@@ -55,7 +55,7 @@ export class TextInput extends React.Component<Props, {}> {
         if (onFocus) onFocus(e)
     }
 
-    _onSelectionChange = (e:any) => {
+    _onSelectionChange = (e) => {
         const {onSelectionChange} = this.props
         const {selectionDirection, selectionEnd, selectionStart} = e.target
         if (onSelectionChange) {
@@ -69,7 +69,7 @@ export class TextInput extends React.Component<Props, {}> {
         }
     }
 
-    _onKeyDown = (e:any) => {
+    _onKeyDown = (e) => {
         const {onKeyDown} = this.props
         if (onKeyDown) onKeyDown(e)
     }
