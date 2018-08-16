@@ -3,6 +3,8 @@ import Layout from 'antd/lib/layout';
 import 'antd/lib/layout/style/css';
 import Menu from 'antd/lib/menu';
 import 'antd/lib/menu/style/css';
+import Row from 'antd/lib/row';
+import 'antd/lib/row/style/css';
 import Col from 'antd/lib/col';
 import 'antd/lib/col/style/css';
 import {EditorToolbar, SourceTrans, TargetTrans} from '../../components';
@@ -10,6 +12,17 @@ const { Header, Content } = Layout;
 
 export class Editor extends React.Component<{}> {
     public render() {
+        const rowTrans = (
+            <Row>
+                <Col span={12}>
+                    <SourceTrans />
+                </Col>
+                <Col span={12}>
+                    <TargetTrans />
+                </Col>
+                <SourceTrans />
+            </Row>
+        )
         return (
             <Layout className="editor">
                 <Header>
@@ -25,32 +38,23 @@ export class Editor extends React.Component<{}> {
                 </Header>
                 <Content style={{ padding: '0 50px' }}>
                     <EditorToolbar />
+                    <Row>
                     <Col span={12}>
                         <span className='columnHeading'>SOURCE</span>
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
-                        <SourceTrans />
                     </Col>
                     <Col span={12}>
                         <span className='columnHeading'>TARGET</span>
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
-                        <TargetTrans />
                     </Col>
+                    </Row>
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
+                    {rowTrans}
                 </Content>
             </Layout>
         )

@@ -9,9 +9,7 @@ export class SourceTrans extends React.Component<{}> {
         const sourceText = 'Good morning'
         return (
                 <Layout className="sourceTrans">
-                    <Card hoverable>
                         <p className='sourceText'>{sourceText}</p>
-                    </Card>
                 </Layout>
         )
     }

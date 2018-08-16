@@ -22,13 +22,17 @@ export class TransInfo extends React.Component<{}> {
             </span>
         )
         return (
+        /* if active, show undo, otherwise show MT and permalink */
         <span className='targetInfo'>
             <Row>
-                <MtAttribution backendId={backendId}/>
-                <Popover title={title} trigger='click' arrowPointAtCenter
-                  placement='left' content={content}>
-                  <Button type='default' className='btnLink' icon='link' />
-                </Popover>
+                <span>
+                    <MtAttribution backendId={backendId}/>
+                    <Popover title={title} trigger='click' arrowPointAtCenter
+                      placement='left' content={content}>
+                      <Button type='default' className='btnLink' icon='link' />
+                    </Popover>
+                     <Button type='default' className='btnLink' icon='rollback' />
+                </span>
             </Row>
         </span>
         )

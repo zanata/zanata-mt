@@ -49,9 +49,14 @@ export class TextInput extends React.Component<Props, {}> {
 
     _onFocus = (e) => {
         const {clearTextOnFocus, onFocus, selectTextOnFocus} = this.props
-        const node = ReactDOM.findDOMNode(this)
-        if (clearTextOnFocus) node.value = ''
-        if (selectTextOnFocus) node.select()
+        /**
+         * * The following three lines are causing errors and have had
+         * references to node changed to 'e.target' for the meantime to allow UI
+         * changes
+         */
+        // const node = ReactDOM.findDOMNode(this)
+        if (clearTextOnFocus) e.target.value = ''
+        if (selectTextOnFocus) e.target.select()
         if (onFocus) onFocus(e)
     }
 
