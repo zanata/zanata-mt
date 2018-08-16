@@ -95,8 +95,8 @@ public class DocumentContentTranslatorService {
                     indexTextMap.put(index, typeString);
                 } else {
                     StringTranslationResult result =
-                            translateLargeString(doc, backendID,
-                                    StringType.TEXT_PLAIN, source, maxLength);
+                            translateLargePlainText(doc, backendID,
+                                    source, maxLength);
                     typeString.setValue(result.getTranslation());
                     warnings.addAll(result.getWarnings());
                 }
@@ -152,8 +152,8 @@ public class DocumentContentTranslatorService {
     /**
      * Translate strings with batch of maxLength
      */
-    private StringTranslationResult translateLargeString(Document doc, BackendID backendID,
-            StringType stringType, String sourceText, int maxBatchLength) {
+    private StringTranslationResult translateLargePlainText(Document doc,
+            BackendID backendID, String sourceText, int maxBatchLength) {
         List<APIResponse> warnings = new ArrayList<>();
         List<String> sourceSentences =
                 segmentBySentences(sourceText,
@@ -177,8 +177,8 @@ public class DocumentContentTranslatorService {
                 // limit, so process the previous batch now.
                 List<String> batchTranslatedSentences = persistentTranslationService
                         .translate(doc, batchSentences, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, stringType,
-                                Optional.of(CATEGORY));
+                                doc.getToLocale(), backendID,
+                                StringType.TEXT_PLAIN, Optional.of(CATEGORY));
                 // Number of translations should match number of requests:
                 assert batchSentences.size() == batchTranslatedSentences.size();
                 translatedSentences.addAll(batchTranslatedSentences);
@@ -195,8 +195,8 @@ public class DocumentContentTranslatorService {
             // translate the leftovers in a last batch
             List<String> batchTranslatedSentences = persistentTranslationService
                     .translate(doc, batchSentences, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, stringType,
-                            Optional.of(CATEGORY));
+                            doc.getToLocale(), backendID,
+                            StringType.TEXT_PLAIN, Optional.of(CATEGORY));
             // Number of translations should match number of requests:
             assert batchSentences.size() == batchTranslatedSentences.size();
             translatedSentences.addAll(batchTranslatedSentences);
@@ -330,9 +330,14 @@ public class DocumentContentTranslatorService {
 
         for (int contentIndex = 0; contentIndex < contents.size(); contentIndex++) {
             Node content = contents.get(contentIndex);
-            // if content is a (large) TextNode ie no child nodes:
+            // if content is a (large) TextNode, ie no child nodes, translate as large plain text
             if (content instanceof TextNode) {
-                warnings.add(maxLengthWarning(source, maxLength));
+                TextNode textNode = (TextNode) content;
+                StringTranslationResult textResult =
+                        translateLargePlainText(doc, backendID,
+                                textNode.getWholeText(), maxLength);
+                textNode.text(textResult.getTranslation());
+                warnings.addAll(textResult.getWarnings());
             } else {
                 translateChildNodes(doc, backendID, mediaType, maxLength,
                         toElement, warnings, content);
