@@ -1,9 +1,6 @@
 import {handleActions} from 'redux-actions'
 import * as Actions from '../constants/actions'
 import moment from 'moment'
-import {
-  logout, setAuth
-} from '../config'
 import {CommonData, CommonState} from '../types/models'
 
 const initialState: CommonState = {
@@ -38,19 +35,27 @@ export default handleActions<CommonState, CommonData>({
         ...state,
         ...action.payload,
         loading: true
-
       }
     }
   },
 
   [Actions.LOGIN_SUCCESS]: (state, action) => {
-    const auth = action.payload.auth
-    setAuth(auth.username, auth.password)
-    return {
-      errorData: null,
-      loading: false,
-      auth: null,
-      showLoginForm: false
+    if (action.error) {
+      return {
+        ...initialState,
+        errorData: loginFailed(action.payload),
+        loading: false,
+        showLoginForm: true
+      }
+    } else {
+      return {
+        errorData: null,
+        loading: false,
+        auth: {
+          username: action.payload.auth.username
+        },
+        showLoginForm: false
+      }
     }
   },
 
@@ -63,8 +68,19 @@ export default handleActions<CommonState, CommonData>({
     }
   },
 
-  [Actions.LOGOUT]: (state, action) => {
-    logout()
+  [Actions.LOGOUT_SUCCESS]: (state, action) => {
+    return {
+      ...state,
+      auth: null
+    }
+  },
+  [Actions.LOGOUT_FAILED]: (state, action) => {
+    return {
+      ...state,
+      auth: null
+    }
+  },
+  [Actions.LOGOUT_REQUEST]: (state, action) => {
     return {
       ...state,
       auth: null

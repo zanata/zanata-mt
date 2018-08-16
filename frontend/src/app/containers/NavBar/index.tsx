@@ -6,7 +6,6 @@ import { findIndex } from 'lodash'
 import LoginForm from "../../containers/LoginForm"
 import {Action} from "redux-actions"
 import { login, logout, toggleLoginFormDisplay } from '../../actions/common'
-import { isLoggedIn } from '../../config'
 
 import { Layout, Menu, Icon } from 'antd'
 const { Sider } = Layout
@@ -114,7 +113,7 @@ function mapStateToProps(state: RootState) {
   return {
     errorData: state.common.errorData,
     loading: state.common.loading,
-    isLoggedIn: isLoggedIn(),
+    isLoggedIn: state.common.auth && state.common.auth.username,
     showLoginForm: state.common.showLoginForm
   }
 }
@@ -122,7 +121,7 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
     handleLogin: (username: string, password: string) =>
-      dispatch(login({username, password})),
+      dispatch(login(username, password)),
     handleLogout: () => dispatch(logout()),
     handleSetLoginFormDisplay: (display: boolean) =>
       dispatch(toggleLoginFormDisplay({showLoginForm: display}))

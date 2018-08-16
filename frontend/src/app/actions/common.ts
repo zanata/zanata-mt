@@ -3,8 +3,7 @@ import {API_URL} from '../config'
 import {RSAA, HTTPVerb, Types} from 'redux-api-middleware'
 import * as Actions from '../constants/actions'
 import {createAction} from 'redux-actions'
-import {getUsername, getToken} from "../config"
-import {AuthData, CommonData} from "../types/models"
+import {CommonData} from "../types/models"
 
 export const buildAPIRequest =
         (endpoint: string, method: HTTPVerb,
@@ -20,12 +19,8 @@ export const buildAPIRequest =
   return result
 }
 
-export const getJsonHeadersWithoutAuth = () => {
-  return buildJsonHeaders()
-}
-
 export const getJsonHeaders = () => {
-  return assign(getAuthHeaders(), buildJsonHeaders())
+  return buildJsonHeaders()
 }
 
 const buildJsonHeaders = () => {
@@ -35,19 +30,9 @@ const buildJsonHeaders = () => {
   }
 }
 
-export const getAuthHeaders = () => {
-  return {
-    'x-auth-user': getUsername(),
-    'x-auth-token': getToken(),
-  }
-}
-
-export const logout = createAction(Actions.LOGOUT)
-
 export const toggleLoginFormDisplay = createAction<CommonData>(Actions.TOGGLE_LOGIN_FORM_DISPLAY)
 
-export const login = (auth: AuthData) => {
-  const {username, password} = auth
+export const login = (username: string, password: string) => {
   const endpoint = API_URL + '/account/login'
   const apiTypes = [
     Actions.LOGIN_REQUEST,
@@ -55,7 +40,9 @@ export const login = (auth: AuthData) => {
       type: Actions.LOGIN_SUCCESS,
       payload: (action: typeof Actions, state: CommonData, res: Response) => {
         return {
-          auth: {username, password}
+          auth: {
+            username: {username}
+          }
         }
       },
       meta: {
@@ -66,8 +53,20 @@ export const login = (auth: AuthData) => {
   ]
   const base64 = btoa(username + ':' + password)
   const authContent = {Authorization: 'Basic ' + base64}
-  const headers = assign(getJsonHeadersWithoutAuth(), authContent)
+  const headers = assign(getJsonHeaders(), authContent)
   return {
     [RSAA]: buildAPIRequest(endpoint, 'POST', headers, apiTypes)
+  }
+}
+
+export const logout = () => {
+  const endpoint = API_URL + '/account/logout'
+  const apiTypes = [
+    Actions.LOGOUT_REQUEST,
+    Actions.LOGOUT_SUCCESS,
+    Actions.LOGIN_FAILED
+  ]
+  return {
+    [RSAA]: buildAPIRequest(endpoint, 'POST', getJsonHeaders(), apiTypes)
   }
 }

@@ -138,7 +138,7 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
     handleLogin: (username: string, password: string) =>
-      dispatch(login({username, password}))
+      dispatch(login(username, password))
   }
 }
 

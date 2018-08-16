@@ -35,8 +35,7 @@ declare interface InfoData extends ReduxMiddlewareError{
 declare type InfoState = InfoData
 
 declare interface AuthData {
-  username: string,
-  password: string
+  username: string
 }
 
 /**

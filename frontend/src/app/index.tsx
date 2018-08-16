@@ -16,7 +16,6 @@ import {App, Info, NavBar, TranslateFile} from './containers'
 import thunk from 'redux-thunk'
 import { NoMatch, Health } from './components'
 import { Layout } from 'antd'
-import { isLoggedIn } from './config'
 
 import './styles/index.less'
 import {Component} from 'react'
@@ -56,9 +55,11 @@ const history = createBrowserHistory();
 type RouteComponent = React.StatelessComponent<RouteComponentProps<{}>> | React.ComponentClass<any>
 const PrivateRoute: React.StatelessComponent<RouteProps> = ({component, ...rest}) => {
   const renderFn = (Component?: RouteComponent) => (props: RouteProps) => {
+    const auth = store.getState().common.auth
+    const loggedIn = auth && auth.username
     if (!Component) {
       return null
-    } else if (isLoggedIn()) {
+    } else if (loggedIn) {
       return <Component {...props} />
     } else {
       return <Redirect to='/app/404'/>

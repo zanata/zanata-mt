@@ -1,7 +1,7 @@
 import { API_URL } from '../config'
 import * as Actions from '../constants/actions'
 import {
-  buildAPIRequest, getAuthHeaders
+  buildAPIRequest, getJsonHeaders
 } from './common'
 import { RSAA } from 'redux-api-middleware'
 import {TranslateFileData} from "../types/models"
@@ -39,7 +39,7 @@ const translateFileAPI = (file: File, fromLocaleCode: string, toLocaleCode: stri
     Actions.TRANSLATE_FILE_FAILED
   ]
   return {
-    [RSAA]: buildAPIRequest(endpoint, 'POST', getAuthHeaders(), apiTypes, formData)
+    [RSAA]: buildAPIRequest(endpoint, 'POST', {}, apiTypes, formData)
   }
 }
 
@@ -68,7 +68,7 @@ export const fetchSupportedLocales = () => {
     Actions.GET_SUPPORTED_LOCALES_FAILED
   ]
   return {
-    [RSAA]: buildAPIRequest(endpoint, 'GET', getAuthHeaders(), apiTypes)
+    [RSAA]: buildAPIRequest(endpoint, 'GET', getJsonHeaders(), apiTypes)
   }
 }
 
