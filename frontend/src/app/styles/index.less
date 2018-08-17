@@ -1,4 +1,5 @@
 @import '~antd/dist/antd.less';
+@import '../components/TextInput/index.css';
 
 .ant-layout-sider-trigger {
   padding-top: 1rem;
@@ -49,11 +50,16 @@
     font-size: 0.75rem;
   }
 
-  .targetInfo input {
+  .targetInfo textarea {
     margin-top: 2rem;
     clear: both;
     border: none;
     outline: none;
+    width: 90%;
+  }
+
+  .sourceTrans {
+    width: 90%;
   }
 
   .sourceTrans, .targetTrans {
