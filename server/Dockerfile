@@ -7,7 +7,7 @@
 #
 # https://access.redhat.com/containers/?tab=overview#/registry.access.redhat.com/jboss-eap-7/eap71-openshift
 #
-FROM registry.access.redhat.com/jboss-eap-7/eap71-openshift:latest
+FROM registry.access.redhat.com/jboss-eap-7/eap71-openshift:1.3-8.1533128020
 
 MAINTAINER "Alex Eng" <aeng@redhat.com>
 MAINTAINER "Patrick Huang" <pahuang@redhat.com>
