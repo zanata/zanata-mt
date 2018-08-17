@@ -160,11 +160,12 @@ public class DocumentContentTranslatorService {
                         Optional.of(doc.getFromLocale().getLocaleCode()));
         // source sentences which have been collected in a batch
         List<String> batchSentences = new ArrayList<>();
+        // invariant: should equal total number of chars in batchSentences
+        int charsInBatch = 0;
         // the indices (within sourceSentences) of sentences short enough to translate
         List<Integer> translatableSentenceNums = new ArrayList<>();
         // the translations of the translatable sentences. Same size as translatableSentenceNums?
         List<String> translatedSentences = new ArrayList<>();
-        int charsInBatch = 0;
         for (int sourceSentenceNum = 0; sourceSentenceNum < sourceSentences.size(); sourceSentenceNum++) {
             String sourceSentence = sourceSentences.get(sourceSentenceNum);
             // ignore string if length is longer than maxLength
@@ -175,16 +176,9 @@ public class DocumentContentTranslatorService {
             if (charsInBatch + sourceSentence.length() > maxBatchLength) {
                 // Adding this sentence to the batch would take us over the
                 // limit, so process the previous batch now.
-                List<String> batchTranslatedSentences = persistentTranslationService
-                        .translate(doc, batchSentences, doc.getFromLocale(),
-                                doc.getToLocale(), backendID,
-                                StringType.TEXT_PLAIN, Optional.of(CATEGORY));
-                // Number of translations should match number of requests:
-                assert batchSentences.size() == batchTranslatedSentences.size();
-                translatedSentences.addAll(batchTranslatedSentences);
-                // start a new batch
+                processBatchSentences(doc, backendID, batchSentences,
+                        translatedSentences);
                 charsInBatch = 0;
-                batchSentences.clear();
             }
             // add sentence to the batch (which may be brand new)
             batchSentences.add(sourceSentence);
@@ -193,15 +187,10 @@ public class DocumentContentTranslatorService {
         }
         if (!batchSentences.isEmpty()) {
             // translate the leftovers in a last batch
-            List<String> batchTranslatedSentences = persistentTranslationService
-                    .translate(doc, batchSentences, doc.getFromLocale(),
-                            doc.getToLocale(), backendID,
-                            StringType.TEXT_PLAIN, Optional.of(CATEGORY));
-            // Number of translations should match number of requests:
-            assert batchSentences.size() == batchTranslatedSentences.size();
-            translatedSentences.addAll(batchTranslatedSentences);
-//            charsInBatch = 0;
-//            batchSentences.clear();
+            processBatchSentences(doc, backendID, batchSentences, translatedSentences);
+            // just maintaining the invariant (for completeness):
+            //noinspection UnusedAssignment
+            charsInBatch = 0;
         }
 
         List<String> results = new ArrayList<>(sourceSentences);
@@ -209,6 +198,19 @@ public class DocumentContentTranslatorService {
             results.set(translatableSentenceNums.get(index), translatedSentences.get(index));
         }
         return new StringTranslationResult(String.join("", results), warnings);
+    }
+
+    private void processBatchSentences(Document doc, BackendID backendID,
+            List<String> batchSentences, List<String> translatedSentences) {
+        List<String> batchTranslatedSentences = persistentTranslationService
+                .translate(doc, batchSentences, doc.getFromLocale(),
+                        doc.getToLocale(), backendID,
+                        StringType.TEXT_PLAIN, Optional.of(CATEGORY));
+        // Number of translations should match number of requests:
+        assert batchSentences.size() == batchTranslatedSentences.size();
+        translatedSentences.addAll(batchTranslatedSentences);
+        // start a new batch
+        batchSentences.clear();
     }
 
     /**
