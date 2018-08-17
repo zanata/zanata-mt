@@ -193,7 +193,8 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTMLNodeCannotSplit() {
+    public void testInnerHTMLNodeWithOneLongSentence() {
+        // force second span to exceed max length
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -228,7 +229,8 @@ public class DocumentContentTranslatorServiceTest {
     }
 
     @Test
-    public void testLongHTMLNodeWithMultipleSentences() {
+    public void testHTMLNodeDivWithMultipleSentences() {
+        // force segmentation of the div contents:
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -236,17 +238,17 @@ public class DocumentContentTranslatorServiceTest {
                 new Document("http://localhost", srcLocale, transLocale);
 
         String html = "<div>Hello World. Goodbye World.</div>";
-        String expectedHtml = "<div>translated1Hallo Welt. Auf Wiedersehen Welt.</div>";
+        String expectedHtml = "<div>Hallo Welt. Auf Wiedersehen Welt.</div>";
 
         when(persistentTranslationService.getMaxLength(BackendID.MS))
                 .thenReturn(maxLength);
 
         when(persistentTranslationService.translate(document,
-                ImmutableList.of("Hello world. "), srcLocale, transLocale, BackendID.MS,
+                ImmutableList.of("Hello World. "), srcLocale, transLocale, BackendID.MS,
                 StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Hallo Welt. "));
         when(persistentTranslationService.translate(document,
-                ImmutableList.of("Goodbye world."), srcLocale, transLocale, BackendID.MS,
+                ImmutableList.of("Goodbye World."), srcLocale, transLocale, BackendID.MS,
                 StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Auf Wiedersehen Welt."));
 
@@ -259,6 +261,49 @@ public class DocumentContentTranslatorServiceTest {
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
 
+//        System.out.println(mockingDetails(persistentTranslationService).printInvocations());
+
+
+        assertThat(translatedDocContent.getWarnings())
+                .extracting(this::responseToString).as("warnings").isEmpty();
+        assertThat(getContentAt(translatedDocContent)).isEqualTo(expectedHtml);
+    }
+
+    @Test
+    public void testBareHTMLNodeWithMultipleSentences() {
+        // force segmentation:
+        int maxLength = 25;
+        Locale srcLocale = new Locale(LocaleCode.EN, "English");
+        Locale transLocale = new Locale(LocaleCode.DE, "German");
+        Document document =
+                new Document("http://localhost", srcLocale, transLocale);
+
+        String html = "Hello World. Goodbye World.";
+        String expectedHtml = "Hallo Welt. Auf Wiedersehen Welt.";
+
+        when(persistentTranslationService.getMaxLength(BackendID.MS))
+                .thenReturn(maxLength);
+
+        when(persistentTranslationService.translate(document,
+                ImmutableList.of("Hello World. "), srcLocale, transLocale, BackendID.MS,
+                StringType.TEXT_PLAIN, Optional.of("tech")))
+                .thenReturn(ImmutableList.of("Hallo Welt. "));
+
+        when(persistentTranslationService.translate(document,
+                ImmutableList.of("Goodbye World."), srcLocale, transLocale, BackendID.MS,
+                StringType.TEXT_PLAIN, Optional.of("tech")))
+                .thenReturn(ImmutableList.of("Auf Wiedersehen Welt."));
+
+        List<TypeString> contents = ImmutableList.of(
+                new TypeString(html, MediaType.TEXT_HTML, "meta"));
+        DocumentContent docContent =
+                new DocumentContent(contents, "http://localhost", "en");
+
+
+        DocumentContent translatedDocContent = documentContentTranslatorService
+                .translateDocument(document, docContent, BackendID.MS);
+
+//        System.out.println(mockingDetails(persistentTranslationService).printInvocations());
 
         assertThat(translatedDocContent.getWarnings())
                 .extracting(this::responseToString).as("warnings").isEmpty();
@@ -267,7 +312,8 @@ public class DocumentContentTranslatorServiceTest {
 
     @Test
     @Ignore("https://zanata.atlassian.net/browse/ZNTAMT-53")
-    public void testDeepHTMLNodeWithMultipleSentences() {
+    public void testInnerHTMLNodeWithMultipleSentences() {
+        // force segmentation of the second span:
         int maxLength = 25;
         Locale srcLocale = new Locale(LocaleCode.EN, "English");
         Locale transLocale = new Locale(LocaleCode.DE, "German");
@@ -286,11 +332,11 @@ public class DocumentContentTranslatorServiceTest {
                 .thenReturn(ImmutableList.of("<span>translated1</span>"));
 
         when(persistentTranslationService.translate(document,
-                ImmutableList.of("Hello world."), srcLocale, transLocale, BackendID.MS,
+                ImmutableList.of("Hello World. "), srcLocale, transLocale, BackendID.MS,
                 StringType.TEXT_PLAIN, Optional.of("tech")))
-                .thenReturn(ImmutableList.of("Hallo Welt."));
+                .thenReturn(ImmutableList.of("Hallo Welt. "));
         when(persistentTranslationService.translate(document,
-                ImmutableList.of("Goodbye world."), srcLocale, transLocale, BackendID.MS,
+                ImmutableList.of("Goodbye World."), srcLocale, transLocale, BackendID.MS,
                 StringType.TEXT_PLAIN, Optional.of("tech")))
                 .thenReturn(ImmutableList.of("Auf Wiedersehen Welt."));
 
@@ -302,6 +348,8 @@ public class DocumentContentTranslatorServiceTest {
 
         DocumentContent translatedDocContent = documentContentTranslatorService
                 .translateDocument(document, docContent, BackendID.MS);
+
+//        System.out.println(mockingDetails(persistentTranslationService).printInvocations());
 
 
         assertThat(translatedDocContent.getWarnings())

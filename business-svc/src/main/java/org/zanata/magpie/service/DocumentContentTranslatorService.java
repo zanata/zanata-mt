@@ -95,7 +95,7 @@ public class DocumentContentTranslatorService {
                     indexTextMap.put(index, typeString);
                 } else {
                     StringTranslationResult result =
-                            translateLargePlainText(doc, backendID,
+                            translatePlainTextBySentences(doc, backendID,
                                     source, maxLength);
                     typeString.setValue(result.getTranslation());
                     warnings.addAll(result.getWarnings());
@@ -152,7 +152,7 @@ public class DocumentContentTranslatorService {
     /**
      * Translate strings with batch of maxLength
      */
-    private StringTranslationResult translateLargePlainText(Document doc,
+    private StringTranslationResult translatePlainTextBySentences(Document doc,
             BackendID backendID, String sourceText, int maxBatchLength) {
         List<APIResponse> warnings = new ArrayList<>();
         List<String> sourceSentences =
@@ -334,7 +334,7 @@ public class DocumentContentTranslatorService {
             if (content instanceof TextNode) {
                 TextNode textNode = (TextNode) content;
                 StringTranslationResult textResult =
-                        translateLargePlainText(doc, backendID,
+                        translatePlainTextBySentences(doc, backendID,
                                 textNode.getWholeText(), maxLength);
                 textNode.text(textResult.getTranslation());
                 warnings.addAll(textResult.getWarnings());
@@ -374,8 +374,18 @@ public class DocumentContentTranslatorService {
                     child.replaceWith(replacement);
                 }
             } else {
-                // show warning if there are no more children under this node
-                warnings.add(maxLengthWarning(html, maxLength));
+                // if child is a (large) TextNode, ie no child nodes, translate as large plain text
+                if (child instanceof TextNode) {
+                    TextNode textNode = (TextNode) child;
+                    StringTranslationResult textResult =
+                            translatePlainTextBySentences(doc, backendID,
+                                    textNode.getWholeText(), maxLength);
+                    textNode.text(textResult.getTranslation());
+                    warnings.addAll(textResult.getWarnings());
+                } else {
+                    // show warning if there are no more children under this node
+                    warnings.add(maxLengthWarning(html, maxLength));
+                }
             }
             // size changes if child node is being translated
             childCount = content.childNodeSize();
