@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
@@ -134,5 +133,17 @@ public class Document extends ModelEntity {
         result = 31 * result +
                 (getToLocale() != null ? getToLocale().hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "url='" + url + '\'' +
+                ", fromLocale=" + fromLocale +
+                ", toLocale=" + toLocale +
+                ", count=" + count +
+                ", urlHash='" + urlHash + '\'' +
+                ", textFlows=" + textFlows +
+                "}";
     }
 }
