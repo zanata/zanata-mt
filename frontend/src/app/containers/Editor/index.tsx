@@ -20,7 +20,6 @@ export class Editor extends React.Component<{}> {
                 <Col span={12}>
                     <TargetTrans />
                 </Col>
-                <SourceTrans />
             </Row>
         )
         return (

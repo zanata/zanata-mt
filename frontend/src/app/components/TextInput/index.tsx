@@ -54,9 +54,9 @@ export class TextInput extends React.Component<Props, {}> {
          * references to node changed to 'e.target' for the meantime to allow UI
          * changes
          */
-        // const node = ReactDOM.findDOMNode(this)
-        if (clearTextOnFocus) e.target.value = ''
-        if (selectTextOnFocus) e.target.select()
+        const node = ReactDOM.findDOMNode(this) as HTMLInputElement // allows access to properties defined in HTMLInputElement
+        if (clearTextOnFocus) node.value = ''
+        if (selectTextOnFocus) node.select()
         if (onFocus) onFocus(e)
     }
 
@@ -87,9 +87,9 @@ export class TextInput extends React.Component<Props, {}> {
             autoFocus,
             editable = true,
             keyboardType = 'default',
-            maxLength,
+            maxLength = 255,
             maxNumberOfLines,
-            multiline = false,
+            multiline = true,
             numberOfLines = 2,
             onBlur,
             onChange,
