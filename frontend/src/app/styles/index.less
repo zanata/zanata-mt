@@ -1,5 +1,5 @@
 @import '~antd/dist/antd.less';
-@import '../components/TextInput/index.css';
+@import '../components/TransInfo/index.css';
 
 .ant-layout-sider-trigger {
   padding-top: 1rem;
@@ -20,12 +20,21 @@
     padding: 0 !important;
   }
 
+  .TransUnit-source {
+    margin-top: 2rem;
+  }
+
   .ant-layout-header {
     background: #111;
   }
 
   .ant-menu-dark {
     float: right;
+  }
+
+  .rowHeading {
+    background: #fff;
+    height: auto;
   }
 
   .columnHeading {
@@ -44,42 +53,20 @@
   .targetInfo .btnLink {
     border: none;
     outline: transparent;
+    background: transparent;
   }
+
 
   .ant-popover-inner-content .ant-input {
     font-size: 0.75rem;
   }
 
- textarea.TransUnit {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    clear: both;
-    border: none;
-    outline: none;
-    width: 90%;
-  }
-
-  .sourceTrans {
-    width: 90%;
-  }
-
-  .sourceTrans, .targetTrans {
-    background-color: #fff;
-    padding: 1rem;
-    border: solid 1px #ccc;
-    min-height: 141px;
-  }
-
   button.ant-btn.ant-btn-primary.saveTrans {
     float:right;
-    margin-top: 1rem;
+    margin-top: 3rem;
   }
 
-  .sourceText {
-    margin-top: 3rem;
-    margin-bottom: 4rem;
-  }
-  
+
 }
 
 .EditorToolbar {

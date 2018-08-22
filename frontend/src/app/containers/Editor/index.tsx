@@ -7,20 +7,35 @@ import Row from 'antd/lib/row';
 import 'antd/lib/row/style/css';
 import Col from 'antd/lib/col';
 import 'antd/lib/col/style/css';
+import cx from 'classnames';
 import {EditorToolbar, SourceTrans, TargetTrans} from '../../components';
 const { Header, Content } = Layout;
 
-export class Editor extends React.Component<{}> {
+export interface Props {
+    selected?: boolean
+}
+
+export class Editor extends React.Component<Props, {}> {
+    constructor(props?: Props, context?: any) {
+        super(props, context);
+        this.state = {
+            selected: true
+        }
+    }
     public render() {
+        const className = cx('TransUnit',
+                {
+                    'is-focused': this.props.selected
+                })
         const rowTrans = (
-            <Row>
+            <span className={className}>
                 <Col span={12}>
                     <SourceTrans />
                 </Col>
                 <Col span={12}>
                     <TargetTrans />
                 </Col>
-            </Row>
+            </span>
         )
         return (
             <Layout className="editor">
@@ -37,7 +52,7 @@ export class Editor extends React.Component<{}> {
                 </Header>
                 <Content style={{ padding: '0 50px' }}>
                     <EditorToolbar />
-                    <Row>
+                    <Row className='rowHeading'>
                     <Col span={12}>
                         <span className='columnHeading'>SOURCE</span>
                     </Col>

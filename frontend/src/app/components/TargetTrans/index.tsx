@@ -1,34 +1,32 @@
 import * as React from 'react';
-import Layout from 'antd/lib/layout';
-import 'antd/lib/layout/style/css';
 import Row from 'antd/lib/row';
 import 'antd/lib/row/style/css';
 import Button from 'antd/lib/button';
 import 'antd/lib/button/style/css';
 import { TransInfo } from '../TransInfo';
-import { EditableText } from '../EditableText'
+import Textarea from 'react-textarea-autosize'
+
 
 export class TargetTrans extends React.Component<{}> {
+
     public render() {
-        const targetText = 'Guten morgen, Guten morgen Guten morgenGuten morgenGuten morgenGuten morgenGuten morgen' +
-                'Guten morgenGuten morgenGuten morgenGuten morgenGuten' +
-                ' morgenGuten morgenGuten morgen. Guten morgen!'
+        const targetText = 'Guten morgen, Guten morgenn morgenuten morgen,' +
+                ' Guten morgen Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten '
         return (
-                <Layout className="targetTrans">
-                    <span className="transWrapper">
+                <div className="TransUnit-panel">
+                    <span className="TransUnit-item">
                         <TransInfo />
-                        <EditableText
-                           editable={true}
-                           editing={true}
-                           placeholder='Add a description…'
-                           emptyReadOnlyText='No description'>
-                            {targetText}
-                        </EditableText>
+                          <Textarea
+                          className='TransUnit-text TransUnit-translation'
+                          rows={1}
+                          value={targetText}
+                          placeholder="Enter a translation…"
+                                />
                         <Row>
                             <Button className='saveTrans' type='primary'>Save</Button>
                         </Row>
                     </span>
-                </Layout>
+                </div>
         )
     }
 }
