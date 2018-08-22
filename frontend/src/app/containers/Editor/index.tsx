@@ -7,7 +7,6 @@ import Row from 'antd/lib/row';
 import 'antd/lib/row/style/css';
 import Col from 'antd/lib/col';
 import 'antd/lib/col/style/css';
-import cx from 'classnames';
 import {EditorToolbar, SourceTrans, TargetTrans, TargetTransActive} from '../../components';
 const { Header, Content } = Layout;
 

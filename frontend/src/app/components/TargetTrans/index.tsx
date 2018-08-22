@@ -10,8 +10,7 @@ import Textarea from 'react-textarea-autosize'
 export class TargetTransActive extends React.Component<{}> {
 
     public render() {
-        const targetText = 'Guten morgen, Guten morgenn morgenuten morgen,' +
-                ' Guten morgen Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten '
+        const targetText = 'Guten morgen'
         return (
                 <div className="TransUnit-panel">
                     <span className="TransUnit-item">
@@ -35,8 +34,7 @@ export class TargetTransActive extends React.Component<{}> {
 export class TargetTrans extends React.Component<{}> {
 
     public render() {
-        const targetText = 'Guten morgen, Guten morgenn morgenuten morgen,' +
-                ' Guten morgen Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten  Guten morgenn morgenuten '
+        const targetText = 'Guten morgen'
         return (
                 <div className="TransUnit-panel">
                     <span className="TransUnit-item">
