@@ -8,7 +8,7 @@ import 'antd/lib/row/style/css';
 import Col from 'antd/lib/col';
 import 'antd/lib/col/style/css';
 import cx from 'classnames';
-import {EditorToolbar, SourceTrans, TargetTrans} from '../../components';
+import {EditorToolbar, SourceTrans, TargetTrans, TargetTransActive} from '../../components';
 const { Header, Content } = Layout;
 
 export interface Props {
@@ -39,7 +39,7 @@ export class Editor extends React.Component<Props, {}> {
                     <SourceTrans />
                 </Col>
                 <Col span={12}>
-                    <TargetTrans />
+                    <TargetTransActive />
                 </Col>
             </span>
         )

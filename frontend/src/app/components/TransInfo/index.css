@@ -29,20 +29,6 @@
   background-color: var(--TransUnit-focus-color-bg);
 }
 
-.TransUnit:before,
-.TransUnit:after {
-  position: absolute;
-  left: 0;
-  visibility: hidden;
-  width: 100%;
-  height: var(--TransUnit-rhythm);
-  content: "";
-  /*transition: var(--TransUnit-transition);*/
-  transform: scaleY(0);
-  opacity: 0;
-  background-color: var(--TransUnit-focus-color-bg);
-  background-clip: padding-box;
-}
 
 .TransUnit:before {
   box-shadow: 0 calc(var(--TransUnit-rhythm) * -.25) calc(var(--TransUnit-rhythm) * .5) rgba(0,0,0,.04);

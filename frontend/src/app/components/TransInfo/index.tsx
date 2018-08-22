@@ -11,6 +11,9 @@ import 'antd/lib/icon/style/css'
 import React from 'react'
 import {MtAttribution} from '../MtAttribution'
 
+export interface Props {
+    selected?: boolean
+}
 export class TransInfo extends React.Component<{}> {
     render () {
         const title = (<span><Icon type='link' />Permalink</span>)
