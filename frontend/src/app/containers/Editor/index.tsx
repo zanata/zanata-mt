@@ -23,12 +23,18 @@ export class Editor extends React.Component<Props, {}> {
         }
     }
     public render() {
-        const className = cx('TransUnit',
-                {
-                    'is-focused': this.props.selected
-                })
         const rowTrans = (
-            <span className={className}>
+                <span className='TransUnit'>
+                <Col span={12}>
+                    <SourceTrans />
+                </Col>
+                <Col span={12}>
+                    <TargetTrans />
+                </Col>
+            </span>
+        )
+        const rowTransFocused = (
+            <span className='TransUnit is-focused'>
                 <Col span={12}>
                     <SourceTrans />
                 </Col>
@@ -61,7 +67,7 @@ export class Editor extends React.Component<Props, {}> {
                     </Col>
                     </Row>
                     {rowTrans}
-                    {rowTrans}
+                    {rowTransFocused}
                     {rowTrans}
                     {rowTrans}
                     {rowTrans}
