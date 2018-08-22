@@ -36,7 +36,7 @@ export class EditorToolbar extends React.Component<{}> {
                             <Option value="3">doc.txt</Option>
                         </Select>
                         </Col>
-                        <Col xs={24} md={5}>
+                        <Col xs={24} md={6}>
                             <Icon type='global' />
                             <span>SOURCE </span>
                             <Select
@@ -50,7 +50,7 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">Russian</Option>
                             </Select>
                         </Col>
-                        <Col xs={24} md={5}>
+                        <Col xs={24} md={6}>
                             <span>TARGET </span>
                             <Select
                                     showSearch
