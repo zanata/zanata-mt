@@ -22,7 +22,7 @@ export class EditorToolbar extends React.Component<{}> {
             <Layout className="editorToolbar">
                 <Header>
                     <Row>
-                      <Col xs={24} md={8} lg={6}>
+                      <Col xs={24} sm={24} md={24} lg={8}>
                           <Icon type='file-text' />
                           <span> </span>
                         <Select
@@ -36,7 +36,7 @@ export class EditorToolbar extends React.Component<{}> {
                             <Option value="3">doc.txt</Option>
                         </Select>
                         </Col>
-                        <Col xs={24} md={8} lg={6}>
+                        <Col xs={24} sm={24} md={10} lg={6}>
                             <Icon type='global' />
                             <span>SOURCE </span>
                             <Select
@@ -50,7 +50,7 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">Russian</Option>
                             </Select>
                         </Col>
-                        <Col xs={24} md={8} lg={6}>
+                        <Col xs={24} sm={24} md={10} lg={6}>
                             <span>TARGET </span>
                             <Select
                                     showSearch

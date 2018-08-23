@@ -71,6 +71,7 @@
   padding-top: calc(var(--TransUnit-rhythm) * .75);
   padding-bottom: calc(var(--TransUnit-rhythm) * .75);
   padding-left: var(--TransUnit-rhythm);
+  padding-right: 1rem;
   list-style: none;
   vertical-align: top;
 }
@@ -145,7 +146,6 @@
     display: table-cell;
     width: 90%;
     padding-left: 0;
-    padding-right: 1rem;
   }
 
   .TransUnit-source {
