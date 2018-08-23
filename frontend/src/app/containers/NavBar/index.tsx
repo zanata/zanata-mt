@@ -63,10 +63,16 @@ export class NavBar extends React.Component<Props, State> {
   public render() {
     const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
     const disableLogin = true
+      const username = 'username'
     return (
       <Sider collapsible={true}
           collapsed={this.state.collapsed} onCollapse={this.toggleNav}>
-        <div className='logo' />
+          <div className="logo">
+              <img src='http://zanata.org/images/mtlogo.png'
+                   alt='magpie logo' />
+              <span>MagpieMT</span>
+          </div>
+          <a href="" key="1">{username}</a>
         <Menu theme="dark" mode="inline"
           defaultSelectedKeys={[this.getSelectedKey()]}>
             {items.map((item, itemId) => {
