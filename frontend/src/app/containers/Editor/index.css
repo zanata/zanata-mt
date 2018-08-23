@@ -29,6 +29,10 @@
   background-color: var(--TransUnit-focus-color-bg);
 }
 
+.TransUnit:not(.is-focused) .TransUnit-panel {
+  padding-bottom: 4rem;
+}
+
 
 .TransUnit:before {
   box-shadow: 0 calc(var(--TransUnit-rhythm) * -.25) calc(var(--TransUnit-rhythm) * .5) rgba(0,0,0,.04);

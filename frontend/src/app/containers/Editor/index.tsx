@@ -7,27 +7,17 @@ import Row from 'antd/lib/row';
 import 'antd/lib/row/style/css';
 import Col from 'antd/lib/col';
 import 'antd/lib/col/style/css';
-import {EditorToolbar, SourceTrans, TargetTrans, TargetTransActive} from '../../components';
+ import {EditorToolbar, SourceTrans, TargetTrans, TargetTransActive} from '../../components';
 const { Header, Content } = Layout;
 
-export interface Props {
-    selected?: boolean
-}
-
-export class Editor extends React.Component<Props, {}> {
-    constructor(props?: Props, context?: any) {
-        super(props, context);
-        this.state = {
-            selected: true
-        }
-    }
+export class Editor extends React.Component<{}> {
     public render() {
         const rowTrans = (
                 <span className='TransUnit'>
                 <Col span={12}>
                     <SourceTrans />
                 </Col>
-                <Col span={12}>
+                <Col span={12} className='transBorder'>
                     <TargetTrans />
                 </Col>
             </span>
@@ -37,7 +27,7 @@ export class Editor extends React.Component<Props, {}> {
                 <Col span={12}>
                     <SourceTrans />
                 </Col>
-                <Col span={12}>
+                <Col span={12} className='transBorder'>
                     <TargetTransActive />
                 </Col>
             </span>
@@ -46,7 +36,9 @@ export class Editor extends React.Component<Props, {}> {
             <Layout className="editor">
                 <Header>
                     <div className="logo">
-                        MagpieMT
+                        <img src='http://zanata.org/images/mtlogo.png'
+                             alt='magpie logo' />
+                        <span>MagpieMT</span>
                     </div>
                     <Menu theme="dark"
                             mode="horizontal"
