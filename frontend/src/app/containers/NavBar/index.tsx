@@ -63,7 +63,7 @@ export class NavBar extends React.Component<Props, State> {
   public render() {
     const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
     const disableLogin = true
-      const username = 'username'
+      const username = 'usernamelongusername'
     return (
       <Sider collapsible={true}
           collapsed={this.state.collapsed} onCollapse={this.toggleNav}>
@@ -72,7 +72,7 @@ export class NavBar extends React.Component<Props, State> {
                    alt='magpie logo' />
               <span>MagpieMT</span>
           </div>
-          <a href="" key="1">{username}</a>
+          <a href="" className="username ellipsis" key="1">{username}</a>
         <Menu theme="dark" mode="inline"
           defaultSelectedKeys={[this.getSelectedKey()]}>
             {items.map((item, itemId) => {
