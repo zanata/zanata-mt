@@ -21,13 +21,13 @@ export class EditorToolbar extends React.Component<{}> {
         return (
             <Layout className="editorToolbar">
                 <Header>
-                    <Row  type="flex" justify="start">
-                      <Col xs={24} md={18} lg={6}>
+                    <Row>
+                      <Col xs={24} lg={7}>
                           <Icon type='file-text' />
                           <span>&nbsp;</span>
                             <Select
                                 showSearch
-                                style={{ width: 250 }}
+                                style={{ width: 160 }}
                                 placeholder="Select a document"
                                 optionFilterProp="children"
                                 defaultActiveFirstOption={true}>
@@ -36,12 +36,12 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">doc.txt</Option>
                         </Select>
                         </Col>
-                        <Col xs={24} sm={{span: 11, offset: 1}} lg={6}>
+                        <Col xs={24} sm={24} md={10} lg={7} xl={6}>
                             <Icon type='global' />
-                            <span>SOURCE </span>
+                            <span className='smLabel'>SOURCE </span>
                             <Select
                                     showSearch
-                                    style={{ width: 120 }}
+                                    style={{ width: 160 }}
                                     placeholder="Select a language"
                                     optionFilterProp="children"
                                     defaultActiveFirstOption={true}>
@@ -50,11 +50,11 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">Russian</Option>
                             </Select>
                         </Col>
-                        <Col xs={24} sm={{span: 11, offset: 1}} lg={6}>
-                            <span>TARGET </span>
+                        <Col xs={24} sm={24} md={10} lg={7} xl={6}>
+                            <span className="smLabel">TARGET </span>
                             <Select
                                     showSearch
-                                    style={{ width: 120 }}
+                                    style={{ width: 160 }}
                                     placeholder="Select a language"
                                     optionFilterProp="children"
                                     defaultActiveFirstOption={true}>
@@ -63,11 +63,9 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">Spanish</Option>
                             </Select>
                         </Col>
-                        <Col className='editorPagination'>
-                            <span>
-                            <Pagination simple defaultCurrent={1} total={50} />
-                            </span>
-                        </Col>
+                        <span className='editorPagination'>
+                         <Pagination simple defaultCurrent={1} total={50} />
+                        </span>
                     </Row>
                 </Header>
             </Layout>
