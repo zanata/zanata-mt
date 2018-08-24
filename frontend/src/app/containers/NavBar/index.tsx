@@ -63,7 +63,7 @@ export class NavBar extends React.Component<Props, State> {
   public render() {
     const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
     const disableLogin = true
-      const username = 'usernamelongusername'
+      const username = 'username'
     return (
       <Sider collapsible={true}
           collapsed={this.state.collapsed} onCollapse={this.toggleNav}>

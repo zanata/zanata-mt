@@ -21,27 +21,27 @@ export class EditorToolbar extends React.Component<{}> {
         return (
             <Layout className="editorToolbar">
                 <Header>
-                    <Row>
-                      <Col xs={24} sm={24} md={24} lg={8}>
+                    <Row  type="flex" justify="start">
+                      <Col xs={24} md={18} lg={6}>
                           <Icon type='file-text' />
-                          <span> </span>
-                        <Select
-                            showSearch
-                            style={{ width: 200 }}
-                            placeholder="Select a document"
-                            optionFilterProp="children"
-                            defaultActiveFirstOption={true}>
-                            <Option value="1">readme.txt</Option>
-                            <Option value="2">intro.txt</Option>
-                            <Option value="3">doc.txt</Option>
+                          <span>&nbsp;</span>
+                            <Select
+                                showSearch
+                                style={{ width: 250 }}
+                                placeholder="Select a document"
+                                optionFilterProp="children"
+                                defaultActiveFirstOption={true}>
+                                <Option value="1">readme.txt</Option>
+                                <Option value="2">intro.txt</Option>
+                                <Option value="3">doc.txt</Option>
                         </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={10} lg={6}>
+                        <Col xs={24} sm={{span: 11, offset: 1}} lg={6}>
                             <Icon type='global' />
                             <span>SOURCE </span>
                             <Select
                                     showSearch
-                                    style={{ width: 200 }}
+                                    style={{ width: 120 }}
                                     placeholder="Select a language"
                                     optionFilterProp="children"
                                     defaultActiveFirstOption={true}>
@@ -50,11 +50,11 @@ export class EditorToolbar extends React.Component<{}> {
                                 <Option value="3">Russian</Option>
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={10} lg={6}>
+                        <Col xs={24} sm={{span: 11, offset: 1}} lg={6}>
                             <span>TARGET </span>
                             <Select
                                     showSearch
-                                    style={{ width: 200 }}
+                                    style={{ width: 120 }}
                                     placeholder="Select a language"
                                     optionFilterProp="children"
                                     defaultActiveFirstOption={true}>
