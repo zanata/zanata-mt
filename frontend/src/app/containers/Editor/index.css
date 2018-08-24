@@ -130,30 +130,24 @@
   font-style: normal !important;
 }
 
-/**
- * Medium Size Up
- */
-
-@media (min-width:741px) {
-  .TransUnit,
-  .TransUnit-item {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-  }
-
-  .TransUnit-panel {
-    display: table-cell;
-    width: 90%;
-    padding-left: 0;
-  }
-
-  .TransUnit-source {
-    padding-right: calc(var(--TransUnit-rhythm) * .5);
-  }
-
-  .TransUnit-translation {
-    padding-left: calc(var(--TransUnit-rhythm) * .5);
-  }
-
+.TransUnit,
+.TransUnit-item {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
+
+.TransUnit-panel {
+  display: table-cell;
+  width: 90%;
+  padding-left: 0;
+}
+
+.TransUnit-source {
+  padding-right: calc(var(--TransUnit-rhythm) * .5);
+}
+
+.TransUnit-translation {
+  padding-left: calc(var(--TransUnit-rhythm) * .5);
+}
+
