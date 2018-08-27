@@ -6,6 +6,7 @@ import { findIndex } from 'lodash'
 import LoginForm from "../../containers/LoginForm"
 import {Action} from "redux-actions"
 import { login, logout, toggleLoginFormDisplay } from '../../actions/common'
+import history from '../../history'
 
 import { Layout, Menu, Icon } from 'antd'
 const { Sider } = Layout
@@ -37,6 +38,7 @@ export class NavBar extends React.Component<Props, State> {
     this.toggleNav = this.toggleNav.bind(this)
     this.showLoginForm = this.showLoginForm.bind(this)
     this.hideLoginForm = this.hideLoginForm.bind(this)
+    this.logout = this.logout.bind(this)
   }
 
   private toggleNav(collapsed: boolean) {
@@ -58,8 +60,13 @@ export class NavBar extends React.Component<Props, State> {
     }).toString()
   }
 
+  private logout() {
+    this.props.handleLogout()
+    history.push('/')
+  }
+
   public render() {
-    const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
+    const {showLoginForm, handleLogin, isLoggedIn} = this.props
     return (
       <Sider collapsible={true}
           collapsed={this.state.collapsed} onCollapse={this.toggleNav}>
@@ -94,7 +101,7 @@ export class NavBar extends React.Component<Props, State> {
             </Menu.Item>
             <Menu.Item>
               { isLoggedIn
-                ? <a onClick={handleLogout} className='fc-danger'><Icon type='logout'/>Log out</a>
+                ? <a onClick={this.logout} className='fc-danger'><Icon type='logout'/>Log out</a>
                 : <a onClick={this.showLoginForm}><Icon type='login'/>Log in</a>
               }
             </Menu.Item>

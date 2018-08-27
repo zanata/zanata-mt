@@ -170,7 +170,7 @@ public class AccountResourceImpl {
         return accountService.authenticate(username, password).map(account -> {
             authenticatedAccount.setAuthenticatedAccount(account);
             authenticatedAccount.setAuthenticatedUsername(username);
-            NewCookie cookie = generateCookie(COOKIE_MAX_AGE);
+            NewCookie cookie = generateCookie(COOKIE_MAX_AGE, authHeader);
 
             return Response.ok().cookie(cookie).build();
         }).orElse(Response.status(Response.Status.UNAUTHORIZED).build());
@@ -185,19 +185,19 @@ public class AccountResourceImpl {
     public Response logout() {
         authenticatedAccount.setAuthenticatedAccount(null);
         authenticatedAccount.setAuthenticatedUsername(null);
-        NewCookie cookie = generateCookie(COOKIE_MIN_AGE);
+        NewCookie cookie = generateCookie(COOKIE_MIN_AGE, "");
 
         return Response.ok().cookie(cookie).build();
     }
 
-    private NewCookie generateCookie(int maxAge) {
+    private NewCookie generateCookie(int maxAge, String header) {
         String domain = null;
         boolean secured = false;
         if (!LOCALHOST.equals(uriInfo.getBaseUri().getHost())) {
             domain = uriInfo.getBaseUri().getHost();
             secured = true;
         }
-        return new NewCookie(AUTH_HEADER, "", "/", domain,
+        return new NewCookie(AUTH_HEADER, header, "/", domain,
             NewCookie.DEFAULT_VERSION, "", maxAge, null, secured, true);
     }
 

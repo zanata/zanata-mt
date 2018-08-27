@@ -28,7 +28,6 @@ import org.fedorahosted.tennera.jgettext.catalog.parse.MessageStreamParser;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.TypeString;
@@ -41,8 +40,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,10 +66,10 @@ public class PoFileAdapter implements TranslationFileAdapter {
     @Override
     public Pair<DocumentContent, Map<String, Message>> parseSourceDocument(
         InputStream inputStream, String url, LocaleCode fromLocaleCode) {
-        InputSource potInputSource = new InputSource(inputStream);
         List<TypeString> contents = new ArrayList<>();
         Map<String, Message> messages = new LinkedHashMap<>();
-        MessageStreamParser messageParser = createParser(potInputSource);
+
+        MessageStreamParser messageParser = createParser(inputStream);
         while (messageParser.hasNext()) {
             Message message = messageParser.next();
             String id = createId(message);
@@ -155,40 +154,8 @@ public class PoFileAdapter implements TranslationFileAdapter {
             message.getMsgid();
     }
 
-    static MessageStreamParser createParser(InputSource inputSource) {
-        MessageStreamParser messageParser;
-        if (inputSource.getCharacterStream() != null)
-            messageParser =
-                new MessageStreamParser(inputSource.getCharacterStream());
-        else if (inputSource.getByteStream() != null) {
-            if (inputSource.getEncoding() != null)
-                messageParser =
-                    new MessageStreamParser(inputSource.getByteStream(),
-                        Charset.forName(inputSource.getEncoding()));
-            else
-                messageParser =
-                    new MessageStreamParser(inputSource.getByteStream(),
-                        Charset.forName("UTF-8"));
-        } else if (inputSource.getSystemId() != null) {
-            try {
-                URL url = new URL(inputSource.getSystemId());
-
-                if (inputSource.getEncoding() != null)
-                    messageParser =
-                        new MessageStreamParser(url.openStream(),
-                            Charset.forName(inputSource.getEncoding()));
-                else
-                    messageParser =
-                        new MessageStreamParser(url.openStream(),
-                            Charset.forName("UTF-8"));
-            } catch (IOException e) {
-                throw new RuntimeException(
-                    "failed to get input from url in inputSource", e);
-            }
-        } else {
-            throw new RuntimeException("not a valid inputSource");
-        }
-        return messageParser;
+    static MessageStreamParser createParser(InputStream inputStream) {
+        return new MessageStreamParser(inputStream, StandardCharsets.UTF_8);
     }
 
     static String createId(Message message) {

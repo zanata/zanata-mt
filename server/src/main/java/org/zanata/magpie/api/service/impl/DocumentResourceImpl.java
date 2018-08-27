@@ -203,7 +203,7 @@ public class DocumentResourceImpl implements DocumentResource {
         if (fromLocaleCode == null || toLocaleCode == null) {
             APIResponse apiResponse =
                 new APIResponse(Response.Status.BAD_REQUEST,
-                    "Null query param: fromLocaleCode and toLocaleCode");
+                    "Null query param: fromLocaleCode or toLocaleCode");
             return Response.status(apiResponse.getStatus())
                 .entity(apiResponse).build();
         }

@@ -7,7 +7,7 @@ import {
   Switch,
   Redirect, RouteComponentProps, RouteProps,
 } from 'react-router'
-import {createBrowserHistory} from 'history'
+import history from './history'
 import {apiMiddleware} from 'redux-api-middleware'
 import {createLogger} from 'redux-logger'
 import {createStore, applyMiddleware, compose} from 'redux'
@@ -50,7 +50,6 @@ function configureStore(initialState?: RootState) {
 }
 
 const store = configureStore();
-const history = createBrowserHistory();
 
 type RouteComponent = React.StatelessComponent<RouteComponentProps<{}>> | React.ComponentClass<any>
 const PrivateRoute: React.StatelessComponent<RouteProps> = ({component, ...rest}) => {

@@ -23,7 +23,7 @@ export const Alert: React.StatelessComponent<Props> = ({
 
   const alertType = getAlertType(dismissible, data)
   const timestamp = <span>{data.timestamp}</span>
-  const message = <div>{timestamp} {data.summary && data.summary}</div>
+  const message = <div>{timestamp} {data.summary}</div>
   const description = (data.message || data.stack) && (
     <p>
       {data.message && <span>{data.message}</span>}

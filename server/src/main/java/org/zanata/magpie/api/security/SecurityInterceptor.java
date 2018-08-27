@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
@@ -86,7 +87,7 @@ public class SecurityInterceptor implements ContainerRequestFilter {
         }
         // try to authenticate with cookie
         Cookie auth = requestContext.getCookies().get(AUTH_HEADER);
-        if (auth != null) {
+        if (auth != null && StringUtils.isNotBlank(auth.getValue())) {
             Response response = accountResource.login(auth.getValue());
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return;
