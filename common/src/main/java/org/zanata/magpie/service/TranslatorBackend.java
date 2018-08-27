@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
 
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.backend.BackendLocaleCode;
@@ -14,7 +13,11 @@ import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.StringType;
 
 /**
- * Interface for machine translation provider
+ * Interface for machine translation provider.
+ *
+ * Instances are injected by PersistentTranslationService using
+ * javax.enterprise.inject.Instance. All implementations of TranslatorBackend
+ * must be proper scoped beans (not Dependent) to avoid memory leaks.
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */

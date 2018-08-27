@@ -36,7 +36,6 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
 
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
@@ -85,6 +84,13 @@ public class PersistentTranslationService {
     public PersistentTranslationService() {
     }
 
+    // Note that @Dependent Instances have to be destroyed[1], but only the
+    // @Dependent ones[2], and yet there is no easy way of identifying them
+    // (short of using WeldInstance[3]). So make sure TranslatorBackends are
+    // not @Dependent scoped!
+    // [1] https://blog.akquinet.de/2017/01/04/dont-get-trapped-into-a-memory-leak-using-cdi-instance-injection/
+    // [2] https://developer.jboss.org/thread/252712
+    // [3] http://weld.cdi-spec.org/news/2016/05/18/enhanced-instance/
     @Inject
     public PersistentTranslationService(DocumentDAO documentDAO,
             TextFlowDAO textFlowDAO,
