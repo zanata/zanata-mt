@@ -11,7 +11,7 @@ const initialState: CommonState = {
 }
 
 const loginFailed = (payload: CommonData) => {
-  const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
+  const now = moment().utc().format()
   return {
     summary: 'Invalid username and password',
     message: '',

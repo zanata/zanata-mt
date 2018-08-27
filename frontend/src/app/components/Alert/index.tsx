@@ -32,6 +32,7 @@ export const Alert: React.StatelessComponent<Props> = ({
   )
   return (
     <AntdAlert type={alertType}
+      style={{marginBottom: '0.25em'}}
       showIcon={true}
       message={message}
       description={description}

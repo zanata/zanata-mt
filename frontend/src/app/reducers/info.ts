@@ -16,7 +16,7 @@ const initialState: InfoState = {
 }
 
 const getInfoFailed = (payload: InfoData) => {
-  const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
+  const now = moment().utc().format()
   return {
     summary: 'Unable to fetch info',
     message: payload.message,

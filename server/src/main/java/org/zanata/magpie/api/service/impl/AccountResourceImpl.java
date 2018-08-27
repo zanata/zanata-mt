@@ -51,7 +51,6 @@ import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.exception.DataConstraintViolationException;
 import org.zanata.magpie.exception.MTException;
-import org.zanata.magpie.model.Account;
 import org.zanata.magpie.service.AccountService;
 
 import com.google.common.base.Throwables;
@@ -168,26 +167,13 @@ public class AccountResourceImpl {
 
         String username = auth.get().getKey();
         String password = auth.get().getValue();
-        Optional<Account> account =
-            accountService.authenticate(username, password);
-        if (account.isPresent()) {
-            authenticatedAccount.setAuthenticatedAccount(account.get());
+        return accountService.authenticate(username, password).map(account -> {
+            authenticatedAccount.setAuthenticatedAccount(account);
             authenticatedAccount.setAuthenticatedUsername(username);
-
-            String domain = null;
-            boolean secured = false;
-            if (!LOCALHOST.equals(uriInfo.getBaseUri().getHost())) {
-                domain = uriInfo.getBaseUri().getHost();
-                secured = true;
-            }
-            NewCookie cookie =
-                new NewCookie(AUTH_HEADER, authHeader, "/", domain,
-                    NewCookie.DEFAULT_VERSION, "",
-                    COOKIE_MAX_AGE, null, secured, true);
+            NewCookie cookie = generateCookie(COOKIE_MAX_AGE);
 
             return Response.ok().cookie(cookie).build();
-        }
-        return Response.status(Response.Status.UNAUTHORIZED).build();
+        }).orElse(Response.status(Response.Status.UNAUTHORIZED).build());
     }
 
     /**
@@ -197,19 +183,22 @@ public class AccountResourceImpl {
     @POST
     @Path("/logout")
     public Response logout() {
+        authenticatedAccount.setAuthenticatedAccount(null);
+        authenticatedAccount.setAuthenticatedUsername(null);
+        NewCookie cookie = generateCookie(COOKIE_MIN_AGE);
+
+        return Response.ok().cookie(cookie).build();
+    }
+
+    private NewCookie generateCookie(int maxAge) {
         String domain = null;
         boolean secured = false;
         if (!LOCALHOST.equals(uriInfo.getBaseUri().getHost())) {
             domain = uriInfo.getBaseUri().getHost();
             secured = true;
         }
-        authenticatedAccount.setAuthenticatedAccount(null);
-        authenticatedAccount.setAuthenticatedUsername(null);
-        NewCookie cookie =
-            new NewCookie(AUTH_HEADER, "", "/", domain,
-                NewCookie.DEFAULT_VERSION, "",
-                COOKIE_MIN_AGE, null, secured, true);
-        return Response.ok().cookie(cookie).build();
+        return new NewCookie(AUTH_HEADER, "", "/", domain,
+            NewCookie.DEFAULT_VERSION, "", maxAge, null, secured, true);
     }
 
     // TODO this is a temporary solution for having meaningful error message for constraint violation

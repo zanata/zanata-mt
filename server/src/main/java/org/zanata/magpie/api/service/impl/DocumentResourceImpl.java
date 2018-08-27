@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.fedorahosted.tennera.jgettext.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.BackEndProviders;
@@ -36,8 +39,8 @@ import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.api.service.BackendResource;
 import org.zanata.magpie.api.service.DocumentResource;
 import org.zanata.magpie.dao.LocaleDAO;
-import org.zanata.magpie.filter.Filter;
-import org.zanata.magpie.filter.PoFilter;
+import org.zanata.magpie.filter.TranslationFileAdapter;
+import org.zanata.magpie.filter.PoFileAdapter;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -68,9 +71,9 @@ public class DocumentResourceImpl implements DocumentResource {
     private BackendID defaultProvider;
     private Set<BackendID> availableProviders;
 
-    private static ImmutableMap<String, Filter> FILTERS =
-        ImmutableMap.<String, Filter>builder()
-            .put("POT", new PoFilter(StandardCharsets.UTF_8))
+    private static ImmutableMap<String, TranslationFileAdapter> FILTERS =
+        ImmutableMap.<String, TranslationFileAdapter>builder()
+            .put("POT", new PoFileAdapter(StandardCharsets.UTF_8))
             .build();
 
     @SuppressWarnings("unused")
@@ -170,7 +173,7 @@ public class DocumentResourceImpl implements DocumentResource {
         LocaleCode fromLocaleCode = new LocaleCode(docContent.getLocaleCode());
         if (fromLocaleCode.equals(toLocaleCode)) {
             LOG.info(
-                "Returning request as FROM and TO localeCode are the same: {}",
+                "Returning unchanged request, FROM and TO localeCode are the same {}",
                 fromLocaleCode);
             return Response.ok().entity(docContent).build();
         }
@@ -200,7 +203,7 @@ public class DocumentResourceImpl implements DocumentResource {
         if (fromLocaleCode == null || toLocaleCode == null) {
             APIResponse apiResponse =
                 new APIResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: fromLocaleCode and toLocaleCode");
+                    "Null query param: fromLocaleCode and toLocaleCode");
             return Response.status(apiResponse.getStatus())
                 .entity(apiResponse).build();
         }
@@ -208,20 +211,20 @@ public class DocumentResourceImpl implements DocumentResource {
         if (StringUtils.isBlank(form.getFileName())) {
             APIResponse apiResponse =
                 new APIResponse(Response.Status.BAD_REQUEST,
-                    "Invalid query param: file name");
+                    "Null form param: fileName");
             return Response.status(apiResponse.getStatus())
                 .entity(apiResponse).build();
         }
 
         try {
             String fileExt = FilenameUtils.getExtension(form.getFileName());
-            Filter filter = FILTERS.get(fileExt.toUpperCase());
+            TranslationFileAdapter adapter = FILTERS.get(fileExt.toUpperCase());
 
             String url = getURL(uriInfo.getRequestUri().toString(), form.getFileName());
-            DocumentContent documentContent = filter
-                .parseDocument(form.getFileStream(), url, fromLocaleCode);
+            Pair<DocumentContent, Map<String, Message>> contents = adapter
+                .parseSourceDocument(form.getFileStream(), url, fromLocaleCode);
 
-            Response response = this.translate(documentContent, toLocaleCode);
+            Response response = this.translate(contents.getLeft(), toLocaleCode);
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
                 return response;
             }
@@ -234,11 +237,12 @@ public class DocumentResourceImpl implements DocumentResource {
                 ATTRIBUTION_KEY + ":" + attr.getEntity().toString() : "";
 
             FilterStreamingOutput stream =
-                new FilterStreamingOutput(filter, newDocContent, fromLocaleCode,
+                new FilterStreamingOutput(adapter, newDocContent,
+                    contents.getRight(), fromLocaleCode,
                     toLocaleCode, attribution);
 
             String docName =
-                getTransFilename(filter.getTranslationFileExtension(),
+                getTransFilename(adapter.getTranslationFileExtension(),
                     form.getFileName(), toLocaleCode.getId());
 
             return Response.ok(stream, MediaType.APPLICATION_OCTET_STREAM)
@@ -322,17 +326,20 @@ public class DocumentResourceImpl implements DocumentResource {
     }
 
     protected static class FilterStreamingOutput implements StreamingOutput {
-        private final Filter filter;
-        private final DocumentContent translatedDocContent;
-        private final LocaleCode fromLocaleCode;
-        private final LocaleCode toLocaleCode;
-        private final String attribution;
+        protected final TranslationFileAdapter filter;
+        protected final DocumentContent translatedDocContent;
+        protected final LocaleCode fromLocaleCode;
+        protected final LocaleCode toLocaleCode;
+        protected final String attribution;
+        protected final Map<String, Message> messages;
 
-        FilterStreamingOutput(Filter filter,
-            DocumentContent translatedDocContent, LocaleCode fromLocaleCode,
-            LocaleCode toLocaleCode, String attribution) {
+        FilterStreamingOutput(TranslationFileAdapter filter,
+            DocumentContent translatedDocContent, Map<String, Message> messages,
+            LocaleCode fromLocaleCode, LocaleCode toLocaleCode,
+            String attribution) {
             this.filter = filter;
             this.translatedDocContent = translatedDocContent;
+            this.messages = messages;
             this.fromLocaleCode = fromLocaleCode;
             this.toLocaleCode = toLocaleCode;
             this.attribution = attribution;
@@ -342,7 +349,7 @@ public class DocumentResourceImpl implements DocumentResource {
         public void write(OutputStream output)
             throws IOException, WebApplicationException {
             filter.writeTranslatedFile(output, fromLocaleCode,
-                toLocaleCode, translatedDocContent, attribution);
+                toLocaleCode, translatedDocContent, messages, attribution);
         }
     }
 }

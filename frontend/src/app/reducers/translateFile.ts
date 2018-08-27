@@ -14,7 +14,7 @@ const initialState: TranslateFileState = {
 }
 
 const uploadFailed = (payload: TranslateFilePayload) => {
-  const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
+  const now = moment().utc().format()
   return {
     summary: 'Unable to translate file',
     message: payload.message,
@@ -25,7 +25,7 @@ const uploadFailed = (payload: TranslateFilePayload) => {
 }
 
 const getSupportedLocalesFailed = (payload: TranslateFilePayload) => {
-  const now = moment().utc().format('d/MM/YYYY hh:mm:ss')
+  const now = moment().utc().format()
   return {
     summary: 'Unable get supported locales',
     message: payload.message,

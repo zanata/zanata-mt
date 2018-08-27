@@ -21,6 +21,8 @@
 
 package org.zanata.magpie.filter;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.fedorahosted.tennera.jgettext.Message;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.zanata.magpie.api.dto.DocumentContent;
@@ -33,29 +35,24 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public class PoFilterTest {
-    private PoFilter filter = new PoFilter(StandardCharsets.UTF_8);
+public class PoFileAdapterTest {
+    private PoFileAdapter poFileAdapter = new PoFileAdapter(StandardCharsets.UTF_8);
 
     @Test
     public void testGetTranslationFileExtension() {
-        assertThat(filter.getTranslationFileExtension()).isNotBlank()
+        assertThat(poFileAdapter.getTranslationFileExtension()).isNotBlank()
             .isEqualTo("po");
     }
 
@@ -68,32 +65,18 @@ public class PoFilterTest {
 
         LocaleCode fromLocaleCode = LocaleCode.EN;
         String filename = "test.pot";
-        DocumentContent documentContent =
-            filter.parseDocument(inputStream, filename, fromLocaleCode);
-        assertThat(documentContent).isNotNull();
-        assertThat(documentContent.getUrl()).isEqualTo(filename);
-        assertThat(documentContent.getLocaleCode()).isEqualTo(fromLocaleCode.getId());
-        assertThat(documentContent.getContents()).hasSize(entriesCount);
-    }
+        Pair<DocumentContent, Map<String, Message>> contents =
+            poFileAdapter.parseSourceDocument(inputStream, filename, fromLocaleCode);
+        assertThat(contents.getLeft()).isNotNull();
+        assertThat(contents.getLeft().getUrl()).isEqualTo(filename);
+        assertThat(contents.getLeft().getLocaleCode()).isEqualTo(fromLocaleCode.getId());
+        assertThat(contents.getLeft().getContents()).hasSize(entriesCount);
 
-    @Test
-    public void testWriteTranslatedFileBeforeParse() throws IOException {
-        OutputStream outputStream = Mockito.mock(OutputStream.class);
-        LocaleCode fromLocaleCode = LocaleCode.EN;
-        LocaleCode toLocaleCode = LocaleCode.DE;
-        String attribution = "translated by test";
-        List<TypeString> contents = new ArrayList<>();
-        contents.add(new TypeString("testing", "text/plain", null));
-        DocumentContent translatedDocContent = new DocumentContent(contents, "testing", toLocaleCode.getId());
-
-        filter.writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
-            translatedDocContent, attribution);
-        verifyZeroInteractions(outputStream);
+        assertThat(contents.getRight()).isNotEmpty();
     }
 
     @Test
     public void testWriteTranslatedFile() throws IOException {
-        final int entriesCount = 5;
         File sourceFile =
             new File("src/test/resources/test.pot");
         InputStream inputStream = new FileInputStream(sourceFile);
@@ -103,29 +86,19 @@ public class PoFilterTest {
         String attribution = "translated by test";
 
         String filename = "test.pot";
-        DocumentContent documentContent =
-            filter.parseDocument(inputStream, filename, fromLocaleCode);
+        Pair<DocumentContent, Map<String, Message>> contents =
+            poFileAdapter.parseSourceDocument(inputStream, filename, fromLocaleCode);
 
         // modify source string to be translated
-        for (TypeString typeString: documentContent.getContents()) {
+        for (TypeString typeString: contents.getLeft().getContents()) {
             typeString.setValue(typeString.getValue() + "_translated");
         }
 
         OutputStream outputStream = Mockito.mock(OutputStream.class);
-        filter.writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
-            documentContent, attribution);
-        verify(outputStream, times(entriesCount + 1))
+        poFileAdapter
+            .writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
+                contents.getLeft(), contents.getRight(), attribution);
+        verify(outputStream, atLeastOnce())
             .write(any(byte[].class), anyInt(), anyInt());
-    }
-
-    @Test
-    public void testWriteMsgstrPlurals() throws IOException {
-        Writer writer = Mockito.mock(Writer.class);
-        String prefix = "<<";
-        List<String> strings = new ArrayList<>();
-        strings.add("test1");
-        strings.add("test2");
-        filter.writeMsgstrPlurals(prefix, strings, writer);
-        verify(writer, times(4)).write(anyString());
     }
 }

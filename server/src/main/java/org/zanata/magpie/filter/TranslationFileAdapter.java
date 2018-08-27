@@ -21,6 +21,8 @@
 
 package org.zanata.magpie.filter;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.fedorahosted.tennera.jgettext.Message;
 import org.jetbrains.annotations.NotNull;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.LocaleCode;
@@ -28,19 +30,21 @@ import org.zanata.magpie.api.dto.LocaleCode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-public interface Filter {
+public interface TranslationFileAdapter {
 
-    DocumentContent parseDocument(InputStream inputStream,
+    Pair<DocumentContent, Map<String, Message>> parseSourceDocument(
+        InputStream inputStream,
         String url, LocaleCode fromLocaleCode);
 
     void writeTranslatedFile(@NotNull OutputStream output,
         LocaleCode fromLocaleCode, LocaleCode toLocaleCode,
-        DocumentContent translatedDocContent, String attribution)
-        throws IOException;
+        DocumentContent translatedDocContent, Map<String, Message> messages,
+        String attribution) throws IOException;
 
     String getTranslationFileExtension();
 }

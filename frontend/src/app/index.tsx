@@ -62,7 +62,7 @@ const PrivateRoute: React.StatelessComponent<RouteProps> = ({component, ...rest}
     } else if (loggedIn) {
       return <Component {...props} />
     } else {
-      return <Redirect to='/app/404'/>
+      return <Redirect to='/app/error'/>
     }
   }
   return <Route {...rest} render={renderFn(component)} />
@@ -78,7 +78,7 @@ ReactDOM.render(
             <Route exact strict path="(/|/app|/app/)" component={App} />
             <Route path='/app/info' component={Info}/>
             <Route path='/app/health' component={Health}/>
-            <Route path='/app/404' component={NoMatch}/>
+            <Route path='/app/error' component={NoMatch}/>
             <PrivateRoute path='/app/translate' component={TranslateFile} />
             <Route component={NoMatch}/>
           </Switch>

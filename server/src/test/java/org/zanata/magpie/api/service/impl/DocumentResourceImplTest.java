@@ -33,12 +33,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.fedorahosted.tennera.jgettext.Message;
 import org.jboss.resteasy.spi.ResteasyUriInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +56,7 @@ import org.zanata.magpie.api.dto.TypeString;
 import org.zanata.magpie.api.service.BackendResource;
 import org.zanata.magpie.api.service.DocumentResource;
 import org.zanata.magpie.dao.LocaleDAO;
-import org.zanata.magpie.filter.Filter;
+import org.zanata.magpie.filter.TranslationFileAdapter;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.Locale;
@@ -467,9 +470,10 @@ public class DocumentResourceImplTest {
     public void testTranslateFile() throws FileNotFoundException {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");
         Locale toLocale = new Locale(LocaleCode.DE, "German");
+        String url = "testing";
         BackendID backendID = BackendID.DEV;
         DocumentContent translatedDocContent =
-            new DocumentContent(new ArrayList<>(), "testing",
+            new DocumentContent(new ArrayList<>(), url,
                 toLocale.getLocaleCode().getId(), backendID.getId(), new ArrayList<>());
 
         Response attrResponse = Mockito.mock(Response.class);
@@ -504,6 +508,16 @@ public class DocumentResourceImplTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(response.getHeaders()).containsKey("content-disposition");
         assertThat(response.getHeaderString("content-disposition")).contains(expectedFilename);
+
+        DocumentResourceImpl.FilterStreamingOutput output =
+            (DocumentResourceImpl.FilterStreamingOutput) response.getEntity();
+        assertThat(output).isNotNull();
+        assertThat(output.fromLocaleCode).isEqualTo(fromLocale.getLocaleCode());
+        assertThat(output.toLocaleCode).isEqualTo(toLocale.getLocaleCode());
+        assertThat(output.messages).isNotEmpty();
+        assertThat(output.translatedDocContent.getUrl()).isEqualTo(url);
+        assertThat(output.translatedDocContent.getLocaleCode())
+            .isEqualTo(toLocale.getLocaleCode().getId());
     }
 
     @Test
@@ -512,18 +526,19 @@ public class DocumentResourceImplTest {
         LocaleCode toLocaleCode = LocaleCode.DE;
         String attribution = "Translated by test";
         OutputStream outputStream = Mockito.mock(OutputStream.class);
+        Map<String, Message> messages = new LinkedHashMap<>();
 
-        Filter filter = Mockito.mock(Filter.class);
+        TranslationFileAdapter filter = Mockito.mock(TranslationFileAdapter.class);
         DocumentContent translatedDocContent = new DocumentContent(new ArrayList<>(), "testing", toLocaleCode.getId());
 
 
         DocumentResourceImpl.FilterStreamingOutput output =
             new DocumentResourceImpl.FilterStreamingOutput(filter,
-                translatedDocContent, fromLocaleCode, toLocaleCode, attribution);
+                translatedDocContent, messages, fromLocaleCode, toLocaleCode, attribution);
 
         output.write(outputStream);
         verify(filter)
             .writeTranslatedFile(outputStream, fromLocaleCode, toLocaleCode,
-                translatedDocContent, attribution);
+                translatedDocContent, messages, attribution);
     }
 }
