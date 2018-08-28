@@ -22,13 +22,13 @@ package org.zanata.magpie.service;
 
 import java.io.Serializable;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.TransactionPhase;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.apache.deltaspike.core.api.future.Futureable;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class EventRecordingService implements Serializable {
     private static final Logger log =
             LoggerFactory.getLogger(EventRecordingService.class);
@@ -60,7 +60,7 @@ public class EventRecordingService implements Serializable {
         this.entityManager = entityManager;
     }
 
-    @Asynchronous
+    @Futureable
     @Transactional
     public void onMTRequest(@Observes(
             during = TransactionPhase.AFTER_COMPLETION) RequestedMTEvent event) {
