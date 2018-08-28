@@ -117,4 +117,15 @@ public class TextFlowTarget extends ModelEntity {
                                 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TextFlowTarget{" +
+                "textFlow=" + textFlow +
+                ", locale=" + locale +
+                ", content='" + content + '\'' +
+                ", rawContent='" + rawContent + '\'' +
+                ", backendId=" + backendId +
+                '}';
+    }
 }
