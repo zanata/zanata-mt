@@ -35,6 +35,7 @@ import org.zanata.magpie.event.AccountCreated;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
@@ -85,7 +86,8 @@ public class MTStartup {
     }
 
     @PostConstruct
-    private void postConstruct() {
+    @VisibleForTesting
+    void postConstruct() {
         log.info("==========================================");
         log.info("==========================================");
         log.info("== " + APPLICATION_NAME + " ==");

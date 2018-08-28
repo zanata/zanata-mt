@@ -46,6 +46,7 @@ public class MTStartupTest {
     public void willCreateInitialPasswordIfNoAccountExists() throws IOException {
         mtStartup = new MTStartup(config, accountService, replCache,
                 context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup.postConstruct();
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNotBlank();
     }
@@ -57,6 +58,7 @@ public class MTStartupTest {
 
         mtStartup = new MTStartup(config, accountService, replCache,
                 context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup.postConstruct();
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNull();
     }
@@ -65,6 +67,7 @@ public class MTStartupTest {
     public void willClearInitialPasswordIfAdminAccountIsCreated() {
         mtStartup = new MTStartup(config, accountService, replCache,
                 context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup.postConstruct();
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNotBlank();
 
