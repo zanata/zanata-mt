@@ -24,18 +24,17 @@ import java.io.Serializable;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.TransactionPhase;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.event.RequestedMTEvent;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Document;
-import org.zanata.magpie.model.Locale;
 import org.zanata.magpie.model.TextFlowMTRequest;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -62,7 +61,7 @@ public class EventRecordingService implements Serializable {
     }
 
     @Asynchronous
-    @TransactionAttribute
+    @Transactional
     public void onMTRequest(@Observes(
             during = TransactionPhase.AFTER_COMPLETION) RequestedMTEvent event) {
 

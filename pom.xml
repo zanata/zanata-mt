@@ -387,6 +387,17 @@
         <version>${deltaspike.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-jpa-module-api</artifactId>
+        <version>${deltaspike.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-jpa-module-impl</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>runtime</scope>
+      </dependency>
 
       <!-- hibernate and jpa -->
       <dependency>

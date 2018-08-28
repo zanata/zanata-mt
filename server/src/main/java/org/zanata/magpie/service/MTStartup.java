@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.infinispan.Cache;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -47,8 +46,7 @@ import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Singleton
-@Startup
+@ApplicationScoped
 public class MTStartup {
     private static final Logger log =
         LoggerFactory.getLogger(MTStartup.class);
@@ -77,7 +75,7 @@ public class MTStartup {
         cache = replCache;
     }
 
-    @TransactionAttribute
+    @Transactional
     public void onStartUp(
         @Observes @Initialized ServletContext context,
             @DevMode boolean isDevMode, @BackEndProviders

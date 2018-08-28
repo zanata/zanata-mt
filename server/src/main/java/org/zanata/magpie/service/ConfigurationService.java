@@ -32,8 +32,9 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
@@ -56,7 +57,6 @@ import com.google.common.collect.Sets;
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
 @ApplicationScoped
-@Startup
 public class ConfigurationService {
     private static final Logger LOG =
             LoggerFactory.getLogger(ConfigurationService.class);
@@ -98,6 +98,10 @@ public class ConfigurationService {
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }
+    }
+
+    public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+        // ensure this bean runs at startup
     }
 
     public String getVersion() {

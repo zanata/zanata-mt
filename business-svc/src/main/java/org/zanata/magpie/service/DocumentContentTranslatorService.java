@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -37,7 +37,7 @@ import org.zanata.magpie.util.ShortString;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class DocumentContentTranslatorService {
     private static final Logger LOG =
             LoggerFactory.getLogger(DocumentContentTranslatorService.class);

@@ -23,11 +23,11 @@ package org.zanata.magpie.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.dao.DocumentDAO;
 import org.zanata.magpie.dto.DateRange;
@@ -37,7 +37,7 @@ import org.zanata.magpie.model.Locale;
 /**
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class DocumentService {
     private DocumentDAO documentDAO;
 
@@ -50,7 +50,7 @@ public class DocumentService {
     public DocumentService() {
     }
 
-    @TransactionAttribute
+    @Transactional
     public Document getOrCreateByUrl(String url, Locale fromLocale, Locale toLocale) {
         Document doc = documentDAO.getByUrl(url, fromLocale, toLocale);
 
@@ -62,14 +62,14 @@ public class DocumentService {
         return doc;
     }
 
-    @TransactionAttribute
+    @Transactional
     public List<Document> getByUrl(@NotNull String url,
             Optional<LocaleCode> fromLocaleCode, Optional<LocaleCode> toLocaleCode,
             Optional<DateRange> dateParam) {
         return documentDAO.getByUrl(url, fromLocaleCode, toLocaleCode, dateParam);
     }
 
-    @TransactionAttribute
+    @Transactional
     public Document incrementDocRequestCount(Document doc) {
         doc.incrementCount();
         return documentDAO.merge(doc);
