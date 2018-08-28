@@ -137,4 +137,17 @@ public class TextFlow extends ModelEntity {
         result = 31 * result + (wordCount != null ? wordCount.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TextFlow{" +
+                "document=" + document +
+                ", contentHash='" + contentHash + '\'' +
+                ", locale=" + locale +
+                ", content='" + content + '\'' +
+                ", wordCount=" + wordCount +
+                ", charCount=" + charCount +
+                ", targets=" + targets +
+                '}';
+    }
 }
