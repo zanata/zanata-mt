@@ -154,13 +154,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.spec.javax.ejb</groupId>
-        <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-        <version>1.0.2.Final</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.spec.javax.servlet</groupId>
         <artifactId>jboss-servlet-api_3.0_spec</artifactId>
         <version>1.0.2.Final</version>
@@ -824,7 +817,7 @@
 
               <!-- CDI beans (so they can be proxied) -->
               <option>all-open:annotation=javax.enterprise.context.NormalScope</option>
-              <option>all-open:annotation=javax.ejb.Stateless</option>
+              <!--<option>all-open:annotation=javax.ejb.Stateless</option>-->
               <!-- Hibernate/JPA entities -->
               <option>all-open:annotation=javax.persistence.Entity</option>
               <!-- JUnit tests (CDI-Unit or Mockito) -->
@@ -833,7 +826,7 @@
               <!-- Create synthetic no-arg constructors for JPA entities and CDI beans: -->
               <option>no-arg:annotation=javax.persistence.Entity</option>
               <option>no-arg:annotation=javax.enterprise.context.NormalScope</option>
-              <option>no-arg:annotation=javax.ejb.Stateless</option>
+              <!--<option>no-arg:annotation=javax.ejb.Stateless</option>-->
             </pluginOptions>
           </configuration>
           <dependencies>
