@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
@@ -20,6 +21,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import org.apache.deltaspike.core.api.common.DeltaSpike;
+import org.apache.deltaspike.core.api.lifecycle.Initialized;
 import org.infinispan.Cache;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -55,7 +57,12 @@ public class MTStartup {
     private static final Path INITIAL_PASSWORD_FILE = Paths.get(System.getProperty("user.home"),
             "magpie_initial_password");
 
+    private ConfigurationService configurationService;
+    private AccountService accountService;
     private Cache<String, String> cache;
+    private ServletContext servletContext;
+    private boolean isDevMode;
+    private Set<BackendID> availableProviders;
 
     public MTStartup() {
     }
@@ -69,8 +76,16 @@ public class MTStartup {
             @DevMode boolean isDevMode,
             @BackEndProviders
             Set<BackendID> availableProviders) {
+        this.configurationService = configurationService;
+        this.accountService = accountService;
         this.cache = replCache;
+        this.servletContext = servletContext;
+        this.isDevMode = isDevMode;
+        this.availableProviders = availableProviders;
+    }
 
+    @PostConstruct
+    private void postConstruct() {
         log.info("==========================================");
         log.info("==========================================");
         log.info("== " + APPLICATION_NAME + " ==");
@@ -89,6 +104,10 @@ public class MTStartup {
 
         log.info("Default backend provider: {}",
                 configurationService.getDefaultTranslationProvider(isDevMode));
+    }
+
+    public void init(@Observes @Initialized ServletContext context) {
+        // ensure this bean runs at startup
     }
 
     private void readManifestInfo(ServletContext context) {
