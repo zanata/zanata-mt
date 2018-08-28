@@ -65,7 +65,8 @@ public class MTStartup {
     private boolean isDevMode;
     private Set<BackendID> availableProviders;
 
-    public MTStartup() {
+    @SuppressWarnings("unused")
+    MTStartup() {
     }
 
     @Inject

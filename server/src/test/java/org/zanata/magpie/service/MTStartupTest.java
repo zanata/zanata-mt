@@ -43,10 +43,17 @@ public class MTStartupTest {
     }
 
     @Test
+    public void sillyConstructorTest() {
+        @SuppressWarnings("unused")
+        MTStartup ignored = new MTStartup();
+    }
+
+    @Test
     public void willCreateInitialPasswordIfNoAccountExists() throws IOException {
         mtStartup = new MTStartup(config, accountService, replCache,
                 context, false, Sets.newHashSet(BackendID.values()));
         mtStartup.postConstruct();
+        mtStartup.init(context);
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNotBlank();
     }

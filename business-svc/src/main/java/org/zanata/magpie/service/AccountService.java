@@ -55,7 +55,7 @@ public class AccountService implements Serializable {
     }
 
     @SuppressWarnings("unused")
-    public AccountService() {
+    AccountService() {
     }
 
     @Transactional

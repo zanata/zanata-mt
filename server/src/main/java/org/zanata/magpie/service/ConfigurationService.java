@@ -70,7 +70,7 @@ public class ConfigurationService {
     private BackendID defaultTranslationProvider;
 
     @SuppressWarnings("unused")
-    public ConfigurationService() {
+    ConfigurationService() {
     }
 
     @Inject
