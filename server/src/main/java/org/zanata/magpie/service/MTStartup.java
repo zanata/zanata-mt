@@ -19,8 +19,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
-import org.apache.deltaspike.core.api.lifecycle.Initialized;
-import org.apache.deltaspike.jpa.api.transaction.Transactional;
+import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.infinispan.Cache;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -31,7 +30,6 @@ import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.event.AccountCreated;
-import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
@@ -57,9 +55,6 @@ public class MTStartup {
     private static final Path INITIAL_PASSWORD_FILE = Paths.get(System.getProperty("user.home"),
             "magpie_initial_password");
 
-    private ConfigurationService configurationService;
-    private AccountService accountService;
-
     private Cache<String, String> cache;
 
     public MTStartup() {
@@ -69,22 +64,17 @@ public class MTStartup {
     public MTStartup(ConfigurationService configurationService,
             AccountService accountService,
             @ClusteredCache(REPLICATE_CACHE)
-            Cache<String, String> replCache) {
-        this.configurationService = configurationService;
-        this.accountService = accountService;
-        cache = replCache;
-    }
+            Cache<String, String> replCache,
+            @DeltaSpike ServletContext servletContext,
+            @DevMode boolean isDevMode,
+            @BackEndProviders
+            Set<BackendID> availableProviders) {
+        this.cache = replCache;
 
-    @Transactional
-    public void onStartUp(
-        @Observes @Initialized ServletContext context,
-            @DevMode boolean isDevMode, @BackEndProviders
-            Set<BackendID> availableProviders)
-        throws MTException {
         log.info("==========================================");
         log.info("==========================================");
         log.info("== " + APPLICATION_NAME + " ==");
-        readManifestInfo(context);
+        readManifestInfo(servletContext);
         log.info("==========================================");
         log.info("==========================================");
 
@@ -95,7 +85,7 @@ public class MTStartup {
         }
         log.info("Available backend providers: {}", availableProviders);
 
-        showInitialAdminCredentialIfNoAccountExists();
+        showInitialAdminCredentialIfNoAccountExists(accountService);
 
         log.info("Default backend provider: {}",
                 configurationService.getDefaultTranslationProvider(isDevMode));
@@ -123,7 +113,8 @@ public class MTStartup {
         }
     }
 
-    private void showInitialAdminCredentialIfNoAccountExists() {
+    private void showInitialAdminCredentialIfNoAccountExists(
+            AccountService accountService) {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
 

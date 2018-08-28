@@ -40,12 +40,12 @@ public class MTStartupTest {
         MockitoAnnotations.initMocks(this);
         File googleADC = temporaryFolder.newFile();
         config = new ConfigurationService("azureKey", googleADC.getAbsolutePath(), "{}", "ms", null);
-        mtStartup = new MTStartup(config, accountService, replCache);
     }
 
     @Test
     public void willCreateInitialPasswordIfNoAccountExists() throws IOException {
-        mtStartup.onStartUp(context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup = new MTStartup(config, accountService, replCache,
+                context, false, Sets.newHashSet(BackendID.values()));
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNotBlank();
     }
@@ -55,14 +55,16 @@ public class MTStartupTest {
         when(accountService.getAllAccounts(true)).thenReturn(
                 ImmutableList.of(new AccountDto()));
 
-        mtStartup.onStartUp(context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup = new MTStartup(config, accountService, replCache,
+                context, false, Sets.newHashSet(BackendID.values()));
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNull();
     }
 
     @Test
     public void willClearInitialPasswordIfAdminAccountIsCreated() {
-        mtStartup.onStartUp(context, false, Sets.newHashSet(BackendID.values()));
+        mtStartup = new MTStartup(config, accountService, replCache,
+                context, false, Sets.newHashSet(BackendID.values()));
 
         Assertions.assertThat(mtStartup.getInitialPasswords()).isNotBlank();
 
