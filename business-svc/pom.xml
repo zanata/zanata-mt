@@ -61,12 +61,6 @@
     </dependency>
 
     <dependency>
-      <!-- this is only needed for the exception -->
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
