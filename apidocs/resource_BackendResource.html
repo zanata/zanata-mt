@@ -51,6 +51,7 @@
         <ul class="nav nav-sidebar">
           <li><a href="#resource_BackendResource_getAvailableBackends_GET">GET /backend</a></li>
           <li><a href="#resource_BackendResource_getAttribution_GET">GET /backend/attribution</a></li>
+          <li><a href="#resource_BackendResource_getStringAttribution_GET">GET /backend/attribution</a></li>
           <li class="divider"></li>
           <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
         </ul>
@@ -261,6 +262,112 @@ X-Auth-User: ...
               <pre>
 HTTP/1.1 200 OK
 Content-Type: application/json
+
+                <code class="prettyprint language-txt">
+...
+                </code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="resource_BackendResource_getStringAttribution_GET">
+        <h3><span class="label label-default resource-method">GET</span> <span class="resource-path">/backend/attribution <a href="../backend/attribution" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
+
+        <p>Retrieve backend attribution (string) based on given id</p>
+
+        <table class="table resource-parameters">
+          <caption>Request Parameters</caption>
+          <thead>
+          <tr>
+            <th>name</th>
+            <th>type</th>
+            <th>description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><span class="parameter-name">X-Auth-Token</span></td>
+            <td>header</td>
+            <td><span class="parameter-description">The authentication token.</span></td>
+          </tr>
+          <tr>
+            <td><span class="parameter-name">X-Auth-User</span></td>
+            <td>header</td>
+            <td><span class="parameter-description">The authentication user.</span></td>
+          </tr>
+          <tr>
+            <td><span class="parameter-name">id</span></td>
+            <td>query</td>
+            <td><span class="parameter-description">ID for machine translations backend</span></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-response-codes">
+          <caption>Response Codes</caption>
+          <thead>
+          <tr>
+            <th>code</th>
+            <th>condition</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><span class="label label-success response-code">200</span></td>
+            <td><span class="response-condition">Attribution found for given id.</span></td>
+          </tr>
+          <tr>
+            <td><span class="label label-warning response-code">400</span></td>
+            <td><span class="response-condition">id parameter is missing.</span></td>
+          </tr>
+          <tr>
+            <td><span class="label label-warning response-code">404</span></td>
+            <td><span class="response-condition">id not recognised.</span></td>
+          </tr>
+          <tr>
+            <td><span class="label label-danger response-code">500</span></td>
+            <td><span class="response-condition">Unexpected error.</span></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-response-body">
+          <caption>Response Body</caption>
+          <thead>
+          <tr>
+            <th>media type</th>
+            <th>data type</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: text/plain&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">text/plain</span></abbr></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
+          </tr>
+          </tbody>
+        </table>
+        <h4>Example</h4>
+
+        <div class="container-fluid example panel">
+          <div class="row panel-body">
+            <div class="col-md-6">
+              <h5>Request</h5>
+              <pre>
+GET /backend/attribution
+Accept: text/plain
+X-Auth-Token: ...
+X-Auth-User: ...
+
+              </pre>
+            </div>
+            <div class="col-md-6">
+              <h5>Response</h5>
+              <pre>
+HTTP/1.1 200 OK
+Content-Type: text/plain
 
                 <code class="prettyprint language-txt">
 ...

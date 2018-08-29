@@ -51,6 +51,7 @@
         <ul class="nav nav-sidebar">
           <li><a href="#resource_DocumentResource_getStatistics_GET">GET /document/statistics</a></li>
           <li><a href="#resource_DocumentResource_translate_POST">POST /document/translate</a></li>
+          <li><a href="#resource_DocumentResource_translateFile_POST">POST /document/translate/file</a></li>
           <li class="divider"></li>
           <li class="text-right"><a href="#top"><small>Back to Top</small></a></li>
         </ul>
@@ -311,6 +312,139 @@ locales may have extra aliases (eg 'de-de' for 'de').</p>
               <pre>
 POST /document/translate
 Content-Type: application/json
+Accept: application/json
+X-Auth-Token: ...
+X-Auth-User: ...
+
+                <code class="prettyprint language-txt">
+...
+                </code>
+              </pre>
+            </div>
+            <div class="col-md-6">
+              <h5>Response</h5>
+              <pre>
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+                <code class="prettyprint language-txt">
+...
+                </code>
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="resource_DocumentResource_translateFile_POST">
+        <h3><span class="label label-default resource-method">POST</span> <span class="resource-path">/document/translate/file <a href="../document/translate/file" class="glyphicon glyphicon-new-window" target="_blank"></a></span></h3>
+
+        <p></p>
+
+        <table class="table resource-parameters">
+          <caption>Request Parameters</caption>
+          <thead>
+          <tr>
+            <th>name</th>
+            <th>type</th>
+            <th>description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><span class="parameter-name">X-Auth-Token</span></td>
+            <td>header</td>
+            <td><span class="parameter-description">The authentication token.</span></td>
+          </tr>
+          <tr>
+            <td><span class="parameter-name">X-Auth-User</span></td>
+            <td>header</td>
+            <td><span class="parameter-description">The authentication user.</span></td>
+          </tr>
+          <tr>
+            <td><span class="parameter-name">fromLocaleCode</span></td>
+            <td>query</td>
+            <td><span class="parameter-description"></span></td>
+          </tr>
+          <tr>
+            <td><span class="parameter-name">toLocaleCode</span></td>
+            <td>query</td>
+            <td><span class="parameter-description"></span></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-request-body">
+          <caption>Request Body</caption>
+          <thead>
+          <tr>
+            <th>media type</th>
+            <th>data type</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Content-Type: multipart/form-data&quot; HTTP header to specify this media type to the server."><span class="request-type">multipart/form-data</span></abbr></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-response-codes">
+          <caption>Response Codes</caption>
+          <thead>
+          <tr>
+            <th>code</th>
+            <th>condition</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><span class="label label-success response-code">200</span></td>
+            <td><span class="response-condition">File is translated with given locale</span></td>
+          </tr>
+          <tr>
+            <td><span class="label label-warning response-code">400</span></td>
+            <td><span class="response-condition">Missing toLocaleCode, fromLocaleCode, file name</span></td>
+          </tr>
+          <tr>
+            <td><span class="label label-danger response-code">500</span></td>
+            <td><span class="response-condition">Unexpected error during translation</span></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table resource-response-body">
+          <caption>Response Body</caption>
+          <thead>
+          <tr>
+            <th>media type</th>
+            <th>data type</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/json&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/json</span></abbr></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
+          </tr>
+          <tr>
+            <td><abbr data-toggle="tooltip" data-placement="top" title="Use the &quot;Accept: application/octet-stream&quot; HTTP header to request that this media type be provided by the server."><span class="response-type">application/octet-stream</span></abbr></td>
+            <td><span class="datatype-reference">(custom)
+</span></td>
+          </tr>
+          </tbody>
+        </table>
+        <h4>Example</h4>
+
+        <div class="container-fluid example panel">
+          <div class="row panel-body">
+            <div class="col-md-6">
+              <h5>Request</h5>
+              <pre>
+POST /document/translate/file
+Content-Type: multipart/form-data
 Accept: application/json
 X-Auth-Token: ...
 X-Auth-User: ...
