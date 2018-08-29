@@ -25,12 +25,15 @@ import javax.ws.rs.core.StreamingOutput;
 })
 @ResourceLabel("Backend")
 public interface BackendResource {
-    String MS_ATTRIBUTION_IMAGE =
-            "/images/MS_attribution.png";
-    String GOOGLE_ATTRIBUTION_IMAGE =
-                    "/images/google_attribution.png";
-    String DEV_ATTRIBUTION_IMAGE =
-                            "/images/logo-256.png";
+    String MS_ATTRIBUTION_IMAGE = "/images/MS_attribution.png";
+    String GOOGLE_ATTRIBUTION_IMAGE = "/images/google_attribution.png";
+    String DEV_ATTRIBUTION_IMAGE = "/images/logo-256.png";
+
+    String MS_ATTRIBUTION_STRING = "Translated by Microsoft";
+    String GOOGLE_ATTRIBUTION_STRING = "Translated by Google";
+    String DEV_ATTRIBUTION_STRING = "Pseudo-translated by MT (DEV)";
+
+    String ATTRIBUTION_KEY = "X-MAGPIE-MT-Attribution";
 
     /**
      * Retrieve backend attribution (image) based on given id
@@ -49,6 +52,24 @@ public interface BackendResource {
             @ResponseCode(code = 500, condition = "Unexpected error.")
     })
     Response getAttribution(@QueryParam("id") String id);
+
+    /**
+     * Retrieve backend attribution (string) based on given id
+     *
+     * @param id
+     *      ID for machine translations backend
+     */
+    @GET
+    @Path("/attribution")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("text/plain")
+    @StatusCodes({
+        @ResponseCode(code = 200, condition = "Attribution found for given id.", type = @TypeHint(StreamingOutput.class)),
+        @ResponseCode(code = 400, condition = "id parameter is missing.", type = @TypeHint(APIResponse.class)),
+        @ResponseCode(code = 404, condition = "id not recognised.", type = @TypeHint(APIResponse.class)),
+        @ResponseCode(code = 500, condition = "Unexpected error.")
+    })
+    Response getStringAttribution(@QueryParam("id") String id);
 
 
     /**

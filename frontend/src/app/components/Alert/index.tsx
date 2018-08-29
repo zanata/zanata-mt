@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { MSG_TYPE } from '../../constants/actions'
+import {MSG_TYPE} from '../../constants/actions'
 import {ErrorData} from '../../types/models'
-import { Alert as AntdAlert } from 'antd'
+import {Alert as AntdAlert} from 'antd'
 
 export interface Props {
   data: ErrorData,
@@ -9,8 +9,8 @@ export interface Props {
 }
 
 export const Alert: React.StatelessComponent<Props> = ({
-  dismissible, data
-}) => {
+                                                         dismissible, data
+                                                       }) => {
   function getAlertType(dismissible: boolean, data: ErrorData) {
     if (data.type === MSG_TYPE.ERROR) {
       return 'error'
@@ -22,18 +22,20 @@ export const Alert: React.StatelessComponent<Props> = ({
   }
 
   const alertType = getAlertType(dismissible, data)
-
-  const message = data.summary ? <h3>{data.timestamp} {data.summary}</h3> : <h3>{data.timestamp}</h3>
-  const description = (
-      <div>
-        <h4>{data.message}</h4>
-        <pre><code>{data.stack}</code></pre>
-      </div>
+  const timestamp = <span>{data.timestamp}</span>
+  const message = <div>{timestamp} {data.summary}</div>
+  const description = (data.message || data.stack) && (
+    <p>
+      {data.message && <span>{data.message}</span>}
+      {data.stack && <pre><code>{data.stack}</code></pre>}
+    </p>
   )
   return (
-      <AntdAlert type={alertType}
-          message={message}
-          description={description}
-          closable={dismissible} />
+    <AntdAlert type={alertType}
+      style={{marginBottom: '0.25em'}}
+      showIcon={true}
+      message={message}
+      description={description}
+      closable={dismissible}/>
   )
 }

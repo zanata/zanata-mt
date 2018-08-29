@@ -27,8 +27,8 @@ public class Document extends ModelEntity {
 
     private static final long serialVersionUID = -3394088546058798299L;
 
-    @URL
     @NotNull
+    @URL
     private String url;
 
     @NotNull
