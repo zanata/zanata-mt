@@ -21,6 +21,8 @@ class MagpieFunctionalTest(unittest.TestCase):
     magpie_key = os.environ['MAGPIEKEY']
     headers = {'X-Auth-User': magpie_user, 'X-Auth-Token': magpie_key,
                'Content-Type': 'application/json'}
+    headers_plain = {'X-Auth-User': magpie_user, 'X-Auth-Token': magpie_key,
+                'Content-Type': 'application/json', 'Accept': 'text/plain'}
     size = 400, 200
     url = os.environ['MAGPIEURL']
 
@@ -42,6 +44,16 @@ class MagpieFunctionalTest(unittest.TestCase):
         img = Image.open(BytesIO(req.content))
         img = img.resize(size=self.size)
         img.show(title="ZAN-6271")
+
+    def test_zan6271_2(self):
+        description = "The user can request an attribution text of a " \
+                      "specified MT provider"
+        endpoint = "backend/attribution?id=ms"
+        self.describe(description, endpoint, "200 response and image")
+        req = requests.get(self.url+endpoint, headers=self.headers_plain)
+        req.close()
+        assert req.status_code == 200
+        assert req.text == 'Translated by Microsoft'
 
     def test_zan6276(self):
         description = "Magpie will respond with 400 'id required' if the id " \
@@ -143,7 +155,7 @@ class MagpieFunctionalTest(unittest.TestCase):
         req.close()
         assert req.status_code == 400
         print("Actual: " + str(req.content))
-        assert json.loads(req.content).get('title') == "Empty content:null"
+        assert json.loads(req.content).get('title') == "Empty content: null"
 
     def test_zan_6295(self):
         description = "Magpie will respond with 400 'invalid query param' if " \
@@ -170,7 +182,7 @@ class MagpieFunctionalTest(unittest.TestCase):
         req.close()
         assert req.status_code == 400
         print("Actual: " + str(req.content))
-        assert json.loads(req.content).get('title') == "Invalid url:null"
+        assert json.loads(req.content).get('title') == "Invalid url: null"
 
     def test_zan_6293(self):
         description = "Magpie will respond with 400 'Empty localeCode' if " \
@@ -183,26 +195,26 @@ class MagpieFunctionalTest(unittest.TestCase):
         req.close()
         assert req.status_code == 400
         print("Actual: " + str(req.content))
-        assert json.loads(req.content).get('title') == "Empty localeCode"
+        assert json.loads(req.content).get('title') == "Blank localeCode"
 
     def test_zan_6288(self):
-        description = "Magpie will respond with 400 'Empty content' if there " \
-                      "is a missing type/value attribute in the array"
+        description = "Magpie will respond with 200 and not break if there " \
+                      "is a missing value content in the request"
         endpoint = "document/translate?toLocaleCode=es"
-        expected = "400 response and an empty content error"
+        expected = "200 response and an the same content returned"
         self.describe(description, endpoint, expected)
-        payload = {'url': 'http://www.example.com', 'contents': [{'type': 'text/plain', 'metadata': 'test'}], 'localeCode': 'en-us', 'backendId': 'ms'}
+        payload = {'url': 'http://www.example.com', 'contents': [{'type': 'text/plain', 'value': '', 'metadata': 'test'}], 'localeCode': 'en-us', 'backendId': 'ms'}
         req = requests.post(self.url+endpoint, headers=self.headers, data=json.dumps(payload))
         req.close()
-        assert req.status_code == 400
+        assert req.status_code == 200
         print("Actual: " + str(req.content))
-        assert str(json.loads(req.content).get('title')).startswith("Empty content:")
+        assert str(json.loads(req.content).get('contents')[0].get('value')) == ""
 
     def test_zan_6287(self):
         description = "Magpie will use a default backend if backend is " \
                       "not specified"
         endpoint = "document/translate?toLocaleCode=es"
-        expected = "200 response and a default backendId (Google)"
+        expected = "200 response and a default backendId (MS)"
         self.describe(description, endpoint, expected)
         payload = {'url': 'http://www.example.com', 'contents': [{'value': 'Horizon', 'type': 'text/plain', 'metadata': 'test'}], 'localeCode': 'en-us'}
         req = requests.post(self.url+endpoint, headers=self.headers, data=json.dumps(payload))
@@ -211,7 +223,7 @@ class MagpieFunctionalTest(unittest.TestCase):
         print("Actual: " + str(req.content))
         assert json.loads(req.content).get('contents')[0].get('value') == \
                "Horizonte"
-        assert json.loads(req.content).get('backendId') == "GOOGLE"
+        assert json.loads(req.content).get('backendId') == "MS"
 
     def test_zan_6286(self):
         alt_headers = {'X-Auth-Token': 'test',
