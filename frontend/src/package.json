@@ -8,7 +8,7 @@
     "js": "yarn run check && webpack",
     "test": "echo \"Error: no test specified\"",
     "watch": "webpack-dev-server --mode development --debug --devtool cheap-module-source-map --output-pathinfo --history-api-fallback --hot --inline --progress --colors --port 3000",
-    "build": "yarn run check && webpack --mode production --progress --colors "
+    "build": "yarn run check && webpack --mode production --progress --colors ",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
