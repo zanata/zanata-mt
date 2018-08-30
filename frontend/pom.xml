@@ -17,7 +17,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <node.version>v8.9.0</node.version>
+    <node.version>v8.11.0</node.version>
     <yarn.version>v1.7.0</yarn.version>
     <!-- The location to download the correct version of Node and Yarn.
         ${download.dir} comes from parent pom.xml -->
@@ -52,7 +52,6 @@
             <phase>initialize</phase>
             <goals>
               <goal>install-node-and-yarn</goal>
-              <goal>install-node-and-npm</goal>
             </goals>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
@@ -69,7 +68,6 @@
             </goals>
             <configuration>
               <workingDirectory>${build.directory}</workingDirectory>
-              <arguments>install</arguments>
             </configuration>
           </execution>
 

@@ -43,7 +43,7 @@ public class TypeString implements Serializable {
     }
 
     /**
-     * 'text/plain' or 'text/html'
+     * 'text/plain', 'text/html' or 'text/xml'
      */
     @JsonProperty("type")
     @NotNull

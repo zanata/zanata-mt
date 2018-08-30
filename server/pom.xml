@@ -21,7 +21,6 @@
     <postgresql.password>root</postgresql.password>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <GOOGLE_APPLICATION_CREDENTIALS>${project.build.testOutputDirectory}/mt-credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
-    <kotlin.version>1.1.51</kotlin.version>
     <jboss.http.port>8080</jboss.http.port>
     <jboss.debug.port>8787</jboss.debug.port>
     <DEFAULT_TRANSLATION_PROVIDER>DEV</DEFAULT_TRANSLATION_PROVIDER>
@@ -69,6 +68,97 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-maven-plugin.version}</version>
+        <configuration>
+          <logDate>default</logDate>
+          <autoPull>true</autoPull>
+          <verbose>true</verbose>
+          <images>
+            <!-- Postgres image is used 'as-is' and is linked into the service image -->
+            <image>
+              <alias>MTDB</alias>
+              <name>postgres:9.5</name>
+              <run>
+                <env>
+                  <POSTGRES_DB>${db.name}</POSTGRES_DB>
+                  <POSTGRES_USER>${postgresql.user}</POSTGRES_USER>
+                  <POSTGRES_PASSWORD>${postgresql.password}</POSTGRES_PASSWORD>
+                </env>
+                <ports>
+                  <port>${postgresql.port}:${postgresql.port}</port>
+                </ports>
+                <wait>
+                  <tcp>
+                    <ports>
+                      <port>5432</port>
+                    </ports>
+                  </tcp>
+                  <time>60000</time>
+                </wait>
+                <log>
+                  <date>default</date>
+                  <prefix>DB</prefix>
+                  <color>yellow</color>
+                </log>
+                <namingStrategy>alias</namingStrategy>
+              </run>
+            </image>
+            <image>
+              <name>zanata/mt:latest</name>
+              <alias>MT</alias>
+              <build>
+                <dockerFileDir>${project.basedir}</dockerFileDir>
+              </build>
+              <run>
+                <env>
+                  <DB_SERVICE_PREFIX_MAPPING>datasource-POSTGRESQL=DB</DB_SERVICE_PREFIX_MAPPING>
+                  <DATASOURCE_POSTGRESQL_SERVICE_PORT>${postgresql.port}</DATASOURCE_POSTGRESQL_SERVICE_PORT>
+                  <DATASOURCE_POSTGRESQL_SERVICE_HOST>MTDB</DATASOURCE_POSTGRESQL_SERVICE_HOST>
+                  <DB_JNDI>java:jboss/datasources/zanataMT</DB_JNDI>
+                  <DB_USERNAME>${postgresql.user}</DB_USERNAME>
+                  <DB_PASSWORD>${postgresql.password}</DB_PASSWORD>
+                  <DB_DATABASE>${db.name}</DB_DATABASE>
+
+                  <MT_AZURE_KEY>${MT_AZURE_KEY}</MT_AZURE_KEY>
+                  <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
+                  <!-- this need to match the volume binding below -->
+                  <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
+                  <DEFAULT_TRANSLATION_PROVIDER>${DEFAULT_TRANSLATION_PROVIDER}</DEFAULT_TRANSLATION_PROVIDER>
+                  <DEV_BACKEND>${DEV_BACKEND}</DEV_BACKEND>
+                  <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
+                </env>
+                <dependsOn>
+                  <container>MTDB</container>
+                </dependsOn>
+                <ports>
+                  <port>${jboss.http.port}:8080</port>
+                  <port>${jboss.debug.port}:8787</port>
+                </ports>
+                <wait>
+                  <http>
+                    <url>http://localhost:${jboss.http.port}/app/health</url>
+                  </http>
+                  <time>120000</time>
+                </wait>
+                <log>
+                  <date>default</date>
+                  <prefix>WF</prefix>
+                  <color>cyan</color>
+                </log>
+                <links>
+                  <!-- this is to expose DB container's env variables with prefix DB -->
+                  <link>MTDB:db</link>
+                </links>
+                <volumes>
+                  <bind>
+                    ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/jboss/google/mt-credential.json
+                  </bind>
+                </volumes>
+                <namingStrategy>alias</namingStrategy>
+              </run>
+            </image>
+          </images>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -83,99 +173,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <!-- The Docker Maven plugin is used to create docker image with the fat jar -->
-          <groupId>io.fabric8</groupId>
-          <artifactId>docker-maven-plugin</artifactId>
-          <version>${docker-maven-plugin.version}</version>
-          <configuration>
-            <logDate>default</logDate>
-            <autoPull>true</autoPull>
-            <verbose>true</verbose>
-            <images>
-              <!-- Postgres image is used 'as-is' and is linked into the service image -->
-              <image>
-                <alias>MTDB</alias>
-                <name>postgres:9.5</name>
-                <run>
-                  <env>
-                    <POSTGRES_DB>${db.name}</POSTGRES_DB>
-                    <POSTGRES_USER>${postgresql.user}</POSTGRES_USER>
-                    <POSTGRES_PASSWORD>${postgresql.password}</POSTGRES_PASSWORD>
-                  </env>
-                  <ports>
-                    <port>${postgresql.port}:${postgresql.port}</port>
-                  </ports>
-                  <log>
-                    <date>default</date>
-                    <prefix>DB</prefix>
-                    <color>yellow</color>
-                  </log>
-                  <namingStrategy>alias</namingStrategy>
-                </run>
-              </image>
-              <image>
-                <name>zanata/mt:latest</name>
-                <alias>MT</alias>
-                <build>
-                  <dockerFileDir>${project.basedir}</dockerFileDir>
-                </build>
-                <run>
-                  <env>
-                    <DB_SERVICE_PREFIX_MAPPING>datasource-POSTGRESQL=DB</DB_SERVICE_PREFIX_MAPPING>
-                    <DATASOURCE_POSTGRESQL_SERVICE_PORT>${postgresql.port}</DATASOURCE_POSTGRESQL_SERVICE_PORT>
-                    <DATASOURCE_POSTGRESQL_SERVICE_HOST>MTDB</DATASOURCE_POSTGRESQL_SERVICE_HOST>
-                    <DB_JNDI>java:jboss/datasources/zanataMT</DB_JNDI>
-                    <DB_USERNAME>${postgresql.user}</DB_USERNAME>
-                    <DB_PASSWORD>${postgresql.password}</DB_PASSWORD>
-                    <DB_DATABASE>${db.name}</DB_DATABASE>
-
-                    <MT_AZURE_KEY>${MT_AZURE_KEY}</MT_AZURE_KEY>
-                    <MT_GOOGLE_CREDENTIAL_CONTENT>${MT_GOOGLE_CREDENTIAL_CONTENT}</MT_GOOGLE_CREDENTIAL_CONTENT>
-                    <!-- this need to match the volume binding below -->
-                    <GOOGLE_APPLICATION_CREDENTIALS>/opt/jboss/google/mt-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
-                    <DEFAULT_TRANSLATION_PROVIDER>${DEFAULT_TRANSLATION_PROVIDER}</DEFAULT_TRANSLATION_PROVIDER>
-                    <DEV_BACKEND>${DEV_BACKEND}</DEV_BACKEND>
-                    <MT_ORIGIN_WHITELIST>http://localhost:3000</MT_ORIGIN_WHITELIST>
-                  </env>
-                  <dependsOn>
-                    <container>MTDB</container>
-                  </dependsOn>
-                  <ports>
-                    <port>${jboss.http.port}:8080</port>
-                    <port>${jboss.debug.port}:8787</port>
-                  </ports>
-                  <wait>
-                    <http>
-                      <url>http://localhost:${jboss.http.port}/app/health</url>
-                    </http>
-                    <time>120000</time>
-                  </wait>
-                  <log>
-                    <date>default</date>
-                    <prefix>WF</prefix>
-                    <color>cyan</color>
-                  </log>
-                  <links>
-                    <!-- this is to expose DB container's env variables with prefix DB -->
-                    <link>MTDB:db</link>
-                  </links>
-                  <volumes>
-                    <bind>
-                      ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/jboss/google/mt-credential.json
-                    </bind>
-                  </volumes>
-                  <namingStrategy>alias</namingStrategy>
-                </run>
-              </image>
-            </images>
-          </configuration>
-
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 
   <profiles>
@@ -274,6 +271,11 @@
       <groupId>org.zanata.magpie</groupId>
       <artifactId>business-svc</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fedorahosted.tennera</groupId>
+      <artifactId>jgettext</artifactId>
     </dependency>
 
     <dependency>
@@ -388,6 +390,11 @@
       <artifactId>deltaspike-security-module-impl</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
     <!-- hibernate -->
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -493,13 +500,11 @@
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-jre8</artifactId>
-      <version>${kotlin.version}</version>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test-junit</artifactId>
-      <version>${kotlin.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -6,6 +6,8 @@ import {RootState} from '../../reducers'
 import {isEmpty} from 'lodash'
 import {ErrorData} from "../../types/models"
 import { Modal, Button, Form, Icon, Input} from 'antd'
+import {FormComponentProps} from 'antd/lib/form'
+import {KeyboardEvent} from 'react'
 const FormItem = Form.Item;
 
 export interface Props {
@@ -18,36 +20,40 @@ export interface Props {
 
 export interface State {
   username: string,
-  password: string,
-  validated: boolean
+  password: string
 }
 
-@connect(mapStateToProps, mapDispatchToProps)
-export class LoginForm extends React.Component<Props, State> {
-  constructor(props?: Props, context?: any) {
-    super(props, context);
+class LoginForm extends React.Component<Props & FormComponentProps, State> {
+  constructor(props?: Props & FormComponentProps) {
+    super(props);
     this.state = {
       username: '',
-      password: '',
-      validated: false
+      password: ''
     }
     this.handleChangeUsername = this.handleChangeUsername.bind(this)
     this.handleChangePassword = this.handleChangePassword.bind(this)
     this.login = this.login.bind(this)
     this.cancel = this.cancel.bind(this)
+    this.handleKeyPress = this.handleKeyPress.bind(this)
   }
 
   private handleChangeUsername(e: React.FormEvent<HTMLInputElement>) {
+    const value = e.currentTarget.value
+    this.props.form.setFieldsValue({
+      username: value
+    })
     this.setState({
-      username: e.currentTarget.value,
-      validated: !isEmpty(e.currentTarget.value) && !isEmpty(this.state.password)
+      username: value
     })
   }
 
   private handleChangePassword(e: React.FormEvent<HTMLInputElement>) {
+    const value = e.currentTarget.value
+    this.props.form.setFieldsValue({
+      password: value
+    })
     this.setState({
-      password: e.currentTarget.value,
-      validated: !isEmpty(e.currentTarget.value) && !isEmpty(this.state.username)
+      password: value
     })
   }
 
@@ -59,25 +65,35 @@ export class LoginForm extends React.Component<Props, State> {
     this.props.handleLogin(this.state.username, this.state.password)
   }
 
+  private handleKeyPress(event: KeyboardEvent) {
+    if(event.key == 'Enter'){
+      if (!isEmpty(this.state.username) && !isEmpty(this.state.password)) {
+        this.login()
+      }
+    }
+  }
+
   private cancel() {
     this.setState({
       username: '',
-      password: '',
-      validated: false
+      password: ''
     })
-    this.props.onClose() && this.props.onClose()
+    this.props.onClose()
   }
 
   public render() {
-    const { errorData, loading, visible } = this.props
-    const { username, password, validated } = this.state
+    const { errorData, loading, visible, form } = this.props
+    const { getFieldDecorator, isFieldsTouched }  = form
     const alert = errorData && <Alert data={errorData} dismissible={true}/>
+    const { username, password } = this.state
+    const validated = !isEmpty(username) && !isEmpty(password)
 
     const footer = (
         <FormItem>
           <Button type='primary'
             loading={loading}
-            onClick={this.login} disabled={!validated || loading}>
+            onClick={this.login}
+            disabled={!validated || loading || !isFieldsTouched()}>
             Log in
           </Button>
           <Button onClick={this.cancel} type='danger'>
@@ -90,15 +106,21 @@ export class LoginForm extends React.Component<Props, State> {
         closable={false}
         onCancel={this.cancel}
         footer={footer} >
-        <Form className='login-form' onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} onKeyPress={this.handleKeyPress}>
           {alert}
           <FormItem>
-            <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                placeholder="Username" value={username} onChange={this.handleChangeUsername} />
+            {getFieldDecorator('username', {
+              rules: [{ required: true, message: 'Please input your username!' }],
+            })(
+              <Input placeholder='Username' onChange={this.handleChangeUsername} autoFocus />
+            )}
           </FormItem>
           <FormItem>
-            <Input prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                type="password" placeholder="Password" value={password} onChange={this.handleChangePassword} />
+            {getFieldDecorator('password', {
+              rules: [{ required: true, message: 'Please input your Password!' }]
+            })(
+              <Input type="password" placeholder="Password" onChange={this.handleChangePassword} />
+            )}
           </FormItem>
         </Form>
       </Modal>
@@ -116,6 +138,9 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
     handleLogin: (username: string, password: string) =>
-      dispatch(login({auth: {username, password}}))
+      dispatch(login(username, password))
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)
+(Form.create({})(LoginForm) as any)

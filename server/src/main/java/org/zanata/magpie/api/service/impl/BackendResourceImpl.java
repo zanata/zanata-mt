@@ -38,8 +38,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.BackEndProviders;
 import org.zanata.magpie.api.InputStreamStreamingOutput;
 import org.zanata.magpie.api.dto.APIResponse;
@@ -53,8 +51,6 @@ import com.google.common.annotations.VisibleForTesting;
 @RequestScoped
 public class BackendResourceImpl implements BackendResource {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(BackendResourceImpl.class);
     private Set<BackendID> availableProviders;
 
     @SuppressWarnings("unused")
@@ -92,6 +88,31 @@ public class BackendResourceImpl implements BackendResource {
         return Response.ok().header("Content-Disposition",
                 "attachment; filename=\"" + docName + "\"")
                 .entity(output).type("image/png").build();
+    }
+
+    @Override
+    public Response getStringAttribution(String id) {
+        Optional<APIResponse> response = validateId(id);
+        if (response.isPresent()) {
+            return Response.status(response.get().getStatus())
+                .entity(response.get())
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
+        }
+
+        BackendID backendID = BackendID.fromString(id);
+        String attr;
+        switch (backendID) {
+            case MS:
+                attr = MS_ATTRIBUTION_STRING;
+                break;
+            case GOOGLE:
+                attr = GOOGLE_ATTRIBUTION_STRING;
+                break;
+            case DEV: default:
+                attr = DEV_ATTRIBUTION_STRING;
+                break;
+        }
+        return Response.ok(attr).build();
     }
 
     @VisibleForTesting

@@ -193,6 +193,20 @@ public class Account extends ModelEntity {
                 mtRequests);
     }
 
+    @Override
+    public String toString() {
+        return "Account{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", accountType=" + accountType +
+                ", username='" + username + '\'' +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", roles=" + roles +
+                ", enabled=" + enabled +
+                ", mtRequests=" + mtRequests +
+                '}';
+    }
+
     public boolean hasRole(String role) {
         return getRoles().stream().anyMatch(r -> role.equals(r.name()));
     }

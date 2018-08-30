@@ -10,11 +10,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.webcohesion.enunciate.metadata.rs.*;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.dto.APIResponse;
 import org.zanata.magpie.api.dto.DocumentContent;
 import org.zanata.magpie.api.dto.DocumentStatistics;
 import org.zanata.magpie.api.dto.LocaleCode;
+import org.zanata.magpie.api.dto.TranslateDocumentForm;
+
+import java.io.InputStream;
 
 /**
  * API entry point for Document services.
@@ -100,4 +104,18 @@ public interface DocumentResource {
     Response translate(
             @TypeHint(DocumentContent.class) DocumentContent docContent,
             @QueryParam("toLocaleCode") LocaleCode toLocaleCode);
+
+    @POST
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM })
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/translate/file")
+    @StatusCodes({
+        @ResponseCode(code = 200, condition = "File is translated with given locale", type = @TypeHint(InputStream.class)),
+        @ResponseCode(code = 400, condition = "Missing toLocaleCode, fromLocaleCode, file name", type = @TypeHint(APIResponse.class)),
+        @ResponseCode(code = 500, condition = "Unexpected error during translation")
+    })
+    Response translateFile(
+        @MultipartForm TranslateDocumentForm form,
+        @QueryParam("fromLocaleCode") LocaleCode fromLocaleCode,
+        @QueryParam("toLocaleCode") LocaleCode toLocaleCode);
 }

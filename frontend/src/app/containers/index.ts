@@ -1,5 +1,5 @@
 export { default as App } from './App'
 export { Info } from './Info'
-export { LoginForm } from './LoginForm'
 export { NavBar } from './NavBar'
 export { Editor } from './Editor'
+export {  default as TranslateFile } from './Translate/TranslateFile'

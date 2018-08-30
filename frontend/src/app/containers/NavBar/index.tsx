@@ -3,12 +3,12 @@ import {connect, GenericDispatch} from 'react-redux'
 import {RootState} from "../../reducers/index"
 import { Link } from 'react-router-dom'
 import { findIndex } from 'lodash'
-import {LoginForm} from "../../containers/LoginForm/index"
+import LoginForm from "../../containers/LoginForm"
 import {Action} from "redux-actions"
 import { login, logout, toggleLoginFormDisplay } from '../../actions/common'
-import { isLoggedIn } from '../../config'
+import history from '../../history'
 
-import { Layout, Menu, Icon, Button } from 'antd'
+import { Layout, Menu, Icon } from 'antd'
 const { Sider } = Layout
 
 interface Props {
@@ -39,6 +39,7 @@ export class NavBar extends React.Component<Props, State> {
     this.toggleNav = this.toggleNav.bind(this)
     this.showLoginForm = this.showLoginForm.bind(this)
     this.hideLoginForm = this.hideLoginForm.bind(this)
+    this.logout = this.logout.bind(this)
   }
 
   private toggleNav(collapsed: boolean) {
@@ -60,9 +61,13 @@ export class NavBar extends React.Component<Props, State> {
     }).toString()
   }
 
+  private logout() {
+    this.props.handleLogout()
+    history.push('/')
+  }
+
   public render() {
-    const {showLoginForm, handleLogin, handleLogout, isLoggedIn} = this.props
-    const disableLogin = true
+    const {showLoginForm, handleLogin, isLoggedIn} = this.props
       const username = 'username'
     return (
       <Sider collapsible={true}
@@ -83,7 +88,11 @@ export class NavBar extends React.Component<Props, State> {
                     </Link>
                 </Menu.Item>
             })}
-
+            { isLoggedIn && <Menu.Item><Link to={'/app/translate'}>
+              <Icon type='file-text' />
+              <span>{'Translate'}</span>
+            </Link></Menu.Item>
+            }
             <Menu.Item>
               <a target='_blank'
                  href='https://github.com/zanata/zanata-mt'>
@@ -98,18 +107,17 @@ export class NavBar extends React.Component<Props, State> {
                 <span>Docs</span>
               </a>
             </Menu.Item>
-            {
-              disableLogin ? undefined :
-                  <Menu.Item>
-                    { isLoggedIn
-                      ? <Button type='danger' onClick={handleLogout} icon='logout'>Log out</Button>
-                      : <Button type='primary' onClick={this.showLoginForm} icon='login'>Log in</Button>
-                    }
-                  </Menu.Item>
-            }
+            <Menu.Item>
+              { isLoggedIn
+                ? <a onClick={this.logout} className='fc-danger'><Icon type='logout'/>Log out</a>
+                : <a onClick={this.showLoginForm}><Icon type='login'/>Log in</a>
+              }
+            </Menu.Item>
         </Menu>
-        <LoginForm visible={showLoginForm}
-          handleLogin={handleLogin} onClose={this.hideLoginForm}/>
+        {!isLoggedIn &&
+          <LoginForm visible={showLoginForm}
+            handleLogin={handleLogin} onClose={this.hideLoginForm}/>
+        }
       </Sider>
     )
   }
@@ -120,7 +128,7 @@ function mapStateToProps(state: RootState) {
   return {
     errorData: state.common.errorData,
     loading: state.common.loading,
-    isLoggedIn: isLoggedIn(),
+    isLoggedIn: state.common.auth && state.common.auth.username,
     showLoginForm: state.common.showLoginForm
   }
 }
@@ -128,7 +136,7 @@ function mapStateToProps(state: RootState) {
 function mapDispatchToProps(dispatch: GenericDispatch) {
   return {
     handleLogin: (username: string, password: string) =>
-      dispatch(login({auth: {username, password}})),
+      dispatch(login(username, password)),
     handleLogout: () => dispatch(logout()),
     handleSetLoginFormDisplay: (display: boolean) =>
       dispatch(toggleLoginFormDisplay({showLoginForm: display}))
