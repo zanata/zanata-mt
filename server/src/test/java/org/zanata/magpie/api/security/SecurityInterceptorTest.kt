@@ -11,14 +11,18 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.zanata.magpie.api.APIConstant
 import org.zanata.magpie.api.AuthenticatedAccount
+import org.zanata.magpie.api.service.impl.AccountResourceImpl
+import org.zanata.magpie.api.service.impl.AccountResourceImpl.AUTH_HEADER
 import org.zanata.magpie.model.Account
 import org.zanata.magpie.service.AccountService
 import java.net.URI
 import java.util.*
 import javax.inject.Provider
 import javax.ws.rs.container.ContainerRequestContext
+import javax.ws.rs.core.Cookie
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.UriInfo
+import kotlin.collections.HashMap
 
 class SecurityInterceptorTest {
     @Mock
@@ -26,6 +30,9 @@ class SecurityInterceptorTest {
 
     @Mock
     private lateinit var accountService: AccountService
+
+    @Mock
+    private lateinit var accountResource: AccountResourceImpl
 
     @Mock private lateinit var uriInfo: UriInfo
 
@@ -48,7 +55,7 @@ class SecurityInterceptorTest {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         authenticatedAccount = AuthenticatedAccount()
-        interceptor = SecurityInterceptor(initialPasswordProvider, accountService, authenticatedAccount)
+        interceptor = SecurityInterceptor(initialPasswordProvider, accountService, authenticatedAccount, accountResource)
 
         given(requestContext.getUriInfo()).willReturn(uriInfo)
         given(uriInfo.getRequestUri()).willReturn(notPublicURI)
@@ -148,5 +155,17 @@ class SecurityInterceptorTest {
         assertThat(authenticatedAccount.hasAuthenticatedAccount()).isTrue()
         assertThat(authenticatedAccount.authenticatedAccount).isPresent
         assertThat(authenticatedAccount.authenticatedAccount.get()).isSameAs(account)
+    }
+
+    @Test
+    fun canAuthenticateUsingCookie() {
+        var cookie = Cookie("auth", "value", "/", "/")
+        var cookies: HashMap<String, Cookie> = hashMapOf(AUTH_HEADER to cookie)
+        given(requestContext.cookies).willReturn(cookies)
+        val response = Response.ok().build()
+        given(accountResource.login("value")).willReturn(response)
+
+        interceptor.filter(requestContext)
+        Mockito.verifyZeroInteractions(accountService)
     }
 }

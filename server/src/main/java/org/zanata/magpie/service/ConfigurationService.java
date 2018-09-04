@@ -94,7 +94,6 @@ public class ConfigurationService {
             properties.load(is);
             buildDate = properties.getProperty("build.date", "Unknown");
             version = properties.getProperty("build.version", "Unknown");
-
         } catch (IOException e) {
             LOG.warn("Cannot load build info");
         }

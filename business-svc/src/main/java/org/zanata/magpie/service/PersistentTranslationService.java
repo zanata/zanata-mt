@@ -20,6 +20,7 @@
  */
 package org.zanata.magpie.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +38,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.AuthenticatedAccount;
@@ -57,11 +57,12 @@ import org.zanata.magpie.model.TextFlowTarget;
 import org.zanata.magpie.util.HashUtil;
 import org.zanata.magpie.util.ShortString;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+
+import static org.apache.commons.lang3.exception.ExceptionUtils.getThrowableList;
 
 /**
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
@@ -84,6 +85,13 @@ public class PersistentTranslationService {
     public PersistentTranslationService() {
     }
 
+    // Note that @Dependent Instances have to be destroyed[1], but only the
+    // @Dependent ones[2], and yet there is no easy way of identifying them
+    // (short of using WeldInstance[3]). So make sure TranslatorBackends are
+    // not @Dependent scoped!
+    // [1] https://blog.akquinet.de/2017/01/04/dont-get-trapped-into-a-memory-leak-using-cdi-instance-injection/
+    // [2] https://developer.jboss.org/thread/252712
+    // [3] http://weld.cdi-spec.org/news/2016/05/18/enhanced-instance/
     @Inject
     public PersistentTranslationService(DocumentDAO documentDAO,
             TextFlowDAO textFlowDAO,
@@ -224,15 +232,17 @@ public class PersistentTranslationService {
                                 toLocale, backendID);
                 createOrUpdateTextFlowTarget(target);
             } catch (Exception e) {
-                List<Throwable> causalChain = Throwables.getCausalChain(e);
+                List<Throwable> causalChain = getThrowableList(e);
                 Optional<Throwable> duplicateKeyEx = causalChain.stream()
-                        .filter(t -> t instanceof PSQLException &&
+                        .filter(t -> t instanceof SQLException &&
+                                t.getMessage() != null &&
                                 t.getMessage().contains(
-                                        "ERROR: duplicate key value violates unique constraint"))
+                                        "duplicate key value violates unique constraint"))
                         .findAny();
                 if (duplicateKeyEx.isPresent()) {
                     LOG.warn("concurrent requests for document {}", document.getUrl());
                     // we ignore the failed update
+                    // TODO prevent duplicates from reaching DB: ZNTAMT-51
                 }
             }
         }

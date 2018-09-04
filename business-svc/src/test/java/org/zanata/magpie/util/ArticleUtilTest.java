@@ -25,7 +25,7 @@ public class ArticleUtilTest {
         int prefix = 1;
         int index = 2;
         assertThat(ArticleUtil.generatePlaceholderId(prefix, index))
-                .contains(String.valueOf(prefix), String.valueOf(index));
+            .contains(String.valueOf(prefix), String.valueOf(index));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ArticleUtilTest {
         String html = "<html><head></head><body>test</body></html>";
         Node node = ArticleUtil.asElementHTML(html);
         assertThat(node).isNotNull().extracting(Node::outerHtml)
-                .containsExactly(html);
+            .containsExactly(html);
     }
 
     @Test
@@ -96,8 +96,8 @@ public class ArticleUtilTest {
         assertThat(unwrappedNodes).isNotEmpty();
 
         String unwrappedHTML =
-                unwrappedNodes.stream().map(Node::outerHtml)
-                        .collect(Collectors.joining());
+            unwrappedNodes.stream().map(Node::outerHtml)
+                .collect(Collectors.joining());
         assertThat(unwrappedHTML).isEqualTo(html);
     }
 
@@ -110,24 +110,24 @@ public class ArticleUtilTest {
         String node6 = "<span>translate this</span>";
         String node7 = "<p>translate this</p>";
         String htmlToProcess = node1NoTranslate + node2 + node4NoTranslate + node5NoTranslate + node6 +
-                node7;
+            node7;
         TranslatableNodeList
-                node = ArticleUtil.replaceNonTranslatableNodeHTML(1, htmlToProcess);
+            node = ArticleUtil.replaceNonTranslatableNodeHTML(1, htmlToProcess);
         assertThat(node.getPlaceholderIdMap().values())
-                .extracting(Node::toString)
-                .containsExactly(node1NoTranslate, node4NoTranslate, node5NoTranslate);
+            .extracting(Node::toString)
+            .containsExactly(node1NoTranslate, node4NoTranslate, node5NoTranslate);
         assertThat(node.getHtml())
-                .contains(node2, node6, node7)
-                .doesNotContain(node1NoTranslate)
-                .doesNotContain(node4NoTranslate)
-                .doesNotContain(node5NoTranslate);
+            .contains(node2, node6, node7)
+            .doesNotContain(node1NoTranslate)
+            .doesNotContain(node4NoTranslate)
+            .doesNotContain(node5NoTranslate);
     }
 
     @Test
     public void replaceNonTranslatableNodeWhenEverythingIsTranslatableXML() {
         String htmlToProcess = "The <literal>@watch</literal> annotation is not working with accumulate in rules. [<link xlink:href=\"https://issues.jboss.org/browse/RHDM-509\">RHDM-509</link>]";
         TranslatableNodeList
-                node = ArticleUtil.replaceNonTranslatableNodeXML(1, htmlToProcess);
+            node = ArticleUtil.replaceNonTranslatableNodeXML(1, htmlToProcess);
         assertThat(node.getPlaceholderIdMap()).isEmpty();
         String actualHtml = node.getHtml();
         assertThat(actualHtml).isEqualTo(htmlToProcess);
@@ -151,7 +151,7 @@ public class ArticleUtilTest {
         html.append("</div>");
 
         String results = ArticleUtil.replacePlaceholderWithNodeHTML(nodeIdMap,
-                html.toString());
+            html.toString());
         for (Node originalNode: nodeIdMap.values()) {
             assertThat(results).contains(originalNode.outerHtml());
         }

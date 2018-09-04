@@ -1,5 +1,11 @@
 package org.zanata.magpie.service;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.zanata.magpie.service.MTStartup.INITIAL_PASSWORD_CACHE;
+
 import java.io.File;
 import java.io.IOException;
 import javax.servlet.ServletContext;
@@ -46,6 +52,11 @@ public class MTStartupTest {
     public void sillyConstructorTest() {
         @SuppressWarnings("unused")
         MTStartup ignored = new MTStartup();
+    }
+
+    @Test
+    public void testEmptyConstructor() {
+        assertThat(new MTStartup()).isNotNull();
     }
 
     @Test

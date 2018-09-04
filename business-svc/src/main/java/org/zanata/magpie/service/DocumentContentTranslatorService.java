@@ -30,8 +30,8 @@ import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 
 import com.google.common.collect.ImmutableList;
-import org.zanata.magpie.util.SegmentString;
 import org.zanata.magpie.util.ShortString;
+import static org.zanata.magpie.util.SegmentStringKt.segmentBySentences;
 
 /**
  *
@@ -95,8 +95,8 @@ public class DocumentContentTranslatorService {
                     indexTextMap.put(index, typeString);
                 } else {
                     StringTranslationResult result =
-                            translateLargeString(doc, backendID,
-                                    StringType.TEXT_PLAIN, source, maxLength);
+                            translatePlainTextBySentences(doc, backendID,
+                                    source, maxLength);
                     typeString.setValue(result.getTranslation());
                     warnings.addAll(result.getWarnings());
                 }
@@ -152,52 +152,65 @@ public class DocumentContentTranslatorService {
     /**
      * Translate strings with batch of maxLength
      */
-    private StringTranslationResult translateLargeString(Document doc, BackendID backendID,
-            StringType stringType, String source, int maxLength) {
+    private StringTranslationResult translatePlainTextBySentences(Document doc,
+            BackendID backendID, String sourceText, int maxBatchLength) {
         List<APIResponse> warnings = new ArrayList<>();
-        List<String> segmentedStrings =
-                SegmentString.segmentString(source,
+        List<String> sourceSentences =
+                segmentBySentences(sourceText,
                         Optional.of(doc.getFromLocale().getLocaleCode()));
-        List<String> results = new ArrayList<>(segmentedStrings);
-
-        List<String> batchedStrings = new ArrayList<>();
-        List<Integer> indexOrderList = new ArrayList<>();
-        List<String> translatedStrings = new ArrayList<>();
-        int charCount = 0;
-        for (int index = 0; index < segmentedStrings.size(); index++) {
-            String string = segmentedStrings.get(index);
-            // ignore string if length is longer the maxLength
-            if (string.length() > maxLength) {
-                warnings.add(maxLengthWarning(string, maxLength));
+        // source sentences which have been collected in a batch
+        List<String> batchSentences = new ArrayList<>();
+        // invariant: should equal total number of chars in batchSentences
+        int charsInBatch = 0;
+        // the indices (within sourceSentences) of sentences short enough to translate
+        List<Integer> translatableSentenceNums = new ArrayList<>();
+        // the translations of the translatable sentences. Same size as translatableSentenceNums?
+        List<String> translatedSentences = new ArrayList<>();
+        for (int sourceSentenceNum = 0; sourceSentenceNum < sourceSentences.size(); sourceSentenceNum++) {
+            String sourceSentence = sourceSentences.get(sourceSentenceNum);
+            // ignore string if length is longer than maxLength
+            if (sourceSentence.length() > maxBatchLength) {
+                warnings.add(maxLengthWarning(sourceSentence, maxBatchLength));
                 continue;
             }
-            if (charCount + string.length() > maxLength) {
-                List<String> translated = persistentTranslationService
-                        .translate(doc, batchedStrings, doc.getFromLocale(),
-                                doc.getToLocale(), backendID, stringType,
-                                Optional.of(CATEGORY));
-                translatedStrings.addAll(translated);
-                assert batchedStrings.size() == translated.size();
-                charCount = 0;
-                batchedStrings.clear();
+            if (charsInBatch + sourceSentence.length() > maxBatchLength) {
+                // Adding this sentence to the batch would take us over the
+                // limit, so process the previous batch now.
+                processBatchSentences(doc, backendID, batchSentences,
+                        translatedSentences);
+                charsInBatch = 0;
             }
-            batchedStrings.add(string);
-            indexOrderList.add(index);
-            charCount += string.length();
+            // add sentence to the batch (which may be brand new)
+            batchSentences.add(sourceSentence);
+            charsInBatch += sourceSentence.length();
+            translatableSentenceNums.add(sourceSentenceNum);
         }
-        if (!batchedStrings.isEmpty()) {
-            List<String> translated = persistentTranslationService
-                    .translate(doc, batchedStrings, doc.getFromLocale(),
-                            doc.getToLocale(), backendID, stringType,
-                            Optional.of(CATEGORY));
-            translatedStrings.addAll(translated);
-            assert batchedStrings.size() == translated.size();
+        if (!batchSentences.isEmpty()) {
+            // translate the leftovers in a last batch
+            processBatchSentences(doc, backendID, batchSentences, translatedSentences);
+            // just maintaining the invariant (for completeness):
+            //noinspection UnusedAssignment
+            charsInBatch = 0;
         }
 
-        for (int index = 0; index < translatedStrings.size(); index++) {
-            results.set(indexOrderList.get(index), translatedStrings.get(index));
+        List<String> results = new ArrayList<>(sourceSentences);
+        for (int index = 0; index < translatedSentences.size(); index++) {
+            results.set(translatableSentenceNums.get(index), translatedSentences.get(index));
         }
         return new StringTranslationResult(String.join("", results), warnings);
+    }
+
+    private void processBatchSentences(Document doc, BackendID backendID,
+            List<String> batchSentences, List<String> translatedSentences) {
+        List<String> batchTranslatedSentences = persistentTranslationService
+                .translate(doc, batchSentences, doc.getFromLocale(),
+                        doc.getToLocale(), backendID,
+                        StringType.TEXT_PLAIN, Optional.of(CATEGORY));
+        // Number of translations should match number of requests:
+        assert batchSentences.size() == batchTranslatedSentences.size();
+        translatedSentences.addAll(batchTranslatedSentences);
+        // start a new batch
+        batchSentences.clear();
     }
 
     /**
@@ -319,9 +332,14 @@ public class DocumentContentTranslatorService {
 
         for (int contentIndex = 0; contentIndex < contents.size(); contentIndex++) {
             Node content = contents.get(contentIndex);
-            // if content is a (large) TextNode ie no child nodes:
+            // if content is a (large) TextNode, ie no child nodes, translate as large plain text
             if (content instanceof TextNode) {
-                warnings.add(maxLengthWarning(source, maxLength));
+                TextNode textNode = (TextNode) content;
+                StringTranslationResult textResult =
+                        translatePlainTextBySentences(doc, backendID,
+                                textNode.getWholeText(), maxLength);
+                textNode.text(textResult.getTranslation());
+                warnings.addAll(textResult.getWarnings());
             } else {
                 translateChildNodes(doc, backendID, mediaType, maxLength,
                         toElement, warnings, content);
@@ -358,8 +376,18 @@ public class DocumentContentTranslatorService {
                     child.replaceWith(replacement);
                 }
             } else {
-                // show warning if there are no more children under this node
-                warnings.add(maxLengthWarning(html, maxLength));
+                // if child is a (large) TextNode, ie no child nodes, translate as large plain text
+                if (child instanceof TextNode) {
+                    TextNode textNode = (TextNode) child;
+                    StringTranslationResult textResult =
+                            translatePlainTextBySentences(doc, backendID,
+                                    textNode.getWholeText(), maxLength);
+                    textNode.text(textResult.getTranslation());
+                    warnings.addAll(textResult.getWarnings());
+                } else {
+                    // show warning if there are no more children under this node
+                    warnings.add(maxLengthWarning(html, maxLength));
+                }
             }
             // size changes if child node is being translated
             childCount = content.childNodeSize();

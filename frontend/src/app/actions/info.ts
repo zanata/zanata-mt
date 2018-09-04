@@ -2,8 +2,7 @@ import { API_URL } from '../config'
 import * as Actions from '../constants/actions'
 import {
   buildAPIRequest,
-  getJsonHeaders,
-  getJsonHeadersWithoutAuth
+  getJsonHeaders
 } from './common'
 import { RSAA } from 'redux-api-middleware'
 import {CommonData} from "../types/models"
@@ -29,7 +28,7 @@ const getInfoAPI = () => {
     Actions.GET_INFO_FAILED
   ]
   return {
-    [RSAA]: buildAPIRequest(endpoint, 'GET', getJsonHeadersWithoutAuth(), apiTypes)
+    [RSAA]: buildAPIRequest(endpoint, 'GET', getJsonHeaders(), apiTypes)
   }
 }
 

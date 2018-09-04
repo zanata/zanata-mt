@@ -47,6 +47,12 @@ public abstract class ModelEntity implements Serializable {
     @Override
     public abstract int hashCode();
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "@"
+                + Integer.toHexString(hashCode()) + "[id=" + id + "]";
+    }
+
     public Date getCreationDate() {
         return creationDate != null ? new Date(creationDate.getTime()) : null;
     }

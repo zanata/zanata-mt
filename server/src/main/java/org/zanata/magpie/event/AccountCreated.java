@@ -65,7 +65,6 @@ public class AccountCreated {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getEmail(), getRoles());
     }
 }

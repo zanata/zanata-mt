@@ -4,7 +4,8 @@ import { RootState } from '../../reducers';
 import { getInfo } from '../../actions/info';
 import { Alert } from '../../components'
 import {ErrorData} from "../../types/models"
-import { Layout, Spin, Icon, Row, Col } from 'antd'
+import { Layout, Spin, Icon, Row, Col, notification } from 'antd'
+import {MSG_TYPE} from '../../constants/actions'
 const { Content } = Layout
 
 export interface Props {

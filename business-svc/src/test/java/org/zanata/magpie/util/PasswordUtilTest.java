@@ -1,6 +1,7 @@
 package org.zanata.magpie.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,12 @@ public class PasswordUtilTest {
     @Before
     public void setUp() {
         passwordUtil = new PasswordUtil();
+    }
+
+    @Test
+    public void testConstructorInvalidCost() {
+        assertThatThrownBy(() -> new PasswordUtil(-1))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

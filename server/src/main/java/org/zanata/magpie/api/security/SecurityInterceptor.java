@@ -20,7 +20,6 @@
  */
 package org.zanata.magpie.api.security;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,15 +28,18 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.APIConstant;
 import org.zanata.magpie.api.AuthenticatedAccount;
+import org.zanata.magpie.api.service.impl.AccountResourceImpl;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.AccountType;
 import org.zanata.magpie.model.Role;
@@ -45,39 +47,54 @@ import org.zanata.magpie.service.AccountService;
 
 import com.google.common.collect.Sets;
 
+import static org.zanata.magpie.api.service.impl.AccountResourceImpl.AUTH_HEADER;
+
 @javax.ws.rs.ext.Provider
 @RequestScoped
 public class SecurityInterceptor implements ContainerRequestFilter {
     private static final Logger log =
             LoggerFactory.getLogger(SecurityInterceptor.class);
+
     private Provider<String> initialPassword;
     private AccountService accountService;
+    private AccountResourceImpl accountResource;
     private AuthenticatedAccount authenticatedAccount;
 
     // list of api url that does not require authentication
     private static ImmutableList<String> PUBLIC_API;
 
     static {
-        PUBLIC_API = ImmutableList.of("/api/info");
+        PUBLIC_API = ImmutableList.of("/api/info", "/api/account/login");
     }
 
     @Inject
     public SecurityInterceptor(
             @InitialPassword Provider<String> initialPassword,
             AccountService accountService,
-            AuthenticatedAccount authenticatedAccount) {
+            AuthenticatedAccount authenticatedAccount,
+            AccountResourceImpl accountResource) {
         this.initialPassword = initialPassword;
         this.accountService = accountService;
+        this.accountResource = accountResource;
         this.authenticatedAccount = authenticatedAccount;
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext)
-            throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
         if (isPublicAPI(
                 requestContext.getUriInfo().getRequestUri().getPath())) {
             return;
         }
+        // try to authenticate with cookie
+        Cookie auth = requestContext.getCookies().get(AUTH_HEADER);
+        if (auth != null && StringUtils.isNotBlank(auth.getValue())) {
+            Response response = accountResource.login(auth.getValue());
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                return;
+            }
+        }
+
+        // try to authenticate with request headers
         String username =
                 requestContext.getHeaderString(APIConstant.HEADER_USERNAME);
         String password =

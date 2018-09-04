@@ -63,4 +63,12 @@ public class Locale extends ModelEntity {
     public int hashCode() {
         return getLocaleCode() != null ? getLocaleCode().hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "Locale{" +
+                "localeCode=" + localeCode +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
