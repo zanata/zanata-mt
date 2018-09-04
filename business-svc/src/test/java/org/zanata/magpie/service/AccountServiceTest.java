@@ -38,6 +38,12 @@ public class AccountServiceTest {
     }
 
     @Test
+    public void sillyConstructorTest() {
+        @SuppressWarnings("unused")
+        AccountService ignored = new AccountService();
+    }
+
+    @Test
     public final void canNotAuthenticateIfUsernameMatchesNothing() {
 
         given(accountDAO.findAccountByUsername("user")).willReturn(Optional.empty());

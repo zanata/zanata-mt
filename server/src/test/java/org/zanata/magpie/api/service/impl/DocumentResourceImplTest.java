@@ -465,7 +465,7 @@ public class DocumentResourceImplTest {
         verify(documentContentTranslatorService)
                 .translateDocument(doc, docContent, defaultProvider);
     }
-    
+
     @Test
     public void testTranslateFile() throws FileNotFoundException {
         Locale fromLocale = new Locale(LocaleCode.EN, "English");

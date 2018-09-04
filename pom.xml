@@ -63,7 +63,7 @@
     <cdi-api.version>1.2</cdi-api.version>
     <site-maven-plugin.version>0.12</site-maven-plugin.version>
     <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
-    <deltaspike.version>1.7.0</deltaspike.version>
+    <deltaspike.version>1.7.2</deltaspike.version>
 
     <!-- checkstyle/findbugs -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
@@ -150,13 +150,6 @@
         <groupId>javax.inject</groupId>
         <artifactId>javax.inject</artifactId>
         <version>1</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.spec.javax.ejb</groupId>
-        <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-        <version>1.0.2.Final</version>
         <scope>provided</scope>
       </dependency>
 
@@ -403,6 +396,17 @@
       <dependency>
         <groupId>org.apache.deltaspike.modules</groupId>
         <artifactId>deltaspike-security-module-impl</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-jpa-module-api</artifactId>
+        <version>${deltaspike.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-jpa-module-impl</artifactId>
         <version>${deltaspike.version}</version>
         <scope>runtime</scope>
       </dependency>
@@ -845,7 +849,7 @@
 
               <!-- CDI beans (so they can be proxied) -->
               <option>all-open:annotation=javax.enterprise.context.NormalScope</option>
-              <option>all-open:annotation=javax.ejb.Stateless</option>
+              <!--<option>all-open:annotation=javax.ejb.Stateless</option>-->
               <!-- Hibernate/JPA entities -->
               <option>all-open:annotation=javax.persistence.Entity</option>
               <!-- JUnit tests (CDI-Unit or Mockito) -->
@@ -854,7 +858,7 @@
               <!-- Create synthetic no-arg constructors for JPA entities and CDI beans: -->
               <option>no-arg:annotation=javax.persistence.Entity</option>
               <option>no-arg:annotation=javax.enterprise.context.NormalScope</option>
-              <option>no-arg:annotation=javax.ejb.Stateless</option>
+              <!--<option>no-arg:annotation=javax.ejb.Stateless</option>-->
             </pluginOptions>
           </configuration>
           <dependencies>

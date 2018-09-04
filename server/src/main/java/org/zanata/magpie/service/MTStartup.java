@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
+import org.apache.deltaspike.core.api.common.DeltaSpike;
 import org.apache.deltaspike.core.api.lifecycle.Initialized;
 import org.infinispan.Cache;
 import org.jetbrains.annotations.NotNull;
@@ -32,10 +32,10 @@ import org.zanata.magpie.annotation.DevMode;
 import org.zanata.magpie.annotation.InitialPassword;
 import org.zanata.magpie.api.dto.AccountDto;
 import org.zanata.magpie.event.AccountCreated;
-import org.zanata.magpie.exception.MTException;
 import org.zanata.magpie.model.BackendID;
 import org.zanata.magpie.model.Role;
 import org.zanata.magpie.util.PasswordUtil;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
@@ -47,8 +47,7 @@ import static org.zanata.magpie.producer.ResourceProducer.REPLICATE_CACHE;
  *
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  */
-@Singleton
-@Startup
+@ApplicationScoped
 public class MTStartup {
     private static final Logger log =
         LoggerFactory.getLogger(MTStartup.class);
@@ -61,32 +60,39 @@ public class MTStartup {
 
     private ConfigurationService configurationService;
     private AccountService accountService;
-
     private Cache<String, String> cache;
+    private ServletContext servletContext;
+    private boolean isDevMode;
+    private Set<BackendID> availableProviders;
 
-    public MTStartup() {
+    @SuppressWarnings("unused")
+    MTStartup() {
     }
 
     @Inject
     public MTStartup(ConfigurationService configurationService,
             AccountService accountService,
             @ClusteredCache(REPLICATE_CACHE)
-            Cache<String, String> replCache) {
+            Cache<String, String> replCache,
+            @DeltaSpike ServletContext servletContext,
+            @DevMode boolean isDevMode,
+            @BackEndProviders
+            Set<BackendID> availableProviders) {
         this.configurationService = configurationService;
         this.accountService = accountService;
-        cache = replCache;
+        this.cache = replCache;
+        this.servletContext = servletContext;
+        this.isDevMode = isDevMode;
+        this.availableProviders = availableProviders;
     }
 
-    @TransactionAttribute
-    public void onStartUp(
-        @Observes @Initialized ServletContext context,
-            @DevMode boolean isDevMode, @BackEndProviders
-            Set<BackendID> availableProviders)
-        throws MTException {
+    @PostConstruct
+    @VisibleForTesting
+    void postConstruct() {
         log.info("==========================================");
         log.info("==========================================");
         log.info("== " + APPLICATION_NAME + " ==");
-        readManifestInfo(context);
+        readManifestInfo(servletContext);
         log.info("==========================================");
         log.info("==========================================");
 
@@ -97,10 +103,14 @@ public class MTStartup {
         }
         log.info("Available backend providers: {}", availableProviders);
 
-        showInitialAdminCredentialIfNoAccountExists();
+        showInitialAdminCredentialIfNoAccountExists(accountService);
 
         log.info("Default backend provider: {}",
                 configurationService.getDefaultTranslationProvider(isDevMode));
+    }
+
+    public void init(@Observes @Initialized ServletContext context) {
+        // ensure this bean runs at startup
     }
 
     private void readManifestInfo(ServletContext context) {
@@ -125,7 +135,8 @@ public class MTStartup {
         }
     }
 
-    private void showInitialAdminCredentialIfNoAccountExists() {
+    private void showInitialAdminCredentialIfNoAccountExists(
+            AccountService accountService) {
         List<AccountDto> allAccounts = accountService.getAllAccounts(true);
         if (allAccounts.isEmpty()) {
 

@@ -30,14 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.AuthenticatedAccount;
@@ -68,7 +68,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getThrowableList
  * @author Alex Eng <a href="mailto:aeng@redhat.com">aeng@redhat.com</a>
  * @author Patrick Huang <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class PersistentTranslationService {
     private static final Logger LOG =
         LoggerFactory.getLogger(PersistentTranslationService.class);
@@ -120,7 +120,7 @@ public class PersistentTranslationService {
      * if not exist, get latest TF from DB with matching hash,
      * else from MT engine
      */
-    @TransactionAttribute
+    @Transactional
     public List<String> translate(@NotNull Document document,
             @NotNull List<String> sourceStrings,
             @NotNull Locale fromLocale, @NotNull Locale toLocale,

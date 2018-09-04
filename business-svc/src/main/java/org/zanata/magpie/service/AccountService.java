@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zanata.magpie.api.dto.AccountDto;
@@ -40,7 +40,7 @@ import org.zanata.magpie.util.PasswordUtil;
  * @author Patrick Huang
  *         <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class AccountService implements Serializable {
     private static final long serialVersionUID = -7045985475911143937L;
     private static final Logger log =
@@ -55,10 +55,10 @@ public class AccountService implements Serializable {
     }
 
     @SuppressWarnings("unused")
-    public AccountService() {
+    AccountService() {
     }
 
-    @TransactionAttribute
+    @Transactional
     public AccountDto registerNewAccount(AccountDto accountDto, String username,
             char[] password) {
         String passwordHash = passwordUtil.hash(password);
@@ -105,7 +105,7 @@ public class AccountService implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    @TransactionAttribute
+    @Transactional
     public boolean updateAccount(AccountDto accountDto) {
         Optional<Account> account =
                 accountDAO.findAccountByEmail(accountDto.getEmail());

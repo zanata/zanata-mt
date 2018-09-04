@@ -25,11 +25,16 @@ public class ConfigurationServiceTest {
 
     @Test
     public void testConstructor() throws IOException {
+        @SuppressWarnings("unused")
+        ConfigurationService ignored = new ConfigurationService();
+
         File googleADC = temporaryFolder.newFile();
         ConfigurationService config =
                 new ConfigurationService("clientSubscriptionKey",
                         googleADC.getAbsolutePath(), "{\"type\": \"service_account\"," +
                         "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\"}", "ms", null);
+        config.init(new Object());
+
         assertThat(config.getMsAPIKey()).isEqualTo("clientSubscriptionKey");
         assertThat(config.googleDefaultCredential().getCredentialsFile())
                 .isEqualTo(googleADC);

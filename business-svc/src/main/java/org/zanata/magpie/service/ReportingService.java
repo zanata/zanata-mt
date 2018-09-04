@@ -21,29 +21,25 @@
 package org.zanata.magpie.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.zanata.magpie.api.dto.LocaleCode;
 import org.zanata.magpie.api.dto.MTRequestStatistics;
-import org.zanata.magpie.dao.AccountDAO;
 import org.zanata.magpie.dao.TextFlowMTRequestDAO;
 import org.zanata.magpie.dto.DateRange;
 import org.zanata.magpie.model.Account;
 import org.zanata.magpie.model.Document;
 import org.zanata.magpie.model.TextFlowMTRequest;
 
-import com.google.common.collect.Lists;
-
 /**
  * @author Patrick Huang
  * <a href="mailto:pahuang@redhat.com">pahuang@redhat.com</a>
  */
-@Stateless
+@ApplicationScoped
 public class ReportingService {
     private TextFlowMTRequestDAO textFlowMTRequestDAO;
 
