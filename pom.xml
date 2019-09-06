@@ -13,7 +13,7 @@
       <name>okapi-cloudbees-release</name>
       <url>http://repository-okapi.forge.cloudbees.com/release/</url>
       <releases>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
