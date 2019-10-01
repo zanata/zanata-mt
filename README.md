@@ -18,7 +18,8 @@
 5. Logs: `mvn docker:logs -Ddocker.follow`
 6. To stop and remove: `mvn docker:stop` (This will stop and remove both containers)
 
-Alternatively, run `restart.sh`. It will rebuild the package and redeploy to docker containers. 
+Alternatively, run `rebuild.sh`. It will rebuild the package and redeploy to 
+docker containers. 
 
 ### DEV mode
 

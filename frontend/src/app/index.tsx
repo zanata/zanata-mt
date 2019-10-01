@@ -12,7 +12,7 @@ import {apiMiddleware} from 'redux-api-middleware'
 import {createLogger} from 'redux-logger'
 import {createStore, applyMiddleware, compose} from 'redux'
 import rootReducer, {RootState} from './reducers'
-import {App, Info, NavBar, TranslateFile} from './containers'
+import {App, Info, NavBar, Editor, TranslateFile} from './containers'
 import thunk from 'redux-thunk'
 import { NoMatch, Health } from './components'
 import { Layout } from 'antd'
@@ -76,6 +76,7 @@ ReactDOM.render(
           <Switch>
             <Route exact strict path="(/|/app|/app/)" component={App} />
             <Route path='/app/info' component={Info}/>
+            <Route path='/app/editor' component={Editor}/>
             <Route path='/app/health' component={Health}/>
             <Route path='/app/error' component={NoMatch}/>
             <PrivateRoute path='/app/translate' component={TranslateFile} />

@@ -25,7 +25,8 @@ export interface State {
 
 const items = [
   {name: 'Home', url: '/', icon: 'home'},
-  {name: 'Info', url: '/app/info', icon: 'info-circle'}
+  {name: 'Info', url: '/app/info', icon: 'info-circle'},
+  {name: 'Editor', url: '/app/editor', icon: 'file-text'}
 ]
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -67,9 +68,16 @@ export class NavBar extends React.Component<Props, State> {
 
   public render() {
     const {showLoginForm, handleLogin, isLoggedIn} = this.props
+      const username = 'username'
     return (
       <Sider collapsible={true}
           collapsed={this.state.collapsed} onCollapse={this.toggleNav}>
+          <div className="logo">
+              <img src='http://zanata.org/images/mtlogo.png'
+                   alt='magpie logo' />
+              <span>MagpieMT</span>
+          </div>
+          <a href="" className="username ellipsis" key="1">{username}</a>
         <Menu theme="dark" mode="inline"
           defaultSelectedKeys={[this.getSelectedKey()]}>
             {items.map((item, itemId) => {
