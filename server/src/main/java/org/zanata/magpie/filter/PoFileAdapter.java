@@ -132,6 +132,7 @@ public class PoFileAdapter implements TranslationFileAdapter {
                     // if we haven't written a header yet, generate one for the attribution
                     Message message = new Message();
                     message.addComment(attribution);
+                    message.setMsgid(entry.getValue().getMsgid());
                     poWriter.write(message, writer);
                     writer.write("\n");
                     haveInsertedAttribution = true;

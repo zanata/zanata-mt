@@ -9,8 +9,7 @@
 #
 FROM registry.access.redhat.com/jboss-eap-7/eap71-openshift:1.3-8.1533128020
 
-MAINTAINER "Alex Eng" <aeng@redhat.com>
-MAINTAINER "Patrick Huang" <pahuang@redhat.com>
+MAINTAINER "Nitish Sharma" <nisharma@redhat.com>
 
 EXPOSE 8080
 
