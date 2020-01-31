@@ -67,7 +67,7 @@
 
     <!-- checkstyle/findbugs -->
     <checkstyle.maven.version>2.17</checkstyle.maven.version>
-    <checkstyle.version>7.2</checkstyle.version>
+    <checkstyle.version>8.29</checkstyle.version>
     <checkstyle.skip>false</checkstyle.skip>
     <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     <enunciate.version>2.8.0</enunciate.version>
