@@ -56,7 +56,7 @@
     <infinispan.version>8.1.4.Final</infinispan.version>
     <docker-maven-plugin.version>0.26.1</docker-maven-plugin.version>
     <icu4j.version>58.2</icu4j.version>
-    <postgresql.version>42.2.6</postgresql.version>
+    <postgresql.version>42.2.25</postgresql.version>
     <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
     <enunciate.version>2.8.0</enunciate.version>
     <urlrewritefilter.version>4.0.4</urlrewritefilter.version>
