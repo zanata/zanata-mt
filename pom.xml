@@ -76,7 +76,7 @@
 
     <download.dir>${user.home}/Downloads</download.dir>
     <failsafe.version>2.19.1</failsafe.version>
-    <kotlin.version>1.2.60</kotlin.version>
+    <kotlin.version>1.6.0</kotlin.version>
     <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
     <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
